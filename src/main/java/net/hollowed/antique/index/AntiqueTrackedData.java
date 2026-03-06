@@ -9,7 +9,7 @@ public class AntiqueTrackedData {
 
     public static final EntityDataSerializer<MyriadToolComponent> MYRIAD_ATTRIBUTES = EntityDataSerializer.forValueType(MyriadToolComponent.PACKET_CODEC);
 
-    public static void init() {
+    public static void initialize() {
         FabricTrackedDataRegistry.register(Antiquities.id("myriad_tool_attributes"), MYRIAD_ATTRIBUTES);
     }
 }

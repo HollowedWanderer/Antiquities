@@ -94,6 +94,13 @@
       "bodies": 16
     },
     {
+      "model": "antique:sunset_cloth",
+      "color": "e8944d",
+      "length": 2.8,
+      "width": 0.166,
+      "bodies": 16
+    },
+    {
       "model": "antique:explosive_cloth",
       "color": "ff0000",
       "width": 0.066
@@ -166,13 +173,6 @@
     {
       "model": "antique:yak_cloth",
       "color": "2f3136",
-      "length": 2.8,
-      "width": 0.166,
-      "bodies": 16
-    },
-    {
-      "model": "antique:amber_cloth",
-      "color": "e8944d",
       "length": 2.8,
       "width": 0.166,
       "bodies": 16

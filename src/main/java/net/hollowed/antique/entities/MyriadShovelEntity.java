@@ -85,7 +85,7 @@ public class MyriadShovelEntity extends AbstractArrow {
 	}
 
 	public void summonPart() {
-		for (int i = 1; i < 9; i++) {
+		for (int i = 1; i < 8; i++) {
 			MyriadShovelPart entity = new MyriadShovelPart(AntiqueEntities.MYRIAD_SHOVEL_PART, this.level());
 			entity.setPos(this.position());
 			entity.setOwner(this);

@@ -18,7 +18,5 @@ public class AntiqueFeatures {
         return Registry.register(BuiltInRegistries.FEATURE, name, feature);
     }
 
-    public static void init() {
-
-    }
+    public static void initialize() {}
 }

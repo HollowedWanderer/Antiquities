@@ -51,17 +51,17 @@ public class Antiquities implements ModInitializer {
 	@SuppressWarnings("all")
 	@Override
 	public void onInitialize() {
-
+		
 		/*
 			Initializers
 		 */
 
 		AntiqueBlocks.initialize();
-		AntiqueScreenHandlerType.init();
-		AntiqueStats.init();
+		AntiqueScreenHandlerType.initialize();
+		AntiqueStats.initialize();
 		AntiqueEnchantments.initialize();
 		AntiqueBlockEntities.initialize();
-		AntiqueLootTableModifiers.modifyLootTables();
+		AntiqueLootTableModifiers.initialize();
 		AntiqueEntities.initialize();
 		AntiqueDataComponentTypes.initialize();
 		AntiqueParticles.initialize();
@@ -69,10 +69,11 @@ public class Antiquities implements ModInitializer {
 		AntiqueSounds.initialize();
 		AntiqueEffects.initialize();
 		AntiqueDispenserBehaviors.initialize();
-		AntiqueRecipeSerializer.init();
-		AntiquePlacedFeatures.init();
-		AntiqueFeatures.init();
-		AntiqueTrackedData.init();
+		AntiqueRecipeSerializer.initialize();
+		AntiquePlacedFeatures.initialize();
+		AntiqueFeatures.initialize();
+		AntiqueTrackedData.initialize();
+
 		MidnightConfig.init(MOD_ID, AntiquitiesConfig.class);
 
 		ResourceLoader.get(PackType.CLIENT_RESOURCES).registerReloader(id("staff_transforms"), new MyriadStaffTransformResourceReloadListener());
@@ -109,11 +110,6 @@ public class Antiquities implements ModInitializer {
 			Component Modification
 		 */
 
-		DefaultItemComponentEvents.MODIFY.register(ctx -> ctx.modify(
-				Predicate.isEqual(AntiqueItems.REVERENCE),
-				(builder, item) -> builder.set(DataComponents.ITEM_NAME, Component.translatable(item.getDescriptionId()).withColor(0xff5a00))
-
-		));
 		DefaultItemComponentEvents.MODIFY.register(ctx -> ctx.modify(
 				Predicate.isEqual(AntiqueItems.MIRAGE_SILK),
 				(builder, item) -> builder.set(DataComponents.ITEM_NAME, Component.translatable(item.getDescriptionId()).withColor(0xc57dbe))

@@ -23,13 +23,11 @@ public class MouseMixin {
 
     @Shadow @Final private Minecraft minecraft;
 
-    @SuppressWarnings("all")
-    @Inject(method = "onScroll", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/player/LocalPlayer;getInventory()Lnet/minecraft/world/entity/player/Inventory;", shift = At.Shift.BEFORE), cancellable = true)
+    @Inject(method = "onScroll", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/player/LocalPlayer;getInventory()Lnet/minecraft/world/entity/player/Inventory;"), cancellable = true)
     public void antique$makeSatchelScrollable(long window, double horizontal, double vertical, CallbackInfo ci, @Local int i) {
         if (AntiqueKeyBindings.showSatchel.isDown()) {
             if (minecraft.player == null) return;
             ItemStack satchel = minecraft.player.getItemBySlot(EquipmentSlot.LEGS);
-            if (satchel == null) return;
             if (satchel.getItem() instanceof SatchelItem satchelItem && satchel.get(AntiqueDataComponentTypes.SATCHEL_STACK) != null && !Objects.requireNonNull(satchel.get(AntiqueDataComponentTypes.SATCHEL_STACK)).isEmpty() && !minecraft.player.isShiftKeyDown()) {
                 satchelItem.setIndex(ScrollWheelHandler.getNextScrollWheelSelection(i, satchelItem.getIndex(), 8));
                 ci.cancel();

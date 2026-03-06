@@ -155,7 +155,5 @@ public interface AntiqueBlocks {
                 ));
     }
 
-    static void initialize() {
-        Antiquities.LOGGER.info("Antiquities Blocks Initialized");
-    }
+    static void initialize() {}
 }

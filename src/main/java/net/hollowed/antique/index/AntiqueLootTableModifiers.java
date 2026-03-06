@@ -25,7 +25,7 @@ public class AntiqueLootTableModifiers {
             Identifier.withDefaultNamespace("chests/village/village_tannery")
     };
 
-    public static void modifyLootTables() {
+    public static void initialize() {
         LootTableEvents.MODIFY.register((id, tableBuilder, source, registries) -> {
 
             // Add Hollow Core to trial vault

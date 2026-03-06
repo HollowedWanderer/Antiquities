@@ -15,7 +15,6 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Rarity;
 import net.minecraft.world.item.ShearsItem;
 import net.minecraft.world.item.SpawnEggItem;
-import net.minecraft.world.item.ToolMaterial;
 import net.minecraft.world.item.component.DyedItemColor;
 import net.minecraft.world.item.component.InstrumentComponent;
 import net.minecraft.world.item.equipment.ArmorType;
@@ -86,20 +85,6 @@ public interface AntiqueItems {
             .rarity(Rarity.UNCOMMON)
             .durability(313)
     ));
-    Item PALE_WARDENS_GREATSWORD = register("pale_wardens_greatsword", settings -> new Item(settings.stacksTo(1)
-            .attributes(ScepterItem.createAttributeModifiers())
-            .sword(ToolMaterial.NETHERITE, 1.0F, -2.4F)
-            .enchantable(10)
-            .rarity(Rarity.RARE)
-            .durability(2031)
-    ));
-    Item REVERENCE = register("reverence", settings -> new ReverenceItem(settings.stacksTo(1)
-            .attributes(ReverenceItem.createAttributeModifiers())
-            .enchantable(10)
-            .rarity(Rarity.EPIC)
-            .durability(2031)
-            .fireResistant()
-    ));
     Item CRYOSCYTHE = register("cryoscythe", settings -> new DeathItem(settings.stacksTo(1)
             .attributes(DeathItem.createAttributeModifiers())
             .enchantable(10).rarity(Rarity.EPIC)
@@ -144,20 +129,11 @@ public interface AntiqueItems {
             .rarity(Rarity.UNCOMMON)
             .fireResistant()
     ));
-    @SuppressWarnings("unused")
-    Item DORMANT_REVERENCE = register("dormant_reverence", settings -> new ReverenceItem(settings.stacksTo(1)
-            .attributes(ReverenceItem.createAttributeModifiers())
-            .enchantable(10)
-            .rarity(Rarity.EPIC)
-            .durability(2031)
-    ));
-    @SuppressWarnings("all")
+    @SuppressWarnings("deprecation")
     Item WARHORN = register("warhorn", settings -> new InstrumentItem(settings.stacksTo(1)
             .component(DataComponents.INSTRUMENT, new InstrumentComponent(AntiqueInstruments.WARHORN))
             .rarity(Rarity.UNCOMMON)
     ));
-    @SuppressWarnings("unused")
-    Item PALE_WARDEN_STATUE = register("pale_warden_statue", settings -> new PaleWardenSpawnEggItem(AntiqueEntities.PALE_WARDEN, settings.stacksTo(64)));
     Item ILLUSIONER_SPAWN_EGG = register("illusioner_spawn_egg", settings -> new SpawnEggItem(settings.stacksTo(64)
             .spawnEgg(AntiqueEntities.ILLUSIONER)
     ));
@@ -168,7 +144,5 @@ public interface AntiqueItems {
         return Registry.register(BuiltInRegistries.ITEM, key, item);
     }
 
-    static void initialize() {
-        Antiquities.LOGGER.info("Antiquities Items Initialized");
-    }
+    static void initialize() {}
 }

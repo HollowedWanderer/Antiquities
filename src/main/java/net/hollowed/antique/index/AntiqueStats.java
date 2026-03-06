@@ -18,5 +18,5 @@ public class AntiqueStats {
         return identifier;
     }
 
-    public static void init() {}
+    public static void initialize() {}
 }

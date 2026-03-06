@@ -61,7 +61,8 @@ public abstract class FirstPersonHeldItemRendererMixin {
                 }
                 manager = renderMode == ItemDisplayContext.FIRST_PERSON_RIGHT_HAND ? ClothManager.getOrCreate(entity, Antiquities.id(entity.getId() + "_first_person_right_arm")) : ClothManager.getOrCreate(entity, Antiquities.id(entity.getId() + "_first_person_left_arm"));
                 switch (renderMode) {
-                    case ItemDisplayContext.NONE -> manager = ClothManager.getOrCreate(entity, Antiquities.id(entity.getId() + "_back"));
+                    case ItemDisplayContext.NONE ->
+                            manager = ClothManager.getOrCreate(entity, Antiquities.id(entity.getId() + "_back"));
                     case ItemDisplayContext.GUI -> manager = null;
                 }
                 if (player.getInventory().getItem(42).equals(stack)) {

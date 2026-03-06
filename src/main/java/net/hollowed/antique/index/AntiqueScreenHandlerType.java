@@ -24,5 +24,5 @@ public class AntiqueScreenHandlerType implements FeatureElement {
 		return null;
 	}
 
-	public static void init() {}
+	public static void initialize() {}
 }

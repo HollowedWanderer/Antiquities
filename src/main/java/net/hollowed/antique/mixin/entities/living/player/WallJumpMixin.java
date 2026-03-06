@@ -179,16 +179,16 @@ public abstract class WallJumpMixin extends Entity implements Attackable {
         }
 
         if (entity instanceof Player player) {
-            if ((player.horizontalCollision || player.onGround()) && this.jumpingCooldown1 <= 2) this.canWallJump = true;
+            if ((player.horizontalCollision || player.onGround()) && this.jumpingCooldown1 <= 1) this.canWallJump = true;
 
-            if (ItemHoldingUtil.isHoldingItem(player, Identifier.fromNamespaceAndPath(Antiquities.MOD_ID, "walljumper")) && jumping && (this.onClimbable() || this.coyoteWallJumpTicks > 0) && this.jumpingCooldown1 == 0 && this.canWallJump) {
+            if (ItemHoldingUtil.isHoldingItem(player, Identifier.fromNamespaceAndPath(Antiquities.MOD_ID, "walljumper")) && jumping && (this.horizontalCollision || this.coyoteWallJumpTicks > 0) && this.jumpingCooldown1 == 0 && this.canWallJump) {
                 this.canWallJump = false;
 
                 if (player instanceof LocalPlayer) {
                     ClientPlayNetworking.send(new WallJumpPacketPayload(entity.getId()));
                 }
 
-                Vec3 pushVector = new Vec3(0, 0.8, 0);
+                Vec3 pushVector = new Vec3(0, 0.7, 0);
 
                 AABB box = entity.getBoundingBox();
                 double offset = 0.35;
@@ -258,7 +258,7 @@ public abstract class WallJumpMixin extends Entity implements Attackable {
             }
         }
         if (entity.onGround()) {
-            this.jumpingCooldown1 = 7;
+            this.jumpingCooldown1 = entity.isSwimming() ? 5 : 7;
             if (entity instanceof FastAir access) {
                 access.antique$setFast(false);
             }

@@ -16,7 +16,7 @@ public interface AntiqueRecipeSerializer {
             "crafting_special_pattern_glow", new ClothPatternGlowRecipe.Serializer()
     );
 
-    static void init() {}
+    static void initialize() {}
 
     static <S extends RecipeSerializer<@NotNull T>, T extends Recipe<?>> S register(String id, S serializer) {
         return Registry.register(BuiltInRegistries.RECIPE_SERIALIZER, "antique:" + id, serializer);

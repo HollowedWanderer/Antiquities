@@ -59,6 +59,10 @@ public class ClothManager {
         }
     }
 
+    // TODO: Abstract literally all of this right here please.
+    //  It Does Not Work with Iris Rendering which is a HUGE PROBLEM.
+    //  FIX IT IMMEDIATELY - lmao nah (me like 2 days later).
+
     public void tick(float gravityMultiplier, float waterGravityMultiplier, double length) {
         double delta = Minecraft.getInstance().getDeltaTracker().getGameTimeDeltaTicks();
         ClientLevel world = Minecraft.getInstance().level;
@@ -95,7 +99,7 @@ public class ClothManager {
                 double smoothDrag = Mth.lerp(delta * 0.1, previousDrag, newDrag);
 
                 // Apply gravity
-                var gravity = 0.05 * gravityMultiplier;
+                double gravity = 0.05 * gravityMultiplier;
                 if(state.getBlock() == Blocks.WATER) {
                     gravity *= waterGravityMultiplier;
                 }
@@ -144,7 +148,7 @@ public class ClothManager {
         }
 
         // Update parent position
-        var root = bodies.getFirst();
+        ClothBody root = bodies.getFirst();
         root.pos = new Vector3d(pos);
 
         // Check if cloth is too far from the root position
@@ -189,6 +193,7 @@ public class ClothManager {
         return null;
     }
 
+    // TODO: This needs to not have the gravity, waterGravity, and length as parameters to allow for the physics to be abstracted
     public void renderCloth(PoseStack matrices, SubmitNodeCollector queue, int light, boolean glow, Color color, Color overlayColor, Identifier cloth, Identifier overlay, double length, double width, float gravity, float waterGravity, int bodyCount) {
         if (cloth == null) return;
 
@@ -213,13 +218,14 @@ public class ClothManager {
 
         matrices.pushPose();
         int count = bodies.size() - 1;
+
         for (int i = 0; i < count; i++) {
 
             ClothBody body = bodies.get(i);
             ClothBody nextBody = bodies.get(i + 1);
 
-            var pos = body.getPos();
-            var nextPos = nextBody.getPos();
+            Vector3d pos = body.getPos();
+            Vector3d nextPos = nextBody.getPos();
 
             float uvTop = (1f / count) * i;
             float uvBot = uvTop + (1f / count);
@@ -251,7 +257,7 @@ public class ClothManager {
             lastThicknessVec = thicknessVec;
 
             RenderType clothLayer = getClothRenderLayer(cloth);
-            String clothType = !Objects.equals(cloth.getPath(), "cloth") ? cloth.getPath().substring(0, cloth.getPath().indexOf("_")) : "default";
+            String clothType = !Objects.equals(cloth.getPath(), "cloth") ? !cloth.getPath().isEmpty() ? cloth.getPath().substring(0, cloth.getPath().indexOf("_")) : "default" : "default";
             RenderType overlayLayer = getOverlayRenderLayer("_" + clothType, overlay);
 
             drawQuad(
@@ -276,31 +282,27 @@ public class ClothManager {
     }
 
     public void drawQuad(PoseStack matrices, Matrix4f matrix, RenderType layer, @Nullable RenderType overlay, SubmitNodeCollector queue, Vector3d posA, Vector3d posB, Vector3d posC, Vector3d posD, Vec2 uvA, Vec2 uvB, Vec2 uvC, Vec2 uvD, int light, boolean glow, Color color, Color overlayColor) {
-        var cam = Minecraft.getInstance().gameRenderer.getMainCamera().position().multiply(-1, -1, -1);
+        Vec3 cam = Minecraft.getInstance().gameRenderer.getMainCamera().position().multiply(-1, -1, -1);
 
-        queue.order(1).submitCustomGeometry(matrices, layer, ((matricesEntry, vertexConsumer) -> {
-            vertexConsumer.addVertex(matrix, (float) ((float) posD.x + cam.x), (float) ((float) posD.y + cam.y), (float) ((float) posD.z + cam.z)).setOverlay(OverlayTexture.NO_OVERLAY).setNormal(0, 1, 0).setLight(light).setUv(uvD.x, uvD.y).setColor(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha());
-            vertexConsumer.addVertex(matrix, (float) ((float) posC.x + cam.x), (float) ((float) posC.y + cam.y), (float) ((float) posC.z + cam.z)).setOverlay(OverlayTexture.NO_OVERLAY).setNormal(0, 1, 0).setLight(light).setUv(uvC.x, uvC.y).setColor(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha());
-            vertexConsumer.addVertex(matrix, (float) ((float) posB.x + cam.x), (float) ((float) posB.y + cam.y), (float) ((float) posB.z + cam.z)).setOverlay(OverlayTexture.NO_OVERLAY).setNormal(0, 1, 0).setLight(light).setUv(uvB.x, uvB.y).setColor(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha());
-            vertexConsumer.addVertex(matrix, (float) ((float) posA.x + cam.x), (float) ((float) posA.y + cam.y), (float) ((float) posA.z + cam.z)).setOverlay(OverlayTexture.NO_OVERLAY).setNormal(0, 1, 0).setLight(light).setUv(uvA.x, uvA.y).setColor(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha());
+        for (int i = 0; i < 2; i++) {
+            if (i == 1) {
+                if (overlay == null) break;
+                color = overlayColor;
+                light = glow ? 255 : light;
+            }
+            Color finalColor = color;
+            int finalLight = light;
 
-            vertexConsumer.addVertex(matrix, (float) ((float) posA.x + cam.x), (float) ((float) posA.y + cam.y), (float) ((float) posA.z + cam.z)).setOverlay(OverlayTexture.NO_OVERLAY).setNormal(0, 1, 0).setLight(light).setUv(uvA.x, uvA.y).setColor(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha());
-            vertexConsumer.addVertex(matrix, (float) ((float) posB.x + cam.x), (float) ((float) posB.y + cam.y), (float) ((float) posB.z + cam.z)).setOverlay(OverlayTexture.NO_OVERLAY).setNormal(0, 1, 0).setLight(light).setUv(uvB.x, uvB.y).setColor(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha());
-            vertexConsumer.addVertex(matrix, (float) ((float) posC.x + cam.x), (float) ((float) posC.y + cam.y), (float) ((float) posC.z + cam.z)).setOverlay(OverlayTexture.NO_OVERLAY).setNormal(0, 1, 0).setLight(light).setUv(uvC.x, uvC.y).setColor(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha());
-            vertexConsumer.addVertex(matrix, (float) ((float) posD.x + cam.x), (float) ((float) posD.y + cam.y), (float) ((float) posD.z + cam.z)).setOverlay(OverlayTexture.NO_OVERLAY).setNormal(0, 1, 0).setLight(light).setUv(uvD.x, uvD.y).setColor(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha());
-        }));
+            queue.order(i + 1).submitCustomGeometry(matrices, i == 1 ? overlay : layer, ((matricesEntry, vertexConsumer) -> {
+                vertexConsumer.addVertex(matrix, (float) ((float) posD.x + cam.x), (float) ((float) posD.y + cam.y), (float) ((float) posD.z + cam.z)).setOverlay(OverlayTexture.NO_OVERLAY).setNormal(0, 1, 0).setLight(finalLight).setUv(uvD.x, uvD.y).setColor(finalColor.getRed(), finalColor.getGreen(), finalColor.getBlue(), finalColor.getAlpha());
+                vertexConsumer.addVertex(matrix, (float) ((float) posC.x + cam.x), (float) ((float) posC.y + cam.y), (float) ((float) posC.z + cam.z)).setOverlay(OverlayTexture.NO_OVERLAY).setNormal(0, 1, 0).setLight(finalLight).setUv(uvC.x, uvC.y).setColor(finalColor.getRed(), finalColor.getGreen(), finalColor.getBlue(), finalColor.getAlpha());
+                vertexConsumer.addVertex(matrix, (float) ((float) posB.x + cam.x), (float) ((float) posB.y + cam.y), (float) ((float) posB.z + cam.z)).setOverlay(OverlayTexture.NO_OVERLAY).setNormal(0, 1, 0).setLight(finalLight).setUv(uvB.x, uvB.y).setColor(finalColor.getRed(), finalColor.getGreen(), finalColor.getBlue(), finalColor.getAlpha());
+                vertexConsumer.addVertex(matrix, (float) ((float) posA.x + cam.x), (float) ((float) posA.y + cam.y), (float) ((float) posA.z + cam.z)).setOverlay(OverlayTexture.NO_OVERLAY).setNormal(0, 1, 0).setLight(finalLight).setUv(uvA.x, uvA.y).setColor(finalColor.getRed(), finalColor.getGreen(), finalColor.getBlue(), finalColor.getAlpha());
 
-        if (overlay != null) {
-            queue.order(2).submitCustomGeometry(matrices, overlay, ((matricesEntry, vertexConsumer) -> {
-                vertexConsumer.addVertex(matrix, (float) ((float) posD.x + cam.x), (float) ((float) posD.y + cam.y), (float) ((float) posD.z + cam.z)).setOverlay(OverlayTexture.NO_OVERLAY).setNormal(0, 1, 0).setLight(glow ? 255 : light).setUv(uvD.x, uvD.y).setColor(overlayColor.getRed(), overlayColor.getGreen(), overlayColor.getBlue(), overlayColor.getAlpha());
-                vertexConsumer.addVertex(matrix, (float) ((float) posC.x + cam.x), (float) ((float) posC.y + cam.y), (float) ((float) posC.z + cam.z)).setOverlay(OverlayTexture.NO_OVERLAY).setNormal(0, 1, 0).setLight(glow ? 255 : light).setUv(uvC.x, uvC.y).setColor(overlayColor.getRed(), overlayColor.getGreen(), overlayColor.getBlue(), overlayColor.getAlpha());
-                vertexConsumer.addVertex(matrix, (float) ((float) posB.x + cam.x), (float) ((float) posB.y + cam.y), (float) ((float) posB.z + cam.z)).setOverlay(OverlayTexture.NO_OVERLAY).setNormal(0, 1, 0).setLight(glow ? 255 : light).setUv(uvB.x, uvB.y).setColor(overlayColor.getRed(), overlayColor.getGreen(), overlayColor.getBlue(), overlayColor.getAlpha());
-                vertexConsumer.addVertex(matrix, (float) ((float) posA.x + cam.x), (float) ((float) posA.y + cam.y), (float) ((float) posA.z + cam.z)).setOverlay(OverlayTexture.NO_OVERLAY).setNormal(0, 1, 0).setLight(glow ? 255 : light).setUv(uvA.x, uvA.y).setColor(overlayColor.getRed(), overlayColor.getGreen(), overlayColor.getBlue(), overlayColor.getAlpha());
-
-                vertexConsumer.addVertex(matrix, (float) ((float) posA.x + cam.x), (float) ((float) posA.y + cam.y), (float) ((float) posA.z + cam.z)).setOverlay(OverlayTexture.NO_OVERLAY).setNormal(0, 1, 0).setLight(glow ? 255 : light).setUv(uvA.x, uvA.y).setColor(overlayColor.getRed(), overlayColor.getGreen(), overlayColor.getBlue(), overlayColor.getAlpha());
-                vertexConsumer.addVertex(matrix, (float) ((float) posB.x + cam.x), (float) ((float) posB.y + cam.y), (float) ((float) posB.z + cam.z)).setOverlay(OverlayTexture.NO_OVERLAY).setNormal(0, 1, 0).setLight(glow ? 255 : light).setUv(uvB.x, uvB.y).setColor(overlayColor.getRed(), overlayColor.getGreen(), overlayColor.getBlue(), overlayColor.getAlpha());
-                vertexConsumer.addVertex(matrix, (float) ((float) posC.x + cam.x), (float) ((float) posC.y + cam.y), (float) ((float) posC.z + cam.z)).setOverlay(OverlayTexture.NO_OVERLAY).setNormal(0, 1, 0).setLight(glow ? 255 : light).setUv(uvC.x, uvC.y).setColor(overlayColor.getRed(), overlayColor.getGreen(), overlayColor.getBlue(), overlayColor.getAlpha());
-                vertexConsumer.addVertex(matrix, (float) ((float) posD.x + cam.x), (float) ((float) posD.y + cam.y), (float) ((float) posD.z + cam.z)).setOverlay(OverlayTexture.NO_OVERLAY).setNormal(0, 1, 0).setLight(glow ? 255 : light).setUv(uvD.x, uvD.y).setColor(overlayColor.getRed(), overlayColor.getGreen(), overlayColor.getBlue(), overlayColor.getAlpha());
+                vertexConsumer.addVertex(matrix, (float) ((float) posA.x + cam.x), (float) ((float) posA.y + cam.y), (float) ((float) posA.z + cam.z)).setOverlay(OverlayTexture.NO_OVERLAY).setNormal(0, 1, 0).setLight(finalLight).setUv(uvA.x, uvA.y).setColor(finalColor.getRed(), finalColor.getGreen(), finalColor.getBlue(), finalColor.getAlpha());
+                vertexConsumer.addVertex(matrix, (float) ((float) posB.x + cam.x), (float) ((float) posB.y + cam.y), (float) ((float) posB.z + cam.z)).setOverlay(OverlayTexture.NO_OVERLAY).setNormal(0, 1, 0).setLight(finalLight).setUv(uvB.x, uvB.y).setColor(finalColor.getRed(), finalColor.getGreen(), finalColor.getBlue(), finalColor.getAlpha());
+                vertexConsumer.addVertex(matrix, (float) ((float) posC.x + cam.x), (float) ((float) posC.y + cam.y), (float) ((float) posC.z + cam.z)).setOverlay(OverlayTexture.NO_OVERLAY).setNormal(0, 1, 0).setLight(finalLight).setUv(uvC.x, uvC.y).setColor(finalColor.getRed(), finalColor.getGreen(), finalColor.getBlue(), finalColor.getAlpha());
+                vertexConsumer.addVertex(matrix, (float) ((float) posD.x + cam.x), (float) ((float) posD.y + cam.y), (float) ((float) posD.z + cam.z)).setOverlay(OverlayTexture.NO_OVERLAY).setNormal(0, 1, 0).setLight(finalLight).setUv(uvD.x, uvD.y).setColor(finalColor.getRed(), finalColor.getGreen(), finalColor.getBlue(), finalColor.getAlpha());
             }));
         }
     }

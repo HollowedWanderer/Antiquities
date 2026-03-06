@@ -1,9 +1,0 @@
-{
-	"parent": "minecraft:item/handheld",
-	"textures": {
-		"layer0": "antique:item/cloth/amber_cloth_hand",
-		"layer1": "antique:item/cloth/amber_cloth_item",
-		"layer2": "antique:item/cloth/amber_cloth_hand_large",
-		"layer3": "antique:item/cloth/amber_cloth_item_large"
-	}
-}

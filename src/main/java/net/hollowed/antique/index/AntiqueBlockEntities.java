@@ -15,7 +15,5 @@ public interface AntiqueBlockEntities {
                     FabricBlockEntityTypeBuilder.create(PedestalBlockEntity::new,
                             AntiqueBlocks.PEDESTAL).build());
 
-    static void initialize() {
-        Antiquities.LOGGER.info("Antiquities Block Entities Initialized");
-    }
+    static void initialize() {}
 }

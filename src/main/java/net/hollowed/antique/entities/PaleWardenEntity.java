@@ -39,7 +39,7 @@ public class PaleWardenEntity extends PathfinderMob {
     public PaleWardenEntity(EntityType<? extends PathfinderMob> entityType, Level world) {
         super(entityType, world);
         if (Minecraft.getInstance().player != null) {
-            ClientPlayNetworking.send(new PaleWardenTickPacketPayload(this.getId(), AntiqueItems.PALE_WARDENS_GREATSWORD.getDefaultInstance(), ItemStack.EMPTY));
+            ClientPlayNetworking.send(new PaleWardenTickPacketPayload(this.getId(), AntiqueItems.MYRIAD_PICK_HEAD.getDefaultInstance(), ItemStack.EMPTY));
         }
     }
 

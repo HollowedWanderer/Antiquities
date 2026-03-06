@@ -1,6 +1,6 @@
 {
   "parent": "minecraft:item/generated",
   "textures": {
-    "layer0": "antique:item/amber_cloth"
+    "layer0": "antique:item/sunset_cloth"
   }
 }
