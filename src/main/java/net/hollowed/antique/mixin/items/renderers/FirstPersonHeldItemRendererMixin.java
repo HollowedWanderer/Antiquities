@@ -5,8 +5,8 @@ import net.hollowed.antique.client.renderer.cloth.ClothManager;
 import net.hollowed.antique.index.AntiqueDataComponentTypes;
 import net.hollowed.antique.index.AntiqueItems;
 import net.hollowed.antique.items.components.MyriadToolComponent;
+import net.hollowed.antique.util.resources.ClientClothData;
 import net.hollowed.antique.util.resources.ClothSkinData;
-import net.hollowed.antique.util.resources.ClothSkinListener;
 import net.hollowed.combatamenities.util.items.CAComponents;
 import net.minecraft.client.renderer.ItemInHandRenderer;
 import net.minecraft.client.renderer.SubmitNodeCollector;
@@ -45,6 +45,10 @@ public abstract class FirstPersonHeldItemRendererMixin {
 
         if (entity instanceof Player player) {
             if (stack.is(AntiqueItems.MYRIAD_TOOL)) {
+                ClothSkinData.ClothSubData data = ClientClothData.getTransform(stack.getOrDefault(AntiqueDataComponentTypes.MYRIAD_TOOL, Antiquities.getDefaultMyriadTool()).clothType());
+
+                MyriadToolComponent component = stack.getOrDefault(AntiqueDataComponentTypes.MYRIAD_TOOL, Antiquities.getDefaultMyriadTool());
+
                 if (renderMode != ItemDisplayContext.NONE) {
                     matrices.translate(0, -0.1, 0.1);
                 }
@@ -59,34 +63,25 @@ public abstract class FirstPersonHeldItemRendererMixin {
                 )) {
                     matrices.translate(-0.15, -0.15, 0);
                 }
-                manager = renderMode == ItemDisplayContext.FIRST_PERSON_RIGHT_HAND ? ClothManager.getOrCreate(entity, Antiquities.id(entity.getId() + "_first_person_right_arm")) : ClothManager.getOrCreate(entity, Antiquities.id(entity.getId() + "_first_person_left_arm"));
+                manager = renderMode == ItemDisplayContext.FIRST_PERSON_RIGHT_HAND ? ClothManager.getOrCreate(entity, Antiquities.id(entity.getId() + "_first_person_right_arm"), data) : ClothManager.getOrCreate(entity, Antiquities.id(entity.getId() + "_first_person_left_arm"), data);
                 switch (renderMode) {
                     case ItemDisplayContext.NONE ->
-                            manager = ClothManager.getOrCreate(entity, Antiquities.id(entity.getId() + "_back"));
+                            manager = ClothManager.getOrCreate(entity, Antiquities.id(entity.getId() + "_back"), data);
                     case ItemDisplayContext.GUI -> manager = null;
                 }
                 if (player.getInventory().getItem(42).equals(stack)) {
-                    manager = ClothManager.getOrCreate(entity, Antiquities.id(entity.getId() + "_belt"));
+                    manager = ClothManager.getOrCreate(entity, Antiquities.id(entity.getId() + "_belt"), data);
                 }
                 if (manager != null) {
-                    ClothSkinData.ClothSubData data = ClothSkinListener.getTransform(stack.getOrDefault(AntiqueDataComponentTypes.MYRIAD_TOOL, Antiquities.getDefaultMyriadTool()).clothType());
-
-                    MyriadToolComponent component = stack.getOrDefault(AntiqueDataComponentTypes.MYRIAD_TOOL, Antiquities.getDefaultMyriadTool());
-
                     manager.renderCloth(
+                            data,
                             matrices,
                             orderedRenderCommandQueue,
-                            data.light() != 0 ? data.light() : light,
+                            light,
                             stack.getOrDefault(CAComponents.BOOLEAN_PROPERTY, false),
-                            data.dyeable() ? new Color(component.clothColor()) : Color.WHITE,
+                            new Color(component.clothColor()),
                             new Color(component.patternColor()),
-                            !component.clothType().isEmpty() ? data.model() : null,
-                            Identifier.parse(component.clothPattern()),
-                            data.length() != 0 ? data.length() : 1.4,
-                            data.width() != 0 ? data.width() : 0.1,
-                            data.gravity(),
-                            data.waterGravity(),
-                            data.bodyAmount() != 0 ? data.bodyAmount() : 8
+                            Identifier.parse(component.clothPattern())
                     );
                 }
             }

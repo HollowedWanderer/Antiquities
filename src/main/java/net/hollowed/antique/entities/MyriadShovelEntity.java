@@ -9,6 +9,7 @@ import net.hollowed.antique.index.AntiqueEntities;
 import net.hollowed.antique.entities.parts.MyriadShovelPart;
 import net.hollowed.antique.index.AntiqueTrackedData;
 import net.hollowed.antique.items.components.MyriadToolComponent;
+import net.hollowed.antique.util.interfaces.duck.ClothAccess;
 import net.hollowed.combatamenities.index.CAParticles;
 import net.hollowed.combatamenities.util.items.CAComponents;
 import net.minecraft.network.syncher.EntityDataAccessor;
@@ -122,6 +123,11 @@ public class MyriadShovelEntity extends AbstractArrow {
 
 	@Override
 	public void tick() {
+		if (this instanceof ClothAccess clothAccess) {
+			if (this.level().isClientSide()) {
+				clothAccess.antique$tickManagers();
+			}
+		}
 		if (this.inGroundTime > 4) {
 			this.dealtDamage = true;
 		}

@@ -30,7 +30,9 @@ public class ClothBody {
         Vector3d velocity = new Vector3d(pos).sub(posCache).mul(0.96); // Apply drag here
         posCache.set(pos);
         Vector3d accelerationTerm = new Vector3d(accel).mul(delta * 0.5);
-        if (!isPinned) pos.add(velocity).add(accelerationTerm);
+        if (!isPinned) {
+            pos.add(velocity).add(accelerationTerm);
+        }
         accel.zero();
     }
 
@@ -97,7 +99,9 @@ public class ClothBody {
             }
         }
 
-        if (!isPinned && collisionAccel.length() < 0.15) pos = new Vector3d(x + dx, y + dy, z + dz);
+        if (!isPinned && collisionAccel.length() < 0.15) {
+            pos = new Vector3d(x + dx, y + dy, z + dz);
+        }
         return new Vector3d(accel).add(collisionAccel);
     }
 
@@ -144,7 +148,9 @@ public class ClothBody {
             }
         }
 
-        if (!isPinned) pos = new Vector3d(x + dx, y + dy, z + dz);
+        if (!isPinned) {
+            pos = new Vector3d(x + dx, y + dy, z + dz);
+        }
     }
 
     // Helper to find overlap between two intervals

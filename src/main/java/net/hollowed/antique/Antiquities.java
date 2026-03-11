@@ -93,6 +93,9 @@ public class Antiquities implements ModInitializer {
 		PayloadTypeRegistry.playC2S().register(CrawlPacketPayload.ID, CrawlPacketPayload.CODEC);
 		PayloadTypeRegistry.playC2S().register(DyePacketPayload.ID, DyePacketPayload.CODEC);
 		PayloadTypeRegistry.playS2C().register(IllusionerParticlePacketPayload.ID, IllusionerParticlePacketPayload.CODEC);
+		PayloadTypeRegistry.playS2C().register(ClothSkinPacketPayload.ID, ClothSkinPacketPayload.CODEC);
+		PayloadTypeRegistry.playS2C().register(ClothOverlayPacketPayload.ID, ClothOverlayPacketPayload.CODEC);
+		PayloadTypeRegistry.playS2C().register(AddClothItemsPayload.ID, AddClothItemsPayload.CODEC);
 
 		SatchelPacketReceiver.registerServerPacket();
 		PaleWardenTickPacketReceiver.registerServerPacket();
@@ -148,7 +151,6 @@ public class Antiquities implements ModInitializer {
 		Registry.register(BuiltInRegistries.CREATIVE_MODE_TAB, ANTIQUITIES_BLOCKS_GROUP_KEY, ANTIQUITIES_BLOCKS_GROUP);
 		Registry.register(BuiltInRegistries.CREATIVE_MODE_TAB, ANTIQUITIES_CLOTHS_GROUP_KEY, ANTIQUITIES_CLOTHS_GROUP);
 		addItems();
-		addClothItems();
 
 		ItemGroupEvents.modifyEntriesEvent(CreativeModeTabs.SPAWN_EGGS).register(itemGroup -> {
 			itemGroup.addAfter(Items.WITCH_SPAWN_EGG, AntiqueItems.ILLUSIONER_SPAWN_EGG);
@@ -265,7 +267,7 @@ public class Antiquities implements ModInitializer {
 
 	public static void addClothItems() {
 		ItemGroupEvents.modifyEntriesEvent(ANTIQUITIES_CLOTHS_GROUP_KEY).register(itemGroup -> {
-			for (ClothSkinData.ClothSubData data : ClothSkinListener.getTransforms()) {
+			for (ClothSkinData.ClothSubData data : ClientClothData.getTransforms()) {
 				ItemStack stack = AntiqueItems.CLOTH.getDefaultInstance();
 				stack.set(DataComponents.ITEM_NAME, Component.translatable("item." + data.model().toString().replace(":", ".")));
 				if (!data.dyeable()) stack.remove(DataComponents.DYED_COLOR);
@@ -274,7 +276,7 @@ public class Antiquities implements ModInitializer {
 				}
 			}
 
-			for (Identifier data : ClothOverlayListener.getTransforms()) {
+			for (Identifier data : ClientClothData.getOverlayTransforms()) {
 				ItemStack stack = AntiqueItems.CLOTH_PATTERN.getDefaultInstance();
 				stack.set(DataComponents.ITEM_NAME, Component.translatable("item." + data.toString().replace(":", ".") + "_cloth_pattern"));
 				stack.set(DataComponents.DYED_COLOR, new DyedItemColor(0xFFFFFF));

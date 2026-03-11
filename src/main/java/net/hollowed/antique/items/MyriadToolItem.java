@@ -4,8 +4,8 @@ import net.hollowed.antique.Antiquities;
 import net.hollowed.antique.index.AntiqueDataComponentTypes;
 import net.hollowed.antique.index.AntiqueItems;
 import net.hollowed.antique.items.components.MyriadToolComponent;
+import net.hollowed.antique.util.resources.ClientClothData;
 import net.hollowed.antique.util.resources.ClothSkinData;
-import net.hollowed.antique.util.resources.ClothSkinListener;
 import net.hollowed.combatamenities.util.items.CAComponents;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -149,7 +149,7 @@ public class MyriadToolItem extends Item {
     private void addPattern(Player player, ItemStack toolStack, ItemStack patternStack) {
         MyriadToolComponent component = toolStack.getOrDefault(AntiqueDataComponentTypes.MYRIAD_TOOL, Antiquities.getDefaultMyriadTool());
 
-        if (ClothSkinListener.getTransform(component.clothType()).overlay()) {
+        if (ClientClothData.getTransform(component.clothType()).overlay()) {
             String pattern = "item.antique.cloth_pattern";
             Component text = patternStack.getOrDefault(DataComponents.ITEM_NAME, Component.translatable("item.antique.cloth_pattern"));
             if (text.getContents() instanceof TranslatableContents translatable) {
@@ -177,7 +177,7 @@ public class MyriadToolItem extends Item {
     private ItemStack swapCloth(Player player, ItemStack toolStack, ItemStack clothStack) {
         MyriadToolComponent component = toolStack.getOrDefault(AntiqueDataComponentTypes.MYRIAD_TOOL, Antiquities.getDefaultMyriadTool());
 
-        ClothSkinData.ClothSubData toolData = ClothSkinListener.getTransform(String.valueOf(component.clothType()));
+        ClothSkinData.ClothSubData toolData = ClientClothData.getTransform(String.valueOf(component.clothType()));
         boolean remove = false;
 
         if (!clothStack.isEmpty()) {
@@ -190,7 +190,7 @@ public class MyriadToolItem extends Item {
             DyedItemColor clothColor = clothStack.getOrDefault(DataComponents.DYED_COLOR, new DyedItemColor(0xD43B69));
 
             if (String.valueOf(component.clothType()).isEmpty()) remove = true;
-            ClothSkinData.ClothSubData clothData = ClothSkinListener.getTransform(model);
+            ClothSkinData.ClothSubData clothData = ClientClothData.getTransform(model);
             int intValue = 0;
             try {
                 if (!clothData.hex().isBlank()) {

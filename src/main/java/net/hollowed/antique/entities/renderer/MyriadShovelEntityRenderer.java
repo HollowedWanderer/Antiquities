@@ -8,8 +8,8 @@ import net.hollowed.antique.entities.MyriadShovelEntity;
 import net.hollowed.antique.index.AntiqueDataComponentTypes;
 import net.hollowed.antique.index.AntiqueItems;
 import net.hollowed.antique.items.components.MyriadToolComponent;
+import net.hollowed.antique.util.resources.ClientClothData;
 import net.hollowed.antique.util.resources.ClothSkinData;
-import net.hollowed.antique.util.resources.ClothSkinListener;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.entity.EntityRenderer;
@@ -65,25 +65,20 @@ public class MyriadShovelEntityRenderer extends EntityRenderer<@NotNull MyriadSh
 			Minecraft.getInstance().getItemModelResolver().appendItemLayers(stackRenderState, shovel, ItemDisplayContext.FIRST_PERSON_RIGHT_HAND, Minecraft.getInstance().level, null, 1);
 			stackRenderState.submit(matrixStack, queue, myriadShovelRenderState.lightCoords, OverlayTexture.NO_OVERLAY, 0);
 
-			ClothSkinData.ClothSubData data = ClothSkinListener.getTransform(shovel.getOrDefault(AntiqueDataComponentTypes.MYRIAD_TOOL, Antiquities.getDefaultMyriadTool()).clothType());
+			ClothSkinData.ClothSubData data = ClientClothData.getTransform(shovel.getOrDefault(AntiqueDataComponentTypes.MYRIAD_TOOL, Antiquities.getDefaultMyriadTool()).clothType());
 
-			ClothManager manager = ClothManager.getOrCreate(entity, Antiquities.id(entity.getId() + "_spade"));
+			ClothManager manager = ClothManager.getOrCreate(entity, Antiquities.id(entity.getId() + "_spade"), data);
 			if(manager != null) {
 				matrixStack.translate(0.05, 0.3, 0.1);
 				manager.renderCloth(
+						data,
 						matrixStack,
 						queue,
-						data.light() != 0 ? data.light() : myriadShovelRenderState.lightCoords,
+						myriadShovelRenderState.lightCoords,
 						myriadShovelRenderState.glow,
-						data.dyeable() ? new Color(myriadShovelRenderState.color) : Color.WHITE,
+						new Color(myriadShovelRenderState.color),
 						new Color(myriadShovelRenderState.overlayColor),
-						!myriadShovelRenderState.cloth.isEmpty() ? data.model() : null,
-						Identifier.parse(myriadShovelRenderState.pattern),
-						data.length() != 0 ? data.length() : 1.4,
-						data.width() != 0 ? data.width() : 0.1,
-						data.gravity(),
-						data.waterGravity(),
-						data.bodyAmount() != 0 ? data.bodyAmount() : 8
+						Identifier.parse(myriadShovelRenderState.pattern)
 				);
 			}
 		}

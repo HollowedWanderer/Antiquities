@@ -13,7 +13,7 @@ import net.hollowed.antique.Antiquities;
 import net.hollowed.antique.index.AntiqueDataComponentTypes;
 import net.hollowed.antique.index.AntiqueItemTags;
 import net.hollowed.antique.items.components.MyriadToolComponent;
-import net.hollowed.antique.util.resources.ClothSkinListener;
+import net.hollowed.antique.util.resources.ClientClothData;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.color.item.ItemTintSource;
 import net.minecraft.client.color.item.ItemTintSources;
@@ -233,7 +233,7 @@ public class MyriadClothItemModel implements ItemModel {
 			Collections.addAll(tintLayer.prepareQuadList(), selected);
 		}
 
-		if (ClothSkinListener.getTransform(modelVariantId.toString()).dyeable()
+		if (ClientClothData.getTransform(modelVariantId.toString()).dyeable()
 				|| tintLayer.prepareQuadList().isEmpty()
 				|| isFallback) {
 			int n = this.tints.size();

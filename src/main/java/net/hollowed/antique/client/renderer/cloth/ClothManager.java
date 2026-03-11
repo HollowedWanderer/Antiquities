@@ -1,6 +1,7 @@
 package net.hollowed.antique.client.renderer.cloth;
 
 import net.hollowed.antique.util.interfaces.duck.ClothAccess;
+import net.hollowed.antique.util.resources.ClothSkinData;
 import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
@@ -40,13 +41,16 @@ public class ClothManager {
     public ArrayList<ClothBody> bodies = new ArrayList<>();
     private int bodyCountCooldown = 0;
     public Entity entity;
+    public ClothSkinData.ClothSubData data;
+    public boolean render = false;
 
-    public ClothManager(Vector3d pos, int BodyCount) {
-        reset(pos, BodyCount);
+    public ClothManager(Vector3d pos, int BodyCount, ClothSkinData.ClothSubData data) {
+        reset(pos, BodyCount, data);
     }
 
-    public void reset(Vector3d pos, int BodyCount) {
+    public void reset(Vector3d pos, int BodyCount, ClothSkinData.ClothSubData data) {
         bodies.clear();
+        this.data = data;
         for (int i = 0; i < Math.abs(BodyCount+1); i++) {
             ClothBody body = new ClothBody(pos);
             bodies.add(body);
@@ -55,15 +59,14 @@ public class ClothManager {
 
     public void setBodyCount(int count) {
         if (count != bodies.size()) {
-            reset(this.pos, count);
+            reset(this.pos, count, this.data);
         }
     }
 
-    // TODO: Abstract literally all of this right here please.
-    //  It Does Not Work with Iris Rendering which is a HUGE PROBLEM.
-    //  FIX IT IMMEDIATELY - lmao nah (me like 2 days later).
-
-    public void tick(float gravityMultiplier, float waterGravityMultiplier, double length) {
+    public void tick() {
+        float gravityMultiplier = data.gravity();
+        float waterGravityMultiplier = data.waterGravity();
+        double length = data.length();
         double delta = Minecraft.getInstance().getDeltaTracker().getGameTimeDeltaTicks();
         ClientLevel world = Minecraft.getInstance().level;
 
@@ -181,10 +184,10 @@ public class ClothManager {
         return (red << 16) | (green << 8) | blue;
     }
 
-    public static ClothManager getOrCreate(Entity entity, Identifier id) {
-        if (entity instanceof ClothAccess clothAccess) {
+    public static ClothManager getOrCreate(Entity entity, Identifier id, ClothSkinData.ClothSubData data) {
+        if (Minecraft.getInstance().level instanceof ClothAccess clothAccess) {
             clothAccess.antique$getManagers().computeIfAbsent(id, k -> {
-                ClothManager manager = new ClothManager(new Vector3d(entity.getX(), entity.getY(), entity.getZ()), 8);
+                ClothManager manager = new ClothManager(new Vector3d(entity.getX(), entity.getY(), entity.getZ()), 8, data);
                 manager.entity = entity;
                 return manager;
             });
@@ -193,9 +196,16 @@ public class ClothManager {
         return null;
     }
 
-    // TODO: This needs to not have the gravity, waterGravity, and length as parameters to allow for the physics to be abstracted
-    public void renderCloth(PoseStack matrices, SubmitNodeCollector queue, int light, boolean glow, Color color, Color overlayColor, Identifier cloth, Identifier overlay, double length, double width, float gravity, float waterGravity, int bodyCount) {
-        if (cloth == null) return;
+    public void renderCloth(ClothSkinData.ClothSubData data, PoseStack matrices, SubmitNodeCollector queue, int light, boolean glow, Color color, Color overlayColor, Identifier overlay) {
+        this.render = true;
+        this.data = data;
+        Identifier cloth = data.model();
+        int bodyCount = data.bodyAmount();
+        double width = data.width();
+        if (data.light() != 0) light = data.light();
+        if (!data.dyeable()) color = Color.WHITE;
+
+        if (cloth == null || cloth.equals(Identifier.parse("minecraft:"))) return;
 
         Vec3 position = matrixToVec(matrices);
 
@@ -214,7 +224,7 @@ public class ClothManager {
 
         Vector3d danglePos = new Vector3d(position.x, position.y, position.z);
         pos = new Vector3d(danglePos);
-        this.tick(gravity, waterGravity, length);
+        //this.tick();
 
         matrices.pushPose();
         int count = bodies.size() - 1;
@@ -261,7 +271,7 @@ public class ClothManager {
             RenderType overlayLayer = getOverlayRenderLayer("_" + clothType, overlay);
 
             drawQuad(
-                    matrices,
+                    new PoseStack(),
                     new Matrix4f(),
                     clothLayer,
                     !overlay.equals(Identifier.parse("")) ? overlayLayer : null,

@@ -117,7 +117,10 @@ public class AntiquitiesClient implements ClientModInitializer {
 
         PedestalPacketReceiver.registerClientPacket();
         WallJumpParticlePacketReceiver.registerClientPacket();
-        IllusionerParticlePacketReceiver.registerServerPacket();
+        IllusionerParticlePacketReceiver.registerClientPacket();
+        ClothSkinPacketReceiver.registerClientPacket();
+        ClothOverlayPacketReceiver.registerClientPacket();
+        AddClothItemsPacketReceiver.registerClientPacket();
 
         /*
             Entity Renderers

@@ -18,7 +18,6 @@ public class ClothOverlayListener implements ResourceManagerReloadListener {
 
     @Override
     public void onResourceManagerReload(ResourceManager manager) {
-        Antiquities.addClothItems();
         manager.listResources("cloth_overlays", path -> path.getPath().endsWith(".json")).keySet().forEach(id -> {
             if (manager.getResource(id).isPresent()) {
                 try (InputStream stream = manager.getResource(id).get().open()) {

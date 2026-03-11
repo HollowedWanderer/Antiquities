@@ -18,7 +18,6 @@ public class ClothSkinListener implements ResourceManagerReloadListener {
 
     @Override
     public void onResourceManagerReload(ResourceManager manager) {
-        Antiquities.addClothItems();
         manager.listResources("cloth_skins", path -> path.getPath().endsWith(".json")).keySet().forEach(id -> {
             if (manager.getResource(id).isPresent()) {
                 try (InputStream stream = manager.getResource(id).get().open()) {
@@ -37,8 +36,8 @@ public class ClothSkinListener implements ResourceManagerReloadListener {
         });
     }
 
-    public static Collection<ClothSkinData.ClothSubData> getTransforms() {
-        return transforms.values();
+    public static Map<String, ClothSkinData.ClothSubData> getTransformMap() {
+        return transforms;
     }
 
     public static ClothSkinData.ClothSubData getTransform(String id) {

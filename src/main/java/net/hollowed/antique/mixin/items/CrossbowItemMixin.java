@@ -1,5 +1,6 @@
 package net.hollowed.antique.mixin.items;
 
+import net.minecraft.world.item.component.ChargedProjectiles;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
@@ -31,9 +32,10 @@ public abstract class CrossbowItemMixin extends ProjectileWeaponItem {
     @Override
     public void inventoryTick(@NotNull ItemStack stack, @NotNull ServerLevel world, @NotNull Entity entity, @Nullable EquipmentSlot slot) {
         super.inventoryTick(stack, world, entity, slot);
-        if (entity instanceof Player user && slot != null) {
-            ItemStack projectile = user.getProjectile(stack);
-            if (user.hasInfiniteMaterials() || !projectile.isEmpty()) {
+        ChargedProjectiles projectiles = stack.get(DataComponents.CHARGED_PROJECTILES);
+        if (projectiles != null && !projectiles.isEmpty()) {
+            ItemStack projectile = projectiles.getItems().getFirst();
+            if (!projectile.isEmpty()) {
                 if (projectile.get(DataComponents.POTION_CONTENTS) != null) {
                     stack.set(DataComponents.DYED_COLOR, new DyedItemColor(Objects.requireNonNull(projectile.get(DataComponents.POTION_CONTENTS)).getColor()));
                 }

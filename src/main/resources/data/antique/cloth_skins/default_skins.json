@@ -178,6 +178,15 @@
       "bodies": 16
     },
     {
+      "model": "antique:dust_cloth",
+      "color": "292e31",
+      "length": 5.6,
+      "width": 0.232,
+      "gravity": 0.5,
+      "bodies": 32,
+      "light": 255
+    },
+    {
       "model": "antique:lizard_cloth",
       "color": "cb0000",
       "width": 0.166,
