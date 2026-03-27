@@ -198,7 +198,11 @@ public class ClothManager {
         return null;
     }
 
-    public void renderCloth(ClothSkinData.ClothSubData data, PoseStack matrices, SubmitNodeCollector queue, int light, boolean glow, Color color, Color overlayColor, Identifier overlay) {
+    public void renderCloth(ClothSkinData.ClothSubData data, PoseStack matrices, SubmitNodeCollector queue, int light, boolean glow, Color color, Color overlayColor, Identifier overlay){
+        this.renderCloth(data, matrices, queue, light, glow, color, overlayColor, overlay, new Matrix4f());
+    }
+
+    public void renderCloth(ClothSkinData.ClothSubData data, PoseStack matrices, SubmitNodeCollector queue, int light, boolean glow, Color color, Color overlayColor, Identifier overlay, Matrix4f cameraSpaceMatrix4f) {
         this.render = true;
         this.data = data;
         Identifier cloth = data.model();
@@ -229,14 +233,13 @@ public class ClothManager {
         //this.tick();
 
         matrices.pushPose();
-        GameRenderer renderer = Minecraft.getInstance().gameRenderer;
-        RendererAccessor mixin = (RendererAccessor) renderer;
-        Camera mainCamera = renderer.getMainCamera();
-        Matrix4f projectionA = getProjection(renderer, mixin._getFov(mainCamera, 0.0f, true));
-        Matrix4f projectionO = getProjection(renderer, 70);
-        Matrix4f res = projectionO.invert().mul(projectionA);
 
         int count = bodies.size() - 1;
+        // Get camera position, only once, no more is needed.
+        final Vec3 cameraPosVec3d = Minecraft.getInstance().gameRenderer.getMainCamera().position();
+        final Vector3d cameraPos = new Vector3d(cameraPosVec3d.x, cameraPosVec3d.y, cameraPosVec3d.z);
+
+        final Vector3d up = new Vector3d(0, 1, 0);
 
         for (int i = 0; i < count; i++) {
 
@@ -244,19 +247,16 @@ public class ClothManager {
             ClothBody nextBody = bodies.get(i + 1);
 
             Vector3d pos = body.getPos();
+            pos.sub(cameraPos);
             Vector3d nextPos = nextBody.getPos();
+            nextPos.sub(cameraPos);
 
             float uvTop = (1f / count) * i;
             float uvBot = uvTop + (1f / count);
 
-            // Get camera position
-            Vec3 cameraPosVec3d = Minecraft.getInstance().gameRenderer.getMainCamera().position();
-            Vector3d cameraPos = new Vector3d(cameraPosVec3d.x, cameraPosVec3d.y, cameraPosVec3d.z);
-
             // Compute thickness vector from segment midpoint
             Vector3d mid = new Vector3d((pos.x + nextPos.x) / 2.0, (pos.y + nextPos.y) / 2.0, (pos.z + nextPos.z) / 2.0);
             Vector3d toCam = cameraPos.sub(mid, new Vector3d()).normalize();
-            Vector3d up = new Vector3d(0, 1, 0);
             Vector3d thicknessVec = up.cross(toCam, new Vector3d()).normalize().mul(width);
 
             if (lastThicknessVec != null) {
@@ -280,12 +280,15 @@ public class ClothManager {
             RenderType overlayLayer = getOverlayRenderLayer("_" + clothType, overlay);
 
             drawQuad(
-                    new PoseStack(),
+                    matrices,
                     new Matrix4f(),
                     clothLayer,
                     !overlay.equals(Identifier.parse("")) ? overlayLayer : null,
                     queue,
-                    transform(res,a), transform(res,b), transform(res,c), transform(res,d),
+                    transform(cameraSpaceMatrix4f,a), 
+                    transform(cameraSpaceMatrix4f,b), 
+                    transform(cameraSpaceMatrix4f,c), 
+                    transform(cameraSpaceMatrix4f,d),
                     new Vec2(0f, uvTop),
                     new Vec2(1f, uvTop),
                     new Vec2(1f, uvBot),
@@ -300,28 +303,15 @@ public class ClothManager {
         matrices.popPose();
     }
 
-    private static Vector3d transform(Matrix4f res, Vector3d a) {
+    private static Vector3f transform(Matrix4f res, Vector3d a) {
         Vector4f transformed = res.transform(new Vector4f((float) a.x, (float) a.y, (float) a.z, 1f));
-        Vector3d retVal = new Vector3d();
+        Vector3f retVal = new Vector3f();
         transformed.xyz(retVal);
         retVal.div(transformed.w);
         return retVal;
     }
 
-    private static Matrix4f getProjection(GameRenderer renderer, float fov) {
-        Camera mainCamera = renderer.getMainCamera();
-        Matrix4f projection = renderer.getProjectionMatrix(fov);
-        Quaternionf quaternionf = mainCamera.rotation();
-        Matrix4f rotation = (new Matrix4f()).rotation(quaternionf).invert();
-        Vec3 vec32 = mainCamera.position();
-        Matrix4f translation = (new Matrix4f()).setTranslation(vec32.multiply(-1f, -1f, -1f).toVector3f());
-
-        return projection.mul(rotation).mul(translation);
-    }
-
-    public void drawQuad(PoseStack matrices, Matrix4f matrix, RenderType layer, @Nullable RenderType overlay, SubmitNodeCollector queue, Vector3d posA, Vector3d posB, Vector3d posC, Vector3d posD, Vec2 uvA, Vec2 uvB, Vec2 uvC, Vec2 uvD, int light, boolean glow, Color color, Color overlayColor) {
-        Vec3 cam = Minecraft.getInstance().gameRenderer.getMainCamera().position().multiply(-1, -1, -1);
-
+    public void drawQuad(PoseStack matrices, Matrix4f matrix, RenderType layer, @Nullable RenderType overlay, SubmitNodeCollector queue, Vector3f posA, Vector3f posB, Vector3f posC, Vector3f posD, Vec2 uvA, Vec2 uvB, Vec2 uvC, Vec2 uvD, int light, boolean glow, Color color, Color overlayColor) {
         for (int i = 0; i < 2; i++) {
             if (i == 1) {
                 if (overlay == null) break;
@@ -332,15 +322,15 @@ public class ClothManager {
             int finalLight = light;
 
             queue.order(i + 1).submitCustomGeometry(matrices, i == 1 ? overlay : layer, ((matricesEntry, vertexConsumer) -> {
-                vertexConsumer.addVertex(matrix, (float) ((float) posD.x + cam.x), (float) ((float) posD.y + cam.y), (float) ((float) posD.z + cam.z)).setOverlay(OverlayTexture.NO_OVERLAY).setNormal(0, 1, 0).setLight(finalLight).setUv(uvD.x, uvD.y).setColor(finalColor.getRed(), finalColor.getGreen(), finalColor.getBlue(), finalColor.getAlpha());
-                vertexConsumer.addVertex(matrix, (float) ((float) posC.x + cam.x), (float) ((float) posC.y + cam.y), (float) ((float) posC.z + cam.z)).setOverlay(OverlayTexture.NO_OVERLAY).setNormal(0, 1, 0).setLight(finalLight).setUv(uvC.x, uvC.y).setColor(finalColor.getRed(), finalColor.getGreen(), finalColor.getBlue(), finalColor.getAlpha());
-                vertexConsumer.addVertex(matrix, (float) ((float) posB.x + cam.x), (float) ((float) posB.y + cam.y), (float) ((float) posB.z + cam.z)).setOverlay(OverlayTexture.NO_OVERLAY).setNormal(0, 1, 0).setLight(finalLight).setUv(uvB.x, uvB.y).setColor(finalColor.getRed(), finalColor.getGreen(), finalColor.getBlue(), finalColor.getAlpha());
-                vertexConsumer.addVertex(matrix, (float) ((float) posA.x + cam.x), (float) ((float) posA.y + cam.y), (float) ((float) posA.z + cam.z)).setOverlay(OverlayTexture.NO_OVERLAY).setNormal(0, 1, 0).setLight(finalLight).setUv(uvA.x, uvA.y).setColor(finalColor.getRed(), finalColor.getGreen(), finalColor.getBlue(), finalColor.getAlpha());
-
-                vertexConsumer.addVertex(matrix, (float) ((float) posA.x + cam.x), (float) ((float) posA.y + cam.y), (float) ((float) posA.z + cam.z)).setOverlay(OverlayTexture.NO_OVERLAY).setNormal(0, 1, 0).setLight(finalLight).setUv(uvA.x, uvA.y).setColor(finalColor.getRed(), finalColor.getGreen(), finalColor.getBlue(), finalColor.getAlpha());
-                vertexConsumer.addVertex(matrix, (float) ((float) posB.x + cam.x), (float) ((float) posB.y + cam.y), (float) ((float) posB.z + cam.z)).setOverlay(OverlayTexture.NO_OVERLAY).setNormal(0, 1, 0).setLight(finalLight).setUv(uvB.x, uvB.y).setColor(finalColor.getRed(), finalColor.getGreen(), finalColor.getBlue(), finalColor.getAlpha());
-                vertexConsumer.addVertex(matrix, (float) ((float) posC.x + cam.x), (float) ((float) posC.y + cam.y), (float) ((float) posC.z + cam.z)).setOverlay(OverlayTexture.NO_OVERLAY).setNormal(0, 1, 0).setLight(finalLight).setUv(uvC.x, uvC.y).setColor(finalColor.getRed(), finalColor.getGreen(), finalColor.getBlue(), finalColor.getAlpha());
-                vertexConsumer.addVertex(matrix, (float) ((float) posD.x + cam.x), (float) ((float) posD.y + cam.y), (float) ((float) posD.z + cam.z)).setOverlay(OverlayTexture.NO_OVERLAY).setNormal(0, 1, 0).setLight(finalLight).setUv(uvD.x, uvD.y).setColor(finalColor.getRed(), finalColor.getGreen(), finalColor.getBlue(), finalColor.getAlpha());
+                vertexConsumer.addVertex(matrix, posD.x, posD.y, posD.z).setOverlay(OverlayTexture.NO_OVERLAY).setNormal(0, 1, 0).setLight(finalLight).setUv(uvD.x, uvD.y).setColor(finalColor.getRed(), finalColor.getGreen(), finalColor.getBlue(), finalColor.getAlpha());
+                vertexConsumer.addVertex(matrix, posC.x, posC.y, posC.z).setOverlay(OverlayTexture.NO_OVERLAY).setNormal(0, 1, 0).setLight(finalLight).setUv(uvC.x, uvC.y).setColor(finalColor.getRed(), finalColor.getGreen(), finalColor.getBlue(), finalColor.getAlpha());
+                vertexConsumer.addVertex(matrix, posB.x, posB.y, posB.z).setOverlay(OverlayTexture.NO_OVERLAY).setNormal(0, 1, 0).setLight(finalLight).setUv(uvB.x, uvB.y).setColor(finalColor.getRed(), finalColor.getGreen(), finalColor.getBlue(), finalColor.getAlpha());
+                vertexConsumer.addVertex(matrix, posA.x, posA.y, posA.z).setOverlay(OverlayTexture.NO_OVERLAY).setNormal(0, 1, 0).setLight(finalLight).setUv(uvA.x, uvA.y).setColor(finalColor.getRed(), finalColor.getGreen(), finalColor.getBlue(), finalColor.getAlpha());
+                
+                vertexConsumer.addVertex(matrix, posA.x, posA.y, posA.z).setOverlay(OverlayTexture.NO_OVERLAY).setNormal(0, 1, 0).setLight(finalLight).setUv(uvA.x, uvA.y).setColor(finalColor.getRed(), finalColor.getGreen(), finalColor.getBlue(), finalColor.getAlpha());
+                vertexConsumer.addVertex(matrix, posB.x, posB.y, posB.z).setOverlay(OverlayTexture.NO_OVERLAY).setNormal(0, 1, 0).setLight(finalLight).setUv(uvB.x, uvB.y).setColor(finalColor.getRed(), finalColor.getGreen(), finalColor.getBlue(), finalColor.getAlpha());
+                vertexConsumer.addVertex(matrix, posC.x, posC.y, posC.z).setOverlay(OverlayTexture.NO_OVERLAY).setNormal(0, 1, 0).setLight(finalLight).setUv(uvC.x, uvC.y).setColor(finalColor.getRed(), finalColor.getGreen(), finalColor.getBlue(), finalColor.getAlpha());
+                vertexConsumer.addVertex(matrix, posD.x, posD.y, posD.z).setOverlay(OverlayTexture.NO_OVERLAY).setNormal(0, 1, 0).setLight(finalLight).setUv(uvD.x, uvD.y).setColor(finalColor.getRed(), finalColor.getGreen(), finalColor.getBlue(), finalColor.getAlpha());
             }));
         }
     }
