@@ -1,10 +1,12 @@
 package net.hollowed.antique.client.renderer.cloth;
 
+import net.hollowed.antique.mixin.accessors.RendererAccessor;
 import net.hollowed.antique.util.interfaces.duck.ClothAccess;
 import net.hollowed.antique.util.resources.ClothSkinData;
 import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.client.renderer.rendertype.RenderTypes;
@@ -18,11 +20,11 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec2;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
-import org.joml.Matrix4f;
-import org.joml.Vector3d;
-import org.joml.Vector4f;
+import org.joml.*;
+
 import com.mojang.blaze3d.vertex.PoseStack;
 import java.awt.*;
+import java.lang.Math;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -227,6 +229,13 @@ public class ClothManager {
         //this.tick();
 
         matrices.pushPose();
+        GameRenderer renderer = Minecraft.getInstance().gameRenderer;
+        RendererAccessor mixin = (RendererAccessor) renderer;
+        Camera mainCamera = renderer.getMainCamera();
+        Matrix4f projectionA = getProjection(renderer, mixin._getFov(mainCamera, 0.0f, true));
+        Matrix4f projectionO = getProjection(renderer, 70);
+        Matrix4f res = projectionO.invert().mul(projectionA);
+
         int count = bodies.size() - 1;
 
         for (int i = 0; i < count; i++) {
@@ -276,7 +285,7 @@ public class ClothManager {
                     clothLayer,
                     !overlay.equals(Identifier.parse("")) ? overlayLayer : null,
                     queue,
-                    a, b, c, d,
+                    transform(res,a), transform(res,b), transform(res,c), transform(res,d),
                     new Vec2(0f, uvTop),
                     new Vec2(1f, uvTop),
                     new Vec2(1f, uvBot),
@@ -289,6 +298,25 @@ public class ClothManager {
         }
 
         matrices.popPose();
+    }
+
+    private static Vector3d transform(Matrix4f res, Vector3d a) {
+        Vector4f transformed = res.transform(new Vector4f((float) a.x, (float) a.y, (float) a.z, 1f));
+        Vector3d retVal = new Vector3d();
+        transformed.xyz(retVal);
+        retVal.div(transformed.w);
+        return retVal;
+    }
+
+    private static Matrix4f getProjection(GameRenderer renderer, float fov) {
+        Camera mainCamera = renderer.getMainCamera();
+        Matrix4f projection = renderer.getProjectionMatrix(fov);
+        Quaternionf quaternionf = mainCamera.rotation();
+        Matrix4f rotation = (new Matrix4f()).rotation(quaternionf).invert();
+        Vec3 vec32 = mainCamera.position();
+        Matrix4f translation = (new Matrix4f()).setTranslation(vec32.multiply(-1f, -1f, -1f).toVector3f());
+
+        return projection.mul(rotation).mul(translation);
     }
 
     public void drawQuad(PoseStack matrices, Matrix4f matrix, RenderType layer, @Nullable RenderType overlay, SubmitNodeCollector queue, Vector3d posA, Vector3d posB, Vector3d posC, Vector3d posD, Vec2 uvA, Vec2 uvB, Vec2 uvC, Vec2 uvD, int light, boolean glow, Color color, Color overlayColor) {
