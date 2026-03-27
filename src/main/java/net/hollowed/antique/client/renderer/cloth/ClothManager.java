@@ -31,6 +31,8 @@ import java.util.Objects;
 
 public class ClothManager {
 
+    private static final double CAMERA_FOV_DECAY = .1;
+
     public static RenderType getClothRenderLayer(Identifier cloth) {
         return RenderTypes.itemEntityTranslucentCull(Identifier.parse(cloth.getNamespace() + ":textures/cloth/" + cloth.getPath() + ".png"));
     }
@@ -244,7 +246,7 @@ public class ClothManager {
         Vector3f thicknessVec = new Vector3f();
 
         for (int i = 0; i < count; i++) {
-            float worldPositionWeight = Math.min(i * .2f, 1f);
+            float worldPositionWeight = 1f - ((float)Math.exp(-i * CAMERA_FOV_DECAY));
             ClothBody body = bodies.get(i);
             ClothBody nextBody = bodies.get(i + 1);
 
