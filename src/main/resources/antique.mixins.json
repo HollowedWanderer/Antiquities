@@ -97,6 +97,7 @@
     "screens.ModMenuEntryMixin",
     "screens.ModMenuMixin",
     "screens.MouseMixin",
-    "screens.SatchelOverlayMixin"
+    "screens.SatchelOverlayMixin",
+    "accessors.RendererAccessor"
   ]
 }
