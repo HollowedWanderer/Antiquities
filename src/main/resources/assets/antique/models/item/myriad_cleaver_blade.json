@@ -2,7 +2,10 @@
 	"credit": "Made with Blockbench",
 	"parent": "minecraft:item/handheld",
 	"textures": {
-		"layer0": "antique:item/myriad_cleaver_blade"
+		"layer0": "antique:item/myriad_cleaver_blade",
+		"layer1": "antique:item/myriad_cleaver_blade_e1",
+		"layer2": "antique:item/myriad_cleaver_blade_e2",
+		"layer3": "antique:item/myriad_cleaver_blade_e3"
 	},
 	"display": {
 		"thirdperson_righthand": {

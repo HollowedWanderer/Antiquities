@@ -1,6 +1,9 @@
 {
   "parent": "minecraft:item/generated",
   "textures": {
-    "layer0": "antique:item/myriad_cleaver_blade_inventory"
+    "layer0": "antique:item/myriad_cleaver_blade_inventory",
+    "layer1": "antique:item/myriad_cleaver_blade_inventory_e1",
+    "layer2": "antique:item/myriad_cleaver_blade_inventory_e2",
+    "layer3": "antique:item/myriad_cleaver_blade_inventory_e3"
   }
 }

@@ -51,7 +51,9 @@ public class Antiquities implements ModInitializer {
 	@SuppressWarnings("all")
 	@Override
 	public void onInitialize() {
-		
+
+		LOGGER.info("\"Adventure!\" - Ivor");
+
 		/*
 			Initializers
 		 */
@@ -86,7 +88,6 @@ public class Antiquities implements ModInitializer {
 		 */
 
 		PayloadTypeRegistry.playS2C().register(PedestalPacketPayload.ID, PedestalPacketPayload.CODEC);
-		PayloadTypeRegistry.playC2S().register(PaleWardenTickPacketPayload.ID, PaleWardenTickPacketPayload.CODEC);
 		PayloadTypeRegistry.playC2S().register(SatchelPacketPayload.ID, SatchelPacketPayload.CODEC);
 		PayloadTypeRegistry.playC2S().register(WallJumpPacketPayload.ID, WallJumpPacketPayload.CODEC);
 		PayloadTypeRegistry.playS2C().register(WallJumpParticlePacketPayload.ID, WallJumpParticlePacketPayload.CODEC);
@@ -98,7 +99,6 @@ public class Antiquities implements ModInitializer {
 		PayloadTypeRegistry.playS2C().register(AddClothItemsPayload.ID, AddClothItemsPayload.CODEC);
 
 		SatchelPacketReceiver.registerServerPacket();
-		PaleWardenTickPacketReceiver.registerServerPacket();
 		WallJumpPacketReceiver.registerServerPacket();
 		CrawlPacketReceiver.registerServerPacket();
 		DyePacketReceiver.registerServerPacket();
@@ -122,10 +122,7 @@ public class Antiquities implements ModInitializer {
 				(builder, item) -> builder.set(DataComponents.ITEM_NAME, Component.translatable(item.getDescriptionId()).withColor(0xc57dbe))
 		));
 
-		DefaultItemComponentEvents.MODIFY.register(ctx -> ctx.modify(
-				Predicate.isEqual(Items.DIAMOND),
-				(builder, item) -> builder.set(DataComponents.ITEM_NAME, Component.translatable(item.getDescriptionId()).withColor(0xc57dbe))
-		));
+
 
 		DefaultItemComponentEvents.MODIFY.register(ctx -> ctx.modify(
 				List.of(
@@ -197,6 +194,7 @@ public class Antiquities implements ModInitializer {
 			itemGroup.accept(AntiqueBlocks.DYE_TABLE);
 			itemGroup.accept(AntiqueBlocks.JAR);
 			itemGroup.accept(AntiqueBlocks.IVY);
+			itemGroup.accept(AntiqueBlocks.RESONATOR);
 		});
 
 		ItemGroupEvents.modifyEntriesEvent(ANTIQUITIES_ITEMS_GROUP_KEY).register(itemGroup -> {
@@ -258,9 +256,6 @@ public class Antiquities implements ModInitializer {
 			itemGroup.accept(AntiqueItems.SATCHEL);
 			itemGroup.accept(AntiqueItems.FUR_BOOTS);
 			itemGroup.accept(AntiqueItems.SCEPTER);
-//			itemGroup.accept(AntiqueItems.COPPER_GLACE);
-//			itemGroup.accept(AntiqueItems.QUARRY_GLACE);
-//			itemGroup.accept(AntiqueItems.PROSPECTOR);
 			itemGroup.accept(AntiqueItems.WARHORN);
 		});
 	}

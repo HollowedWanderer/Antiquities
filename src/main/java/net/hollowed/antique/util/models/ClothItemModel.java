@@ -43,6 +43,9 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3fc;
 
+// TODO: Replace the base model/texture functionality with a composite model
+//  and also make a parent myriad tool model to simplify this
+
 @Environment(EnvType.CLIENT)
 public class ClothItemModel implements ItemModel {
 

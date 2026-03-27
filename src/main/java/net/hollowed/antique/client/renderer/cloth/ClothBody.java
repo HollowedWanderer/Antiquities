@@ -1,6 +1,7 @@
 package net.hollowed.antique.client.renderer.cloth;
 
 import net.hollowed.antique.entities.parts.MyriadShovelPart;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.Entity;
@@ -63,7 +64,7 @@ public class ClothBody {
 
         Map<AABB, Entity> collBoxes = new HashMap<>();
         for (Entity entity : world.getEntities(except, new AABB(startPos.subtract(0.1), startPos.add(0.1)))) {
-            if (!(entity instanceof MyriadShovelPart)) {
+            if (!(entity instanceof MyriadShovelPart) && !except.equals(Minecraft.getInstance().player)) {
                 collBoxes.put(entity.getBoundingBox(), entity);
             }
         }

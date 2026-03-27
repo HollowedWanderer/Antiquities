@@ -1,7 +1,6 @@
 package net.hollowed.antique.items;
 
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Maps;
 import net.hollowed.antique.entities.MyriadShovelEntity;
 import net.hollowed.antique.index.AntiqueItems;
 import net.minecraft.advancements.CriteriaTriggers;
@@ -53,16 +52,13 @@ import java.util.Optional;
 
 public class MyriadShovelBit extends MyriadToolBitItem{
 
-    @SuppressWarnings({"unchecked", "rawtypes"})
-    protected static final Map<Block, BlockState> PATH_STATES = Maps.<Block, BlockState>newHashMap(
-            new ImmutableMap.Builder()
-                    .put(Blocks.GRASS_BLOCK, Blocks.DIRT_PATH.defaultBlockState())
-                    .put(Blocks.DIRT, Blocks.DIRT_PATH.defaultBlockState())
-                    .put(Blocks.PODZOL, Blocks.DIRT_PATH.defaultBlockState())
-                    .put(Blocks.COARSE_DIRT, Blocks.DIRT_PATH.defaultBlockState())
-                    .put(Blocks.MYCELIUM, Blocks.DIRT_PATH.defaultBlockState())
-                    .put(Blocks.ROOTED_DIRT, Blocks.DIRT_PATH.defaultBlockState())
-                    .build()
+    protected static final Map<Block, BlockState> PATH_STATES = ImmutableMap.of(
+            Blocks.GRASS_BLOCK, Blocks.DIRT_PATH.defaultBlockState(),
+            Blocks.DIRT, Blocks.DIRT_PATH.defaultBlockState(),
+            Blocks.PODZOL, Blocks.DIRT_PATH.defaultBlockState(),
+            Blocks.COARSE_DIRT, Blocks.DIRT_PATH.defaultBlockState(),
+            Blocks.MYCELIUM, Blocks.DIRT_PATH.defaultBlockState(),
+            Blocks.ROOTED_DIRT, Blocks.DIRT_PATH.defaultBlockState()
     );
 
     protected static final Map<Block, Block> CHISEL_BLOCKS = new ImmutableMap.Builder<Block, Block>()

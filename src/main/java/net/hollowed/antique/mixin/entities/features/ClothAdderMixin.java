@@ -2,6 +2,7 @@ package net.hollowed.antique.mixin.entities.features;
 
 import net.hollowed.antique.client.renderer.cloth.ClothManager;
 import net.hollowed.antique.util.interfaces.duck.ClothAccess;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.resources.Identifier;
 import org.spongepowered.asm.mixin.Mixin;
@@ -23,8 +24,13 @@ public abstract class ClothAdderMixin implements ClothAccess {
 
     @Override
     public void antique$tickManagers() {
-        for (ClothManager manager : map.values()) {
-            manager.tick();
+        if (!Minecraft.getInstance().isPaused()) {
+            for (ClothManager manager : map.values()) {
+                if (manager.render) {
+                    manager.tick();
+                    manager.render = false;
+                }
+            }
         }
     }
 }

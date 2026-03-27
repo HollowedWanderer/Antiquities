@@ -106,6 +106,13 @@
       "width": 0.066
     },
     {
+      "model": "antique:copper_cloth",
+      "color": "cf6542",
+      "width": 0.166,
+      "length": 2.1,
+      "bodies": 12
+    },
+    {
       "model": "antique:elegant_cloth",
       "color": "be113e",
       "length": 2.1,
@@ -176,6 +183,15 @@
       "length": 2.8,
       "width": 0.166,
       "bodies": 16
+    },
+    {
+      "model": "antique:kepler_cloth",
+      "color": "74285d",
+      "length": 2.8,
+      "width": 0.166,
+      "bodies": 16,
+      "gravity": 0.5,
+      "light": 255
     },
     {
       "model": "antique:dust_cloth",

@@ -11,24 +11,6 @@
       "antique:warhorn"
     ]
   },
-  "staff_insert": {
-    "subtitle": "subtitles.antique.staff_insert",
-    "sounds": [
-      "antique:staff_insert"
-    ]
-  },
-  "staff_remove": {
-    "subtitle": "subtitles.antique.staff_remove",
-    "sounds": [
-      "antique:staff_remove"
-    ]
-  },
-  "staff_hit": {
-    "subtitle": "subtitles.antique.staff_hit",
-    "sounds": [
-      "antique:staff_hit"
-    ]
-  },
   "cake_splat": {
     "subtitle": "subtitles.antique.cake_splat",
     "sounds": [

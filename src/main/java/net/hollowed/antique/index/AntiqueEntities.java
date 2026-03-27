@@ -15,11 +15,6 @@ import net.minecraft.world.entity.MobCategory;
 import org.jetbrains.annotations.NotNull;
 
 public interface AntiqueEntities {
-    EntityType<@NotNull PaleWardenEntity> PALE_WARDEN = Registry.register(
-            BuiltInRegistries.ENTITY_TYPE,
-            Identifier.fromNamespaceAndPath(Antiquities.MOD_ID, "pale_warden"),
-            EntityType.Builder.of(PaleWardenEntity::new, MobCategory.MISC).sized(0.9f, 3f).build(keyOf("pale_warden"))
-    );
 
     EntityType<@NotNull IllusionerEntity> ILLUSIONER = register(
             "illusioner",
@@ -80,7 +75,6 @@ public interface AntiqueEntities {
 
     @SuppressWarnings("all")
     static void initialize() {
-        FabricDefaultAttributeRegistry.register(AntiqueEntities.PALE_WARDEN, PaleWardenEntity.createAttributes());
         FabricDefaultAttributeRegistry.register(AntiqueEntities.ILLUSIONER_CLONE, IllusionerCloneEntity.createIllusionerAttributes());
         FabricDefaultAttributeRegistry.register(AntiqueEntities.ILLUSIONER, IllusionerEntity.createIllusionerAttributes());
     }

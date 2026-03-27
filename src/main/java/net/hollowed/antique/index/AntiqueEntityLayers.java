@@ -11,13 +11,13 @@ public class AntiqueEntityLayers extends ModelLayers {
     private static final Set<ModelLayerLocation> LAYERS = Sets.newHashSet();
 
     public static final ModelLayerLocation ADVENTURE_ARMOR = register("adventure_armor");
-    public static final ModelLayerLocation VANILLA_ARMOR = register("vanilla_armor");
 
+    @SuppressWarnings("SameParameterValue")
     private static ModelLayerLocation register(String id) {
         return register(id, "main");
     }
 
-    @SuppressWarnings("all")
+    @SuppressWarnings("SameParameterValue")
     private static ModelLayerLocation register(String id, String variant) {
         ModelLayerLocation entityModelLayer = create(id, variant);
         if (!LAYERS.add(entityModelLayer)) {

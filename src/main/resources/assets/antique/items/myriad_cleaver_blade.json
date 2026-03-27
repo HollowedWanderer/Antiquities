@@ -4,8 +4,14 @@
     "cases": [
       {
         "model": {
-          "type": "minecraft:model",
-          "model": "antique:item/myriad_cleaver_blade_inventory"
+          "type": "antique:model_glow",
+          "model": "antique:item/myriad_cleaver_blade_inventory",
+          "emissions": [
+            0,
+            1,
+            6,
+            15
+          ]
         },
         "when": [
           "gui",
@@ -15,8 +21,14 @@
       },
       {
         "model": {
-          "type": "minecraft:model",
-          "model": "antique:item/myriad_cleaver_blade"
+          "type": "antique:model_glow",
+          "model": "antique:item/myriad_cleaver_blade",
+          "emissions": [
+            0,
+            1,
+            6,
+            15
+          ]
         },
         "when": [
           "firstperson_righthand",

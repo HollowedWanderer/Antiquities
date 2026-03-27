@@ -30,6 +30,13 @@ public interface AntiqueBlocks {
             .noOcclusion()
             ), Rarity.COMMON
     );
+    Block RESONATOR = register("resonator", settings -> new Block(settings
+            .strength(5F, 5F)
+            .sound(SoundType.COPPER)
+            .requiresCorrectToolForDrops()
+            .noOcclusion()
+            ), Rarity.COMMON
+    );
     Block JAR = register("jar", settings -> new JarBlock(settings
             .sound(SoundType.DECORATED_POT)
             .strength(0.3F)

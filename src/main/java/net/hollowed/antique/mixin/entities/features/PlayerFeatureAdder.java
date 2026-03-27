@@ -100,6 +100,7 @@ public abstract class PlayerFeatureAdder extends LivingEntityRenderer<AbstractCl
             matrices.mulPose(Axis.ZP.rotationDegrees(5));
             matrices.translate(-0.075, 0, 0);
             if (slim) {
+                // TODO: just add this back
 //                VertexConsumer vertexConsumer = ItemRenderer.getArmorGlintConsumer(vertexConsumers, RenderLayer.getArmorCutoutNoCull(TEXTURE),
 //                        player.getEquippedStack(EquipmentSlot.CHEST).hasGlint());
 //                armorModel.rightArm.render(matrices, vertexConsumer, light, OverlayTexture.DEFAULT_UV);

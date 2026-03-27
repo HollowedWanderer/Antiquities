@@ -224,7 +224,6 @@ public class ClothManager {
 
         Vector3d danglePos = new Vector3d(position.x, position.y, position.z);
         pos = new Vector3d(danglePos);
-        //this.tick();
 
         matrices.pushPose();
         int count = bodies.size() - 1;
