@@ -5,13 +5,9 @@ import net.hollowed.antique.client.renderer.cloth.ClothManager;
 import net.hollowed.antique.index.AntiqueDataComponentTypes;
 import net.hollowed.antique.index.AntiqueItems;
 import net.hollowed.antique.items.components.MyriadToolComponent;
-import net.hollowed.antique.mixin.accessors.RendererAccessor;
 import net.hollowed.antique.util.resources.ClientClothData;
 import net.hollowed.antique.util.resources.ClothSkinData;
 import net.hollowed.combatamenities.util.items.CAComponents;
-import net.minecraft.client.Camera;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.ItemInHandRenderer;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.resources.Identifier;
@@ -20,10 +16,6 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.phys.Vec3;
-
-import org.joml.Matrix4f;
-import org.joml.Quaternionf;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -81,7 +73,6 @@ public abstract class FirstPersonHeldItemRendererMixin {
                     manager = ClothManager.getOrCreate(entity, Antiquities.id(entity.getId() + "_belt"), data);
                 }
                 if (manager != null) {
-                    Matrix4f reprojectMatrix = this.getReprojectMatrix();
                     manager.renderCloth(
                             data,
                             matrices,
@@ -90,32 +81,12 @@ public abstract class FirstPersonHeldItemRendererMixin {
                             stack.getOrDefault(CAComponents.BOOLEAN_PROPERTY, false),
                             new Color(component.clothColor()),
                             new Color(component.patternColor()),
-                            Identifier.parse(component.clothPattern()),
-                            reprojectMatrix
+                            Identifier.parse(component.clothPattern())
                     );
                 }
             }
         }
 
         matrices.popPose();
-    }
-
-    private Matrix4f getReprojectMatrix() {
-        GameRenderer renderer = Minecraft.getInstance().gameRenderer;
-        RendererAccessor accessor = (RendererAccessor) renderer;
-        Camera mainCamera = renderer.getMainCamera();
-        float cameraFov = accessor.getCameraFov(mainCamera, 0.0f, true);
-        Matrix4f projectionA = this.getProjection(renderer, cameraFov);
-        Matrix4f projectionO = this.getProjection(renderer, 70);
-        Matrix4f reprojectMatrix = projectionO.invert().mul(projectionA);
-        return reprojectMatrix;
-    }
-    
-    private Matrix4f getProjection(GameRenderer renderer, float fov) {
-        Camera mainCamera = renderer.getMainCamera();
-        Matrix4f projection = renderer.getProjectionMatrix(fov);
-        Quaternionf quaternionf = mainCamera.rotation();
-        Matrix4f rotation = (new Matrix4f()).rotation(quaternionf).invert();
-        return projection.mul(rotation);
     }
 }
