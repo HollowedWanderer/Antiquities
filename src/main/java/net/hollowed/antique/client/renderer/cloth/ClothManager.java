@@ -202,7 +202,7 @@ public class ClothManager {
         this.renderCloth(data, matrices, queue, light, glow, color, overlayColor, overlay, new Matrix4f());
     }
 
-    public void renderCloth(ClothSkinData.ClothSubData data, PoseStack matrices, SubmitNodeCollector queue, int light, boolean glow, Color color, Color overlayColor, Identifier overlay, Matrix4f cameraSpaceMatrix4f) {
+    public void renderCloth(ClothSkinData.ClothSubData data, PoseStack matrices, SubmitNodeCollector queue, int light, boolean glow, Color color, Color overlayColor, Identifier overlay, Matrix4f reprojectionMatrix) {
         this.render = true;
         this.data = data;
         Identifier cloth = data.model();
@@ -226,27 +226,24 @@ public class ClothManager {
 
         Vector3f lastA = null;
         Vector3f lastB = null;
-        Vector3d lastThicknessVec = null;
 
         Vector3d danglePos = new Vector3d(position.x, position.y, position.z);
         pos = new Vector3d(danglePos);
-        //this.tick();
 
         matrices.pushPose();
 
         int count = bodies.size() - 1;
+
         // Get camera position, only once, no more is needed.
         final Vec3 cameraPosVec3d = Minecraft.getInstance().gameRenderer.getMainCamera().position();
         final Vector3d cameraPos = new Vector3d(cameraPosVec3d.x, cameraPosVec3d.y, cameraPosVec3d.z);
-
+        //iteration constants
         final Vector3f up = new Vector3f(0, 1, 0);
 
-        Vector3f mid = new Vector3f();
         Vector3f toCam = new Vector3f();
         Vector3f thicknessVec = new Vector3f();
 
         for (int i = 0; i < count; i++) {
-
             float worldPositionWeight = Math.min(i * .2f, 1f);
             ClothBody body = bodies.get(i);
             ClothBody nextBody = bodies.get(i + 1);
@@ -258,28 +255,22 @@ public class ClothManager {
             float uvBot = uvTop + (1f / count);
 
             // Compute thickness vector from segment midpoint
-            mid.set(pos).add(nextPos).mul(.5f);
-            mid.normalize(toCam);
+            pos.add(nextPos, toCam).normalize();
             thicknessVec.set(up).cross(toCam).normalize().mul(width);
 
-            // if (lastThicknessVec != null) {
-            //     thicknessVec = thicknessVec.lerp(lastThicknessVec, 1).normalize().mul(width);
-            // }
-
-            Vector3f a = lastA != null ? lastA : new Vector3f(pos.sub(thicknessVec, new Vector3f()));
-            Vector3f b = lastB != null ? lastB : new Vector3f(pos.add(thicknessVec, new Vector3f()));
+            Vector3f a = lastA != null ? lastA : pos.sub(thicknessVec, new Vector3f());
+            Vector3f b = lastB != null ? lastB : pos.add(thicknessVec, new Vector3f());
 
             // Compute end vertices for this segment
-            Vector3f c = nextPos.add(thicknessVec, new Vector3f());
-            Vector3f d = nextPos.sub(thicknessVec, new Vector3f());
-
-            Vector3f posEnd = c.lerp(transform(cameraSpaceMatrix4f, c),worldPositionWeight);
-            Vector3f negEnd = d.lerp(transform(cameraSpaceMatrix4f, d),worldPositionWeight);
+            Vector3f posEnd = nextPos.add(thicknessVec, new Vector3f());
+            Vector3f negEnd = nextPos.sub(thicknessVec, new Vector3f());
 
             // Cache for next loop
             lastA = negEnd;
             lastB = posEnd;
-            // lastThicknessVec = thicknessVec;
+
+            applyReprojection(reprojectionMatrix, posEnd, worldPositionWeight);
+            applyReprojection(reprojectionMatrix, negEnd, worldPositionWeight);
 
             RenderType clothLayer = getClothRenderLayer(cloth);
             String clothType = !Objects.equals(cloth.getPath(), "cloth") ? !cloth.getPath().isEmpty() ? cloth.getPath().substring(0, cloth.getPath().indexOf("_")) : "default" : "default";
@@ -309,12 +300,14 @@ public class ClothManager {
         matrices.popPose();
     }
 
-    private static Vector3f transform(Matrix4f res, Vector3f a) {
-        Vector4f transformed = res.transform(new Vector4f(a.x, a.y, a.z, 1f));
-        Vector3f retVal = new Vector3f();
-        transformed.xyz(retVal);
-        retVal.div(transformed.w);
-        return retVal;
+    private static void applyReprojection(Matrix4f res, Vector3f toReproj, float weight) {
+        Vector4f transformed = res.transform(new Vector4f(toReproj.x, toReproj.y, toReproj.z, 1f));
+        transformed.div(transformed.w);
+        transformed.mul(weight);
+        toReproj.mul(1f - weight);
+        toReproj.x += transformed.x;
+        toReproj.y += transformed.y;
+        toReproj.z += transformed.z;
     }
 
     public void drawQuad(PoseStack matrices, Matrix4f matrix, RenderType layer, @Nullable RenderType overlay, SubmitNodeCollector queue, Vector3f posA, Vector3f posB, Vector3f posC, Vector3f posD, Vec2 uvA, Vec2 uvB, Vec2 uvC, Vec2 uvD, int light, boolean glow, Color color, Color overlayColor) {
