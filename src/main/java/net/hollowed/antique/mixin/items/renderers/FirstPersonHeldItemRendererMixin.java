@@ -81,7 +81,7 @@ public abstract class FirstPersonHeldItemRendererMixin {
                     manager = ClothManager.getOrCreate(entity, Antiquities.id(entity.getId() + "_belt"), data);
                 }
                 if (manager != null) {
-                    Matrix4f reprojectMatrix = getReprojectMatrix();
+                    Matrix4f reprojectMatrix = this.getReprojectMatrix();
                     manager.renderCloth(
                             data,
                             matrices,
@@ -102,9 +102,10 @@ public abstract class FirstPersonHeldItemRendererMixin {
 
     private Matrix4f getReprojectMatrix() {
         GameRenderer renderer = Minecraft.getInstance().gameRenderer;
-        RendererAccessor mixin = (RendererAccessor) renderer;
+        RendererAccessor accessor = (RendererAccessor) renderer;
         Camera mainCamera = renderer.getMainCamera();
-        Matrix4f projectionA = this.getProjection(renderer, mixin._getFov(mainCamera, 0.0f, true));
+        float cameraFov = accessor.getCameraFov(mainCamera, 0.0f, true);
+        Matrix4f projectionA = this.getProjection(renderer, cameraFov);
         Matrix4f projectionO = this.getProjection(renderer, 70);
         Matrix4f reprojectMatrix = projectionO.invert().mul(projectionA);
         return reprojectMatrix;

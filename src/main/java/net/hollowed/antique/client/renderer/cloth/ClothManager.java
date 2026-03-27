@@ -207,7 +207,7 @@ public class ClothManager {
         this.data = data;
         Identifier cloth = data.model();
         int bodyCount = data.bodyAmount();
-        double width = data.width();
+        float width = data.width();
         if (data.light() != 0) light = data.light();
         if (!data.dyeable()) color = Color.WHITE;
 
@@ -224,8 +224,8 @@ public class ClothManager {
             this.bodyCountCooldown--;
         }
 
-        Vector3d lastA = null;
-        Vector3d lastB = null;
+        Vector3f lastA = null;
+        Vector3f lastB = null;
         Vector3d lastThicknessVec = null;
 
         Vector3d danglePos = new Vector3d(position.x, position.y, position.z);
@@ -239,41 +239,47 @@ public class ClothManager {
         final Vec3 cameraPosVec3d = Minecraft.getInstance().gameRenderer.getMainCamera().position();
         final Vector3d cameraPos = new Vector3d(cameraPosVec3d.x, cameraPosVec3d.y, cameraPosVec3d.z);
 
-        final Vector3d up = new Vector3d(0, 1, 0);
+        final Vector3f up = new Vector3f(0, 1, 0);
+
+        Vector3f mid = new Vector3f();
+        Vector3f toCam = new Vector3f();
+        Vector3f thicknessVec = new Vector3f();
 
         for (int i = 0; i < count; i++) {
 
+            float worldPositionWeight = Math.min(i * .2f, 1f);
             ClothBody body = bodies.get(i);
             ClothBody nextBody = bodies.get(i + 1);
 
-            Vector3d pos = body.getPos();
-            pos.sub(cameraPos);
-            Vector3d nextPos = nextBody.getPos();
-            nextPos.sub(cameraPos);
+            Vector3f pos = new Vector3f(body.getPos().sub(cameraPos));
+            Vector3f nextPos = new Vector3f(nextBody.getPos().sub(cameraPos));
 
             float uvTop = (1f / count) * i;
             float uvBot = uvTop + (1f / count);
 
             // Compute thickness vector from segment midpoint
-            Vector3d mid = new Vector3d((pos.x + nextPos.x) / 2.0, (pos.y + nextPos.y) / 2.0, (pos.z + nextPos.z) / 2.0);
-            Vector3d toCam = cameraPos.sub(mid, new Vector3d()).normalize();
-            Vector3d thicknessVec = up.cross(toCam, new Vector3d()).normalize().mul(width);
+            mid.set(pos).add(nextPos).mul(.5f);
+            mid.normalize(toCam);
+            thicknessVec.set(up).cross(toCam).normalize().mul(width);
 
-            if (lastThicknessVec != null) {
-                thicknessVec = thicknessVec.lerp(lastThicknessVec, 1).normalize().mul(width);
-            }
+            // if (lastThicknessVec != null) {
+            //     thicknessVec = thicknessVec.lerp(lastThicknessVec, 1).normalize().mul(width);
+            // }
 
-            Vector3d a = lastA != null ? lastA : pos.sub(thicknessVec, new Vector3d());
-            Vector3d b = lastB != null ? lastB : pos.add(thicknessVec, new Vector3d());
+            Vector3f a = lastA != null ? lastA : new Vector3f(pos.sub(thicknessVec, new Vector3f()));
+            Vector3f b = lastB != null ? lastB : new Vector3f(pos.add(thicknessVec, new Vector3f()));
 
             // Compute end vertices for this segment
-            Vector3d c = nextPos.add(thicknessVec, new Vector3d());
-            Vector3d d = nextPos.sub(thicknessVec, new Vector3d());
+            Vector3f c = nextPos.add(thicknessVec, new Vector3f());
+            Vector3f d = nextPos.sub(thicknessVec, new Vector3f());
+
+            Vector3f posEnd = c.lerp(transform(cameraSpaceMatrix4f, c),worldPositionWeight);
+            Vector3f negEnd = d.lerp(transform(cameraSpaceMatrix4f, d),worldPositionWeight);
 
             // Cache for next loop
-            lastA = d;
-            lastB = c;
-            lastThicknessVec = thicknessVec;
+            lastA = negEnd;
+            lastB = posEnd;
+            // lastThicknessVec = thicknessVec;
 
             RenderType clothLayer = getClothRenderLayer(cloth);
             String clothType = !Objects.equals(cloth.getPath(), "cloth") ? !cloth.getPath().isEmpty() ? cloth.getPath().substring(0, cloth.getPath().indexOf("_")) : "default" : "default";
@@ -285,10 +291,10 @@ public class ClothManager {
                     clothLayer,
                     !overlay.equals(Identifier.parse("")) ? overlayLayer : null,
                     queue,
-                    transform(cameraSpaceMatrix4f,a), 
-                    transform(cameraSpaceMatrix4f,b), 
-                    transform(cameraSpaceMatrix4f,c), 
-                    transform(cameraSpaceMatrix4f,d),
+                    a, 
+                    b, 
+                    posEnd, 
+                    negEnd,
                     new Vec2(0f, uvTop),
                     new Vec2(1f, uvTop),
                     new Vec2(1f, uvBot),
@@ -303,8 +309,8 @@ public class ClothManager {
         matrices.popPose();
     }
 
-    private static Vector3f transform(Matrix4f res, Vector3d a) {
-        Vector4f transformed = res.transform(new Vector4f((float) a.x, (float) a.y, (float) a.z, 1f));
+    private static Vector3f transform(Matrix4f res, Vector3f a) {
+        Vector4f transformed = res.transform(new Vector4f(a.x, a.y, a.z, 1f));
         Vector3f retVal = new Vector3f();
         transformed.xyz(retVal);
         retVal.div(transformed.w);
