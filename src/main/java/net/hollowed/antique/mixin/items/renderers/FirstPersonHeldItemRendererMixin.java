@@ -20,11 +20,11 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.phys.Vec3;
 
 import org.joml.Matrix4f;
 import org.joml.Quaternionf;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
@@ -53,6 +53,7 @@ public abstract class FirstPersonHeldItemRendererMixin {
 
         if (entity instanceof Player player) {
             if (stack.is(AntiqueItems.MYRIAD_TOOL)) {
+                boolean reproject = true;
                 ClothSkinData.ClothSubData data = ClientClothData.getTransform(stack.getOrDefault(AntiqueDataComponentTypes.MYRIAD_TOOL, Antiquities.getDefaultMyriadTool()).clothType());
 
                 MyriadToolComponent component = stack.getOrDefault(AntiqueDataComponentTypes.MYRIAD_TOOL, Antiquities.getDefaultMyriadTool());
@@ -73,12 +74,15 @@ public abstract class FirstPersonHeldItemRendererMixin {
                 }
                 manager = renderMode == ItemDisplayContext.FIRST_PERSON_RIGHT_HAND ? ClothManager.getOrCreate(entity, Antiquities.id(entity.getId() + "_first_person_right_arm"), data) : ClothManager.getOrCreate(entity, Antiquities.id(entity.getId() + "_first_person_left_arm"), data);
                 switch (renderMode) {
-                    case ItemDisplayContext.NONE ->
-                            manager = ClothManager.getOrCreate(entity, Antiquities.id(entity.getId() + "_back"), data);
+                    case ItemDisplayContext.NONE -> {
+                        manager = ClothManager.getOrCreate(entity, Antiquities.id(entity.getId() + "_back"), data);
+                        reproject = false;
+                    }
                     case ItemDisplayContext.GUI -> manager = null;
                 }
                 if (player.getInventory().getItem(42).equals(stack)) {
                     manager = ClothManager.getOrCreate(entity, Antiquities.id(entity.getId() + "_belt"), data);
+                    reproject = false;
                 }
                 if (manager != null) {
                     Matrix4f reprojectMatrix = this.getReprojectMatrix();
@@ -91,7 +95,7 @@ public abstract class FirstPersonHeldItemRendererMixin {
                             new Color(component.clothColor()),
                             new Color(component.patternColor()),
                             Identifier.parse(component.clothPattern()),
-                            reprojectMatrix
+                            reproject ? reprojectMatrix : new Matrix4f()
                     );
                 }
             }
@@ -100,6 +104,7 @@ public abstract class FirstPersonHeldItemRendererMixin {
         matrices.popPose();
     }
 
+    @Unique
     private Matrix4f getReprojectMatrix() {
         GameRenderer renderer = Minecraft.getInstance().gameRenderer;
         RendererAccessor accessor = (RendererAccessor) renderer;
@@ -107,10 +112,10 @@ public abstract class FirstPersonHeldItemRendererMixin {
         float cameraFov = accessor.getCameraFov(mainCamera, 0.0f, true);
         Matrix4f projectionA = this.getProjection(renderer, cameraFov);
         Matrix4f projectionO = this.getProjection(renderer, 70);
-        Matrix4f reprojectMatrix = projectionO.invert().mul(projectionA);
-        return reprojectMatrix;
+        return projectionO.invert().mul(projectionA);
     }
     
+    @Unique
     private Matrix4f getProjection(GameRenderer renderer, float fov) {
         Camera mainCamera = renderer.getMainCamera();
         Matrix4f projection = renderer.getProjectionMatrix(fov);

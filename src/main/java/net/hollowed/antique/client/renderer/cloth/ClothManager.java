@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+import net.minecraft.tags.FluidTags;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Matrix4f;
 import org.joml.Vector3d;
@@ -26,8 +27,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec2;
 import net.minecraft.world.phys.Vec3;
 
@@ -58,7 +57,7 @@ public class ClothManager {
         bodies.clear();
         this.data = data;
         for (int i = 0; i < Math.abs(BodyCount+1); i++) {
-            ClothBody body = new ClothBody(pos);
+            ClothBody body = new ClothBody(pos, i == 0);
             bodies.add(body);
         }
     }
@@ -76,6 +75,10 @@ public class ClothManager {
         double delta = Minecraft.getInstance().getDeltaTracker().getGameTimeDeltaTicks();
         ClientLevel world = Minecraft.getInstance().level;
 
+        for (ClothBody body : bodies) {
+            body.prevPos = new Vector3d(body.pos);
+        }
+
         if (delta == 0) {
             for (ClothBody body : bodies) {
                 body.posCache.set(body.pos);
@@ -91,8 +94,7 @@ public class ClothManager {
             // Update pass
             for (ClothBody body : bodies) {
                 Vec3 startPos = new Vec3(body.pos.x, body.pos.y, body.pos.z);
-                BlockPos blockPos = BlockPos.containing(startPos);
-                BlockState state = world.getBlockState(blockPos);
+                boolean isWater = world.getFluidState(BlockPos.containing(startPos)).is(FluidTags.WATER);
                 Vector3d vel = new Vector3d(body.pos).sub(body.posCache);
                 double maxVel = 0.05;
                 if (vel.length() > maxVel) {
@@ -104,12 +106,12 @@ public class ClothManager {
                 body.posCache.set(new Vector3d(body.pos).sub(vel));
 
                 // Compute new drag value smoothly
-                double newDrag = Math.random() * (state.getBlock() == Blocks.WATER ? 0.25 : 1.25);
+                double newDrag = Math.random() * (isWater ? 0.25 : 1.25);
                 double smoothDrag = Mth.lerp(delta * 0.1, previousDrag, newDrag);
 
                 // Apply gravity
                 double gravity = 0.05 * gravityMultiplier;
-                if(state.getBlock() == Blocks.WATER) {
+                if(isWater) {
                     gravity *= waterGravityMultiplier;
                 }
                 gravity /= 1;

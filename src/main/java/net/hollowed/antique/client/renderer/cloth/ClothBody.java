@@ -18,19 +18,21 @@ import java.util.Map;
 public class ClothBody {
 
     Vector3d pos;
+    Vector3d prevPos;
     Vector3d posCache;
     Vector3d accel = new Vector3d();
-    boolean isPinned = false;
+    boolean isPinned;
 
-    public ClothBody(Vector3d worldPos) {
-        pos = new Vector3d(worldPos);
+    public ClothBody(Vector3d worldPos, boolean pinned) {
+        pos = prevPos = new Vector3d(worldPos);
         posCache = new Vector3d(worldPos);
+        this.isPinned = pinned;
     }
 
     public void update(double delta) {
-        Vector3d velocity = new Vector3d(pos).sub(posCache).mul(0.96); // Apply drag here
+        Vector3d velocity = new Vector3d(pos).sub(posCache).mul(0.98); // Apply drag here
         posCache.set(pos);
-        Vector3d accelerationTerm = new Vector3d(accel).mul(delta * 0.5);
+        Vector3d accelerationTerm = new Vector3d(accel).mul(delta * 0.4);
         if (!isPinned) {
             pos.add(velocity).add(accelerationTerm);
         }
@@ -46,7 +48,7 @@ public class ClothBody {
         double delta = restLength - dist;
 
         // Normalize the axis and scale by delta * 0.5 for even correction
-        Vector3d correction = axis.normalize().mul(delta * 0.7);
+        Vector3d correction = axis.normalize().mul(delta * 0.9);
 
         // Apply the correction
 //        if (!isPinned) pos.add(correction);
@@ -56,6 +58,10 @@ public class ClothBody {
     public Vector3d getPos() {
         return new Vector3d(pos);
     }
+
+//    public Vector3d getPrevPos() {
+//        return new Vector3d(prevPos);
+//    }
 
     public Vector3d entityCollisionPerchance(ClientLevel world, Entity except) {
         double padding = 0.075;
