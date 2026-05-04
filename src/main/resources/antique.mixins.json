@@ -66,6 +66,7 @@
   },
   "client": [
     "accessors.GetSlotAtAccessor",
+    "accessors.RendererAccessor",
     "entities.features.BackSlotRendererMixin",
     "entities.features.CapeMixin",
     "entities.features.ClothTickMixin",
@@ -79,6 +80,7 @@
     "entities.poses.BipedEntityRendererMixin",
     "entities.projectile.FireworkExplosionParticleMixin",
     "entities.projectile.FireworkParticleMixin",
+    "entities.projectile.FishingHookRendererMixin",
     "entities.states.ArmedEntityRenderStateMixin",
     "entities.states.BipedEntityRendererMixin",
     "entities.states.BipedEntityRenderStateMixin",
@@ -93,11 +95,10 @@
     "items.renderers.HeldItemRendererMixin",
     "items.renderers.ThirdPersonItemMixin",
     "screens.HandledScreenMixin",
-    "screens.HUDOverylayMixin",
+    "screens.PedestalTooltipMixin",
     "screens.ModMenuEntryMixin",
     "screens.ModMenuMixin",
     "screens.MouseMixin",
-    "screens.SatchelOverlayMixin",
-    "accessors.RendererAccessor"
+    "screens.SatchelOverlayMixin"
   ]
 }

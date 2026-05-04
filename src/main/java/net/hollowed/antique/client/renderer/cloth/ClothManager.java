@@ -57,7 +57,7 @@ public class ClothManager {
         bodies.clear();
         this.data = data;
         for (int i = 0; i < Math.abs(BodyCount+1); i++) {
-            ClothBody body = new ClothBody(pos, i == 0);
+            ClothBody body = new ClothBody(pos);
             bodies.add(body);
         }
     }
@@ -72,8 +72,11 @@ public class ClothManager {
         float gravityMultiplier = data.gravity();
         float waterGravityMultiplier = data.waterGravity();
         double length = data.length();
-        double delta = Minecraft.getInstance().getDeltaTracker().getGameTimeDeltaTicks();
+        float delta = Minecraft.getInstance().getDeltaTracker().getGameTimeDeltaTicks();
         ClientLevel world = Minecraft.getInstance().level;
+
+        ClothBody root = bodies.getFirst();
+        root.pos = new Vector3d(root.prevPos).lerp(pos, delta * 2);
 
         for (ClothBody body : bodies) {
             body.prevPos = new Vector3d(body.pos);
@@ -88,8 +91,6 @@ public class ClothManager {
         if (world != null) {
 
             double previousDrag = 0.0;
-
-            bodies.getFirst().isPinned = true;
 
             // Update pass
             for (ClothBody body : bodies) {
@@ -157,10 +158,6 @@ public class ClothManager {
                 body.accel.add(average);
             }
         }
-
-        // Update parent position
-        ClothBody root = bodies.getFirst();
-        root.pos = new Vector3d(pos);
 
         // Check if cloth is too far from the root position
         double maxDistance = 5.0;
@@ -252,8 +249,10 @@ public class ClothManager {
             ClothBody body = bodies.get(i);
             ClothBody nextBody = bodies.get(i + 1);
 
-            Vector3f pos = new Vector3f(body.getPos().sub(cameraPos));
-            Vector3f nextPos = new Vector3f(nextBody.getPos().sub(cameraPos));
+            Vector3f pos = new Vector3f(new Vector3f(body.getPos()).sub(new Vector3f(cameraPos)));
+            Vector3f nextPos = new Vector3f(new Vector3f(nextBody.getPos()).sub(new Vector3f(cameraPos)));
+
+            if (i == 0) pos = new Vector3f(this.pos).sub(new Vector3f(cameraPos));
 
             applyReprojection(reprojectionMatrix, pos, worldPositionWeight);
             applyReprojection(reprojectionMatrix, nextPos, worldPositionWeight);
@@ -324,7 +323,7 @@ public class ClothManager {
             Color finalColor = color;
             int finalLight = light;
 
-            queue.order(i + 1).submitCustomGeometry(matrices, i == 1 ? overlay : layer, ((matricesEntry, vertexConsumer) -> {
+            queue.order(i + 1).submitCustomGeometry(matrices, i == 1 ? overlay : layer, (matricesEntry, vertexConsumer) -> {
                 vertexConsumer.addVertex(matrix, posD.x, posD.y, posD.z).setOverlay(OverlayTexture.NO_OVERLAY).setNormal(0, 1, 0).setLight(finalLight).setUv(uvD.x, uvD.y).setColor(finalColor.getRed(), finalColor.getGreen(), finalColor.getBlue(), finalColor.getAlpha());
                 vertexConsumer.addVertex(matrix, posC.x, posC.y, posC.z).setOverlay(OverlayTexture.NO_OVERLAY).setNormal(0, 1, 0).setLight(finalLight).setUv(uvC.x, uvC.y).setColor(finalColor.getRed(), finalColor.getGreen(), finalColor.getBlue(), finalColor.getAlpha());
                 vertexConsumer.addVertex(matrix, posB.x, posB.y, posB.z).setOverlay(OverlayTexture.NO_OVERLAY).setNormal(0, 1, 0).setLight(finalLight).setUv(uvB.x, uvB.y).setColor(finalColor.getRed(), finalColor.getGreen(), finalColor.getBlue(), finalColor.getAlpha());
@@ -334,7 +333,7 @@ public class ClothManager {
                 vertexConsumer.addVertex(matrix, posB.x, posB.y, posB.z).setOverlay(OverlayTexture.NO_OVERLAY).setNormal(0, 1, 0).setLight(finalLight).setUv(uvB.x, uvB.y).setColor(finalColor.getRed(), finalColor.getGreen(), finalColor.getBlue(), finalColor.getAlpha());
                 vertexConsumer.addVertex(matrix, posC.x, posC.y, posC.z).setOverlay(OverlayTexture.NO_OVERLAY).setNormal(0, 1, 0).setLight(finalLight).setUv(uvC.x, uvC.y).setColor(finalColor.getRed(), finalColor.getGreen(), finalColor.getBlue(), finalColor.getAlpha());
                 vertexConsumer.addVertex(matrix, posD.x, posD.y, posD.z).setOverlay(OverlayTexture.NO_OVERLAY).setNormal(0, 1, 0).setLight(finalLight).setUv(uvD.x, uvD.y).setColor(finalColor.getRed(), finalColor.getGreen(), finalColor.getBlue(), finalColor.getAlpha());
-            }));
+            });
         }
     }
 }

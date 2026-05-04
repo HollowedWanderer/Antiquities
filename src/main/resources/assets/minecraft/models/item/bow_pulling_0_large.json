@@ -1,6 +1,0 @@
-{
-  "parent": "minecraft:item/bow_large",
-  "textures": {
-    "layer0": "item/bow_pulling_0_large"
-  }
-}

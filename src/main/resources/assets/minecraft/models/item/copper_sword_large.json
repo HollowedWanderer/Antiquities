@@ -1,7 +1,0 @@
-{
-	"parent": "minecraft:item/large_sword",
-	"textures": {
-		"layer0": "minecraft:item/copper_sword_large",
-		"particle": "minecraft:item/copper_sword_large"
-	}
-}

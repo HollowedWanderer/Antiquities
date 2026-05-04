@@ -1,8 +1,0 @@
-{
-	"credit": "Made with Blockbench",
-	"parent": "minecraft:item/large_tool",
-	"textures": {
-		"layer0": "item/netherite_shovel_large",
-		"particle": "item/netherite_shovel_large"
-	}
-}

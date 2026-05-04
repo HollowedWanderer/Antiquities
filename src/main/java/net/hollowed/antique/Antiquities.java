@@ -20,17 +20,20 @@ import net.hollowed.antique.networking.*;
 import net.hollowed.antique.util.resources.*;
 import net.hollowed.antique.util.delay.TickDelayScheduler;
 import net.minecraft.core.Registry;
+import net.minecraft.core.component.DataComponentMap;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.packs.PackType;
-import net.minecraft.world.item.CreativeModeTab;
-import net.minecraft.world.item.CreativeModeTabs;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
+import net.minecraft.world.entity.EquipmentSlotGroup;
+import net.minecraft.world.entity.ai.attributes.AttributeModifier;
+import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.item.*;
 import net.minecraft.world.item.component.DyedItemColor;
+import net.minecraft.world.item.component.ItemAttributeModifiers;
+import net.minecraft.world.item.component.SwingAnimation;
 import net.minecraft.world.item.enchantment.Enchantable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -122,7 +125,47 @@ public class Antiquities implements ModInitializer {
 				(builder, item) -> builder.set(DataComponents.ITEM_NAME, Component.translatable(item.getDescriptionId()).withColor(0xc57dbe))
 		));
 
+		DefaultItemComponentEvents.MODIFY.register(ctx -> ctx.modify(
+				List.of(Items.WOODEN_SPEAR, Items.STONE_SPEAR, Items.IRON_SPEAR, Items.GOLDEN_SPEAR, Items.DIAMOND_SPEAR, Items.NETHERITE_SPEAR),
+				(builder, item) -> builder.set(
+						DataComponents.SWING_ANIMATION, new SwingAnimation(SwingAnimationType.STAB, (int)((1.0 / (getAttackSpeed(builder) + 4) - 0.25) * 20.0F))
+				).set(
+						DataComponents.ATTRIBUTE_MODIFIERS,
+						ItemAttributeModifiers.builder()
+								.add(
+										Attributes.ATTACK_DAMAGE,
+										new AttributeModifier(Item.BASE_ATTACK_DAMAGE_ID, getAttackDamage(builder) + 2, AttributeModifier.Operation.ADD_VALUE),
+										EquipmentSlotGroup.MAINHAND
+								)
+								.add(
+										Attributes.ATTACK_SPEED,
+										new AttributeModifier(Item.BASE_ATTACK_SPEED_ID, 1 / (1.0 / (getAttackSpeed(builder) + 4) - 0.25) - 4, AttributeModifier.Operation.ADD_VALUE),
+										EquipmentSlotGroup.MAINHAND
+								)
+								.build()
+				)
+		));
 
+		DefaultItemComponentEvents.MODIFY.register(ctx -> ctx.modify(
+				List.of(Items.COPPER_SPEAR),
+				(builder, item) -> builder.set(
+						DataComponents.SWING_ANIMATION, new SwingAnimation(SwingAnimationType.STAB, (int)((1.0 / (getAttackSpeed(builder) + 4) - 0.25) * 20.0F))
+				).set(
+						DataComponents.ATTRIBUTE_MODIFIERS,
+						ItemAttributeModifiers.builder()
+								.add(
+										Attributes.ATTACK_DAMAGE,
+										new AttributeModifier(Item.BASE_ATTACK_DAMAGE_ID, getAttackDamage(builder) + 2, AttributeModifier.Operation.ADD_VALUE),
+										EquipmentSlotGroup.MAINHAND
+								)
+								.add(
+										Attributes.ATTACK_SPEED,
+										new AttributeModifier(Item.BASE_ATTACK_SPEED_ID, -2, AttributeModifier.Operation.ADD_VALUE),
+										EquipmentSlotGroup.MAINHAND
+								)
+								.build()
+				)
+		));
 
 		DefaultItemComponentEvents.MODIFY.register(ctx -> ctx.modify(
 				List.of(
@@ -152,6 +195,26 @@ public class Antiquities implements ModInitializer {
 		ItemGroupEvents.modifyEntriesEvent(CreativeModeTabs.SPAWN_EGGS).register(itemGroup -> {
 			itemGroup.addAfter(Items.WITCH_SPAWN_EGG, AntiqueItems.ILLUSIONER_SPAWN_EGG);
 		});
+	}
+
+	private static double getAttackDamage(DataComponentMap.Builder builder) {
+		List<ItemAttributeModifiers.Entry> list = builder.getOrDefault(DataComponents.ATTRIBUTE_MODIFIERS, ItemAttributeModifiers.EMPTY).modifiers();
+		for (ItemAttributeModifiers.Entry entry : list) {
+			if (entry.attribute().equals(Attributes.ATTACK_DAMAGE)) {
+				return entry.modifier().amount();
+			}
+		}
+		return 0;
+	}
+
+	private static double getAttackSpeed(DataComponentMap.Builder builder) {
+		List<ItemAttributeModifiers.Entry> list = builder.getOrDefault(DataComponents.ATTRIBUTE_MODIFIERS, ItemAttributeModifiers.EMPTY).modifiers();
+		for (ItemAttributeModifiers.Entry entry : list) {
+			if (entry.attribute().equals(Attributes.ATTACK_SPEED)) {
+				return entry.modifier().amount();
+			}
+		}
+		return 0;
 	}
 
 	public static final ResourceKey<CreativeModeTab> ANTIQUITIES_ITEMS_GROUP_KEY = ResourceKey.create(BuiltInRegistries.CREATIVE_MODE_TAB.key(), Identifier.fromNamespaceAndPath(MOD_ID, "antiquities_items_group"));
@@ -255,7 +318,8 @@ public class Antiquities implements ModInitializer {
 			itemGroup.accept(AntiqueItems.MYRIAD_PAULDRONS);
 			itemGroup.accept(AntiqueItems.SATCHEL);
 			itemGroup.accept(AntiqueItems.FUR_BOOTS);
-			itemGroup.accept(AntiqueItems.SCEPTER);
+			itemGroup.accept(AntiqueItems.AMETHYST_FORK);
+			//itemGroup.accept(AntiqueItems.SCEPTER);
 			itemGroup.accept(AntiqueItems.WARHORN);
 		});
 	}

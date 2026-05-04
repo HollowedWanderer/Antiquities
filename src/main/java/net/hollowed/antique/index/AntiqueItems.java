@@ -58,6 +58,9 @@ public interface AntiqueItems {
             .rarity(Rarity.UNCOMMON)
             .fireResistant()
     ));
+    Item AMETHYST_FORK = register("amethyst_fork", settings -> new AmethystForkItem(settings.stacksTo(1)
+            .attributes(AmethystForkItem.createAttributeModifiers())
+    ));
     Item SCEPTER = register("scepter", settings -> new ScepterItem(settings.stacksTo(1)
             .attributes(ScepterItem.createAttributeModifiers())
             .enchantable(10)

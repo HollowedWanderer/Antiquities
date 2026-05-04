@@ -1,8 +1,0 @@
-{
-  "item": "#antique:shovels",
-  "scale": [1.85, 1.85, 0.925],
-  "rotation": [0.0, 0.0, 90.0],
-  "translation": [-0.3, 0.3, 0.0],
-  "mode": "NONE",
-  "sway": 0.5
-}

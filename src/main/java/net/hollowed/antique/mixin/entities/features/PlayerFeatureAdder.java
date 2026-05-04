@@ -17,6 +17,8 @@ import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.LivingEntityRenderer;
 import net.minecraft.client.renderer.entity.player.AvatarRenderer;
 import net.minecraft.client.renderer.entity.state.AvatarRenderState;
+import net.minecraft.client.renderer.rendertype.RenderTypes;
+import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.Identifier;
 import net.minecraft.tags.TagKey;
@@ -24,6 +26,7 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.Avatar;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.item.ItemStack;
+import org.jetbrains.annotations.NotNull;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
@@ -31,16 +34,16 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-@SuppressWarnings("all") // this class is still broken - fix please
+
 @Mixin(AvatarRenderer.class)
-public abstract class PlayerFeatureAdder extends LivingEntityRenderer<AbstractClientPlayer, AvatarRenderState, PlayerModel> {
+public abstract class PlayerFeatureAdder extends LivingEntityRenderer<@NotNull AbstractClientPlayer, @NotNull AvatarRenderState, @NotNull PlayerModel> {
 
     @Unique
     private static final Identifier TEXTURE = Identifier.fromNamespaceAndPath(Antiquities.MOD_ID, "textures/entity/adventure_armor.png");
     @Unique
     private static final Identifier THICK_TEXTURE = Identifier.fromNamespaceAndPath(Antiquities.MOD_ID, "textures/entity/adventure_armor_thick.png");
     @Unique
-    private AdventureArmor<AvatarRenderState> armorModel;
+    private AdventureArmor<@NotNull AvatarRenderState> armorModel;
     @Unique
     private boolean slim = false;
 
@@ -78,16 +81,13 @@ public abstract class PlayerFeatureAdder extends LivingEntityRenderer<AbstractCl
         if (player == null) return;
         if (player.getItemBySlot(EquipmentSlot.CHEST).getItem() == AntiqueItems.MYRIAD_PAULDRONS) {
             matrices.mulPose(Axis.ZP.rotationDegrees(-5));
-            matrices.translate(0.075, 0, 0);
+            matrices.translate(0.325, 0.1, 0);
             if (slim) {
-//                VertexConsumer vertexConsumer = ItemRenderer.getArmorGlintConsumer(vertexConsumers, RenderLayer.getArmorCutoutNoCull(TEXTURE),
-//                        player.getEquippedStack(EquipmentSlot.CHEST).hasGlint());
-//                armorModel.leftArm.render(matrices, vertexConsumer, light, OverlayTexture.DEFAULT_UV);
+                queue.order(1).submitModelPart(armorModel.leftArmArmor, matrices, RenderTypes.armorCutoutNoCull(TEXTURE), light, OverlayTexture.NO_OVERLAY, null);
+                if (player.getItemBySlot(EquipmentSlot.CHEST).hasFoil()) queue.order(2).submitModelPart(armorModel.leftArmArmor, matrices, RenderTypes.armorEntityGlint(), light, OverlayTexture.NO_OVERLAY, null);
             } else {
-                matrices.translate(-0.075, 0, 0);
-//                VertexConsumer vertexConsumer = ItemRenderer.getArmorGlintConsumer(vertexConsumers, RenderLayer.getArmorCutoutNoCull(THICK_TEXTURE),
-//                        player.getEquippedStack(EquipmentSlot.CHEST).hasGlint());
-//                armorModel.leftArmThick.render(matrices, vertexConsumer, light, OverlayTexture.DEFAULT_UV);
+                queue.order(1).submitModelPart(armorModel.leftArmArmorThick, matrices, RenderTypes.armorCutoutNoCull(THICK_TEXTURE), light, OverlayTexture.NO_OVERLAY, null);
+                if (player.getItemBySlot(EquipmentSlot.CHEST).hasFoil()) queue.order(2).submitModelPart(armorModel.leftArmArmorThick, matrices, RenderTypes.armorEntityGlint(), light, OverlayTexture.NO_OVERLAY, null);
             }
         }
     }
@@ -98,17 +98,13 @@ public abstract class PlayerFeatureAdder extends LivingEntityRenderer<AbstractCl
         if (player == null) return;
         if (player.getItemBySlot(EquipmentSlot.CHEST).getItem() == AntiqueItems.MYRIAD_PAULDRONS) {
             matrices.mulPose(Axis.ZP.rotationDegrees(5));
-            matrices.translate(-0.075, 0, 0);
+            matrices.translate(-0.325, 0.1, 0);
             if (slim) {
-                // TODO: just add this back
-//                VertexConsumer vertexConsumer = ItemRenderer.getArmorGlintConsumer(vertexConsumers, RenderLayer.getArmorCutoutNoCull(TEXTURE),
-//                        player.getEquippedStack(EquipmentSlot.CHEST).hasGlint());
-//                armorModel.rightArm.render(matrices, vertexConsumer, light, OverlayTexture.DEFAULT_UV);
+                queue.order(1).submitModelPart(armorModel.rightArmArmor, matrices, RenderTypes.armorCutoutNoCull(TEXTURE), light, OverlayTexture.NO_OVERLAY, null);
+                if (player.getItemBySlot(EquipmentSlot.CHEST).hasFoil()) queue.order(2).submitModelPart(armorModel.rightArmArmor, matrices, RenderTypes.armorEntityGlint(), light, OverlayTexture.NO_OVERLAY, null);
             } else {
-                matrices.translate(0.05, 0, 0);
-//                VertexConsumer vertexConsumer = ItemRenderer.getArmorGlintConsumer(vertexConsumers, RenderLayer.getArmorCutoutNoCull(THICK_TEXTURE),
-//                        player.getEquippedStack(EquipmentSlot.CHEST).hasGlint());
-//                armorModel.rightArmThick.render(matrices, vertexConsumer, light, OverlayTexture.DEFAULT_UV);
+                queue.order(1).submitModelPart(armorModel.rightArmArmorThick, matrices, RenderTypes.armorCutoutNoCull(THICK_TEXTURE), light, OverlayTexture.NO_OVERLAY, null);
+                if (player.getItemBySlot(EquipmentSlot.CHEST).hasFoil()) queue.order(2).submitModelPart(armorModel.rightArmArmorThick, matrices, RenderTypes.armorEntityGlint(), light, OverlayTexture.NO_OVERLAY, null);
             }
         }
     }

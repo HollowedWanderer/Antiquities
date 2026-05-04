@@ -21,21 +21,17 @@ public class ClothBody {
     Vector3d prevPos;
     Vector3d posCache;
     Vector3d accel = new Vector3d();
-    boolean isPinned;
 
-    public ClothBody(Vector3d worldPos, boolean pinned) {
+    public ClothBody(Vector3d worldPos) {
         pos = prevPos = new Vector3d(worldPos);
         posCache = new Vector3d(worldPos);
-        this.isPinned = pinned;
     }
 
     public void update(double delta) {
-        Vector3d velocity = new Vector3d(pos).sub(posCache).mul(0.98); // Apply drag here
+        Vector3d velocity = new Vector3d(pos).sub(posCache).mul(0.96); // Apply drag here
         posCache.set(pos);
         Vector3d accelerationTerm = new Vector3d(accel).mul(delta * 0.4);
-        if (!isPinned) {
-            pos.add(velocity).add(accelerationTerm);
-        }
+        pos.add(velocity).add(accelerationTerm);
         accel.zero();
     }
 
@@ -48,7 +44,7 @@ public class ClothBody {
         double delta = restLength - dist;
 
         // Normalize the axis and scale by delta * 0.5 for even correction
-        Vector3d correction = axis.normalize().mul(delta * 0.9);
+        Vector3d correction = axis.normalize().mul(delta * 0.25);
 
         // Apply the correction
 //        if (!isPinned) pos.add(correction);
@@ -59,10 +55,6 @@ public class ClothBody {
         return new Vector3d(pos);
     }
 
-//    public Vector3d getPrevPos() {
-//        return new Vector3d(prevPos);
-//    }
-
     public Vector3d entityCollisionPerchance(ClientLevel world, Entity except) {
         double padding = 0.075;
 
@@ -70,8 +62,10 @@ public class ClothBody {
 
         Map<AABB, Entity> collBoxes = new HashMap<>();
         for (Entity entity : world.getEntities(except, new AABB(startPos.subtract(0.1), startPos.add(0.1)))) {
-            if (!(entity instanceof MyriadShovelPart) && !except.equals(Minecraft.getInstance().player)) {
-                collBoxes.put(entity.getBoundingBox(), entity);
+            if (!(entity instanceof MyriadShovelPart)) {
+                if (Minecraft.getInstance().player != null && !except.equals(Minecraft.getInstance().player)) {
+                    collBoxes.put(entity.getBoundingBox(), entity);
+                }
             }
         }
 
@@ -106,7 +100,7 @@ public class ClothBody {
             }
         }
 
-        if (!isPinned && collisionAccel.length() < 0.15) {
+        if (collisionAccel.length() < 0.15) {
             pos = new Vector3d(x + dx, y + dy, z + dz);
         }
         return new Vector3d(accel).add(collisionAccel);
@@ -128,7 +122,7 @@ public class ClothBody {
         VoxelShape worldShape = shape.move(blockPos.getX(), blockPos.getY(), blockPos.getZ());
         List<AABB> collBoxes = worldShape.toAabbs();
 
-        // We'll treat the point as an itty-bitty bounding box
+        // Itty-bitty bounding box
         double x = startPos.x;
         double y = startPos.y;
         double z = startPos.z;
@@ -155,16 +149,13 @@ public class ClothBody {
             }
         }
 
-        if (!isPinned) {
-            pos = new Vector3d(x + dx, y + dy, z + dz);
-        }
+        pos = new Vector3d(x + dx, y + dy, z + dz);
     }
 
-    // Helper to find overlap between two intervals
     private double getOverlap(double minA, double maxA, double minB, double maxB) {
-        if (maxA <= minB || minA >= maxB) return 0.0;  // no overlap
-        double push1 = maxB - minA;  // push forward
-        double push2 = minB - maxA;  // push backward
+        if (maxA <= minB || minA >= maxB) return 0.0;
+        double push1 = maxB - minA;
+        double push2 = minB - maxA;
         return Math.abs(push1) < Math.abs(push2) ? push1 : push2;
     }
 }

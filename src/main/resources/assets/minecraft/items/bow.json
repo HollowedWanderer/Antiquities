@@ -1,325 +1,149 @@
 {
   "model": {
-    "type": "minecraft:select",
-    "cases": [
-      {
-        "model": {
-          "type": "minecraft:condition",
-          "on_false": {
-            "type": "minecraft:model",
-            "model": "minecraft:item/bow"
-          },
-          "on_true": {
-            "type": "minecraft:range_dispatch",
-            "entries": [
+    "type": "minecraft:condition",
+    "on_false": {
+      "type": "minecraft:model",
+      "model": "minecraft:item/bow"
+    },
+    "on_true": {
+      "type": "minecraft:range_dispatch",
+      "entries": [
+        {
+          "model": {
+            "type": "minecraft:select",
+            "cases": [
               {
                 "model": {
-                  "type": "minecraft:select",
-                  "cases": [
-                    {
-                      "model": {
-                        "type": "minecraft:model",
-                        "model": "minecraft:item/bow_pulling_1"
-                      },
-                      "when": [
-                        "arrow",
-                        "none"
-                      ]
-                    },
-                    {
-                      "model": {
-                        "type": "minecraft:model",
-                        "model": "minecraft:item/bow_pulling_1_tipped",
-                        "tints": [
-                          {
-                            "type": "minecraft:dye",
-                            "default": 13893696
-                          }
-                        ]
-                      },
-                      "when": [
-                        "tipped_arrow"
-                      ]
-                    },
-                    {
-                      "model": {
-                        "type": "minecraft:model",
-                        "model": "minecraft:item/bow_pulling_1_spectral"
-                      },
-                      "when": [
-                        "spectral_arrow"
-                      ]
-                    }
-                  ],
-                  "property": "antique:projectile_type"
+                  "type": "minecraft:model",
+                  "model": "minecraft:item/bow_pulling_1"
                 },
-                "threshold": 0.65
-              },
-              {
-                "model": {
-                  "type": "minecraft:select",
-                  "cases": [
-                    {
-                      "model": {
-                        "type": "minecraft:model",
-                        "model": "minecraft:item/bow_pulling_2"
-                      },
-                      "when": [
-                        "arrow",
-                        "none"
-                      ]
-                    },
-                    {
-                      "model": {
-                        "type": "minecraft:model",
-                        "model": "minecraft:item/bow_pulling_2_tipped",
-                        "tints": [
-                          {
-                            "type": "minecraft:dye",
-                            "default": 13893696
-                          }
-                        ]
-                      },
-                      "when": [
-                        "tipped_arrow"
-                      ]
-                    },
-                    {
-                      "model": {
-                        "type": "minecraft:model",
-                        "model": "minecraft:item/bow_pulling_2_spectral"
-                      },
-                      "when": [
-                        "spectral_arrow"
-                      ]
-                    }
-                  ],
-                  "property": "antique:projectile_type"
-                },
-                "threshold": 0.9
-              }
-            ],
-            "fallback": {
-              "type": "minecraft:select",
-              "cases": [
-                {
-                  "model": {
-                    "type": "minecraft:model",
-                    "model": "minecraft:item/bow_pulling_0"
-                  },
-                  "when": [
-                    "arrow",
-                    "none"
-                  ]
-                },
-                {
-                  "model": {
-                    "type": "minecraft:model",
-                    "model": "minecraft:item/bow_pulling_0_tipped",
-                    "tints": [
-                      {
-                        "type": "minecraft:dye",
-                        "default": 13893696
-                      }
-                    ]
-                  },
-                  "when": [
-                    "tipped_arrow"
-                  ]
-                },
-                {
-                  "model": {
-                    "type": "minecraft:model",
-                    "model": "minecraft:item/bow_pulling_0_spectral"
-                  },
-                  "when": [
-                    "spectral_arrow"
-                  ]
-                }
-              ],
-              "property": "antique:projectile_type"
-            },
-            "property": "minecraft:use_duration",
-            "scale": 0.05
-          },
-          "property": "minecraft:using_item"
-        },
-        "when": [
-          "gui",
-          "ground",
-          "head",
-          "fixed"
-        ]
-      }
-    ],
-    "fallback": {
-      "type": "minecraft:condition",
-      "on_false": {
-        "type": "minecraft:model",
-        "model": "minecraft:item/bow_large"
-      },
-      "on_true": {
-        "type": "minecraft:range_dispatch",
-        "entries": [
-          {
-            "model": {
-              "type": "minecraft:select",
-              "cases": [
-                {
-                  "model": {
-                    "type": "minecraft:model",
-                    "model": "minecraft:item/bow_pulling_1_large"
-                  },
-                  "when": [
-                    "arrow",
-                    "none"
-                  ]
-                },
-                {
-                  "model": {
-                    "type": "minecraft:model",
-                    "model": "minecraft:item/bow_pulling_1_tipped_large",
-                    "tints": [
-                      {
-                        "type": "minecraft:dye",
-                        "default": 13893696
-                      }
-                    ]
-                  },
-                  "when": [
-                    "tipped_arrow"
-                  ]
-                },
-                {
-                  "model": {
-                    "type": "minecraft:model",
-                    "model": "minecraft:item/bow_pulling_1_spectral_large"
-                  },
-                  "when": [
-                    "spectral_arrow"
-                  ]
-                },
-                {
-                  "model": {
-                    "type": "minecraft:model",
-                    "model": "minecraft:item/bow_pulling_1_firework"
-                  },
-                  "when": [
-                    "firework_rocket"
-                  ]
-                }
-              ],
-              "property": "antique:projectile_type"
-            },
-            "threshold": 0.65
-          },
-          {
-            "model": {
-              "type": "minecraft:select",
-              "cases": [
-                {
-                  "model": {
-                    "type": "minecraft:model",
-                    "model": "minecraft:item/bow_pulling_2_large"
-                  },
-                  "when": [
-                    "arrow",
-                    "none"
-                  ]
-                },
-                {
-                  "model": {
-                    "type": "minecraft:model",
-                    "model": "minecraft:item/bow_pulling_2_tipped_large",
-                    "tints": [
-                      {
-                        "type": "minecraft:dye",
-                        "default": 13893696
-                      }
-                    ]
-                  },
-                  "when": [
-                    "tipped_arrow"
-                  ]
-                },
-                {
-                  "model": {
-                    "type": "minecraft:model",
-                    "model": "minecraft:item/bow_pulling_2_spectral_large"
-                  },
-                  "when": [
-                    "spectral_arrow"
-                  ]
-                },
-                {
-                  "model": {
-                    "type": "minecraft:model",
-                    "model": "minecraft:item/bow_pulling_2_firework"
-                  },
-                  "when": [
-                    "firework_rocket"
-                  ]
-                }
-              ],
-              "property": "antique:projectile_type"
-            },
-            "threshold": 0.9
-          }
-        ],
-        "fallback": {
-          "type": "minecraft:select",
-          "cases": [
-            {
-              "model": {
-                "type": "minecraft:model",
-                "model": "minecraft:item/bow_pulling_0_large"
-              },
-              "when": [
-                "arrow",
-                "none"
-              ]
-            },
-            {
-              "model": {
-                "type": "minecraft:model",
-                "model": "minecraft:item/bow_pulling_0_tipped_large",
-                "tints": [
-                  {
-                    "type": "minecraft:dye",
-                    "default": 13893696
-                  }
+                "when": [
+                  "arrow",
+                  "none"
                 ]
               },
-              "when": [
-                "tipped_arrow"
-              ]
-            },
-            {
-              "model": {
-                "type": "minecraft:model",
-                "model": "minecraft:item/bow_pulling_0_spectral_large"
+              {
+                "model": {
+                  "type": "minecraft:model",
+                  "model": "minecraft:item/bow_pulling_1_tipped",
+                  "tints": [
+                    {
+                      "type": "minecraft:dye",
+                      "default": 13893696
+                    }
+                  ]
+                },
+                "when": [
+                  "tipped_arrow"
+                ]
               },
-              "when": [
-                "spectral_arrow"
-              ]
-            },
-            {
-              "model": {
-                "type": "minecraft:model",
-                "model": "minecraft:item/bow_pulling_0_firework"
-              },
-              "when": [
-                "firework_rocket"
-              ]
-            }
-          ],
-          "property": "antique:projectile_type"
+              {
+                "model": {
+                  "type": "minecraft:model",
+                  "model": "minecraft:item/bow_pulling_1_spectral"
+                },
+                "when": [
+                  "spectral_arrow"
+                ]
+              }
+            ],
+            "property": "antique:projectile_type"
+          },
+          "threshold": 0.65
         },
-        "property": "minecraft:use_duration",
-        "scale": 0.05
+        {
+          "model": {
+            "type": "minecraft:select",
+            "cases": [
+              {
+                "model": {
+                  "type": "minecraft:model",
+                  "model": "minecraft:item/bow_pulling_2"
+                },
+                "when": [
+                  "arrow",
+                  "none"
+                ]
+              },
+              {
+                "model": {
+                  "type": "minecraft:model",
+                  "model": "minecraft:item/bow_pulling_2_tipped",
+                  "tints": [
+                    {
+                      "type": "minecraft:dye",
+                      "default": 13893696
+                    }
+                  ]
+                },
+                "when": [
+                  "tipped_arrow"
+                ]
+              },
+              {
+                "model": {
+                  "type": "minecraft:model",
+                  "model": "minecraft:item/bow_pulling_2_spectral"
+                },
+                "when": [
+                  "spectral_arrow"
+                ]
+              }
+            ],
+            "property": "antique:projectile_type"
+          },
+          "threshold": 0.9
+        }
+      ],
+      "fallback": {
+        "type": "minecraft:select",
+        "cases": [
+          {
+            "model": {
+              "type": "minecraft:model",
+              "model": "minecraft:item/bow_pulling_0"
+            },
+            "when": [
+              "arrow",
+              "none"
+            ]
+          },
+          {
+            "model": {
+              "type": "minecraft:model",
+              "model": "minecraft:item/bow_pulling_0_tipped",
+              "tints": [
+                {
+                  "type": "minecraft:dye",
+                  "default": 13893696
+                }
+              ]
+            },
+            "when": [
+              "tipped_arrow"
+            ]
+          },
+          {
+            "model": {
+              "type": "minecraft:model",
+              "model": "minecraft:item/bow_pulling_0_spectral"
+            },
+            "when": [
+              "spectral_arrow"
+            ]
+          }
+        ],
+        "property": "antique:projectile_type"
       },
-      "property": "minecraft:using_item"
+      "property": "minecraft:use_duration",
+      "scale": 0.05
     },
-    "property": "minecraft:display_context"
-  }
+    "property": "minecraft:using_item"
+  },
+  "when": [
+    "gui",
+    "ground",
+    "head",
+    "fixed"
+  ]
 }

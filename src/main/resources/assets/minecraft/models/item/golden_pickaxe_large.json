@@ -1,7 +1,0 @@
-{
-	"credit": "Made with Blockbench",
-	"parent": "minecraft:item/large_tool",
-	"textures": {
-		"layer0": "item/golden_pickaxe_large"
-	}
-}

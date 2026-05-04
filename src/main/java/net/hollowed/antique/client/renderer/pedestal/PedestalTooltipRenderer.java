@@ -23,7 +23,7 @@ public class PedestalTooltipRenderer {
         if (client.player == null) return;
 
         // Get the tooltip text
-        List<Component> textList = itemStack.getTooltipLines(Item.TooltipContext.EMPTY, client.player, client.options.advancedItemTooltips ? TooltipFlag.NORMAL : TooltipFlag.ADVANCED);
+        List<Component> textList = itemStack.getTooltipLines(Item.TooltipContext.EMPTY, client.player, client.options.advancedItemTooltips ? TooltipFlag.ADVANCED : TooltipFlag.NORMAL);
         List<ClientTooltipComponent> components = new java.util.ArrayList<>();
 
         for (Component text : textList) {

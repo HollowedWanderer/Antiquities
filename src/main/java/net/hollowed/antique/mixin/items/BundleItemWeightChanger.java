@@ -2,7 +2,6 @@ package net.hollowed.antique.mixin.items;
 
 import net.minecraft.world.item.BundleItem;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.PotionItem;
 import net.minecraft.world.item.component.BundleContents;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -18,10 +17,8 @@ public abstract class BundleItemWeightChanger {
         Fraction occupancy = Fraction.getFraction(1, stack.getMaxStackSize());
 
         if (!(stack.getItem() instanceof BundleItem)) {
-            if (stack.getItem() instanceof PotionItem) {
-                occupancy = occupancy.multiplyBy(Fraction.getFraction(1, 3));
-            } else if (!stack.isStackable()) {
-                occupancy = occupancy.multiplyBy(Fraction.getFraction(1, 4));
+            if (!stack.isStackable()) {
+                occupancy = occupancy.multiplyBy(Fraction.getFraction(1, 6));
             }
         }
 
