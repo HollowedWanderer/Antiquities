@@ -30,7 +30,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public abstract class EntityLootMixin extends Entity {
 
     @Unique
-    private static final TagKey<EntityType<?>> FORCE_LOOT = TagKey.create(BuiltInRegistries.ENTITY_TYPE.key(), Identifier.fromNamespaceAndPath(Antiquities.MOD_ID, "force_loot"));
+    private static final TagKey<EntityType<?>> FORCE_LOOT = TagKey.create(BuiltInRegistries.ENTITY_TYPE.key(), Antiquities.id("force_loot"));
 
     @Shadow protected int lastHurtByPlayerMemoryTime;
 

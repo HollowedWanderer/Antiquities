@@ -24,8 +24,8 @@ import org.jetbrains.annotations.NotNull;
 @Environment(EnvType.CLIENT)
 public class AdventureArmorFeatureRenderer implements ArmorRenderer {
 
-    private static final Identifier TEXTURE = Identifier.fromNamespaceAndPath(Antiquities.MOD_ID, "textures/entity/adventure_armor.png");
-    private static final Identifier THICK_TEXTURE = Identifier.fromNamespaceAndPath(Antiquities.MOD_ID, "textures/entity/adventure_armor_thick.png");
+    private static final Identifier TEXTURE = Antiquities.id("textures/entity/adventure_armor.png");
+    private static final Identifier THICK_TEXTURE = Antiquities.id("textures/entity/adventure_armor_thick.png");
 
     private final AdventureArmor<@NotNull HumanoidRenderState> model;
 

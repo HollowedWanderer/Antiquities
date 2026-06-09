@@ -47,7 +47,7 @@ public abstract class ModMenuEntryMixin extends Screen {
 
             if ("antique".equals(mod.getId())) {
                 DrawContext.drawString(this.font, Language.getInstance().getVisualOrder(trimmedName), this.rightPaneX + imageOffset, 49, nameColor, true);
-                DrawContext.blit(RenderPipelines.GUI_TEXTURED, Identifier.fromNamespaceAndPath(Antiquities.MOD_ID, "antiquities_small_icon.png"), this.rightPaneX + imageOffset + 50, 45, 0, 0, 16, 16, 16, 16);
+                DrawContext.blit(RenderPipelines.GUI_TEXTURED, Antiquities.id("antiquities_small_icon.png"), this.rightPaneX + imageOffset + 50, 45, 0, 0, 16, 16, 16, 16);
             }
         }
     }

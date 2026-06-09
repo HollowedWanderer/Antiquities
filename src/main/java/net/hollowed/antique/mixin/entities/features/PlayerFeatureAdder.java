@@ -39,9 +39,9 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 public abstract class PlayerFeatureAdder extends LivingEntityRenderer<@NotNull AbstractClientPlayer, @NotNull AvatarRenderState, @NotNull PlayerModel> {
 
     @Unique
-    private static final Identifier TEXTURE = Identifier.fromNamespaceAndPath(Antiquities.MOD_ID, "textures/entity/adventure_armor.png");
+    private static final Identifier TEXTURE = Antiquities.id("textures/entity/adventure_armor.png");
     @Unique
-    private static final Identifier THICK_TEXTURE = Identifier.fromNamespaceAndPath(Antiquities.MOD_ID, "textures/entity/adventure_armor_thick.png");
+    private static final Identifier THICK_TEXTURE = Antiquities.id("textures/entity/adventure_armor_thick.png");
     @Unique
     private AdventureArmor<@NotNull AvatarRenderState> armorModel;
     @Unique
@@ -59,7 +59,7 @@ public abstract class PlayerFeatureAdder extends LivingEntityRenderer<@NotNull A
 
     @Inject(method = "getArmPose(Lnet/minecraft/world/entity/Avatar;Lnet/minecraft/world/item/ItemStack;Lnet/minecraft/world/InteractionHand;)Lnet/minecraft/client/model/HumanoidModel$ArmPose;", at = @At("HEAD"), cancellable = true)
     private static void getArmPose(Avatar player, ItemStack stack, InteractionHand hand, CallbackInfoReturnable<HumanoidModel.ArmPose> cir) {
-        if (stack.getTags().toList().contains(TagKey.create(Registries.ITEM, Identifier.fromNamespaceAndPath(Antiquities.MOD_ID, "two_handed")))) {
+        if (stack.getTags().toList().contains(TagKey.create(Registries.ITEM, Antiquities.id("two_handed")))) {
             if (!player.isUsingItem() && !player.swinging && !player.isShiftKeyDown()) {
                 cir.setReturnValue(HumanoidModel.ArmPose.CROSSBOW_CHARGE);
             } else if (player.isShiftKeyDown() || player.swinging) {

@@ -10,7 +10,7 @@ import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
 public record PedestalPacketPayload(BlockPos blockPos, ItemStack stack) implements CustomPacketPayload {
-    public static final CustomPacketPayload.Type<@NotNull PedestalPacketPayload> ID = new CustomPacketPayload.Type<>(Identifier.fromNamespaceAndPath(Antiquities.MOD_ID, "pedestal_packet"));
+    public static final CustomPacketPayload.Type<@NotNull PedestalPacketPayload> ID = new CustomPacketPayload.Type<>(Antiquities.id("pedestal_packet"));
 
     public static final StreamCodec<RegistryFriendlyByteBuf, PedestalPacketPayload> CODEC = StreamCodec.ofMember(PedestalPacketPayload::write, PedestalPacketPayload::new);
 

@@ -10,8 +10,8 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.Level;
 
 public class AntiqueDamageTypes {
-    public static final ResourceKey<DamageType> WALL_SLAM = ResourceKey.create(Registries.DAMAGE_TYPE, Identifier.fromNamespaceAndPath(Antiquities.MOD_ID, "wall_slam"));
-    public static final ResourceKey<DamageType> IMPALE = ResourceKey.create(Registries.DAMAGE_TYPE, Identifier.fromNamespaceAndPath(Antiquities.MOD_ID, "impale"));
+    public static final ResourceKey<DamageType> WALL_SLAM = ResourceKey.create(Registries.DAMAGE_TYPE, Antiquities.id("wall_slam"));
+    public static final ResourceKey<DamageType> IMPALE = ResourceKey.create(Registries.DAMAGE_TYPE, Antiquities.id("impale"));
 
     public AntiqueDamageTypes() {
     }

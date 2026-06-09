@@ -13,28 +13,28 @@ import java.util.List;
 public interface AntiqueDataComponentTypes {
     DataComponentType<List<ItemStack>> SATCHEL_STACK = Registry.register(
             BuiltInRegistries.DATA_COMPONENT_TYPE,
-            Identifier.fromNamespaceAndPath(Antiquities.MOD_ID, "satchel_stacks"),
+            Antiquities.id("satchel_stacks"),
             DataComponentType.<List<ItemStack>>builder()
                     .persistent(ItemStack.CODEC.listOf().fieldOf("satchel_stacks").codec())
                     .build()
     );
     DataComponentType<MyriadToolComponent> MYRIAD_TOOL = Registry.register(
             BuiltInRegistries.DATA_COMPONENT_TYPE,
-            Identifier.fromNamespaceAndPath(Antiquities.MOD_ID, "myriad_tool"),
+            Antiquities.id("myriad_tool"),
             DataComponentType.<MyriadToolComponent>builder()
                     .persistent(MyriadToolComponent.CODEC)
                     .build()
     );
     DataComponentType<Integer> COUNTER = Registry.register(
             BuiltInRegistries.DATA_COMPONENT_TYPE,
-            Identifier.fromNamespaceAndPath(Antiquities.MOD_ID, "counter"),
+            Antiquities.id("counter"),
             DataComponentType.<Integer>builder()
                     .persistent(Codec.INT.fieldOf("counter").codec())
                     .build()
     );
     DataComponentType<Boolean> STICKY_TOOLTIP = Registry.register(
             BuiltInRegistries.DATA_COMPONENT_TYPE,
-            Identifier.fromNamespaceAndPath(Antiquities.MOD_ID, "sticky_tooltip"),
+            Antiquities.id("sticky_tooltip"),
             DataComponentType.<Boolean>builder()
                     .persistent(Codec.BOOL.fieldOf("sticky_tooltip").codec())
                     .build()

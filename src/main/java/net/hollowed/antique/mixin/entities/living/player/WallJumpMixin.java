@@ -103,13 +103,13 @@ public abstract class WallJumpMixin extends Entity implements Attackable {
         if ((LivingEntity) (Object) this instanceof Player player) {
             this.entityData.set(MOVEMENT_INPUT, new Vector3f((float) movementInput.x, (float) movementInput.y, (float) movementInput.z));
 
-            if (ItemHoldingUtil.isHoldingItem(player, Identifier.fromNamespaceAndPath(Antiquities.MOD_ID, "walljumper")) && this.coyoteWallJumpTicks > 0) {
+            if (ItemHoldingUtil.isHoldingItem(player, Antiquities.id("walljumper")) && this.coyoteWallJumpTicks > 0) {
 
                 this.moveRelative(this.getFrictionInfluencedSpeed(slipperiness), movementInput);
                 this.setDeltaMovement(MovementUtilsClass.applyAxeClimbingSpeed(this.getDeltaMovement(), (LivingEntity) (Object) this));
                 this.move(MoverType.SELF, this.getDeltaMovement());
                 Vec3 vec3d = this.getDeltaMovement();
-                if (this.onClimbable() && ItemHoldingUtil.isHoldingItem(player, Identifier.fromNamespaceAndPath(Antiquities.MOD_ID, "walljumper"))) {
+                if (this.onClimbable() && ItemHoldingUtil.isHoldingItem(player, Antiquities.id("walljumper"))) {
                     if (!this.jumping && !this.isShiftKeyDown()) {
                         vec3d = new Vec3(vec3d.x, 0, vec3d.z);
                     } else if (!this.jumping) {
@@ -181,7 +181,7 @@ public abstract class WallJumpMixin extends Entity implements Attackable {
         if (entity instanceof Player player) {
             if ((player.horizontalCollision || player.onGround()) && this.jumpingCooldown1 <= 1) this.canWallJump = true;
 
-            if (ItemHoldingUtil.isHoldingItem(player, Identifier.fromNamespaceAndPath(Antiquities.MOD_ID, "walljumper")) && jumping && (this.horizontalCollision || this.coyoteWallJumpTicks > 0) && this.jumpingCooldown1 == 0 && this.canWallJump) {
+            if (ItemHoldingUtil.isHoldingItem(player, Antiquities.id("walljumper")) && jumping && (this.horizontalCollision || this.coyoteWallJumpTicks > 0) && this.jumpingCooldown1 == 0 && this.canWallJump) {
                 this.canWallJump = false;
 
                 if (player instanceof LocalPlayer) {

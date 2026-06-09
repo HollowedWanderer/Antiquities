@@ -8,7 +8,7 @@ import net.minecraft.resources.Identifier;
 import org.jetbrains.annotations.NotNull;
 
 public record WallJumpPacketPayload(int entityId) implements CustomPacketPayload {
-    public static final Type<@NotNull WallJumpPacketPayload> ID = new Type<>(Identifier.fromNamespaceAndPath(Antiquities.MOD_ID, "wall_jump_packet"));
+    public static final Type<@NotNull WallJumpPacketPayload> ID = new Type<>(Antiquities.id("wall_jump_packet"));
 
     public static final StreamCodec<RegistryFriendlyByteBuf, WallJumpPacketPayload> CODEC = StreamCodec.ofMember(WallJumpPacketPayload::write, WallJumpPacketPayload::new);
 

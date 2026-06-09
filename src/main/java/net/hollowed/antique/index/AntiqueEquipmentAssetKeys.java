@@ -11,6 +11,6 @@ public interface AntiqueEquipmentAssetKeys {
     ResourceKey<EquipmentAsset> EMPTY = register("empty");
 
     static ResourceKey<EquipmentAsset> register(String name) {
-        return ResourceKey.create(REGISTRY_KEY, Identifier.fromNamespaceAndPath(Antiquities.MOD_ID, name));
+        return ResourceKey.create(REGISTRY_KEY, Antiquities.id(name));
     }
 }

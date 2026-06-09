@@ -12,7 +12,7 @@ public class AntiqueSounds {
     @SuppressWarnings("unused") public static SoundEvent WARHORN = register("warhorn");
 
     private static SoundEvent register(String id) {
-        return register(Identifier.fromNamespaceAndPath(Antiquities.MOD_ID, id));
+        return register(Antiquities.id(id));
     }
 
     private static SoundEvent register(Identifier id) {

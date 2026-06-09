@@ -70,7 +70,7 @@ public interface AntiqueEntities {
     }
 
     private static ResourceKey<EntityType<?>> keyOf(String id) {
-        return ResourceKey.create(Registries.ENTITY_TYPE, Identifier.fromNamespaceAndPath(Antiquities.MOD_ID, id));
+        return ResourceKey.create(Registries.ENTITY_TYPE, Antiquities.id(id));
     }
 
     @SuppressWarnings("all")

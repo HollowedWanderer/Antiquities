@@ -9,7 +9,7 @@ import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 
 public record WallJumpParticlePacketPayload(float x, float y, float z, float particleX, float particleZ, Vec3 pushVector) implements CustomPacketPayload {
-    public static final Type<@NotNull WallJumpParticlePacketPayload> ID = new Type<>(Identifier.fromNamespaceAndPath(Antiquities.MOD_ID, "wall_jump_particle_packet"));
+    public static final Type<@NotNull WallJumpParticlePacketPayload> ID = new Type<>(Antiquities.id("wall_jump_particle_packet"));
 
     public static final StreamCodec<RegistryFriendlyByteBuf, WallJumpParticlePacketPayload> CODEC = StreamCodec.ofMember(WallJumpParticlePacketPayload::write, WallJumpParticlePacketPayload::new);
 
