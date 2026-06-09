@@ -18,12 +18,12 @@ public class ShockwaveManager {
     public static final Map<Block, Float> RESISTANCES = new HashMap<>();
 
     static {
-        RESISTANCES.put(Blocks.AIR, 2f);
-        RESISTANCES.put(Blocks.WATER, 0.5f);
-        RESISTANCES.put(Blocks.LAVA, 1f);
+        RESISTANCES.put(Blocks.AIR, 0.9f);
+        RESISTANCES.put(Blocks.WATER, 0.95f);
+        RESISTANCES.put(Blocks.LAVA, 0.8f);
     }
 
-    public static final int MAX_PATH_LENGTH = 8;
+    public static final int MAX_PATH_LENGTH = 4;
 
     protected @NotNull List<Node> nodes = new ArrayList<>();
     public final float strength;
@@ -72,12 +72,12 @@ public class ShockwaveManager {
 
             for (Node node : nodes) {
                 for (LivingEntity entity : level.getEntitiesOfClass(LivingEntity.class, new AABB(node.pos))) {
-                    double speed = node.charge / strength;
+                    double speed = node.charge / strength * 4;
                     entity.push(node.path[node.path.length - 1].getUnitVec3().multiply(speed + ((Math.random() - 0.5) / 10), speed + ((Math.random() - 0.5) / 10), speed + ((Math.random() - 0.5) / 10)));
                     entity.hurtMarked = true;
                 }
 
-                level.sendParticles(ParticleTypes.BUBBLE, node.pos.getX() + 0.5, node.pos.getY() + 0.5, node.pos.getZ() + 0.5, 4, 0.5, 0.5, 0.5, 0.1);
+                level.sendParticles(ParticleTypes.WAX_ON, node.pos.getX() + 0.5, node.pos.getY() + 0.5, node.pos.getZ() + 0.5, 1, 0, 0, 0, 0);
 
                 float totalAllowance = 0;
                 float[] allowances = new float[6];
@@ -100,29 +100,31 @@ public class ShockwaveManager {
 
                 if (totalAllowance > 0) {
                     for (Direction dir : Direction.values()) {
-                        BlockPos otherPos = node.pos.relative(dir);
-                        BlockState otherState = level.getBlockState(otherPos);
+                        if (dir != dontGoThatWay) {
+                            BlockPos otherPos = node.pos.relative(dir);
+                            BlockState otherState = level.getBlockState(otherPos);
 
-                        if (RESISTANCES.containsKey(otherState.getBlock())) {
-                            float allowance = allowances[dir.ordinal()] / totalAllowance;
-                            float charge = (node.charge - RESISTANCES.get(otherState.getBlock())) * allowance;
+                            if (RESISTANCES.containsKey(otherState.getBlock())) {
+                                float allowance = allowances[dir.ordinal()] / totalAllowance;
+                                float charge = (node.charge) * allowance * RESISTANCES.get(otherState.getBlock());
 
-                            if (charge <= 0) {
-                                continue;
+                                if (charge <= 1e-2) {
+                                    continue;
+                                }
+
+                                Direction[] path;
+
+                                if (node.path.length == MAX_PATH_LENGTH) {
+                                    path = new Direction[MAX_PATH_LENGTH];
+                                    System.arraycopy(node.path, 1, path, 0, MAX_PATH_LENGTH - 1);
+                                } else {
+                                    path = new Direction[node.path.length + 1];
+                                    System.arraycopy(node.path, 0, path, 0, node.path.length);
+                                }
+
+                                path[path.length - 1] = dir;
+                                nextNodes.add(new Node(otherPos, charge, path));
                             }
-
-                            Direction[] path;
-
-                            if (node.path.length == MAX_PATH_LENGTH) {
-                                path = new Direction[MAX_PATH_LENGTH];
-                                System.arraycopy(node.path, 1, path, 0, MAX_PATH_LENGTH - 1);
-                            } else {
-                                path = new Direction[node.path.length + 1];
-                                System.arraycopy(node.path, 0, path, 0, node.path.length);
-                            }
-
-                            path[path.length - 1] = dir;
-                            nextNodes.add(new Node(otherPos, charge, path));
                         }
                     }
                 }
