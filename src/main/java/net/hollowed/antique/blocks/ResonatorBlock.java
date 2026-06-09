@@ -93,7 +93,7 @@ public class ResonatorBlock extends DirectionalBlock implements EntityBlock {
             @NonNull RandomSource randomSource
     ) {
         ResonatorBlockEntity entity = level.getBlockEntity(pos, AntiqueBlockEntities.RESONATOR_BLOCK_ENTITY).orElseThrow();
-        entity.shockwave = new ShockwaveManager(pos, state.getValue(FACING), 16f, 1); // TODO
+        entity.shockwave = new ShockwaveManager(pos, state.getValue(FACING), 32f, 1); // TODO
     }
 
     @Override
