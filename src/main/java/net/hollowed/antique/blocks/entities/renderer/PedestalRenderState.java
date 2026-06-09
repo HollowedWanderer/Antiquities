@@ -9,8 +9,4 @@ public class PedestalRenderState extends BlockEntityRenderState {
     public ItemStack storedStack;
     public long worldTime;
     public Level world;
-
-    public PedestalRenderState() {
-
-    }
 }

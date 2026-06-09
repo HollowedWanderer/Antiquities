@@ -128,7 +128,7 @@ public class Antiquities implements ModInitializer {
 		DefaultItemComponentEvents.MODIFY.register(ctx -> ctx.modify(
 				List.of(Items.WOODEN_SPEAR, Items.STONE_SPEAR, Items.IRON_SPEAR, Items.GOLDEN_SPEAR, Items.DIAMOND_SPEAR, Items.NETHERITE_SPEAR),
 				(builder, item) -> builder.set(
-						DataComponents.SWING_ANIMATION, new SwingAnimation(SwingAnimationType.STAB, (int)((1.0 / (getAttackSpeed(builder) + 4) - 0.25) * 20.0F))
+						DataComponents.SWING_ANIMATION, new SwingAnimation(SwingAnimationType.STAB, (int)((1.0 / (getAttackSpeed(builder) + 4) - 0.1) * 20.0F))
 				).set(
 						DataComponents.ATTRIBUTE_MODIFIERS,
 						ItemAttributeModifiers.builder()
@@ -139,7 +139,7 @@ public class Antiquities implements ModInitializer {
 								)
 								.add(
 										Attributes.ATTACK_SPEED,
-										new AttributeModifier(Item.BASE_ATTACK_SPEED_ID, 1 / (1.0 / (getAttackSpeed(builder) + 4) - 0.25) - 4, AttributeModifier.Operation.ADD_VALUE),
+										new AttributeModifier(Item.BASE_ATTACK_SPEED_ID, 1 / (1.0 / (getAttackSpeed(builder) + 4) - 0.1) - 4, AttributeModifier.Operation.ADD_VALUE),
 										EquipmentSlotGroup.MAINHAND
 								)
 								.build()
@@ -149,7 +149,7 @@ public class Antiquities implements ModInitializer {
 		DefaultItemComponentEvents.MODIFY.register(ctx -> ctx.modify(
 				List.of(Items.COPPER_SPEAR),
 				(builder, item) -> builder.set(
-						DataComponents.SWING_ANIMATION, new SwingAnimation(SwingAnimationType.STAB, (int)((1.0 / (getAttackSpeed(builder) + 4) - 0.25) * 20.0F))
+						DataComponents.SWING_ANIMATION, new SwingAnimation(SwingAnimationType.STAB, (int)((1.0 / (getAttackSpeed(builder) + 4) - 0.1) * 20.0F))
 				).set(
 						DataComponents.ATTRIBUTE_MODIFIERS,
 						ItemAttributeModifiers.builder()
@@ -160,7 +160,7 @@ public class Antiquities implements ModInitializer {
 								)
 								.add(
 										Attributes.ATTACK_SPEED,
-										new AttributeModifier(Item.BASE_ATTACK_SPEED_ID, -2, AttributeModifier.Operation.ADD_VALUE),
+										new AttributeModifier(Item.BASE_ATTACK_SPEED_ID, -2.46, AttributeModifier.Operation.ADD_VALUE),
 										EquipmentSlotGroup.MAINHAND
 								)
 								.build()

@@ -30,12 +30,7 @@ import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.damagesource.DamageTypes;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
-import net.minecraft.world.entity.EntitySpawnReason;
-import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.EquipmentSlot;
-import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.Mob;
-import net.minecraft.world.entity.SpawnGroupData;
+import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.goal.AvoidEntityGoal;
@@ -135,6 +130,11 @@ public class IllusionerEntity extends SpellcasterIllager implements RangedAttack
             this.level().addParticle(ColorParticleOption.create(ParticleTypes.ENTITY_EFFECT, this.entityData.get(SPELL_COLOR).x(), this.entityData.get(SPELL_COLOR).y(), this.entityData.get(SPELL_COLOR).z()), this.getX() + (double)j * d, this.getY() + e, this.getZ() + (double)k * d, 0.0, 0.0, 0.0);
             this.level().addParticle(ColorParticleOption.create(ParticleTypes.ENTITY_EFFECT, this.entityData.get(SPELL_COLOR).x(), this.entityData.get(SPELL_COLOR).y(), this.entityData.get(SPELL_COLOR).z()), this.getX() - (double)j * d, this.getY() + e, this.getZ() - (double)k * d, 0.0, 0.0, 0.0);
         }
+    }
+
+    @Override
+    public boolean canBeCollidedWith(@org.jspecify.annotations.Nullable Entity entity) {
+        return super.canBeCollidedWith(entity);
     }
 
     @Override

@@ -18,7 +18,7 @@ public abstract class BundleItemWeightChanger {
 
         if (!(stack.getItem() instanceof BundleItem)) {
             if (!stack.isStackable()) {
-                occupancy = occupancy.multiplyBy(Fraction.getFraction(1, 6));
+                occupancy = occupancy.multiplyBy(Fraction.getFraction(1, 4));
             }
         }
 

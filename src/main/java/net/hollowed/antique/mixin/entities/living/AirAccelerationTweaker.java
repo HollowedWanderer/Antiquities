@@ -113,6 +113,6 @@ public abstract class AirAccelerationTweaker extends Entity {
 
     @Inject(method = "getJumpBoostPower", at = @At("HEAD"), cancellable = true)
     public void jumpModifier(CallbackInfoReturnable<Float> cir) {
-        cir.setReturnValue(this.hasEffect(MobEffects.JUMP_BOOST) ? 0.3F * (Objects.requireNonNull(this.getEffect(MobEffects.JUMP_BOOST)).getAmplifier() + 1.0F) : 0.0F);
+        cir.setReturnValue(this.hasEffect(MobEffects.JUMP_BOOST) ? 0.2F * (Objects.requireNonNull(this.getEffect(MobEffects.JUMP_BOOST)).getAmplifier() + 1.0F) : 0.0F);
     }
 }

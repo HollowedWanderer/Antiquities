@@ -13,7 +13,7 @@ public abstract class PlayerAttributeTweakerMixin {
     @Inject(method = "createAttributes", at = @At("RETURN"), cancellable = true)
     private static void addSafeFallDistanceAttribute(CallbackInfoReturnable<AttributeSupplier.Builder> cir) {
         cir.setReturnValue(cir.getReturnValue()
-                .add(Attributes.SAFE_FALL_DISTANCE, 15)
+                .add(Attributes.SAFE_FALL_DISTANCE, 5)
                 .add(Attributes.MOVEMENT_SPEED, 0.1075)
         );
     }

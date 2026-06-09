@@ -95,10 +95,10 @@
     "items.renderers.HeldItemRendererMixin",
     "items.renderers.ThirdPersonItemMixin",
     "screens.HandledScreenMixin",
-    "screens.PedestalTooltipMixin",
     "screens.ModMenuEntryMixin",
     "screens.ModMenuMixin",
     "screens.MouseMixin",
+    "screens.PedestalTooltipMixin",
     "screens.SatchelOverlayMixin"
   ]
 }

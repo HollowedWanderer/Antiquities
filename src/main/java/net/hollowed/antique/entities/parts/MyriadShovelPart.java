@@ -35,6 +35,9 @@ public class MyriadShovelPart extends Entity implements TraceableEntity {
 
 	private int id;
 
+	private List<Entity> collisionEntities = List.of();
+	private long prevTime;
+
 	public MyriadShovelPart(EntityType<@NotNull MyriadShovelPart> myriadShovelEntityEntityType, Level world) {
 		super(myriadShovelEntityEntityType, world);
 	}
@@ -78,11 +81,13 @@ public class MyriadShovelPart extends Entity implements TraceableEntity {
 			world.getChunkSource().addEntity(this);
 		}
 
-		List<Entity> list = this.level().getEntities(this, this.getBoundingBox().contract(0.1, 0.1, 0.1), entity -> !(entity instanceof MyriadShovelPart));
-		for (Entity entity : list) {
-			if (entity instanceof LivingEntity) {
-				entity.makeStuckInBlock(Blocks.AIR.defaultBlockState(), new Vec3(0.05, 0.01, 0.05));
-			}
+		if (this.level().getGameTime() > (prevTime + 5)) {
+			prevTime = this.level().getGameTime();
+			collisionEntities = this.level().getEntities(this, this.getBoundingBox().contract(0.1, 0.1, 0.1), entity -> entity instanceof LivingEntity);
+		}
+
+		for (Entity entity : collisionEntities) {
+			entity.makeStuckInBlock(Blocks.AIR.defaultBlockState(), new Vec3(0.05, 0.01, 0.05));
 		}
 
 		if (this.getOwner() instanceof MyriadShovelEntity shovel && shovel.canPickup) {
@@ -98,6 +103,8 @@ public class MyriadShovelPart extends Entity implements TraceableEntity {
 			this.setPos(this.position().add(look.multiply(multiplier, multiplier, -multiplier)));
 		}
 	}
+
+
 
 	@Override
 	public boolean canBeCollidedWith(@Nullable Entity entity) {

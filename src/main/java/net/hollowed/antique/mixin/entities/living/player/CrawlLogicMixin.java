@@ -77,12 +77,17 @@ public abstract class CrawlLogicMixin extends LivingEntity implements Crawl {
             }
 
             this.hurtMarked = true;
+            this.needsSync = true;
         }
+
         if (this.entityData.get(SLIDE_TIMER) > 0) {
-            this.entityData.set(SLIDE_TIMER, this.entityData.get(SLIDE_TIMER) - 1);
+            int newTime = this.entityData.get(SLIDE_TIMER) - 1;
+            this.entityData.set(SLIDE_TIMER, newTime);
         }
+
         if (this.entityData.get(SLIDE_COOLDOWN) > 0) {
-            this.entityData.set(SLIDE_COOLDOWN, this.entityData.get(SLIDE_COOLDOWN) - 1);
+            int newTime = this.entityData.get(SLIDE_COOLDOWN) - 1;
+            this.entityData.set(SLIDE_COOLDOWN, newTime);
         }
     }
 
@@ -94,6 +99,7 @@ public abstract class CrawlLogicMixin extends LivingEntity implements Crawl {
             this.push(this.getViewVector(0).horizontal().normalize().scale(0.25).add(0, 0.2, 0));
             this.level().playSound(null, this.getX(), this.getY(), this.getZ(), SoundEvents.GOAT_LONG_JUMP, SoundSource.PLAYERS, 1.0F, 1.0F);
             this.hurtMarked = true;
+            this.needsSync = true;
             this.entityData.set(SLIDE_TIMER, 0);
         }
     }

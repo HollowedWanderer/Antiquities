@@ -29,10 +29,10 @@ public abstract class SpeedFasterInAirMixin extends LivingEntity {
         float speed = 0.025999999F;
         if (this.isSprinting() && !(this.abilities.flying && !this.isPassenger())) {
             if (this.hasEffect(MobEffects.SPEED)) {
-                speed += Objects.requireNonNull(this.getEffect(MobEffects.SPEED)).getAmplifier() * 0.03F;
+                speed += Objects.requireNonNull(this.getEffect(MobEffects.SPEED)).getAmplifier() * 0.015F;
             }
             if (this.hasEffect(MobEffects.JUMP_BOOST)) {
-                speed += Objects.requireNonNull(this.getEffect(MobEffects.JUMP_BOOST)).getAmplifier() * 0.015F;
+                speed += Objects.requireNonNull(this.getEffect(MobEffects.JUMP_BOOST)).getAmplifier() * 0.005F;
             }
             cir.setReturnValue(speed);
         }

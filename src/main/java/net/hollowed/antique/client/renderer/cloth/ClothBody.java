@@ -1,6 +1,5 @@
 package net.hollowed.antique.client.renderer.cloth;
 
-import net.hollowed.antique.entities.parts.MyriadShovelPart;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.BlockPos;
@@ -55,17 +54,15 @@ public class ClothBody {
         return new Vector3d(pos);
     }
 
-    public Vector3d entityCollisionPerchance(ClientLevel world, Entity except) {
+    public Vector3d entityCollisionPerchance(List<Entity> collisionEntities, Entity except) {
         double padding = 0.075;
 
         Vec3 startPos = new Vec3(pos.x, pos.y, pos.z);
 
         Map<AABB, Entity> collBoxes = new HashMap<>();
-        for (Entity entity : world.getEntities(except, new AABB(startPos.subtract(0.1), startPos.add(0.1)))) {
-            if (!(entity instanceof MyriadShovelPart)) {
-                if (Minecraft.getInstance().player != null && !except.equals(Minecraft.getInstance().player)) {
-                    collBoxes.put(entity.getBoundingBox(), entity);
-                }
+        for (Entity entity : collisionEntities) {
+            if (Minecraft.getInstance().player != null && !except.equals(Minecraft.getInstance().player)) {
+                collBoxes.put(entity.getBoundingBox(), entity);
             }
         }
 

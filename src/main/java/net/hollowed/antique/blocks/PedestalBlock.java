@@ -79,6 +79,7 @@ public class PedestalBlock extends BaseEntityBlock implements EntityBlock, Simpl
         return null;
     }
 
+
     public static final VoxelShape SHAPE_DEFAULT = Stream.of(
             Block.box(1, 0, 1, 15, 3, 15),
             Block.box(3, 3, 3, 13, 13, 13),
