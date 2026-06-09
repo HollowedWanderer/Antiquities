@@ -8,7 +8,7 @@ import net.minecraft.resources.Identifier;
 import org.jetbrains.annotations.NotNull;
 
 public record DyePacketPayload(String color) implements CustomPacketPayload {
-    public static final Type<@NotNull DyePacketPayload> ID = new Type<>(Identifier.fromNamespaceAndPath(Antiquities.MOD_ID, "dye_packet"));
+    public static final Type<@NotNull DyePacketPayload> ID = new Type<>(Antiquities.id("dye_packet"));
 
     public static final StreamCodec<RegistryFriendlyByteBuf, DyePacketPayload> CODEC = StreamCodec.ofMember(DyePacketPayload::write, DyePacketPayload::new);
 

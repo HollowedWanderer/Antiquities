@@ -181,7 +181,7 @@ public class Antiquities implements ModInitializer {
 		 */
 
 		FabricLoader.getInstance().getModContainer(MOD_ID).ifPresent((container) ->
-				ResourceManagerHelper.registerBuiltinResourcePack(Identifier.fromNamespaceAndPath(MOD_ID, "antique"), container, Component.translatable("resourcePack.hmi.name"), ResourcePackActivationType.NORMAL));
+				ResourceManagerHelper.registerBuiltinResourcePack(id("antique"), container, Component.translatable("resourcePack.hmi.name"), ResourcePackActivationType.NORMAL));
 
 		/*
 			Item Group

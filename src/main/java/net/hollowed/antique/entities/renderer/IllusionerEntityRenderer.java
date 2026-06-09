@@ -34,8 +34,8 @@ import org.jetbrains.annotations.NotNull;
 
 @Environment(EnvType.CLIENT)
 public class IllusionerEntityRenderer extends IllagerRenderer<@org.jetbrains.annotations.NotNull IllusionerEntity, @org.jetbrains.annotations.NotNull IllusionerEntityRenderState> {
-    private static final Identifier TEXTURE = Identifier.fromNamespaceAndPath(Antiquities.MOD_ID, "textures/entity/illager/illusioner.png");
-    private static final Identifier CLONE_TEXTURE = Identifier.fromNamespaceAndPath(Antiquities.MOD_ID, "textures/entity/illager/illusioner_clone.png");
+    private static final Identifier TEXTURE = Antiquities.id("textures/entity/illager/illusioner.png");
+    private static final Identifier CLONE_TEXTURE = Antiquities.id("textures/entity/illager/illusioner_clone.png");
 
     public IllusionerEntityRenderer(EntityRendererProvider.Context context) {
         super(context, new IllagerModel<>(context.bakeLayer(ModelLayers.ILLUSIONER)), 0.5F);
@@ -75,7 +75,7 @@ public class IllusionerEntityRenderer extends IllagerRenderer<@org.jetbrains.ann
             matrixStack.mulPose(Axis.YP.rotationDegrees(-(illusionerEntityRenderState.yRot + illusionerEntityRenderState.bodyRot)));
             matrixStack.mulPose(Axis.XP.rotationDegrees(illusionerEntityRenderState.xRot));
             ItemStack stack = Items.APPLE.getDefaultInstance();
-            stack.set(DataComponents.ITEM_MODEL, Identifier.fromNamespaceAndPath(Antiquities.MOD_ID, "illusioner_idol"));
+            stack.set(DataComponents.ITEM_MODEL, Antiquities.id("illusioner_idol"));
             ItemStackRenderState stackRenderState = new ItemStackRenderState();
             Minecraft.getInstance().getItemModelResolver().appendItemLayers(stackRenderState, stack, ItemDisplayContext.NONE, Minecraft.getInstance().level, null, 1);
             stackRenderState.submit(matrixStack, queue, illusionerEntityRenderState.lightCoords, OverlayTexture.NO_OVERLAY, 0);

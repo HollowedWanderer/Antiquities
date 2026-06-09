@@ -8,7 +8,7 @@ import net.minecraft.resources.Identifier;
 import org.jetbrains.annotations.NotNull;
 
 public record IllusionerParticlePacketPayload(double x, double y, double z) implements CustomPacketPayload {
-    public static final Type<@NotNull IllusionerParticlePacketPayload> ID = new Type<>(Identifier.fromNamespaceAndPath(Antiquities.MOD_ID, "illusioner_particle_packet"));
+    public static final Type<@NotNull IllusionerParticlePacketPayload> ID = new Type<>(Antiquities.id("illusioner_particle_packet"));
 
     public static final StreamCodec<RegistryFriendlyByteBuf, IllusionerParticlePacketPayload> CODEC = StreamCodec.ofMember(IllusionerParticlePacketPayload::write, IllusionerParticlePacketPayload::new);
 

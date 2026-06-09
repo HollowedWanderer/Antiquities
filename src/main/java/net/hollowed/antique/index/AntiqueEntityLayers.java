@@ -28,6 +28,6 @@ public class AntiqueEntityLayers extends ModelLayers {
     }
 
     private static ModelLayerLocation create(String id, String variant) {
-        return new ModelLayerLocation(Identifier.fromNamespaceAndPath(Antiquities.MOD_ID, id), variant);
+        return new ModelLayerLocation(Antiquities.id(id), variant);
     }
 }

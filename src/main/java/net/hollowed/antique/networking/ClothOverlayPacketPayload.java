@@ -8,7 +8,7 @@ import net.minecraft.resources.Identifier;
 import org.jetbrains.annotations.NotNull;
 
 public record ClothOverlayPacketPayload(Identifier identifier) implements CustomPacketPayload {
-    public static final Type<@NotNull ClothOverlayPacketPayload> ID = new Type<>(Identifier.fromNamespaceAndPath(Antiquities.MOD_ID, "cloth_overlay_packet"));
+    public static final Type<@NotNull ClothOverlayPacketPayload> ID = new Type<>(Antiquities.id("cloth_overlay_packet"));
 
     public static final StreamCodec<RegistryFriendlyByteBuf, ClothOverlayPacketPayload> CODEC = StreamCodec.ofMember(ClothOverlayPacketPayload::write, ClothOverlayPacketPayload::new);
 

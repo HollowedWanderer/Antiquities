@@ -23,7 +23,7 @@ import org.jetbrains.annotations.NotNull;
 
 @Environment(EnvType.CLIENT)
 public class IllusionerCloneEntityRenderer extends IllagerRenderer<@NotNull IllusionerCloneEntity, @NotNull IllusionerEntityRenderState> {
-    private static final Identifier TEXTURE = Identifier.fromNamespaceAndPath(Antiquities.MOD_ID, "textures/entity/illager/illusioner_clone.png");
+    private static final Identifier TEXTURE = Antiquities.id("textures/entity/illager/illusioner_clone.png");
 
     public IllusionerCloneEntityRenderer(EntityRendererProvider.Context context) {
         super(context, new IllagerModel<>(context.bakeLayer(ModelLayers.ILLUSIONER)), 0.5F);

@@ -69,13 +69,13 @@ public abstract class ModMenuMixin extends ObjectSelectionList.Entry<@NotNull Mo
             );
 
             // Draws the small icon
-            drawContext.blit(RenderPipelines.GUI_TEXTURED, Identifier.fromNamespaceAndPath(Antiquities.MOD_ID, "antiquities_small_icon.png"), x + iconSize + 53, y - 3, 0, 0, 16, 16, 16, 16);
+            drawContext.blit(RenderPipelines.GUI_TEXTURED, Antiquities.id("antiquities_small_icon.png"), x + iconSize + 53, y - 3, 0, 0, 16, 16, 16, 16);
 
             // Draws the colored line below the one line of text
-            drawContext.blit(RenderPipelines.GUI_TEXTURED, Identifier.fromNamespaceAndPath(Antiquities.MOD_ID, "antiquities_line.png"), x + iconSize + 3, y + 22, 0, 0, 76, 1, 76, 1);
+            drawContext.blit(RenderPipelines.GUI_TEXTURED, Antiquities.id("antiquities_line.png"), x + iconSize + 3, y + 22, 0, 0, 76, 1, 76, 1);
 
             // Draws the H signature
-            drawContext.blit(RenderPipelines.GUI_TEXTURED, Identifier.fromNamespaceAndPath(Antiquities.MOD_ID, "h.png"), rowWidth - 2, y, 0, 0, 16, 16, 16, 16);
+            drawContext.blit(RenderPipelines.GUI_TEXTURED, Antiquities.id("h.png"), rowWidth - 2, y, 0, 0, 16, 16, 16, 16);
         }
     }
 }

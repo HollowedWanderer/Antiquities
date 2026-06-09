@@ -19,7 +19,7 @@ public interface AntiqueEnchantments {
     ResourceKey<Enchantment> IMPETUS = of("impetus");
 
     private static ResourceKey<Enchantment> of(String name) {
-      return ResourceKey.create(Registries.ENCHANTMENT, Identifier.fromNamespaceAndPath(Antiquities.MOD_ID, name));
+      return ResourceKey.create(Registries.ENCHANTMENT, Antiquities.id(name));
     }
 
     static void initialize() {}

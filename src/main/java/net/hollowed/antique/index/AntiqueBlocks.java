@@ -30,7 +30,7 @@ public interface AntiqueBlocks {
             .noOcclusion()
             ), Rarity.COMMON
     );
-    Block RESONATOR = register("resonator", settings -> new Block(settings
+    Block RESONATOR = register("resonator", settings -> new ResonatorBlock(settings
             .strength(5F, 5F)
             .sound(SoundType.COPPER)
             .requiresCorrectToolForDrops()
@@ -154,9 +154,9 @@ public interface AntiqueBlocks {
     }
 
     private static void registerBlockItem(String name, Block block, Rarity rarity) {
-        Registry.register(BuiltInRegistries.ITEM, Identifier.fromNamespaceAndPath(Antiquities.MOD_ID, name),
+        Registry.register(BuiltInRegistries.ITEM, Antiquities.id(name),
                 new BlockItem(block, new Item.Properties()
-                        .setId(ResourceKey.create(Registries.ITEM, Identifier.fromNamespaceAndPath(Antiquities.MOD_ID, name)))
+                        .setId(ResourceKey.create(Registries.ITEM, Antiquities.id(name)))
                         .useBlockDescriptionPrefix()
                         .rarity(rarity)
                 ));

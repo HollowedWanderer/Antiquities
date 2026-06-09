@@ -18,7 +18,7 @@ public interface AntiqueEffects {
     Holder<MobEffect> ANIME_EFFECT = registerEffect("anime_effect", new AnimeEffect());
 
     static Holder<MobEffect> registerEffect(String id, MobEffect statusEffect) {
-        return Registry.registerForHolder(BuiltInRegistries.MOB_EFFECT, Identifier.fromNamespaceAndPath(Antiquities.MOD_ID, id), statusEffect);
+        return Registry.registerForHolder(BuiltInRegistries.MOB_EFFECT, Antiquities.id(id), statusEffect);
     }
 
     static void initialize() {}

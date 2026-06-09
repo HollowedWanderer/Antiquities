@@ -55,13 +55,13 @@ public class AntiquitiesClient implements ClientModInitializer {
 
         ArmorRenderer.register(new AdventureArmorFeatureRenderer.Factory(), AntiqueItems.MYRIAD_PAULDRONS, AntiqueItems.SATCHEL, AntiqueItems.FUR_BOOTS);
 
-        ItemModels.ID_MAPPER.put(Identifier.fromNamespaceAndPath(Antiquities.MOD_ID, "satchel/selected_item"), SatchelSelectedItemModel.Unbaked.CODEC);
-        ItemModels.ID_MAPPER.put(Identifier.fromNamespaceAndPath(Antiquities.MOD_ID, "bag/selected_item"), BagOfTricksSelectedItemModel.Unbaked.CODEC);
-        ItemModels.ID_MAPPER.put(Identifier.fromNamespaceAndPath(Antiquities.MOD_ID, "bag/first_stack"), BagOfTricksFirstStackItemModel.Unbaked.CODEC);
-        ItemModels.ID_MAPPER.put(Identifier.fromNamespaceAndPath(Antiquities.MOD_ID, "myriad_cloth"), MyriadClothItemModel.Unbaked.CODEC);
-        ItemModels.ID_MAPPER.put(Identifier.fromNamespaceAndPath(Antiquities.MOD_ID, "cloth"), ClothItemModel.Unbaked.CODEC);
-        ItemModels.ID_MAPPER.put(Identifier.fromNamespaceAndPath(Antiquities.MOD_ID, "cloth_pattern"), ClothPatternItemModel.Unbaked.CODEC);
-        ItemModels.ID_MAPPER.put(Identifier.fromNamespaceAndPath(Antiquities.MOD_ID, "model_glow"), GlowBasicItemModel.Unbaked.CODEC);
+        ItemModels.ID_MAPPER.put(Antiquities.id("satchel/selected_item"), SatchelSelectedItemModel.Unbaked.CODEC);
+        ItemModels.ID_MAPPER.put(Antiquities.id("bag/selected_item"), BagOfTricksSelectedItemModel.Unbaked.CODEC);
+        ItemModels.ID_MAPPER.put(Antiquities.id("bag/first_stack"), BagOfTricksFirstStackItemModel.Unbaked.CODEC);
+        ItemModels.ID_MAPPER.put(Antiquities.id("myriad_cloth"), MyriadClothItemModel.Unbaked.CODEC);
+        ItemModels.ID_MAPPER.put(Antiquities.id("cloth"), ClothItemModel.Unbaked.CODEC);
+        ItemModels.ID_MAPPER.put(Antiquities.id("cloth_pattern"), ClothPatternItemModel.Unbaked.CODEC);
+        ItemModels.ID_MAPPER.put(Antiquities.id("model_glow"), GlowBasicItemModel.Unbaked.CODEC);
 
         ItemTintSources.ID_MAPPER.put(Antiquities.id("myriad"), ClothTintSource.CODEC);
 

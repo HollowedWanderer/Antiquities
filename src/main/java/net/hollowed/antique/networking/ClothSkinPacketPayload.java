@@ -10,7 +10,7 @@ import net.minecraft.resources.Identifier;
 import org.jetbrains.annotations.NotNull;
 
 public record ClothSkinPacketPayload(String string, ClothSkinData.ClothSubData data) implements CustomPacketPayload {
-    public static final Type<@NotNull ClothSkinPacketPayload> ID = new Type<>(Identifier.fromNamespaceAndPath(Antiquities.MOD_ID, "cloth_skin_packet"));
+    public static final Type<@NotNull ClothSkinPacketPayload> ID = new Type<>(Antiquities.id("cloth_skin_packet"));
 
     public static final StreamCodec<RegistryFriendlyByteBuf, ClothSkinPacketPayload> CODEC = StreamCodec.ofMember(ClothSkinPacketPayload::write, ClothSkinPacketPayload::new);
 

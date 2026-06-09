@@ -17,11 +17,11 @@ public interface AntiqueParticles {
     SimpleParticleType SCRAPE = FabricParticleTypes.simple();
 
     static void initialize() {
-	    Registry.register(BuiltInRegistries.PARTICLE_TYPE, Identifier.fromNamespaceAndPath(Antiquities.MOD_ID, "sparkle_particle"), SPARKLE_PARTICLE);
-        Registry.register(BuiltInRegistries.PARTICLE_TYPE, Identifier.fromNamespaceAndPath(Antiquities.MOD_ID, "dust"), DUST_PARTICLE);
-        Registry.register(BuiltInRegistries.PARTICLE_TYPE, Identifier.fromNamespaceAndPath(Antiquities.MOD_ID, "cake_smear"), CAKE_SMEAR);
-        Registry.register(BuiltInRegistries.PARTICLE_TYPE, Identifier.fromNamespaceAndPath(Antiquities.MOD_ID, "hit_marker"), HIT_MARKER);
-        Registry.register(BuiltInRegistries.PARTICLE_TYPE, Identifier.fromNamespaceAndPath(Antiquities.MOD_ID, "scrape"), SCRAPE);
+	    Registry.register(BuiltInRegistries.PARTICLE_TYPE, Antiquities.id("sparkle_particle"), SPARKLE_PARTICLE);
+        Registry.register(BuiltInRegistries.PARTICLE_TYPE, Antiquities.id("dust"), DUST_PARTICLE);
+        Registry.register(BuiltInRegistries.PARTICLE_TYPE, Antiquities.id("cake_smear"), CAKE_SMEAR);
+        Registry.register(BuiltInRegistries.PARTICLE_TYPE, Antiquities.id("hit_marker"), HIT_MARKER);
+        Registry.register(BuiltInRegistries.PARTICLE_TYPE, Antiquities.id("scrape"), SCRAPE);
     }
 
     static void initializeClient() {

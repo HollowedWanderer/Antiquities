@@ -207,7 +207,7 @@ public class MyriadMattockBit extends MyriadToolBitItem{
         tool.set(DataComponents.TOOL, new Tool(
                 List.of(
                         Tool.Rule.deniesDrops(AntiqueItems.registryEntryLookup.getOrThrow(BlockTags.INCORRECT_FOR_IRON_TOOL)),
-                        Tool.Rule.minesAndDrops(AntiqueItems.registryEntryLookup.getOrThrow(TagKey.create(Registries.BLOCK, Identifier.fromNamespaceAndPath(Antiquities.MOD_ID, "mineable/mattock"))), 20)
+                        Tool.Rule.minesAndDrops(AntiqueItems.registryEntryLookup.getOrThrow(TagKey.create(Registries.BLOCK, Antiquities.id("mineable/mattock"))), 20)
                 ),
                 1.0F,
                 1,

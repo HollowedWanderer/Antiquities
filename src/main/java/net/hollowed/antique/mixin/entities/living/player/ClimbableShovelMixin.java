@@ -67,7 +67,7 @@ public abstract class ClimbableShovelMixin extends LivingEntity {
     @Inject(method = "tick", at = @At("HEAD"))
     public void tick(CallbackInfo ci) {
         if (!this.level().isClientSide()) {
-            if (this.horizontalCollision && ItemHoldingUtil.isHoldingItem(this, Identifier.fromNamespaceAndPath(Antiquities.MOD_ID, "walljumper"))) {
+            if (this.horizontalCollision && ItemHoldingUtil.isHoldingItem(this, Antiquities.id("walljumper"))) {
                 this.coyoteTicks = 3;
             }
             if (this.onGround()) {
@@ -82,7 +82,7 @@ public abstract class ClimbableShovelMixin extends LivingEntity {
             if (isCollidingWithSpecificEntity && this.horizontalCollision && !this.stuckSpeedMultiplier.equals(new Vec3(0.05, 0.01, 0.05))) {
                 this.setClimbingWall(true);
             } else {
-                this.setClimbingWall(ItemHoldingUtil.isHoldingItem(this, Identifier.fromNamespaceAndPath(Antiquities.MOD_ID, "walljumper")) && (this.horizontalCollision || this.coyoteTicks > 0) && !this.onGround() && !isCollidingWithSpecificEntity && this.lastGroundTime == 0 && this.getDeltaMovement().y <= 0);
+                this.setClimbingWall(ItemHoldingUtil.isHoldingItem(this, Antiquities.id("walljumper")) && (this.horizontalCollision || this.coyoteTicks > 0) && !this.onGround() && !isCollidingWithSpecificEntity && this.lastGroundTime == 0 && this.getDeltaMovement().y <= 0);
             }
 
             if (this.coyoteTicks > 0) {

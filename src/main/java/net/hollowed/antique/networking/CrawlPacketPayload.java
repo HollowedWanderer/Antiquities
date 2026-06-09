@@ -8,7 +8,7 @@ import net.minecraft.resources.Identifier;
 import org.jetbrains.annotations.NotNull;
 
 public record CrawlPacketPayload(boolean crawling) implements CustomPacketPayload {
-    public static final Type<@NotNull CrawlPacketPayload> ID = new Type<>(Identifier.fromNamespaceAndPath(Antiquities.MOD_ID, "crawl_packet"));
+    public static final Type<@NotNull CrawlPacketPayload> ID = new Type<>(Antiquities.id("crawl_packet"));
 
     public static final StreamCodec<RegistryFriendlyByteBuf, CrawlPacketPayload> CODEC = StreamCodec.ofMember(CrawlPacketPayload::write, CrawlPacketPayload::new);
 

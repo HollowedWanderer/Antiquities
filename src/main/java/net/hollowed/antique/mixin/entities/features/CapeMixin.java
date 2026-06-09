@@ -28,7 +28,7 @@ public abstract class CapeMixin {
         if (!ran) {
             ran = true;
             matrixStack.pushPose();
-            if (playerEntityRenderState.chestEquipment.getTags().toList().contains(TagKey.create(Registries.ITEM, Identifier.fromNamespaceAndPath(Antiquities.MOD_ID, "chest_armor")))) {
+            if (playerEntityRenderState.chestEquipment.getTags().toList().contains(TagKey.create(Registries.ITEM, Antiquities.id("chest_armor")))) {
                 matrixStack.translate(0.0F, -0.053125F, 0.06875F);
             }
             this.submit(matrixStack, orderedRenderCommandQueue, i, playerEntityRenderState, f, g);
