@@ -41,33 +41,24 @@ public class MyriadStaffTransformResourceReloadListener implements ResourceManag
                         DataResult<MyriadStaffTransformData> result = MyriadStaffTransformData.CODEC.parse(JsonOps.INSTANCE, json);
 
                         result.resultOrPartial(CombatAmenities.LOGGER::error).ifPresent(data -> {
-                            if (data.model().equals(Identifier.parse("default"))) {
+                            if (data.model().isDefault()) {
                                 data = new MyriadStaffTransformData(
-                                        data.item(),
-                                        Identifier.parse(data.item()),
+                                        data.model(),
                                         data.scale(),
                                         data.rotation(),
                                         data.translation()
                                 );
-                            }
-                            if (data.item().equals("default")) {
                                 defaultTransforms = data;
-                            } else if (data.item().startsWith("#")) {
-                                // Remove the '#' prefix
-                                String tagString = data.item().substring(1);
-                                Identifier tagId = Identifier.parse(tagString);
-
-                                TagKey<Item> tag = TagKey.create(BuiltInRegistries.ITEM.key(), tagId);
-
+                            } else if (data.model() instanceof TagOrSingle.Tag<Item>(TagKey<Item> key)) {
                                 MyriadStaffTransformData finalData = data;
                                 BuiltInRegistries.ITEM.forEach(item -> {
                                     Identifier itemId = BuiltInRegistries.ITEM.getKey(item);
-                                    if (item.getDefaultInstance().getItemHolder().is(tag)) {
+                                    if (item.getDefaultInstance().getItemHolder().is(key)) {
                                         transforms.put(itemId, finalData);
                                     }
                                 });
-                            } else {
-                                transforms.put(Identifier.parse(data.item()), data);
+                            } else if (data.model() instanceof TagOrSingle.Single<Item>(Identifier id1)) {
+                                transforms.put(id1, data);
                             }
                         });
                     } catch (Exception e) {
@@ -87,8 +78,7 @@ public class MyriadStaffTransformResourceReloadListener implements ResourceManag
 
         // Fallback to a fully default transform if no data is available
         return new MyriadStaffTransformData(
-                itemId.toString(),
-                itemId,
+                new TagOrSingle.Single<>(itemId),
                 List.of(1.0f, 1.0f, 1.0f), // Default scale
                 List.of(0.0f, 0.0f, 0.0f), // Default rotation
                 List.of(0.0f, 0.0f, 0.0f) // Default translation

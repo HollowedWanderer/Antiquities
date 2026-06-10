@@ -164,7 +164,7 @@ public class MyriadClothItemModel implements ItemModel {
 			} else if (identifier.equals(TextureAtlas.LOCATION_BLOCKS)) {
 				return BLOCK_RENDER_TYPE_GETTER;
 			} else {
-				throw new IllegalArgumentException("Atlas " + identifier + " can't be usef for item models");
+				throw new IllegalArgumentException("Atlas " + identifier + " can't be usef for model models");
 			}
 		}
 	}
@@ -268,7 +268,7 @@ public class MyriadClothItemModel implements ItemModel {
 			resolver.markDependency(this.base);
 
 			ResourceManager manager = Minecraft.getInstance().getResourceManager();
-			manager.listResources("models/item/cloth", path -> path.getPath().endsWith(".json")).keySet().forEach(id -> {
+			manager.listResources("models/model/cloth", path -> path.getPath().endsWith(".json")).keySet().forEach(id -> {
 				if (manager.getResource(id).isPresent()) {
 					String string = id.toString();
 					string = string.substring(0, string.indexOf("."));
@@ -295,7 +295,7 @@ public class MyriadClothItemModel implements ItemModel {
 			ModelRenderProperties settings = ModelRenderProperties.fromResolvedModel(baker, baseBaked, baseTex);
 
 			ResourceManager manager = Minecraft.getInstance().getResourceManager();
-			manager.listResources("models/item/cloth", path -> path.getPath().endsWith(".json")).keySet().forEach(id -> {
+			manager.listResources("models/model/cloth", path -> path.getPath().endsWith(".json")).keySet().forEach(id -> {
 				if (manager.getResource(id).isPresent()) {
 					String string = id.toString();
 					string = string.substring(0, string.indexOf("."));

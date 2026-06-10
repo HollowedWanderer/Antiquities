@@ -53,7 +53,7 @@ public class PedestalTooltipRenderer {
 
         if (!(world.getBlockState(blockHitResult.getBlockPos()).getBlock() instanceof PedestalBlock)) return;
 
-        // Get the item on the pedestal
+        // Get the model on the pedestal
         if (world.getBlockEntity(blockHitResult.getBlockPos()) instanceof PedestalBlockEntity pedestalEntity) {
             ItemStack itemStack = pedestalEntity.getItem(0);
             if (itemStack.isEmpty()) return;

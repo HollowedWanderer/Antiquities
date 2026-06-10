@@ -142,7 +142,7 @@ public class ClothPatternItemModel implements ItemModel {
 			} else if (identifier.equals(TextureAtlas.LOCATION_BLOCKS)) {
 				return BLOCK_RENDER_TYPE_GETTER;
 			} else {
-				throw new IllegalArgumentException("Atlas " + identifier + " can't be usef for item models");
+				throw new IllegalArgumentException("Atlas " + identifier + " can't be usef for model models");
 			}
 		}
 	}
@@ -166,7 +166,7 @@ public class ClothPatternItemModel implements ItemModel {
 			state.appendModelIdentityElement(glint);
 		}
 
-		String modelVariant = "item.antique.cloth_pattern";
+		String modelVariant = "model.antique.cloth_pattern";
 		Component text = stack.getOrDefault(DataComponents.ITEM_NAME, Component.translatable("item.antique.cloth_pattern"));
 		if (text.getContents() instanceof TranslatableContents translatable) {
 			modelVariant = translatable.getKey();
@@ -199,10 +199,10 @@ public class ClothPatternItemModel implements ItemModel {
 
 		@Override
 		public void resolveDependencies(Resolver resolver) {
-			resolver.markDependency(Antiquities.id("item/cloth_pattern"));
+			resolver.markDependency(Antiquities.id("model/cloth_pattern"));
 
 			ResourceManager manager = Minecraft.getInstance().getResourceManager();
-			manager.listResources("models/item", path -> path.getPath().endsWith(".json")).keySet().forEach(id -> {
+			manager.listResources("models/model", path -> path.getPath().endsWith(".json")).keySet().forEach(id -> {
 				if (manager.getResource(id).isPresent() && id.getPath().contains("_cloth_pattern")) {
 					String string = id.toString();
 					string = string.substring(0, string.indexOf("."));
@@ -223,16 +223,16 @@ public class ClothPatternItemModel implements ItemModel {
 			ModelBaker baker = context.blockModelBaker();
 			List<BakedQuad> variantQuads = new ArrayList<>(64);
 
-			if (!models.contains("antique:item/cloth_pattern")) {
-				models.add("antique:item/cloth_pattern");
+			if (!models.contains("antique:model/cloth_pattern")) {
+				models.add("antique:model/cloth_pattern");
 			}
 
-			ResolvedModel baseBaked = baker.getModel(Antiquities.id("item/cloth_pattern"));
+			ResolvedModel baseBaked = baker.getModel(Antiquities.id("model/cloth_pattern"));
 			TextureSlots baseTex = baseBaked.getTopTextureSlots();
 			ModelRenderProperties settings = ModelRenderProperties.fromResolvedModel(baker, baseBaked, baseTex);
 
 			ResourceManager manager = Minecraft.getInstance().getResourceManager();
-			manager.listResources("models/item", path -> path.getPath().endsWith(".json")).keySet().forEach(id -> {
+			manager.listResources("models/model", path -> path.getPath().endsWith(".json")).keySet().forEach(id -> {
 				if (manager.getResource(id).isPresent() && id.getPath().contains("_cloth_pattern")) {
 					String string = id.toString();
 					string = string.substring(0, string.indexOf("."));

@@ -73,7 +73,7 @@ public class SatchelPacketReceiver {
                         playerInventory.removeItemNoUpdate(currentHotbarSlot);
                     }
 
-                    // Update the satchel's slot with the hotbar item
+                    // Update the satchel's slot with the hotbar model
                     if (!currentHotbarStack.isEmpty()) {
                         if ((currentHotbarStack.getItem() instanceof MyriadToolItem)) {
                             if (myriadItem == ItemStack.EMPTY) {

@@ -81,7 +81,7 @@ public class MyriadToolItem extends Item {
                 return false;
             }
 
-            // Check if the item being added is invalid
+            // Check if the model being added is invalid
             if (isInvalidItem(otherStack)) {
                 return false;
             }
@@ -91,7 +91,7 @@ public class MyriadToolItem extends Item {
                 player.playSound(SoundEvents.BUNDLE_INSERT, 0.8F, 1.0F);
                 setStoredStack(stack, storedStack); // Re-set without empty stacks
 
-                // Clear the cursor stack after adding an item to the tool
+                // Clear the cursor stack after adding an model to the tool
                 slot.setByPlayer(ItemStack.EMPTY);
                 return true;
             }
@@ -150,7 +150,7 @@ public class MyriadToolItem extends Item {
         MyriadToolComponent component = toolStack.getOrDefault(AntiqueDataComponentTypes.MYRIAD_TOOL, Antiquities.getDefaultMyriadTool());
 
         if (ClientClothData.getTransform(component.clothType()).overlay()) {
-            String pattern = "item.antique.cloth_pattern";
+            String pattern = "model.antique.cloth_pattern";
             Component text = patternStack.getOrDefault(DataComponents.ITEM_NAME, Component.translatable("item.antique.cloth_pattern"));
             if (text.getContents() instanceof TranslatableContents translatable) {
                 pattern = translatable.getKey();
@@ -181,7 +181,7 @@ public class MyriadToolItem extends Item {
         boolean remove = false;
 
         if (!clothStack.isEmpty()) {
-            String model = "item.antique.cloth";
+            String model = "model.antique.cloth";
             Component text = clothStack.getOrDefault(DataComponents.ITEM_NAME, Component.translatable("item.antique.cloth"));
             if (text.getContents() instanceof TranslatableContents translatable) {
                 model = translatable.getKey();
@@ -232,7 +232,7 @@ public class MyriadToolItem extends Item {
             }
         }
 
-        clothStack.set(DataComponents.ITEM_NAME, Component.translatable("item." + String.valueOf(component.clothType()).replace(":", ".")));
+        clothStack.set(DataComponents.ITEM_NAME, Component.translatable("model." + String.valueOf(component.clothType()).replace(":", ".")));
 
         component = toolStack.getOrDefault(AntiqueDataComponentTypes.MYRIAD_TOOL, Antiquities.getDefaultMyriadTool());
 

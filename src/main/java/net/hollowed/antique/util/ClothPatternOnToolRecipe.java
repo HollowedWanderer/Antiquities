@@ -154,7 +154,7 @@ public class ClothPatternOnToolRecipe implements CraftingRecipe {
 
 		if (myriadTool != null && clothPattern != null) {
 			ItemStack result = myriadTool.copy();
-			String pattern = "item.antique.cloth_pattern";
+			String pattern = "model.antique.cloth_pattern";
 			Component text = clothPattern.getOrDefault(DataComponents.ITEM_NAME, Component.translatable("item.antique.cloth_pattern"));
 			if (text.getContents() instanceof TranslatableContents translatable) {
 				pattern = translatable.getKey();

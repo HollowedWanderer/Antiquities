@@ -328,7 +328,7 @@ public class Antiquities implements ModInitializer {
 		ItemGroupEvents.modifyEntriesEvent(ANTIQUITIES_CLOTHS_GROUP_KEY).register(itemGroup -> {
 			for (ClothSkinData.ClothSubData data : ClientClothData.getTransforms()) {
 				ItemStack stack = AntiqueItems.CLOTH.getDefaultInstance();
-				stack.set(DataComponents.ITEM_NAME, Component.translatable("item." + data.model().toString().replace(":", ".")));
+				stack.set(DataComponents.ITEM_NAME, Component.translatable("model." + data.model().toString().replace(":", ".")));
 				if (!data.dyeable()) stack.remove(DataComponents.DYED_COLOR);
 				if (!itemGroup.getDisplayStacks().contains(stack)) {
 					itemGroup.accept(stack);
@@ -337,7 +337,7 @@ public class Antiquities implements ModInitializer {
 
 			for (Identifier data : ClientClothData.getOverlayTransforms()) {
 				ItemStack stack = AntiqueItems.CLOTH_PATTERN.getDefaultInstance();
-				stack.set(DataComponents.ITEM_NAME, Component.translatable("item." + data.toString().replace(":", ".") + "_cloth_pattern"));
+				stack.set(DataComponents.ITEM_NAME, Component.translatable("model." + data.toString().replace(":", ".") + "_cloth_pattern"));
 				stack.set(DataComponents.DYED_COLOR, new DyedItemColor(0xFFFFFF));
 				if (!itemGroup.getDisplayStacks().contains(stack)) {
 					itemGroup.accept(stack);
