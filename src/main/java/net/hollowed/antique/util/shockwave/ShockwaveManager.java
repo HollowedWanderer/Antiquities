@@ -1,10 +1,14 @@
 package net.hollowed.antique.util.shockwave;
 
+import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
+import net.hollowed.antique.index.AntiqueBlockTags;
+import net.hollowed.antique.networking.ShockwaveParticlesPayload;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.tags.FluidTags;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
@@ -18,9 +22,9 @@ public class ShockwaveManager {
     public static final Map<Block, Float> RESISTANCES = new HashMap<>();
 
     static {
-        RESISTANCES.put(Blocks.AIR, 0.9f);
-        RESISTANCES.put(Blocks.WATER, 0.95f);
-        RESISTANCES.put(Blocks.LAVA, 0.8f);
+        RESISTANCES.put(Blocks.AIR, 0.85f);
+        RESISTANCES.put(Blocks.WATER, 0.98f);
+        RESISTANCES.put(Blocks.LAVA, 0.9f);
     }
 
     public static final int MAX_PATH_LENGTH = 4;
@@ -71,13 +75,25 @@ public class ShockwaveManager {
             List<Node> nextNodes = new ArrayList<>();
 
             for (Node node : nodes) {
-                for (LivingEntity entity : level.getEntitiesOfClass(LivingEntity.class, new AABB(node.pos))) {
-                    double speed = node.charge / strength * 4;
-                    entity.push(node.path[node.path.length - 1].getUnitVec3().multiply(speed + ((Math.random() - 0.5) / 10), speed + ((Math.random() - 0.5) / 10), speed + ((Math.random() - 0.5) / 10)));
+                double speed = node.charge / strength * 2.5;
+                for (Entity entity : level.getEntities(null, new AABB(node.pos))) {
+                    entity.push(node.path[node.path.length - 1].getUnitVec3().multiply(speed, speed, speed));
                     entity.hurtMarked = true;
                 }
 
-                level.sendParticles(ParticleTypes.WAX_ON, node.pos.getX() + 0.5, node.pos.getY() + 0.5, node.pos.getZ() + 0.5, 1, 0, 0, 0, 0);
+                double particleVel = 0.75;
+                if (level.getFluidState(node.pos).is(FluidTags.WATER)) {
+                    for (ServerPlayer serverPlayer : level.players().stream().toList()) {
+                        ServerPlayNetworking.send(serverPlayer,
+                                new ShockwaveParticlesPayload(
+                                        node.pos.getX() + 0.5F,
+                                        node.pos.getY() + 0.5F,
+                                        node.pos.getZ() + 0.5F,
+                                        node.path[node.path.length - 1].getUnitVec3().multiply(particleVel, particleVel, particleVel)
+                                )
+                        );
+                    }
+                }
 
                 float totalAllowance = 0;
                 float[] allowances = new float[6];
@@ -88,9 +104,9 @@ public class ShockwaveManager {
                         BlockPos otherPos = node.pos.relative(dir);
                         BlockState otherState = level.getBlockState(otherPos);
 
-                        if (RESISTANCES.containsKey(otherState.getBlock())) {
+                        if (RESISTANCES.containsKey(otherState.getBlock()) || otherState.is(AntiqueBlockTags.SHOCKWAVE_PASSABLE)) {
                             float allowance = node.calculateDirectionAllowance(dir);
-                            allowance = (float) Math.pow(allowance, 2);
+                            allowance = (float) Math.pow(allowance, 1.5);
 
                             allowances[dir.ordinal()] = allowance;
                             totalAllowance += allowance;
@@ -104,9 +120,14 @@ public class ShockwaveManager {
                             BlockPos otherPos = node.pos.relative(dir);
                             BlockState otherState = level.getBlockState(otherPos);
 
-                            if (RESISTANCES.containsKey(otherState.getBlock())) {
+                            if (RESISTANCES.containsKey(otherState.getBlock()) || otherState.is(AntiqueBlockTags.SHOCKWAVE_PASSABLE)) {
                                 float allowance = allowances[dir.ordinal()] / totalAllowance;
-                                float charge = (node.charge) * allowance * RESISTANCES.get(otherState.getBlock());
+                                float charge = (node.charge) * allowance *
+                                        (
+                                                RESISTANCES.get(otherState.getBlock()) != null ?
+                                                RESISTANCES.get(otherState.getBlock())
+                                                : level.getFluidState(otherPos).is(FluidTags.WATER) ? RESISTANCES.get(Blocks.WATER) : RESISTANCES.get(Blocks.AIR)
+                                        );
 
                                 if (charge <= 1e-2) {
                                     continue;

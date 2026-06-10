@@ -168,6 +168,10 @@ public class MyriadShovelEntity extends AbstractArrow {
 		return entity != null && entity.isAlive() && (!(entity instanceof ServerPlayer) || !entity.isSpectator());
 	}
 
+	public boolean getInGround() {
+		return this.isInGround();
+	}
+
 	@Override
 	protected void onHit(@NotNull HitResult hitResult) {
 		super.onHit(hitResult);

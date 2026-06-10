@@ -30,7 +30,6 @@ import net.minecraft.client.renderer.item.properties.select.SelectItemModelPrope
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.projectile.throwableitemprojectile.Snowball;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -99,6 +98,7 @@ public class AntiquitiesClient implements ClientModInitializer {
         ClothSkinPacketReceiver.registerClientPacket();
         ClothOverlayPacketReceiver.registerClientPacket();
         AddClothItemsPacketReceiver.registerClientPacket();
+        ShockwaveParticlesReceiver.registerClientPacket();
 
         /*
             Entity Renderers

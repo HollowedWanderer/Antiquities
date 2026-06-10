@@ -6,30 +6,48 @@ import net.hollowed.antique.index.AntiqueBlockEntities;
 import net.hollowed.antique.util.shockwave.ShockwaveManager;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.FrontAndTop;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LevelReader;
+import net.minecraft.world.level.ScheduledTickAccess;
 import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.level.block.state.properties.BooleanProperty;
+import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.level.block.state.properties.IntegerProperty;
+import net.minecraft.world.level.material.FluidState;
+import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.level.redstone.Orientation;
 import net.minecraft.world.ticks.TickPriority;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
-public class ResonatorBlock extends DirectionalBlock implements EntityBlock {
+public class ResonatorBlock extends BaseEntityBlock implements SimpleWaterloggedBlock {
     public static final IntegerProperty CHARGE = IntegerProperty.create("charge", 0, 15);
     public static final MapCodec<ResonatorBlock> CODEC = simpleCodec(ResonatorBlock::new);
+    private static final EnumProperty<FrontAndTop> ORIENTATION = BlockStateProperties.ORIENTATION;
+    private static final BooleanProperty WATERLOGGED = BlockStateProperties.WATERLOGGED;
+    private static final BooleanProperty POWERED = BlockStateProperties.POWERED;
 
     public ResonatorBlock(Properties properties) {
         super(properties);
+        this.registerDefaultState(
+                this.getStateDefinition().any()
+                        .setValue(ORIENTATION, FrontAndTop.NORTH_UP)
+                        .setValue(WATERLOGGED, false)
+                        .setValue(POWERED, false)
+                        .setValue(CHARGE, 0)
+        );
     }
 
     @Override
@@ -61,19 +79,29 @@ public class ResonatorBlock extends DirectionalBlock implements EntityBlock {
 
     @Override
     public @Nullable BlockState getStateForPlacement(@NonNull BlockPlaceContext context) {
+        FluidState fluidState = context.getLevel().getFluidState(context.getClickedPos());
+        Direction direction = context.getNearestLookingDirection().getOpposite();
+        Direction direction2 = switch (direction) {
+            case DOWN -> context.getHorizontalDirection().getOpposite();
+            case UP -> context.getHorizontalDirection();
+            case NORTH, SOUTH, WEST, EAST -> Direction.UP;
+        };
+
         return defaultBlockState()
-                .setValue(FACING, context.getClickedFace().getOpposite())
+                .setValue(ORIENTATION, FrontAndTop.fromFrontAndTop(direction, direction2))
+                .setValue(WATERLOGGED, fluidState.getType() == Fluids.WATER)
+                .setValue(POWERED, false)
                 .setValue(CHARGE, 0);
     }
 
     @Override
     protected void createBlockStateDefinition(StateDefinition.@NonNull Builder<Block, BlockState> builder) {
         super.createBlockStateDefinition(builder);
-        builder.add(FACING, CHARGE);
+        builder.add(ORIENTATION, CHARGE, WATERLOGGED, POWERED);
     }
 
     protected int getInputSignal(Level level, BlockPos pos, BlockState state) {
-        Direction dir = state.getValue(FACING).getOpposite();
+        Direction dir = state.getValue(ORIENTATION).front().getOpposite();
         BlockPos otherPos = pos.relative(dir);
         int signal = level.getSignal(otherPos, dir);
 
@@ -93,7 +121,7 @@ public class ResonatorBlock extends DirectionalBlock implements EntityBlock {
             @NonNull RandomSource randomSource
     ) {
         ResonatorBlockEntity entity = level.getBlockEntity(pos, AntiqueBlockEntities.RESONATOR_BLOCK_ENTITY).orElseThrow();
-        entity.shockwave = new ShockwaveManager(pos, state.getValue(FACING), 32f, 1); // TODO
+        entity.shockwave = new ShockwaveManager(pos, state.getValue(ORIENTATION).front(), 24f, 1);
     }
 
     @Override
@@ -105,9 +133,14 @@ public class ResonatorBlock extends DirectionalBlock implements EntityBlock {
             @Nullable Orientation orientation,
             boolean bl
     ) {
-        //if (getInputSignal(level, pos, state) > 0) {
-            level.scheduleTick(pos, this, 2, TickPriority.VERY_HIGH);
-        //}
+        if (getInputSignal(level, pos, state) > 0) {
+            if (!state.getValue(POWERED)) {
+                level.scheduleTick(pos, this, 2, TickPriority.VERY_HIGH);
+                level.setBlock(pos, state.setValue(POWERED, true), Block.UPDATE_ALL);
+            }
+        } else {
+            level.setBlock(pos, state.setValue(POWERED, false), Block.UPDATE_ALL);
+        }
     }
 
     @Override
@@ -118,8 +151,36 @@ public class ResonatorBlock extends DirectionalBlock implements EntityBlock {
             @Nullable LivingEntity livingEntity,
             @NonNull ItemStack itemStack
     ) {
-        //if (getInputSignal(level, pos, state) > 0) {
-            level.scheduleTick(pos, this, 2, TickPriority.VERY_HIGH);
-        //}
+        if (getInputSignal(level, pos, state) > 0) {
+            if (!state.getValue(POWERED)) {
+                level.scheduleTick(pos, this, 2, TickPriority.VERY_HIGH);
+                level.setBlock(pos, state.setValue(POWERED, true), Block.UPDATE_ALL);
+            }
+        } else {
+            level.setBlock(pos, state.setValue(POWERED, false), Block.UPDATE_ALL);
+        }
+    }
+
+    @Override
+    protected @NonNull BlockState updateShape(
+            BlockState blockState,
+            @NonNull LevelReader levelReader,
+            @NonNull ScheduledTickAccess scheduledTickAccess,
+            @NonNull BlockPos blockPos,
+            @NonNull Direction direction,
+            @NonNull BlockPos blockPos2,
+            @NonNull BlockState blockState2,
+            @NonNull RandomSource randomSource
+    ) {
+        if (blockState.getValue(WATERLOGGED)) {
+            scheduledTickAccess.scheduleTick(blockPos, Fluids.WATER, Fluids.WATER.getTickDelay(levelReader));
+        }
+
+        return super.updateShape(blockState, levelReader, scheduledTickAccess, blockPos, direction, blockPos2, blockState2, randomSource);
+    }
+
+    @Override
+    protected @NonNull FluidState getFluidState(BlockState blockState) {
+        return blockState.getValue(WATERLOGGED) ? Fluids.WATER.getSource(true) : super.getFluidState(blockState);
     }
 }

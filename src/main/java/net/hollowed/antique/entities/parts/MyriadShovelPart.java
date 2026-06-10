@@ -90,7 +90,7 @@ public class MyriadShovelPart extends Entity implements TraceableEntity {
 			entity.makeStuckInBlock(Blocks.AIR.defaultBlockState(), new Vec3(0.05, 0.01, 0.05));
 		}
 
-		if (this.getOwner() instanceof MyriadShovelEntity shovel && shovel.canPickup) {
+		if (this.getOwner() instanceof MyriadShovelEntity shovel && (!shovel.getInGround() || shovel.canPickup)) {
 			this.discard();
 			return;
 		}

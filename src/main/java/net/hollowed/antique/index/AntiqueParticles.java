@@ -7,7 +7,6 @@ import net.hollowed.antique.particles.*;
 import net.minecraft.core.Registry;
 import net.minecraft.core.particles.SimpleParticleType;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.resources.Identifier;
 
 public interface AntiqueParticles {
     SimpleParticleType SPARKLE_PARTICLE = FabricParticleTypes.simple();
@@ -15,6 +14,7 @@ public interface AntiqueParticles {
     SimpleParticleType CAKE_SMEAR = FabricParticleTypes.simple();
     SimpleParticleType HIT_MARKER = FabricParticleTypes.simple();
     SimpleParticleType SCRAPE = FabricParticleTypes.simple();
+    SimpleParticleType SHOCKWAVE_BUBBLE = FabricParticleTypes.simple();
 
     static void initialize() {
 	    Registry.register(BuiltInRegistries.PARTICLE_TYPE, Antiquities.id("sparkle_particle"), SPARKLE_PARTICLE);
@@ -22,6 +22,7 @@ public interface AntiqueParticles {
         Registry.register(BuiltInRegistries.PARTICLE_TYPE, Antiquities.id("cake_smear"), CAKE_SMEAR);
         Registry.register(BuiltInRegistries.PARTICLE_TYPE, Antiquities.id("hit_marker"), HIT_MARKER);
         Registry.register(BuiltInRegistries.PARTICLE_TYPE, Antiquities.id("scrape"), SCRAPE);
+        Registry.register(BuiltInRegistries.PARTICLE_TYPE, Antiquities.id("shockwave_bubble"), SHOCKWAVE_BUBBLE);
     }
 
     static void initializeClient() {
@@ -30,5 +31,6 @@ public interface AntiqueParticles {
         ParticleFactoryRegistry.getInstance().register(DUST_PARTICLE, DustParticle.CosySmokeFactory::new);
         ParticleFactoryRegistry.getInstance().register(HIT_MARKER, HitMarkerParticle.Factory::new);
         ParticleFactoryRegistry.getInstance().register(SCRAPE, GlowParticle.ScrapeFactory::new);
+        ParticleFactoryRegistry.getInstance().register(SHOCKWAVE_BUBBLE, ShockwaveBubbleParticle.Factory::new);
     }
 }

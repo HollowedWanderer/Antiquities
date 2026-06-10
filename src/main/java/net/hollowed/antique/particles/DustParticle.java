@@ -8,6 +8,7 @@ import net.minecraft.core.particles.SimpleParticleType;
 import net.minecraft.util.RandomSource;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.NonNull;
 
 @Environment(EnvType.CLIENT)
 public class DustParticle extends SingleQuadParticle {
@@ -60,7 +61,7 @@ public class DustParticle extends SingleQuadParticle {
 		}
 
 		@Override
-		public @Nullable Particle createParticle(SimpleParticleType parameters, @NotNull ClientLevel world, double x, double y, double z, double velocityX, double velocityY, double velocityZ, @NotNull RandomSource random) {
+		public @Nullable Particle createParticle(@NonNull SimpleParticleType parameters, @NotNull ClientLevel world, double x, double y, double z, double velocityX, double velocityY, double velocityZ, @NotNull RandomSource random) {
 			DustParticle campfireSmokeParticle = new DustParticle(world, x, y, z, velocityX, velocityY, velocityZ, false, this.spriteProvider);
 			campfireSmokeParticle.setAlpha(0.9F);
 			campfireSmokeParticle.setSprite(this.spriteProvider.first());

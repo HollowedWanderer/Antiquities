@@ -1,6 +1,6 @@
 {
   "model": {
     "type": "minecraft:model",
-    "model": "antique:block/resonator"
+    "model": "antique:block/resonator_vertical"
   }
 }
