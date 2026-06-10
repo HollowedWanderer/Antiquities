@@ -13,19 +13,25 @@ import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.state.AvatarRenderState;
 import net.minecraft.client.renderer.entity.state.HumanoidRenderState;
 import net.minecraft.client.renderer.entity.state.SkeletonRenderState;
+import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.client.renderer.rendertype.RenderTypes;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.resources.Identifier;
+import net.minecraft.util.Util;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.player.PlayerModelType;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.function.Function;
 
 @Environment(EnvType.CLIENT)
 public class AdventureArmorFeatureRenderer implements ArmorRenderer {
 
     private static final Identifier TEXTURE = Antiquities.id("textures/entity/adventure_armor.png");
     private static final Identifier THICK_TEXTURE = Antiquities.id("textures/entity/adventure_armor_thick.png");
+
+    public static final Function<Boolean, RenderType> RENDER_LAYER = Util.memoize(slim -> RenderTypes.armorCutoutNoCull(slim ? TEXTURE : THICK_TEXTURE));
 
     private final AdventureArmor<@NotNull HumanoidRenderState> model;
 
@@ -46,7 +52,7 @@ public class AdventureArmorFeatureRenderer implements ArmorRenderer {
                 true,
                 queue,
                 matrices,
-                RenderTypes.armorCutoutNoCull(slim ? TEXTURE : THICK_TEXTURE),
+                RENDER_LAYER.apply(slim),
                 light,
                 OverlayTexture.NO_OVERLAY,
                 state.outlineColor,
