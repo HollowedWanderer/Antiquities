@@ -38,7 +38,7 @@ public record MyriadToolComponent(ItemStack toolBit, Optional<Identifier> clothT
     );
 
     public static final Codec<MyriadToolComponent> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-            ItemStack.CODEC.xmap(
+            ItemStack.OPTIONAL_CODEC.xmap(
                     stack -> stack.getItem() == Items.BARRIER ? ItemStack.EMPTY : stack,
                     stack -> stack.isEmpty() ? new ItemStack(Items.BARRIER) : stack
             ).fieldOf("tool_bit").orElse(ItemStack.EMPTY).forGetter(MyriadToolComponent::toolBit),
@@ -49,7 +49,7 @@ public record MyriadToolComponent(ItemStack toolBit, Optional<Identifier> clothT
     ).apply(instance, MyriadToolComponent::new));
 
     public static final StreamCodec<RegistryFriendlyByteBuf, MyriadToolComponent> PACKET_CODEC = StreamCodec.composite(
-            ItemStack.STREAM_CODEC, MyriadToolComponent::toolBit,
+            ItemStack.OPTIONAL_STREAM_CODEC, MyriadToolComponent::toolBit,
             ByteBufCodecs.optional(Identifier.STREAM_CODEC), MyriadToolComponent::clothType,
             ByteBufCodecs.optional(Identifier.STREAM_CODEC), MyriadToolComponent::clothPattern,
             ColorProviders.STREAM_CODEC, MyriadToolComponent::clothColor,
