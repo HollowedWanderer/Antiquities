@@ -27,7 +27,7 @@ public record ClothTintSource(int defaultColor) implements ItemTintSource {
 	public int calculate(ItemStack stack, @Nullable ClientLevel world, @Nullable LivingEntity user) {
 		MyriadToolComponent component = stack.get(AntiqueDataComponentTypes.MYRIAD_TOOL);
 		return component != null
-			? ARGB.opaque(component.clothColor())
+			? ARGB.opaque(component.clothColor().getColorClient())
 			: ARGB.opaque(this.defaultColor);
 	}
 

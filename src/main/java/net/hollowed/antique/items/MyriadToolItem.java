@@ -3,6 +3,7 @@ package net.hollowed.antique.items;
 import net.hollowed.antique.Antiquities;
 import net.hollowed.antique.index.AntiqueDataComponentTypes;
 import net.hollowed.antique.index.AntiqueItems;
+import net.hollowed.antique.items.components.ColorProvider;
 import net.hollowed.antique.items.components.MyriadToolComponent;
 import net.hollowed.antique.util.resources.ClientClothData;
 import net.hollowed.antique.util.resources.ClothSkinData;
@@ -193,17 +194,9 @@ public class MyriadToolItem extends Item {
 
             if (component.clothType().isEmpty()) remove = true;
             ClothSkinData.ClothSubData clothData = ClientClothData.getTransform(Optional.of(Identifier.parse(model)));
-            int intValue = 0;
-            try {
-                if (!clothData.hex().isBlank()) {
-                    intValue = Integer.parseInt(clothData.hex(), 16);
-                }
-            } catch (NumberFormatException e) {
-                System.err.println("Invalid hexadecimal string format: " + e.getMessage());
-            }
 
             if (toolData.dyeable()) {
-                clothStack.set(DataComponents.DYED_COLOR, new DyedItemColor(component.clothColor()));
+                clothStack.set(DataComponents.DYED_COLOR, new DyedItemColor(component.clothColor().getConstantColor(color -> "Cloths cannot both be dyeable and have a non-constant color")));
             } else {
                 clothStack.remove(DataComponents.DYED_COLOR);
             }
@@ -212,23 +205,22 @@ public class MyriadToolItem extends Item {
                     component.toolBit(),
                     Optional.of(Identifier.parse(model)),
                     component.clothPattern(),
-                    clothData.dyeable() ? clothColor.rgb() : intValue,
+                    clothData.dyeable() ? new ColorProvider.Constant(clothColor.rgb()) : clothData.color(),
                     component.patternColor()
             ));
-
         } else {
             toolStack.set(AntiqueDataComponentTypes.MYRIAD_TOOL, new MyriadToolComponent(
                     component.toolBit(),
                     Optional.empty(),
                     component.clothPattern(),
-                    0xFFFFFF,
+                    new ColorProvider.Constant(0xFFFFFF),
                     component.patternColor()
             ));
 
             clothStack = AntiqueItems.CLOTH.getDefaultInstance();
 
             if (toolData.dyeable()) {
-                clothStack.set(DataComponents.DYED_COLOR, new DyedItemColor(component.clothColor()));
+                clothStack.set(DataComponents.DYED_COLOR, new DyedItemColor(component.clothColor().getConstantColor(color -> "Cloths cannot both be dyeable and have a non-constant color")));
             } else {
                 clothStack.remove(DataComponents.DYED_COLOR);
             }

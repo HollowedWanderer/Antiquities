@@ -8,6 +8,7 @@ import net.hollowed.antique.index.AntiqueDamageTypes;
 import net.hollowed.antique.index.AntiqueEntities;
 import net.hollowed.antique.entities.parts.MyriadShovelPart;
 import net.hollowed.antique.index.AntiqueTrackedData;
+import net.hollowed.antique.items.components.ColorProvider;
 import net.hollowed.antique.items.components.MyriadToolComponent;
 import net.hollowed.antique.util.interfaces.duck.ClothAccess;
 import net.hollowed.combatamenities.index.CAParticles;
@@ -76,7 +77,7 @@ public class MyriadShovelEntity extends AbstractArrow {
 		this.setPierceLevel((byte) 5);
 	}
 
-	public int getDyeColor() {
+	public ColorProvider getDyeColor() {
 		return this.entityData.get(ATTRIBUTES).clothColor();
 	}
 

@@ -4,6 +4,7 @@ import net.hollowed.antique.index.AntiqueDataComponentTypes;
 import net.hollowed.antique.index.AntiqueItems;
 import net.hollowed.antique.index.AntiqueScreenHandlerType;
 import net.hollowed.antique.items.MyriadToolItem;
+import net.hollowed.antique.items.components.ColorProvider;
 import net.hollowed.antique.items.components.MyriadToolComponent;
 import net.hollowed.antique.util.resources.ClothSkinData;
 import net.hollowed.antique.util.resources.ClothSkinListener;
@@ -177,7 +178,7 @@ public class DyeingScreenHandler extends AbstractContainerMenu {
 							component.toolBit(),
 							component.clothType(),
 							component.clothPattern(),
-							intValue,
+							new ColorProvider.Constant(intValue),
 							component.patternColor()
 					));
 				}

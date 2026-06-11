@@ -67,6 +67,7 @@
   "client": [
     "accessors.GetSlotAtAccessor",
     "accessors.RendererAccessor",
+    "atlas.AtlasManagerMixin",
     "entities.features.BackSlotRendererMixin",
     "entities.features.CapeMixin",
     "entities.features.ClothTickMixin",

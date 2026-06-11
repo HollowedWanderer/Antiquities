@@ -30,6 +30,7 @@ import net.minecraft.client.renderer.item.properties.select.SelectItemModelPrope
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.projectile.throwableitemprojectile.Snowball;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -46,6 +47,10 @@ public class AntiquitiesClient implements ClientModInitializer {
     private static long lastUseTime = 0;  // Time of last use in milliseconds
     private static final long COOLDOWN_TIME = 250;  // Cooldown time in milliseconds (500 ms = 0.5 seconds)
     private static boolean wasCrawling = false; // Store previous key state
+
+    public static final Identifier CLOTHS_ATLAS = Antiquities.id("cloths");
+
+    public static final Identifier CLOTHS_ATLAS_TEXTURE = CLOTHS_ATLAS.withPath(path -> "textures/atlas/" + path + ".png");
 
     @Override
     public void onInitializeClient() {
@@ -201,7 +206,7 @@ public class AntiquitiesClient implements ClientModInitializer {
 
                 component.clothType().ifPresent(id -> {
                     String clothName = id.toLanguageKey();
-                    Component cloth = Component.literal(" - ").append(Component.translatable("item." + clothName)).withColor(new Color(component.clothColor()).brighter().getRGB());
+                    Component cloth = Component.literal(" - ").append(Component.translatable("item." + clothName)).withColor(new Color(component.clothColor().getColorClient()).brighter().getRGB());
                     list.add(2, cloth);
                 });
 
