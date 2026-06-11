@@ -13,12 +13,12 @@ import net.minecraft.resources.Identifier;
 public record ClothSkinData(
         List<ClothSubData> list
 ) {
-    public static final ClothSubData DEFAULT = new ClothSubData(Optional.empty(), "d13a68", 1.4F, 0.1F, 1.0F, -0.5F, 8, 0, false, false);
+    public static final ClothSubData DEFAULT = new ClothSubData(Optional.empty(), "d13a68", 1.4F, 0.1F, 1.0F, -0.5F, 8, 0, false, false, false);
     public static final Codec<ClothSkinData> CODEC = RecordCodecBuilder.create(instance -> instance.group(
             ClothSubData.CODEC.listOf().fieldOf("skins").orElseGet(() -> List.of(DEFAULT)).forGetter(ClothSkinData::list)
     ).apply(instance, ClothSkinData::new));
 
-    public record ClothSubData(Optional<Identifier> model, String hex, float length, float width, float gravity, float waterGravity, int bodyAmount, int light, boolean overlay, boolean dyeable) {
+    public record ClothSubData(Optional<Identifier> model, String hex, float length, float width, float gravity, float waterGravity, int bodyAmount, int light, boolean emissiveLayer, boolean overlay, boolean dyeable) {
         public static final Codec<ClothSubData> CODEC = RecordCodecBuilder.create(instance -> instance.group(
                 Identifier.CODEC.optionalFieldOf("model").forGetter(ClothSubData::model),
                 Codec.STRING.optionalFieldOf("color", "d13a68").forGetter(ClothSubData::hex),
@@ -28,6 +28,7 @@ public record ClothSkinData(
                 Codec.FLOAT.optionalFieldOf("water_gravity", -0.5F).forGetter(ClothSubData::waterGravity),
                 Codec.INT.optionalFieldOf("bodies", 8).forGetter(ClothSubData::bodyAmount),
                 Codec.INT.optionalFieldOf("light", 0).forGetter(ClothSubData::light),
+                Codec.BOOL.optionalFieldOf("emissiveLayer", false).forGetter(ClothSubData::emissiveLayer),
                 Codec.BOOL.optionalFieldOf("overlay", false).forGetter(ClothSubData::overlay),
                 Codec.BOOL.optionalFieldOf("dyeable", false).forGetter(ClothSubData::dyeable)
         ).apply(instance, ClothSubData::new));
@@ -41,6 +42,7 @@ public record ClothSkinData(
                 ByteBufCodecs.FLOAT, ClothSubData::waterGravity,
                 ByteBufCodecs.INT, ClothSubData::bodyAmount,
                 ByteBufCodecs.INT, ClothSubData::light,
+                ByteBufCodecs.BOOL, ClothSubData::emissiveLayer,
                 ByteBufCodecs.BOOL, ClothSubData::overlay,
                 ByteBufCodecs.BOOL, ClothSubData::dyeable,
                 ClothSubData::new

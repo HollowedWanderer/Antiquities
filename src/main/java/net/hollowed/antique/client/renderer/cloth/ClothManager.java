@@ -304,6 +304,30 @@ public class ClothManager {
                         finalLight,
                         finalColor
                 );
+
+                if (data.emissiveLayer()) {
+                    sprite = Minecraft.getInstance()
+                            .getAtlasManager()
+                            .getAtlasOrThrow(AntiquitiesClient.CLOTHS_ATLAS)
+                            .getSprite(id.withPrefix("cloth/").withSuffix("_emissive"));
+                    drawQuad(
+                            matrices,
+                            new Matrix4f(),
+                            CLOTH_RENDER_LAYER,
+                            queue,
+                            2,
+                            a,
+                            b,
+                            posEnd,
+                            negEnd,
+                            new Vec2(sprite.getU0(), sprite.getV(uvTop)),
+                            new Vec2(sprite.getU1(), sprite.getV(uvTop)),
+                            new Vec2(sprite.getU1(), sprite.getV(uvBot)),
+                            new Vec2(sprite.getU0(), sprite.getV(uvBot)),
+                            255,
+                            finalColor
+                    );
+                }
             });
 
             overlay.ifPresent(id -> {
@@ -316,7 +340,7 @@ public class ClothManager {
                         new Matrix4f(),
                         CLOTH_RENDER_LAYER,
                         queue,
-                        2,
+                        3,
                         a,
                         b,
                         posEnd,
