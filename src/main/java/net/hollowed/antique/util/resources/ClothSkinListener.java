@@ -14,7 +14,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 public class ClothSkinListener implements ResourceManagerReloadListener {
-    private static final Map<String, ClothSkinData.ClothSubData> transforms = new LinkedHashMap<>();
+    public static final Map<Identifier, ClothSkinData.ClothSubData> TRANSFORMS = new LinkedHashMap<>();
 
     @Override
     public void onResourceManagerReload(ResourceManager manager) {
@@ -26,7 +26,7 @@ public class ClothSkinListener implements ResourceManagerReloadListener {
 
                     result.resultOrPartial(Antiquities.LOGGER::error).ifPresent(data -> {
                         for (ClothSkinData.ClothSubData entry : data.list()) {
-                            transforms.putIfAbsent(entry.model().toString(), entry);
+                            TRANSFORMS.putIfAbsent(entry.model().orElseThrow(), entry);
                         }
                     });
                 } catch (Exception e) {
@@ -36,11 +36,7 @@ public class ClothSkinListener implements ResourceManagerReloadListener {
         });
     }
 
-    public static Map<String, ClothSkinData.ClothSubData> getTransformMap() {
-        return transforms;
-    }
-
-    public static ClothSkinData.ClothSubData getTransform(String id) {
-        return transforms.getOrDefault(id, new ClothSkinData.ClothSubData(Identifier.parse(""), "d13a68", 1.4F, 0.1F, 1.0F, -0.5F, 8, 0, false, false));
+    public static ClothSkinData.ClothSubData getTransform(Optional<Identifier> id) {
+        return id.map(i -> TRANSFORMS.getOrDefault(i, ClothSkinData.DEFAULT)).orElse(ClothSkinData.DEFAULT);
     }
 }

@@ -17,6 +17,7 @@ import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.LivingEntityRenderer;
 import net.minecraft.client.renderer.entity.player.AvatarRenderer;
 import net.minecraft.client.renderer.entity.state.AvatarRenderState;
+import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.client.renderer.rendertype.RenderTypes;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.core.registries.Registries;
@@ -42,6 +43,10 @@ public abstract class PlayerFeatureAdder extends LivingEntityRenderer<@NotNull A
     private static final Identifier TEXTURE = Antiquities.id("textures/entity/adventure_armor.png");
     @Unique
     private static final Identifier THICK_TEXTURE = Antiquities.id("textures/entity/adventure_armor_thick.png");
+    @Unique
+    private static final RenderType RENDER_LAYER = RenderTypes.armorCutoutNoCull(TEXTURE);
+    @Unique
+    private static final RenderType THICK_RENDER_LAYER = RenderTypes.armorCutoutNoCull(THICK_TEXTURE);
     @Unique
     private AdventureArmor<@NotNull AvatarRenderState> armorModel;
     @Unique
@@ -83,10 +88,10 @@ public abstract class PlayerFeatureAdder extends LivingEntityRenderer<@NotNull A
             matrices.mulPose(Axis.ZP.rotationDegrees(-5));
             matrices.translate(0.325, 0.1, 0);
             if (slim) {
-                queue.order(1).submitModelPart(armorModel.leftArmArmor, matrices, RenderTypes.armorCutoutNoCull(TEXTURE), light, OverlayTexture.NO_OVERLAY, null);
+                queue.order(1).submitModelPart(armorModel.leftArmArmor, matrices, RENDER_LAYER, light, OverlayTexture.NO_OVERLAY, null);
                 if (player.getItemBySlot(EquipmentSlot.CHEST).hasFoil()) queue.order(2).submitModelPart(armorModel.leftArmArmor, matrices, RenderTypes.armorEntityGlint(), light, OverlayTexture.NO_OVERLAY, null);
             } else {
-                queue.order(1).submitModelPart(armorModel.leftArmArmorThick, matrices, RenderTypes.armorCutoutNoCull(THICK_TEXTURE), light, OverlayTexture.NO_OVERLAY, null);
+                queue.order(1).submitModelPart(armorModel.leftArmArmorThick, matrices, THICK_RENDER_LAYER, light, OverlayTexture.NO_OVERLAY, null);
                 if (player.getItemBySlot(EquipmentSlot.CHEST).hasFoil()) queue.order(2).submitModelPart(armorModel.leftArmArmorThick, matrices, RenderTypes.armorEntityGlint(), light, OverlayTexture.NO_OVERLAY, null);
             }
         }
@@ -100,10 +105,10 @@ public abstract class PlayerFeatureAdder extends LivingEntityRenderer<@NotNull A
             matrices.mulPose(Axis.ZP.rotationDegrees(5));
             matrices.translate(-0.325, 0.1, 0);
             if (slim) {
-                queue.order(1).submitModelPart(armorModel.rightArmArmor, matrices, RenderTypes.armorCutoutNoCull(TEXTURE), light, OverlayTexture.NO_OVERLAY, null);
+                queue.order(1).submitModelPart(armorModel.rightArmArmor, matrices, RENDER_LAYER, light, OverlayTexture.NO_OVERLAY, null);
                 if (player.getItemBySlot(EquipmentSlot.CHEST).hasFoil()) queue.order(2).submitModelPart(armorModel.rightArmArmor, matrices, RenderTypes.armorEntityGlint(), light, OverlayTexture.NO_OVERLAY, null);
             } else {
-                queue.order(1).submitModelPart(armorModel.rightArmArmorThick, matrices, RenderTypes.armorCutoutNoCull(THICK_TEXTURE), light, OverlayTexture.NO_OVERLAY, null);
+                queue.order(1).submitModelPart(armorModel.rightArmArmorThick, matrices, THICK_RENDER_LAYER, light, OverlayTexture.NO_OVERLAY, null);
                 if (player.getItemBySlot(EquipmentSlot.CHEST).hasFoil()) queue.order(2).submitModelPart(armorModel.rightArmArmorThick, matrices, RenderTypes.armorEntityGlint(), light, OverlayTexture.NO_OVERLAY, null);
             }
         }

@@ -6,7 +6,7 @@ import net.hollowed.antique.util.resources.ClientClothData;
 public class ClothOverlayPacketReceiver {
     public static void registerClientPacket() {
         ClientPlayNetworking.registerGlobalReceiver(ClothOverlayPacketPayload.ID, (payload, context) -> context.client().execute(() ->
-                ClientClothData.addOverlay(payload.identifier())
+                ClientClothData.OVERLAY_TRANSFORMS.add(payload.identifier())
         ));
     }
 }

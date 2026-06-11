@@ -13,6 +13,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import net.hollowed.antique.Antiquities;
 import net.hollowed.antique.index.AntiqueDataComponentTypes;
@@ -29,6 +30,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.contents.TranslatableContents;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.util.GsonHelper;
@@ -50,7 +52,7 @@ public class ClothPatternOnToolRecipe implements CraftingRecipe {
 	final List<Ingredient> ingredients;
 	@Nullable
 	private PlacementInfo ingredientPlacement;
-	private static final Map<String, ClothSkinData.ClothSubData> transforms = new LinkedHashMap<>();
+	public static final Map<String, ClothSkinData.ClothSubData> TRANSFORMS = new LinkedHashMap<>();
 
 	public ClothPatternOnToolRecipe(String group, CraftingBookCategory category, List<Ingredient> ingredients) {
 		this.group = group;
@@ -100,8 +102,8 @@ public class ClothPatternOnToolRecipe implements CraftingRecipe {
 		return defaultedList;
 	}
 
-	public static ClothSkinData.ClothSubData getTransform(String id) {
-		return transforms.getOrDefault(id, new ClothSkinData.ClothSubData(Antiquities.id("cloth"), "d13a68", 1.4F, 0.1F, 1, 1, 8, 0, true, true));
+	public static ClothSkinData.ClothSubData getTransform(Optional<Identifier> id) {
+		return id.map(i -> TRANSFORMS.getOrDefault(i, ClothSkinData.DEFAULT)).orElse(ClothSkinData.DEFAULT);
 	}
 
 	@SuppressWarnings("all")
@@ -119,7 +121,7 @@ public class ClothPatternOnToolRecipe implements CraftingRecipe {
 
 							result.resultOrPartial(Antiquities.LOGGER::error).ifPresent(data -> {
 								for (ClothSkinData.ClothSubData entry : data.list()) {
-									transforms.putIfAbsent(entry.model().getPath(), entry);
+									TRANSFORMS.putIfAbsent(entry.model().orElseThrow().getPath(), entry);
 								}
 							});
 						} catch (Exception e) {
@@ -129,7 +131,7 @@ public class ClothPatternOnToolRecipe implements CraftingRecipe {
 				});
 
 				for (ItemStack stack : craftingRecipeInput.items()) {
-					if (stack.is(AntiqueItems.MYRIAD_TOOL) && !getTransform(String.valueOf(stack.getOrDefault(AntiqueDataComponentTypes.MYRIAD_TOOL, Antiquities.getDefaultMyriadTool()).clothType())).overlay()) {
+					if (stack.is(AntiqueItems.MYRIAD_TOOL) && !getTransform(stack.getOrDefault(AntiqueDataComponentTypes.MYRIAD_TOOL, MyriadToolComponent.DEFAULT_NO_CLOTH).clothType()).overlay()) {
 						return false;
 					}
 				}
@@ -163,12 +165,12 @@ public class ClothPatternOnToolRecipe implements CraftingRecipe {
 			pattern = pattern.replace(".", ":");
 			pattern = pattern.substring(0, pattern.indexOf("_"));
 
-			MyriadToolComponent component = result.getOrDefault(AntiqueDataComponentTypes.MYRIAD_TOOL, Antiquities.getDefaultMyriadTool());
+			MyriadToolComponent component = result.getOrDefault(AntiqueDataComponentTypes.MYRIAD_TOOL, MyriadToolComponent.DEFAULT_NO_CLOTH);
 
 			result.set(AntiqueDataComponentTypes.MYRIAD_TOOL, new MyriadToolComponent(
 					component.toolBit(),
 					component.clothType(),
-					pattern,
+					Optional.of(Identifier.parse(pattern)),
 					component.clothColor(),
 					clothPattern.getOrDefault(DataComponents.DYED_COLOR, new DyedItemColor(0xFFFFFF)).rgb()
 			));

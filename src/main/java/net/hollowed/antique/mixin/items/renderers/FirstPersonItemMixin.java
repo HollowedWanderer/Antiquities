@@ -2,11 +2,11 @@ package net.hollowed.antique.mixin.items.renderers;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
-import net.hollowed.antique.Antiquities;
 import net.hollowed.antique.enchantments.EnchantmentListener;
 import net.hollowed.antique.index.AntiqueDataComponentTypes;
 import net.hollowed.antique.index.AntiqueItems;
 import net.hollowed.antique.items.ScepterItem;
+import net.hollowed.antique.items.components.MyriadToolComponent;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.ItemInHandRenderer;
 import net.minecraft.client.renderer.SubmitNodeCollector;
@@ -38,9 +38,11 @@ public class FirstPersonItemMixin {
                     matrices.mulPose(Axis.XP.rotationDegrees(-totalRotation));
                     matrices.translate(0, 0, 0.1);
                 }
-            } else if (activeStack.is(AntiqueItems.MYRIAD_TOOL) && activeStack.getOrDefault(AntiqueDataComponentTypes.MYRIAD_TOOL, Antiquities.getDefaultMyriadTool()).toolBit().is(AntiqueItems.MYRIAD_CLEAVER_BLADE)) {
-                matrices.translate(right ? 0.2 : -0.2, 0.15,0);
-                matrices.mulPose(Axis.XP.rotationDegrees(45));
+            } else {
+                if (activeStack.is(AntiqueItems.MYRIAD_TOOL) && activeStack.getOrDefault(AntiqueDataComponentTypes.MYRIAD_TOOL, MyriadToolComponent.DEFAULT_NO_CLOTH).toolBit().is(AntiqueItems.MYRIAD_CLEAVER_BLADE)) {
+                    matrices.translate(right ? 0.2 : -0.2, 0.15, 0);
+                    matrices.mulPose(Axis.XP.rotationDegrees(45));
+                }
             }
         }
     }

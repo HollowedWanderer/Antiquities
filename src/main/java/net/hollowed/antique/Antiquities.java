@@ -263,47 +263,23 @@ public class Antiquities implements ModInitializer {
 
 		ItemGroupEvents.modifyEntriesEvent(ANTIQUITIES_ITEMS_GROUP_KEY).register(itemGroup -> {
 			ItemStack myriadTool = AntiqueItems.MYRIAD_TOOL.getDefaultInstance();
-			myriadTool.set(AntiqueDataComponentTypes.MYRIAD_TOOL, new MyriadToolComponent(
-					ItemStack.EMPTY,
-					"antique:cloth",
-					"",
-					0xD43B69,
-					0xFFFFFF
-			));
+			myriadTool.set(AntiqueDataComponentTypes.MYRIAD_TOOL, MyriadToolComponent.DEFAULT_WITH_CLOTH);
 			itemGroup.accept(myriadTool);
 
 			ItemStack myriadMattock = AntiqueItems.MYRIAD_TOOL.getDefaultInstance();
-			myriadMattock.set(AntiqueDataComponentTypes.MYRIAD_TOOL, new MyriadToolComponent(
-					ItemStack.EMPTY,
-					"antique:cloth",
-					"",
-					0xD43B69,
-					0xFFFFFF
-			));
+			myriadMattock.set(AntiqueDataComponentTypes.MYRIAD_TOOL, MyriadToolComponent.DEFAULT_WITH_CLOTH);
 			MyriadToolItem.setStoredStack(myriadMattock, AntiqueItems.MYRIAD_PICK_HEAD.getDefaultInstance());
 			itemGroup.accept(myriadMattock);
 
 			ItemStack myriadAxe = AntiqueItems.MYRIAD_TOOL.getDefaultInstance();
-			myriadAxe.set(AntiqueDataComponentTypes.MYRIAD_TOOL, new MyriadToolComponent(
-					ItemStack.EMPTY,
-					"antique:cloth",
-					"",
-					0xD43B69,
-					0xFFFFFF
-			));
+			myriadAxe.set(AntiqueDataComponentTypes.MYRIAD_TOOL, MyriadToolComponent.DEFAULT_WITH_CLOTH);
 			MyriadToolItem.setStoredStack(myriadAxe, AntiqueItems.MYRIAD_AXE_HEAD.getDefaultInstance());
 			itemGroup.accept(myriadAxe);
 
 			itemGroup.accept(getMyriadShovelStack());
 
 			ItemStack myriadCleaver = AntiqueItems.MYRIAD_TOOL.getDefaultInstance();
-			myriadCleaver.set(AntiqueDataComponentTypes.MYRIAD_TOOL, new MyriadToolComponent(
-					ItemStack.EMPTY,
-					"antique:cloth",
-					"",
-					0xD43B69,
-					0xFFFFFF
-			));
+			myriadCleaver.set(AntiqueDataComponentTypes.MYRIAD_TOOL, MyriadToolComponent.DEFAULT_WITH_CLOTH);
 			MyriadToolItem.setStoredStack(myriadCleaver, AntiqueItems.MYRIAD_CLEAVER_BLADE.getDefaultInstance());
 			itemGroup.accept(myriadCleaver);
 
@@ -327,18 +303,18 @@ public class Antiquities implements ModInitializer {
 
 	public static void addClothItems() {
 		ItemGroupEvents.modifyEntriesEvent(ANTIQUITIES_CLOTHS_GROUP_KEY).register(itemGroup -> {
-			for (ClothSkinData.ClothSubData data : ClientClothData.getTransforms()) {
+			for (ClothSkinData.ClothSubData data : ClientClothData.TRANSFORMS.values()) {
 				ItemStack stack = AntiqueItems.CLOTH.getDefaultInstance();
-				stack.set(DataComponents.ITEM_NAME, Component.translatable("item." + data.model().toString().replace(":", ".")));
+				stack.set(DataComponents.ITEM_NAME, Component.translatable(data.model().orElseThrow().toLanguageKey("item")));
 				if (!data.dyeable()) stack.remove(DataComponents.DYED_COLOR);
 				if (!itemGroup.getDisplayStacks().contains(stack)) {
 					itemGroup.accept(stack);
 				}
 			}
 
-			for (Identifier data : ClientClothData.getOverlayTransforms()) {
+			for (Identifier data : ClientClothData.OVERLAY_TRANSFORMS) {
 				ItemStack stack = AntiqueItems.CLOTH_PATTERN.getDefaultInstance();
-				stack.set(DataComponents.ITEM_NAME, Component.translatable("item." + data.toString().replace(":", ".") + "_cloth_pattern"));
+				stack.set(DataComponents.ITEM_NAME, Component.translatable(data.toLanguageKey("item") + "_cloth_pattern"));
 				stack.set(DataComponents.DYED_COLOR, new DyedItemColor(0xFFFFFF));
 				if (!itemGroup.getDisplayStacks().contains(stack)) {
 					itemGroup.accept(stack);
@@ -349,18 +325,8 @@ public class Antiquities implements ModInitializer {
 
 	public static ItemStack getMyriadShovelStack() {
 		ItemStack myriadShovel = AntiqueItems.MYRIAD_TOOL.getDefaultInstance();
-		myriadShovel.set(AntiqueDataComponentTypes.MYRIAD_TOOL, new MyriadToolComponent(
-				ItemStack.EMPTY,
-				"antique:cloth",
-				"",
-				0xD43B69,
-				0xFFFFFF
-		));
+		myriadShovel.set(AntiqueDataComponentTypes.MYRIAD_TOOL, MyriadToolComponent.DEFAULT_WITH_CLOTH);
 		MyriadToolItem.setStoredStack(myriadShovel, AntiqueItems.MYRIAD_SHOVEL_HEAD.getDefaultInstance());
 		return myriadShovel;
-	}
-
-	public static MyriadToolComponent getDefaultMyriadTool() {
-		return new MyriadToolComponent(ItemStack.EMPTY, "", "", 0xffffff, 0xffffff);
 	}
 }

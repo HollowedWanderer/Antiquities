@@ -6,6 +6,7 @@ import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.hollowed.antique.Antiquities;
 import net.hollowed.antique.index.AntiqueDataComponentTypes;
 import net.hollowed.antique.items.MyriadToolItem;
+import net.hollowed.antique.items.components.MyriadToolComponent;
 import net.hollowed.antique.networking.DyePacketPayload;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
@@ -110,8 +111,8 @@ public class DyeingScreen extends AbstractContainerScreen<@NotNull DyeingScreenH
 
 		ItemStack result = this.menu.getResult();
 		if (!result.isEmpty()) {
-			int intValue = 0xFF000000 | (result.getItem() instanceof MyriadToolItem
-					? result.getOrDefault(AntiqueDataComponentTypes.MYRIAD_TOOL, Antiquities.getDefaultMyriadTool()).clothColor()
+            int intValue = 0xFF000000 | (result.getItem() instanceof MyriadToolItem
+					? result.getOrDefault(AntiqueDataComponentTypes.MYRIAD_TOOL, MyriadToolComponent.DEFAULT_NO_CLOTH).clothColor()
 					: result.getOrDefault(DataComponents.DYED_COLOR, new DyedItemColor(0xFFFFFF)).rgb());
 			context.blit(RenderPipelines.GUI_TEXTURED, TEXTURE, i + 1, j + 3, 0.0F, 176.0F, 174, 80, 256, 256, intValue);
 		}

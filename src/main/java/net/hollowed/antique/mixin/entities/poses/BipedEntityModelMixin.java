@@ -1,6 +1,6 @@
 package net.hollowed.antique.mixin.entities.poses;
 
-import net.hollowed.antique.Antiquities;
+import net.hollowed.antique.items.components.MyriadToolComponent;
 import net.hollowed.antique.util.interfaces.duck.BipedEntityRenderStateAccess;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.model.geom.ModelPart;
@@ -28,7 +28,7 @@ public class BipedEntityModelMixin {
     @Inject(method = "poseRightArm", at = @At("HEAD"), cancellable = true)
     private void positionCustomRightArm(HumanoidRenderState state, CallbackInfo ci) {
         if (state instanceof BipedEntityRenderStateAccess access && access.antique$getEntity() != null && access.antique$getEntity().getUseItem().getItem() instanceof MyriadToolItem) {
-            if (access.antique$getEntity().getUseItem().getOrDefault(AntiqueDataComponentTypes.MYRIAD_TOOL, Antiquities.getDefaultMyriadTool()).toolBit().is(AntiqueItems.MYRIAD_AXE_HEAD)) {
+            if (access.antique$getEntity().getUseItem().getOrDefault(AntiqueDataComponentTypes.MYRIAD_TOOL, MyriadToolComponent.DEFAULT_NO_CLOTH).toolBit().is(AntiqueItems.MYRIAD_AXE_HEAD)) {
                 MyriadAxePosing.hold(this.rightArm, this.leftArm, this.head, true);
                 ci.cancel();
             }
@@ -38,7 +38,7 @@ public class BipedEntityModelMixin {
     @Inject(method = "poseLeftArm", at = @At("HEAD"), cancellable = true)
     private void positionCustomLeftArm(HumanoidRenderState state, CallbackInfo ci) {
         if (state instanceof BipedEntityRenderStateAccess access && access.antique$getEntity() != null && access.antique$getEntity().getUseItem().getItem() instanceof MyriadToolItem) {
-            if (access.antique$getEntity().getUseItem().getOrDefault(AntiqueDataComponentTypes.MYRIAD_TOOL, Antiquities.getDefaultMyriadTool()).toolBit().is(AntiqueItems.MYRIAD_AXE_HEAD)) {
+            if (access.antique$getEntity().getUseItem().getOrDefault(AntiqueDataComponentTypes.MYRIAD_TOOL, MyriadToolComponent.DEFAULT_NO_CLOTH).toolBit().is(AntiqueItems.MYRIAD_AXE_HEAD)) {
                 MyriadAxePosing.hold(this.rightArm, this.leftArm, this.head, false);
                 ci.cancel();
             }

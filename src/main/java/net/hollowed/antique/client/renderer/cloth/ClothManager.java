@@ -3,11 +3,13 @@ package net.hollowed.antique.client.renderer.cloth;
 import java.awt.Color;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
+import java.util.Optional;
+import java.util.function.BiFunction;
+import java.util.function.Function;
 
 import net.hollowed.antique.entities.parts.MyriadShovelPart;
 import net.minecraft.tags.FluidTags;
-import net.minecraft.world.level.Level;
+import net.minecraft.util.Util;
 import net.minecraft.world.phys.AABB;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Matrix4f;
@@ -37,17 +39,8 @@ public class ClothManager {
 
     private static final double CAMERA_FOV_DECAY = .1;
 
-    public static RenderType getClothRenderLayer(Identifier cloth) {
-        return RenderTypes.itemEntityTranslucentCull(Identifier.parse(cloth.getNamespace() + ":textures/cloth/" + cloth.getPath() + ".png"));
-    }
-
-    public static RenderType getOverlayRenderLayer(String cloth, Identifier overlay) {
-        return RenderTypes.itemEntityTranslucentCull(Identifier.parse(overlay.getNamespace() + ":textures/overlay/" + overlay.getPath() + cloth + ".png"));
-    }
-
-    private RenderType clothRenderType;
-    private RenderType overlayRenderType;
-    private long prevTypeTime;
+    public static final Function<Identifier, RenderType> CLOTH_RENDER_LAYER = Util.memoize(cloth -> RenderTypes.itemEntityTranslucentCull(cloth.withPath(path -> "textures/cloth/" + path + ".png")));
+    public static final BiFunction<String, Identifier, RenderType> OVERLAY_RENDER_LAYER = Util.memoize((cloth, overlay) -> RenderTypes.itemEntityTranslucentCull(overlay.withPath(path -> "textures/overlay/" + path + "_" + cloth + ".png")));
 
     public Vector3d pos = new Vector3d();
     public ArrayList<ClothBody> bodies = new ArrayList<>();
@@ -215,20 +208,20 @@ public class ClothManager {
         return null;
     }
 
-    public void renderCloth(ClothSkinData.ClothSubData data, PoseStack matrices, SubmitNodeCollector queue, int light, boolean glow, Color color, Color overlayColor, Identifier overlay){
+    public void renderCloth(ClothSkinData.ClothSubData data, PoseStack matrices, SubmitNodeCollector queue, int light, boolean glow, Color color, Color overlayColor, Optional<Identifier> overlay) {
         this.renderCloth(data, matrices, queue, light, glow, color, overlayColor, overlay, new Matrix4f());
     }
 
-    public void renderCloth(ClothSkinData.ClothSubData data, PoseStack matrices, SubmitNodeCollector queue, int light, boolean glow, Color color, Color overlayColor, Identifier overlay, Matrix4f reprojectionMatrix) {
+    public void renderCloth(ClothSkinData.ClothSubData data, PoseStack matrices, SubmitNodeCollector queue, int light, boolean glow, Color color, Color overlayColor, Optional<Identifier> overlay, Matrix4f reprojectionMatrix) {
         this.render = true;
         this.data = data;
-        Identifier cloth = data.model();
+        Optional<Identifier> cloth = data.model();
         int bodyCount = data.bodyAmount();
         float width = data.width();
         if (data.light() != 0) light = data.light();
         if (!data.dyeable()) color = Color.WHITE;
 
-        if (cloth == null || cloth.equals(Identifier.parse("minecraft:"))) return;
+        if (cloth.isEmpty()) return;
 
         Vec3 position = matrixToVec(matrices);
 
@@ -289,20 +282,13 @@ public class ClothManager {
             lastA = negEnd;
             lastB = posEnd;
 
-            Level world = Minecraft.getInstance().level;
-            if (world != null && world.getGameTime() > (prevTypeTime + 10)) {
-                prevTypeTime = world.getGameTime();
-
-                String clothType = !Objects.equals(cloth.getPath(), "cloth") ? !cloth.getPath().isEmpty() ? cloth.getPath().substring(0, cloth.getPath().indexOf("_")) : "default" : "default";
-                clothRenderType = getClothRenderLayer(cloth);
-                overlayRenderType = getOverlayRenderLayer("_" + clothType, overlay);
-            }
+            String clothType = cloth.map(id -> id.getPath().equals("cloth") ? "default" : id.getPath().substring(0, id.getPath().indexOf('_'))).orElse("default");
 
             drawQuad(
                     matrices,
                     new Matrix4f(),
-                    clothRenderType,
-                    !overlay.equals(Identifier.parse("")) ? overlayRenderType : null,
+                    cloth.map(CLOTH_RENDER_LAYER).orElse(null),
+                    overlay.map(id -> OVERLAY_RENDER_LAYER.apply(clothType, id)).orElse(null),
                     queue,
                     a, 
                     b, 
@@ -333,6 +319,10 @@ public class ClothManager {
     }
 
     public void drawQuad(PoseStack matrices, Matrix4f matrix, RenderType layer, @Nullable RenderType overlay, SubmitNodeCollector queue, Vector3f posA, Vector3f posB, Vector3f posC, Vector3f posD, Vec2 uvA, Vec2 uvB, Vec2 uvC, Vec2 uvD, int light, boolean glow, Color color, Color overlayColor) {
+        if (layer == null) {
+            return;
+        }
+
         for (int i = 0; i < 2; i++) {
             if (i == 1) {
                 if (overlay == null) break;

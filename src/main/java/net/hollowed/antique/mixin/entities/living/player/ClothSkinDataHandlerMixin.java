@@ -20,8 +20,8 @@ public class ClothSkinDataHandlerMixin {
     @Inject(method = "onTrackingStart(Lnet/minecraft/world/entity/Entity;)V", at = @At("HEAD"))
     private void onTrackingStart(Entity entity, CallbackInfo ci) {
         if (entity instanceof ServerPlayer serverPlayer) {
-            for (String string : ClothSkinListener.getTransformMap().keySet()) {
-                ServerPlayNetworking.send(serverPlayer, new ClothSkinPacketPayload(string, ClothSkinListener.getTransformMap().get(string)));
+            for (Identifier id : ClothSkinListener.TRANSFORMS.keySet()) {
+                ServerPlayNetworking.send(serverPlayer, new ClothSkinPacketPayload(id, ClothSkinListener.TRANSFORMS.get(id)));
             }
             for (Identifier identifier : ClothOverlayListener.getTransforms()) {
                 ServerPlayNetworking.send(serverPlayer, new ClothOverlayPacketPayload(identifier));

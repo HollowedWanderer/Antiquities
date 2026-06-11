@@ -188,11 +188,10 @@ public class MyriadClothItemModel implements ItemModel {
 		state.appendModelIdentityElement(this);
 		state.appendModelIdentityElement(displayContext);
 
-		MyriadToolComponent component = stack.getOrDefault(AntiqueDataComponentTypes.MYRIAD_TOOL, Antiquities.getDefaultMyriadTool());
+		MyriadToolComponent component = stack.getOrDefault(AntiqueDataComponentTypes.MYRIAD_TOOL, MyriadToolComponent.DEFAULT_NO_CLOTH);
 
-		Identifier modelVariantId = Identifier.tryParse(component.clothType());
-		if (modelVariantId == null) return;
-		if (modelVariantId.toString().equals("minecraft:")) modelVariantId = Antiquities.id("empty");
+		Identifier modelVariantId = component.clothType().orElseGet(() -> Antiquities.id("empty"));
+
 		state.appendModelIdentityElement(modelVariantId);
 
 		boolean large = component.toolBit().is(AntiqueItemTags.LARGE_CLOTH);
@@ -233,7 +232,7 @@ public class MyriadClothItemModel implements ItemModel {
 			Collections.addAll(tintLayer.prepareQuadList(), selected);
 		}
 
-		if (ClientClothData.getTransform(modelVariantId.toString()).dyeable()
+		if (ClientClothData.getTransform(Optional.of(modelVariantId)).dyeable()
 				|| tintLayer.prepareQuadList().isEmpty()
 				|| isFallback) {
 			int n = this.tints.size();

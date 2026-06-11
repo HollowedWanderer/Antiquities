@@ -197,7 +197,7 @@ public class ClothItemModel implements ItemModel {
 			Collections.addAll(layerRenderState.prepareQuadList(), selected);
 		}
 
-		if (ClientClothData.getTransform(modelVariantId).dyeable()) {
+		if (ClientClothData.getTransform(Optional.of(Identifier.parse(modelVariantId))).dyeable()) {
 			int n = this.tints.size();
 			int[] t = layerRenderState.prepareTintLayers(n);
 			for (int i = 0; i < n; i++) {

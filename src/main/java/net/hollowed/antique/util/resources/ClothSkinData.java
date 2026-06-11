@@ -3,6 +3,7 @@ package net.hollowed.antique.util.resources;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import java.util.List;
+import java.util.Optional;
 
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
@@ -12,26 +13,27 @@ import net.minecraft.resources.Identifier;
 public record ClothSkinData(
         List<ClothSubData> list
 ) {
+    public static final ClothSubData DEFAULT = new ClothSubData(Optional.empty(), "d13a68", 1.4F, 0.1F, 1.0F, -0.5F, 8, 0, false, false);
     public static final Codec<ClothSkinData> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-            ClothSubData.CODEC.listOf().fieldOf("skins").orElseGet(() -> List.of(new ClothSubData(Identifier.parse(""), "", 0, 0, 1, -0.5F, 0, 0, false, false))).forGetter(ClothSkinData::list)
+            ClothSubData.CODEC.listOf().fieldOf("skins").orElseGet(() -> List.of(DEFAULT)).forGetter(ClothSkinData::list)
     ).apply(instance, ClothSkinData::new));
 
-    public record ClothSubData(Identifier model, String hex, float length, float width, float gravity, float waterGravity, int bodyAmount, int light, boolean overlay, boolean dyeable) {
+    public record ClothSubData(Optional<Identifier> model, String hex, float length, float width, float gravity, float waterGravity, int bodyAmount, int light, boolean overlay, boolean dyeable) {
         public static final Codec<ClothSubData> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-                Identifier.CODEC.fieldOf("model").forGetter(ClothSubData::model),
-                Codec.STRING.fieldOf("color").orElse("d13a68").forGetter(ClothSubData::hex),
-                Codec.FLOAT.fieldOf("length").orElse(1.4F).forGetter(ClothSubData::length),
-                Codec.FLOAT.fieldOf("width").orElse(0.1F).forGetter(ClothSubData::width),
-                Codec.FLOAT.fieldOf("gravity").orElse(1.0F).forGetter(ClothSubData::gravity),
-                Codec.FLOAT.fieldOf("water_gravity").orElse(-0.5F).forGetter(ClothSubData::waterGravity),
-                Codec.INT.fieldOf("bodies").orElse(8).forGetter(ClothSubData::bodyAmount),
-                Codec.INT.fieldOf("light").orElse(0).forGetter(ClothSubData::light),
-                Codec.BOOL.fieldOf("overlay").orElse(false).forGetter(ClothSubData::overlay),
-                Codec.BOOL.fieldOf("dyeable").orElse(false).forGetter(ClothSubData::dyeable)
+                Identifier.CODEC.optionalFieldOf("model").forGetter(ClothSubData::model),
+                Codec.STRING.optionalFieldOf("color", "d13a68").forGetter(ClothSubData::hex),
+                Codec.FLOAT.optionalFieldOf("length", 1.4F).forGetter(ClothSubData::length),
+                Codec.FLOAT.optionalFieldOf("width", 0.1F).forGetter(ClothSubData::width),
+                Codec.FLOAT.optionalFieldOf("gravity", 1.0F).forGetter(ClothSubData::gravity),
+                Codec.FLOAT.optionalFieldOf("water_gravity", -0.5F).forGetter(ClothSubData::waterGravity),
+                Codec.INT.optionalFieldOf("bodies", 8).forGetter(ClothSubData::bodyAmount),
+                Codec.INT.optionalFieldOf("light", 0).forGetter(ClothSubData::light),
+                Codec.BOOL.optionalFieldOf("overlay", false).forGetter(ClothSubData::overlay),
+                Codec.BOOL.optionalFieldOf("dyeable", false).forGetter(ClothSubData::dyeable)
         ).apply(instance, ClothSubData::new));
 
         public static final StreamCodec<RegistryFriendlyByteBuf, ClothSubData> STREAM_CODEC = StreamCodec.composite(
-                Identifier.STREAM_CODEC, ClothSubData::model,
+                ByteBufCodecs.optional(Identifier.STREAM_CODEC), ClothSubData::model,
                 ByteBufCodecs.STRING_UTF8, ClothSubData::hex,
                 ByteBufCodecs.FLOAT, ClothSubData::length,
                 ByteBufCodecs.FLOAT, ClothSubData::width,
