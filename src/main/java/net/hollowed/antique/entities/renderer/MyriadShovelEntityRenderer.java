@@ -17,7 +17,6 @@ import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.item.ItemStackRenderState;
 import net.minecraft.client.renderer.state.CameraRenderState;
 import net.minecraft.client.renderer.texture.OverlayTexture;
-import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -65,7 +64,7 @@ public class MyriadShovelEntityRenderer extends EntityRenderer<@NotNull MyriadSh
 			Minecraft.getInstance().getItemModelResolver().appendItemLayers(stackRenderState, shovel, ItemDisplayContext.FIRST_PERSON_RIGHT_HAND, Minecraft.getInstance().level, null, 1);
 			stackRenderState.submit(matrixStack, queue, myriadShovelRenderState.lightCoords, OverlayTexture.NO_OVERLAY, 0);
 
-			ClothSkinData.ClothSubData data = ClientClothData.getTransform(shovel.getOrDefault(AntiqueDataComponentTypes.MYRIAD_TOOL, Antiquities.getDefaultMyriadTool()).clothType());
+			ClothSkinData.ClothSubData data = ClientClothData.getTransform(shovel.getOrDefault(AntiqueDataComponentTypes.MYRIAD_TOOL, MyriadToolComponent.DEFAULT_NO_CLOTH).clothType());
 
 			ClothManager manager = ClothManager.getOrCreate(entity, Antiquities.id(entity.getId() + "_spade"), data);
 			if(manager != null) {

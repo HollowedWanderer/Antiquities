@@ -2,6 +2,7 @@ package net.hollowed.antique.index;
 
 import net.hollowed.antique.Antiquities;
 import net.hollowed.antique.items.*;
+import net.hollowed.antique.items.components.MyriadToolComponent;
 import net.hollowed.combatamenities.util.items.CAComponents;
 import net.minecraft.core.HolderGetter;
 import net.minecraft.core.Registry;
@@ -96,7 +97,7 @@ public interface AntiqueItems {
     ));
     Item MYRIAD_TOOL = register("myriad_tool", settings -> new MyriadToolItem(settings.stacksTo(1)
             .attributes(MyriadToolItem.createAttributeModifiers(3, 1.8, 0))
-            .component(AntiqueDataComponentTypes.MYRIAD_TOOL, Antiquities.getDefaultMyriadTool())
+            .component(AntiqueDataComponentTypes.MYRIAD_TOOL, MyriadToolComponent.DEFAULT_NO_CLOTH)
             .component(AntiqueDataComponentTypes.STICKY_TOOLTIP, true)
             .component(DataComponents.UNBREAKABLE, Unit.INSTANCE)
             .enchantable(10)

@@ -14,6 +14,6 @@ public class MyriadShovelRenderState extends EntityRenderState {
     public int overlayColor;
     public boolean isEnchanted;
     public boolean glow;
-    public String cloth;
+    public Optional<Identifier> cloth;
     public Optional<Identifier> pattern;
 }

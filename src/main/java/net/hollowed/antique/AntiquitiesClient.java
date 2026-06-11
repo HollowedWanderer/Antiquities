@@ -30,7 +30,6 @@ import net.minecraft.client.renderer.item.properties.select.SelectItemModelPrope
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.projectile.throwableitemprojectile.Snowball;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -177,7 +176,7 @@ public class AntiquitiesClient implements ClientModInitializer {
                 if (toRemove != -1) list.remove(toRemove);
             }
             if (itemStack.is(AntiqueItems.MYRIAD_TOOL)) {
-                MyriadToolComponent component = itemStack.getOrDefault(AntiqueDataComponentTypes.MYRIAD_TOOL, Antiquities.getDefaultMyriadTool());
+                MyriadToolComponent component = itemStack.getOrDefault(AntiqueDataComponentTypes.MYRIAD_TOOL, MyriadToolComponent.DEFAULT_NO_CLOTH);
 
                 int toRemove = -1;
                 for (int i = 0; i < list.size(); i++) {
@@ -188,7 +187,7 @@ public class AntiquitiesClient implements ClientModInitializer {
                 if (toRemove != -1) list.remove(toRemove);
                 Component line = Component.translatable("item.antique.myriad_tool.no_tool").withColor(11184810);
 
-                ItemStack storedStack = itemStack.getOrDefault(AntiqueDataComponentTypes.MYRIAD_TOOL, Antiquities.getDefaultMyriadTool()).toolBit();
+                ItemStack storedStack = itemStack.getOrDefault(AntiqueDataComponentTypes.MYRIAD_TOOL, MyriadToolComponent.DEFAULT_NO_CLOTH).toolBit();
 
                 if (!storedStack.isEmpty()) {
                     String string = storedStack.getItem().getDescriptionId();
@@ -199,24 +198,22 @@ public class AntiquitiesClient implements ClientModInitializer {
 
                 list.add(1, line);
 
-                if (!component.clothType().isEmpty()) {
-                    String clothName = component.clothType().replace(":", ".");
+                component.clothType().ifPresent(id -> {
+                    String clothName = id.toLanguageKey();
                     Component cloth = Component.literal(" - ").append(Component.translatable("item." + clothName)).withColor(new Color(component.clothColor()).brighter().getRGB());
                     list.add(2, cloth);
-                }
+                });
 
-                component.clothPattern().ifPresent(
-                        id -> {
-                            String patternName = id.toLanguageKey();
-                            Component pattern = Component.literal(" - ").append(Component.translatable("item." + patternName + "_cloth_pattern")).withColor(new Color(component.patternColor()).brighter().getRGB());
+                component.clothPattern().ifPresent(id -> {
+                    String patternName = id.toLanguageKey();
+                    Component pattern = Component.literal(" - ").append(Component.translatable("item." + patternName + "_cloth_pattern")).withColor(new Color(component.patternColor()).brighter().getRGB());
 
-                            if (itemStack.getOrDefault(CAComponents.BOOLEAN_PROPERTY, false)) {
-                                pattern = pattern.copy().append(Component.literal(" - ").withColor(0xff4adbb8)).append(Component.translatable("item.antique.glowing").withColor(0xff4adbb8));
-                            }
+                    if (itemStack.getOrDefault(CAComponents.BOOLEAN_PROPERTY, false)) {
+                        pattern = pattern.copy().append(Component.literal(" - ").withColor(0xff4adbb8)).append(Component.translatable("item.antique.glowing").withColor(0xff4adbb8));
+                    }
 
-                            list.add(3, pattern);
-                        }
-                );
+                    list.add(3, pattern);
+                });
             }
             if (itemStack.is(AntiqueItems.CLOTH_PATTERN)) {
                 if (itemStack.getOrDefault(CAComponents.BOOLEAN_PROPERTY, false)) {

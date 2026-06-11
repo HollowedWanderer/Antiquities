@@ -1,9 +1,9 @@
 package net.hollowed.antique.mixin.items;
 
-import net.hollowed.antique.Antiquities;
 import net.hollowed.antique.index.AntiqueDataComponentTypes;
 import net.hollowed.antique.index.AntiqueItems;
 import net.hollowed.antique.items.MyriadToolItem;
+import net.hollowed.antique.items.components.MyriadToolComponent;
 import net.hollowed.combatamenities.index.CAParticles;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -104,7 +104,7 @@ public abstract class MyriadAxeBlockMixin extends Entity implements Attackable {
     public ItemStack getAxeBlockingItem() {
         if (this.isUsingItem() && !this.useItem.isEmpty()) {
             Item item = this.useItem.getItem();
-            if (!(item instanceof MyriadToolItem && this.useItem.getOrDefault(AntiqueDataComponentTypes.MYRIAD_TOOL, Antiquities.getDefaultMyriadTool()).toolBit().is(AntiqueItems.MYRIAD_AXE_HEAD))) {
+            if (!(item instanceof MyriadToolItem && this.useItem.getOrDefault(AntiqueDataComponentTypes.MYRIAD_TOOL, MyriadToolComponent.DEFAULT_NO_CLOTH).toolBit().is(AntiqueItems.MYRIAD_AXE_HEAD))) {
                 return null;
             } else {
                 return item.getUseDuration(this.useItem, (LivingEntity) (Object) this) - this.useItemRemaining < 5 ? null : this.useItem;

@@ -217,13 +217,13 @@ public class ClothManager {
     public void renderCloth(ClothSkinData.ClothSubData data, PoseStack matrices, SubmitNodeCollector queue, int light, boolean glow, Color color, Color overlayColor, Optional<Identifier> overlay, Matrix4f reprojectionMatrix) {
         this.render = true;
         this.data = data;
-        Identifier cloth = data.model();
+        Optional<Identifier> cloth = data.model();
         int bodyCount = data.bodyAmount();
         float width = data.width();
         if (data.light() != 0) light = data.light();
         if (!data.dyeable()) color = Color.WHITE;
 
-        if (cloth == null || cloth.equals(Identifier.parse("minecraft:"))) return;
+        if (cloth.isEmpty()) return;
 
         Vec3 position = matrixToVec(matrices);
 
@@ -284,12 +284,14 @@ public class ClothManager {
             lastA = negEnd;
             lastB = posEnd;
 
-            String clothType = !Objects.equals(cloth.getPath(), "cloth") ? !cloth.getPath().isEmpty() ? cloth.getPath().substring(0, cloth.getPath().indexOf("_")) : "default" : "default";
+            String clothType = cloth.map(id -> id.getPath().equals("cloth") ? "default" : id.getPath().substring(0, id.getPath().indexOf('_'))).orElse("default");
+
+            System.out.println(cloth + " " + overlay + " " + clothType);
 
             drawQuad(
                     matrices,
                     new Matrix4f(),
-                    CLOTH_RENDER_LAYER.apply(cloth),
+                    cloth.map(CLOTH_RENDER_LAYER).orElse(null),
                     overlay.map(id -> OVERLAY_RENDER_LAYER.apply(clothType, id)).orElse(null),
                     queue,
                     a, 

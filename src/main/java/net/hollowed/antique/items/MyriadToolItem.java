@@ -74,7 +74,7 @@ public class MyriadToolItem extends Item {
                 return true;
             }
 
-            if (otherStack.is(AntiqueItems.CLOTH_PATTERN) && !stack.getOrDefault(AntiqueDataComponentTypes.MYRIAD_TOOL, Antiquities.getDefaultMyriadTool()).clothType().isEmpty()) {
+            if (otherStack.is(AntiqueItems.CLOTH_PATTERN) && !stack.getOrDefault(AntiqueDataComponentTypes.MYRIAD_TOOL, MyriadToolComponent.DEFAULT_NO_CLOTH).clothType().isEmpty()) {
                 addPattern(player, stack, otherStack);
                 return true;
             }
@@ -114,7 +114,7 @@ public class MyriadToolItem extends Item {
                     player.playSound(SoundEvents.BUNDLE_REMOVE_ONE, 1.0F, 1.0F);
                     setStoredStack(stack, storedStack);
                     return true;
-                } else if (!stack.getOrDefault(AntiqueDataComponentTypes.MYRIAD_TOOL, Antiquities.getDefaultMyriadTool()).clothType().isEmpty()) {
+                } else if (!stack.getOrDefault(AntiqueDataComponentTypes.MYRIAD_TOOL, MyriadToolComponent.DEFAULT_NO_CLOTH).clothType().isEmpty()) {
                     cursorStackReference.set(swapCloth(player, stack, otherStack));
                     return true;
                 }
@@ -125,7 +125,7 @@ public class MyriadToolItem extends Item {
                 return true;
             }
 
-            if (otherStack.is(AntiqueItems.CLOTH_PATTERN) && !stack.getOrDefault(AntiqueDataComponentTypes.MYRIAD_TOOL, Antiquities.getDefaultMyriadTool()).clothType().isEmpty()) {
+            if (otherStack.is(AntiqueItems.CLOTH_PATTERN) && !stack.getOrDefault(AntiqueDataComponentTypes.MYRIAD_TOOL, MyriadToolComponent.DEFAULT_NO_CLOTH).clothType().isEmpty()) {
                 addPattern(player, stack, otherStack);
                 return true;
             }
@@ -149,7 +149,7 @@ public class MyriadToolItem extends Item {
     }
 
     private void addPattern(Player player, ItemStack toolStack, ItemStack patternStack) {
-        MyriadToolComponent component = toolStack.getOrDefault(AntiqueDataComponentTypes.MYRIAD_TOOL, Antiquities.getDefaultMyriadTool());
+        MyriadToolComponent component = toolStack.getOrDefault(AntiqueDataComponentTypes.MYRIAD_TOOL, MyriadToolComponent.DEFAULT_NO_CLOTH);
 
         if (ClientClothData.getTransform(component.clothType()).overlay()) {
             String pattern = "item.antique.cloth_pattern";
@@ -177,9 +177,9 @@ public class MyriadToolItem extends Item {
     }
 
     private ItemStack swapCloth(Player player, ItemStack toolStack, ItemStack clothStack) {
-        MyriadToolComponent component = toolStack.getOrDefault(AntiqueDataComponentTypes.MYRIAD_TOOL, Antiquities.getDefaultMyriadTool());
+        MyriadToolComponent component = toolStack.getOrDefault(AntiqueDataComponentTypes.MYRIAD_TOOL, MyriadToolComponent.DEFAULT_NO_CLOTH);
 
-        ClothSkinData.ClothSubData toolData = ClientClothData.getTransform(String.valueOf(component.clothType()));
+        ClothSkinData.ClothSubData toolData = ClientClothData.getTransform(component.clothType());
         boolean remove = false;
 
         if (!clothStack.isEmpty()) {
@@ -191,8 +191,8 @@ public class MyriadToolItem extends Item {
             model = model.substring(model.indexOf(".") + 1).replace(".", ":");
             DyedItemColor clothColor = clothStack.getOrDefault(DataComponents.DYED_COLOR, new DyedItemColor(0xD43B69));
 
-            if (String.valueOf(component.clothType()).isEmpty()) remove = true;
-            ClothSkinData.ClothSubData clothData = ClientClothData.getTransform(model);
+            if (component.clothType().isEmpty()) remove = true;
+            ClothSkinData.ClothSubData clothData = ClientClothData.getTransform(Optional.of(Identifier.parse(model)));
             int intValue = 0;
             try {
                 if (!clothData.hex().isBlank()) {
@@ -210,7 +210,7 @@ public class MyriadToolItem extends Item {
 
             toolStack.set(AntiqueDataComponentTypes.MYRIAD_TOOL, new MyriadToolComponent(
                     component.toolBit(),
-                    model,
+                    Optional.of(Identifier.parse(model)),
                     component.clothPattern(),
                     clothData.dyeable() ? clothColor.rgb() : intValue,
                     component.patternColor()
@@ -219,7 +219,7 @@ public class MyriadToolItem extends Item {
         } else {
             toolStack.set(AntiqueDataComponentTypes.MYRIAD_TOOL, new MyriadToolComponent(
                     component.toolBit(),
-                    "",
+                    Optional.empty(),
                     component.clothPattern(),
                     0xFFFFFF,
                     component.patternColor()
@@ -234,9 +234,9 @@ public class MyriadToolItem extends Item {
             }
         }
 
-        clothStack.set(DataComponents.ITEM_NAME, Component.translatable("item." + String.valueOf(component.clothType()).replace(":", ".")));
+        clothStack.set(DataComponents.ITEM_NAME, Component.translatable(component.clothType().orElseThrow().toLanguageKey("item")));
 
-        component = toolStack.getOrDefault(AntiqueDataComponentTypes.MYRIAD_TOOL, Antiquities.getDefaultMyriadTool());
+        component = toolStack.getOrDefault(AntiqueDataComponentTypes.MYRIAD_TOOL, MyriadToolComponent.DEFAULT_NO_CLOTH);
 
         toolStack.set(AntiqueDataComponentTypes.MYRIAD_TOOL, new MyriadToolComponent(
                 component.toolBit(),
@@ -256,11 +256,11 @@ public class MyriadToolItem extends Item {
     }
 
     public static ItemStack getStoredStack(ItemStack tool) {
-        return tool.getOrDefault(AntiqueDataComponentTypes.MYRIAD_TOOL, Antiquities.getDefaultMyriadTool()).toolBit();
+        return tool.getOrDefault(AntiqueDataComponentTypes.MYRIAD_TOOL, MyriadToolComponent.DEFAULT_NO_CLOTH).toolBit();
     }
 
     public static void setStoredStack(ItemStack tool, ItemStack newStack) {
-        MyriadToolComponent component = tool.getOrDefault(AntiqueDataComponentTypes.MYRIAD_TOOL, Antiquities.getDefaultMyriadTool());
+        MyriadToolComponent component = tool.getOrDefault(AntiqueDataComponentTypes.MYRIAD_TOOL, MyriadToolComponent.DEFAULT_NO_CLOTH);
         if (newStack.getItem() instanceof MyriadToolBitItem item) {
             item.setToolAttributes(tool);
         } else {
@@ -288,7 +288,7 @@ public class MyriadToolItem extends Item {
 
     @Override
     public @NotNull InteractionResult useOn(UseOnContext context) {
-        if (context.getItemInHand().getOrDefault(AntiqueDataComponentTypes.MYRIAD_TOOL, Antiquities.getDefaultMyriadTool()).toolBit().getItem() instanceof MyriadToolBitItem item) {
+        if (context.getItemInHand().getOrDefault(AntiqueDataComponentTypes.MYRIAD_TOOL, MyriadToolComponent.DEFAULT_NO_CLOTH).toolBit().getItem() instanceof MyriadToolBitItem item) {
             return item.toolUseOnBlock(context);
         }
         return InteractionResult.PASS;
@@ -296,7 +296,7 @@ public class MyriadToolItem extends Item {
 
     @Override
     public boolean releaseUsing(ItemStack stack, @NotNull Level world, @NotNull LivingEntity user, int remainingUseTicks) {
-        if (stack.getOrDefault(AntiqueDataComponentTypes.MYRIAD_TOOL, Antiquities.getDefaultMyriadTool()).toolBit().getItem() instanceof MyriadToolBitItem item) {
+        if (stack.getOrDefault(AntiqueDataComponentTypes.MYRIAD_TOOL, MyriadToolComponent.DEFAULT_NO_CLOTH).toolBit().getItem() instanceof MyriadToolBitItem item) {
             return item.toolOnStoppedUsing(stack, world, user, remainingUseTicks);
         }
         return super.releaseUsing(stack, world, user, remainingUseTicks);
@@ -304,7 +304,7 @@ public class MyriadToolItem extends Item {
 
     @Override
     public @NotNull ItemUseAnimation getUseAnimation(ItemStack stack) {
-        if (stack.getOrDefault(AntiqueDataComponentTypes.MYRIAD_TOOL, Antiquities.getDefaultMyriadTool()).toolBit().getItem() instanceof MyriadToolBitItem item) {
+        if (stack.getOrDefault(AntiqueDataComponentTypes.MYRIAD_TOOL, MyriadToolComponent.DEFAULT_NO_CLOTH).toolBit().getItem() instanceof MyriadToolBitItem item) {
             return item.toolGetUseAction(stack);
         }
         return super.getUseAnimation(stack);
@@ -312,7 +312,7 @@ public class MyriadToolItem extends Item {
 
     @Override
     public @NotNull InteractionResult use(@NotNull Level world, Player user, @NotNull InteractionHand hand) {
-        if (user.getItemInHand(hand).getOrDefault(AntiqueDataComponentTypes.MYRIAD_TOOL, Antiquities.getDefaultMyriadTool()).toolBit().getItem() instanceof MyriadToolBitItem item) {
+        if (user.getItemInHand(hand).getOrDefault(AntiqueDataComponentTypes.MYRIAD_TOOL, MyriadToolComponent.DEFAULT_NO_CLOTH).toolBit().getItem() instanceof MyriadToolBitItem item) {
             return item.toolUse(world, user, hand);
         }
         return InteractionResult.PASS;

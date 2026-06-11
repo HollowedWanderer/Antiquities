@@ -6,7 +6,7 @@ import net.hollowed.antique.util.resources.ClientClothData;
 public class ClothSkinPacketReceiver {
     public static void registerClientPacket() {
         ClientPlayNetworking.registerGlobalReceiver(ClothSkinPacketPayload.ID, (payload, context) -> context.client().execute(() ->
-                ClientClothData.addTransform(payload.string(), payload.data())
+                ClientClothData.TRANSFORMS.putIfAbsent(payload.id(), payload.data())
         ));
     }
 }

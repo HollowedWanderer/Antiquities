@@ -19,7 +19,6 @@ import net.minecraft.client.renderer.entity.state.ArmedEntityRenderState;
 import net.minecraft.client.renderer.item.ItemStackRenderState;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.entity.LivingEntity;
@@ -53,12 +52,10 @@ public abstract class HeldItemRendererMixin<S extends ArmedEntityRenderState, M 
 
             Entity entity = access.antique$getEntity();
 
-            if (entity instanceof LivingEntity living && living.getUseItem().is(AntiqueItems.MYRIAD_TOOL)
-                    && living.getItemHeldByArm(arm).getOrDefault(AntiqueDataComponentTypes.MYRIAD_TOOL, Antiquities.getDefaultMyriadTool()).toolBit().is(AntiqueItems.MYRIAD_SHOVEL_HEAD)) {
+            if (entity instanceof LivingEntity living && living.getUseItem().is(AntiqueItems.MYRIAD_TOOL) && living.getItemHeldByArm(arm).getOrDefault(AntiqueDataComponentTypes.MYRIAD_TOOL, MyriadToolComponent.DEFAULT_NO_CLOTH).toolBit().is(AntiqueItems.MYRIAD_SHOVEL_HEAD)) {
                 matrices.translate(0, -1.2, 0.2);
             }
-            if (entity instanceof LivingEntity living && living.getItemHeldByArm(arm).is(AntiqueItems.MYRIAD_TOOL)
-                    && living.getItemHeldByArm(arm).getOrDefault(AntiqueDataComponentTypes.MYRIAD_TOOL, Antiquities.getDefaultMyriadTool()).toolBit().is(AntiqueItems.MYRIAD_AXE_HEAD)) {
+            if (entity instanceof LivingEntity living && living.getItemHeldByArm(arm).is(AntiqueItems.MYRIAD_TOOL) && living.getItemHeldByArm(arm).getOrDefault(AntiqueDataComponentTypes.MYRIAD_TOOL, MyriadToolComponent.DEFAULT_NO_CLOTH).toolBit().is(AntiqueItems.MYRIAD_AXE_HEAD)) {
                 matrices.translate(0, -0.3, 0);
                 if (living.isUsingItem()) {
                     matrices.translate(arm == HumanoidArm.RIGHT ? -0.45 : 0.45, -0.5, 0);
@@ -70,12 +67,12 @@ public abstract class HeldItemRendererMixin<S extends ArmedEntityRenderState, M 
             if (entity instanceof LivingEntity living) {
                 ItemStack stack = living.getItemHeldByArm(arm);
 
-                ClothSkinData.ClothSubData data = ClientClothData.getTransform(String.valueOf(stack.getOrDefault(AntiqueDataComponentTypes.MYRIAD_TOOL, Antiquities.getDefaultMyriadTool()).clothType()));
+                ClothSkinData.ClothSubData data = ClientClothData.getTransform(stack.getOrDefault(AntiqueDataComponentTypes.MYRIAD_TOOL, MyriadToolComponent.DEFAULT_NO_CLOTH).clothType());
                 Object name = stack.getOrDefault(DataComponents.CUSTOM_NAME, "");
                 if (stack.is(AntiqueItems.MYRIAD_TOOL) && !(name.equals(Component.literal("Perfected Staff")) || name.equals(Component.literal("Orb Staff")) || name.equals(Component.literal("Lapis Staff")))) {
                     manager = arm == HumanoidArm.RIGHT ? ClothManager.getOrCreate(entity, Antiquities.id(entity.getId() + "_right_arm"), data) : ClothManager.getOrCreate(entity, Antiquities.id(entity.getId() + "_left_arm"), data);
                     if (manager != null) {
-                        MyriadToolComponent component = stack.getOrDefault(AntiqueDataComponentTypes.MYRIAD_TOOL, Antiquities.getDefaultMyriadTool());
+                        MyriadToolComponent component = stack.getOrDefault(AntiqueDataComponentTypes.MYRIAD_TOOL, MyriadToolComponent.DEFAULT_NO_CLOTH);
 
                         manager.renderCloth(
                                 data,
