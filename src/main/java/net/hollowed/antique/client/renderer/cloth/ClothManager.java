@@ -3,7 +3,6 @@ package net.hollowed.antique.client.renderer.cloth;
 import java.awt.Color;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.function.BiFunction;
 import java.util.function.Function;
@@ -11,7 +10,6 @@ import java.util.function.Function;
 import net.hollowed.antique.entities.parts.MyriadShovelPart;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.util.Util;
-import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Matrix4f;
@@ -285,8 +283,6 @@ public class ClothManager {
             lastB = posEnd;
 
             String clothType = cloth.map(id -> id.getPath().equals("cloth") ? "default" : id.getPath().substring(0, id.getPath().indexOf('_'))).orElse("default");
-
-            System.out.println(cloth + " " + overlay + " " + clothType);
 
             drawQuad(
                     matrices,
