@@ -234,7 +234,7 @@ public class MyriadToolItem extends Item {
             }
         }
 
-        clothStack.set(DataComponents.ITEM_NAME, Component.translatable(component.clothType().orElseThrow().toLanguageKey("item")));
+        clothStack.set(DataComponents.ITEM_NAME, Component.translatable(component.clothType().orElseGet(() -> Antiquities.id("cloth")).toLanguageKey("item")));
 
         component = toolStack.getOrDefault(AntiqueDataComponentTypes.MYRIAD_TOOL, MyriadToolComponent.DEFAULT_NO_CLOTH);
 
