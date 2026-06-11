@@ -1,0 +1,9 @@
+{
+  "sources": [
+    {
+      "type": "minecraft:directory",
+      "prefix": "cloth/",
+      "source": "cloth"
+    }
+  ]
+}
