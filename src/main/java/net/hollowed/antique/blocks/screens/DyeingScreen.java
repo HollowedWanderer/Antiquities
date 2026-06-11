@@ -112,7 +112,7 @@ public class DyeingScreen extends AbstractContainerScreen<@NotNull DyeingScreenH
 		ItemStack result = this.menu.getResult();
 		if (!result.isEmpty()) {
             int intValue = 0xFF000000 | (result.getItem() instanceof MyriadToolItem
-					? result.getOrDefault(AntiqueDataComponentTypes.MYRIAD_TOOL, MyriadToolComponent.DEFAULT_NO_CLOTH).clothColor()
+					? result.getOrDefault(AntiqueDataComponentTypes.MYRIAD_TOOL, MyriadToolComponent.DEFAULT_NO_CLOTH).clothColor().getColorClient()
 					: result.getOrDefault(DataComponents.DYED_COLOR, new DyedItemColor(0xFFFFFF)).rgb());
 			context.blit(RenderPipelines.GUI_TEXTURED, TEXTURE, i + 1, j + 3, 0.0F, 176.0F, 174, 80, 256, 256, intValue);
 		}

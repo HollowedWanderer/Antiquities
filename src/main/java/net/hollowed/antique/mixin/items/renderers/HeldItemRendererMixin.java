@@ -80,7 +80,7 @@ public abstract class HeldItemRendererMixin<S extends ArmedEntityRenderState, M 
                                 submitNodeCollector,
                                 i,
                                 stack.getOrDefault(CAComponents.BOOLEAN_PROPERTY, false),
-                                new Color(component.clothColor()),
+                                new Color(component.clothColor().getColorClient()),
                                 new Color(component.patternColor()),
                                 component.clothPattern()
                         );

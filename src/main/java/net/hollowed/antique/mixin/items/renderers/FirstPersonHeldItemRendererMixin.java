@@ -89,7 +89,7 @@ public abstract class FirstPersonHeldItemRendererMixin {
                             orderedRenderCommandQueue,
                             light,
                             stack.getOrDefault(CAComponents.BOOLEAN_PROPERTY, false),
-                            new Color(component.clothColor()),
+                            new Color(component.clothColor().getColorClient()),
                             new Color(component.patternColor()),
                             component.clothPattern(),
                             reproject ? reprojectMatrix : new Matrix4f()

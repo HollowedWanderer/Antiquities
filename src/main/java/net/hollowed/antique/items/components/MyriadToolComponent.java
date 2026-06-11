@@ -20,20 +20,20 @@ import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.component.TooltipProvider;
 import org.jetbrains.annotations.NotNull;
 
-public record MyriadToolComponent(ItemStack toolBit, Optional<Identifier> clothType, Optional<Identifier> clothPattern, int clothColor, int patternColor) implements TooltipProvider {
+public record MyriadToolComponent(ItemStack toolBit, Optional<Identifier> clothType, Optional<Identifier> clothPattern, ColorProvider clothColor, int patternColor) implements TooltipProvider {
 
     public static final MyriadToolComponent DEFAULT_WITH_CLOTH = new MyriadToolComponent(
             ItemStack.EMPTY,
             Optional.of(Antiquities.id("cloth")),
             Optional.empty(),
-            0xD43B69,
+            new ColorProvider.Constant(0xD43B69),
             0xFFFFFF
     );
     public static final MyriadToolComponent DEFAULT_NO_CLOTH = new MyriadToolComponent(
             ItemStack.EMPTY,
             Optional.empty(),
             Optional.empty(),
-            0xFFFFFF,
+            new ColorProvider.Constant(0xFFFFFF),
             0xFFFFFF
     );
 
@@ -44,7 +44,7 @@ public record MyriadToolComponent(ItemStack toolBit, Optional<Identifier> clothT
             ).fieldOf("tool_bit").orElse(ItemStack.EMPTY).forGetter(MyriadToolComponent::toolBit),
             Identifier.CODEC.optionalFieldOf("cloth_type").forGetter(MyriadToolComponent::clothType),
             Identifier.CODEC.optionalFieldOf("cloth_pattern").forGetter(MyriadToolComponent::clothPattern),
-            Codec.INT.fieldOf("cloth_color").forGetter(MyriadToolComponent::clothColor),
+            ColorProviders.CODEC.fieldOf("cloth_color").forGetter(MyriadToolComponent::clothColor),
             Codec.INT.fieldOf("pattern_color").forGetter(MyriadToolComponent::patternColor)
     ).apply(instance, MyriadToolComponent::new));
 
@@ -52,7 +52,7 @@ public record MyriadToolComponent(ItemStack toolBit, Optional<Identifier> clothT
             ItemStack.STREAM_CODEC, MyriadToolComponent::toolBit,
             ByteBufCodecs.optional(Identifier.STREAM_CODEC), MyriadToolComponent::clothType,
             ByteBufCodecs.optional(Identifier.STREAM_CODEC), MyriadToolComponent::clothPattern,
-            ByteBufCodecs.INT, MyriadToolComponent::clothColor,
+            ColorProviders.STREAM_CODEC, MyriadToolComponent::clothColor,
             ByteBufCodecs.INT, MyriadToolComponent::patternColor,
             MyriadToolComponent::new
     );

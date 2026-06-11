@@ -19,6 +19,7 @@ import net.hollowed.antique.Antiquities;
 import net.hollowed.antique.index.AntiqueDataComponentTypes;
 import net.hollowed.antique.index.AntiqueItems;
 import net.hollowed.antique.index.AntiqueRecipeSerializer;
+import net.hollowed.antique.items.components.ColorProvider;
 import net.hollowed.antique.items.components.MyriadToolComponent;
 import net.hollowed.antique.util.resources.ClothSkinData;
 import net.hollowed.combatamenities.util.items.CAComponents;

@@ -205,7 +205,7 @@ public class AntiquitiesClient implements ClientModInitializer {
 
                 component.clothType().ifPresent(id -> {
                     String clothName = id.toLanguageKey();
-                    Component cloth = Component.literal(" - ").append(Component.translatable("item." + clothName)).withColor(new Color(component.clothColor()).brighter().getRGB());
+                    Component cloth = Component.literal(" - ").append(Component.translatable("item." + clothName)).withColor(new Color(component.clothColor().getColorClient()).brighter().getRGB());
                     list.add(2, cloth);
                 });
 
