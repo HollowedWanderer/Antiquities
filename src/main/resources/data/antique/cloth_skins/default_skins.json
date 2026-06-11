@@ -306,6 +306,14 @@
     {
       "model": "antique:kris_cloth",
       "color": "eb0095"
+    },
+    {
+      "model": "antique:typho_cloth",
+      "color": "ffffff",
+      "width": 0.166,
+      "length": 2.1,
+      "bodies": 12,
+      "light": 255
     }
   ]
 }
