@@ -161,7 +161,7 @@ public class AntiquitiesClient implements ClientModInitializer {
 
         ItemTooltipCallback.EVENT.register((itemStack, tooltipContext, tooltipType, list) -> {
             for (int i = 0; i < list.size(); i++) {
-                if (list.get(i).toString().contains("model.color")) {
+                if (list.get(i).toString().contains("item.color")) {
                     Color color = new Color(itemStack.getOrDefault(DataComponents.DYED_COLOR, new DyedItemColor(0xFFFFFF)).rgb());
                     list.set(i, list.get(i).copy().withColor(color.brighter().getRGB()));
                 }
@@ -181,7 +181,7 @@ public class AntiquitiesClient implements ClientModInitializer {
 
                 int toRemove = -1;
                 for (int i = 0; i < list.size(); i++) {
-                    if (list.get(i).toString().contains("model.color")) {
+                    if (list.get(i).toString().contains("item.color")) {
                         toRemove = i;
                     }
                 }
@@ -193,7 +193,7 @@ public class AntiquitiesClient implements ClientModInitializer {
                 if (!storedStack.isEmpty()) {
                     String string = storedStack.getItem().getDescriptionId();
                     string = string.substring(20);
-                    string = "model.antique.myriad_tool." + string.substring(0, string.indexOf("_"));
+                    string = "item.antique.myriad_tool." + string.substring(0, string.indexOf("_"));
                     line = Component.translatable(string).withColor(11184810);
                 }
 
@@ -201,18 +201,22 @@ public class AntiquitiesClient implements ClientModInitializer {
 
                 if (!component.clothType().isEmpty()) {
                     String clothName = component.clothType().replace(":", ".");
-                    Component cloth = Component.literal(" - ").append(Component.translatable("model." + clothName)).withColor(new Color(component.clothColor()).brighter().getRGB());
+                    Component cloth = Component.literal(" - ").append(Component.translatable("item." + clothName)).withColor(new Color(component.clothColor()).brighter().getRGB());
                     list.add(2, cloth);
                 }
 
-                String patternName = String.valueOf(component.clothPattern()).replace(":", ".");
-                Component pattern = Component.literal(" - ").append(Component.translatable("model." + patternName + "_cloth_pattern")).withColor(new Color(component.patternColor()).brighter().getRGB());
-                if (itemStack.getOrDefault(CAComponents.BOOLEAN_PROPERTY, false)) {
-                    pattern = pattern.copy().append(Component.literal(" - ").withColor(0xff4adbb8)).append(Component.translatable("item.antique.glowing").withColor(0xff4adbb8));
-                }
-                if (!patternName.isEmpty()) {
-                    list.add(3, pattern);
-                }
+                component.clothPattern().ifPresent(
+                        id -> {
+                            String patternName = id.toLanguageKey();
+                            Component pattern = Component.literal(" - ").append(Component.translatable("item." + patternName + "_cloth_pattern")).withColor(new Color(component.patternColor()).brighter().getRGB());
+
+                            if (itemStack.getOrDefault(CAComponents.BOOLEAN_PROPERTY, false)) {
+                                pattern = pattern.copy().append(Component.literal(" - ").withColor(0xff4adbb8)).append(Component.translatable("item.antique.glowing").withColor(0xff4adbb8));
+                            }
+
+                            list.add(3, pattern);
+                        }
+                );
             }
             if (itemStack.is(AntiqueItems.CLOTH_PATTERN)) {
                 if (itemStack.getOrDefault(CAComponents.BOOLEAN_PROPERTY, false)) {
@@ -222,7 +226,7 @@ public class AntiquitiesClient implements ClientModInitializer {
             if (itemStack.is(Items.BOW) || itemStack.is(Items.CROSSBOW)) {
                 int toRemove = -1;
                 for (int i = 0; i < list.size(); i++) {
-                    if (list.get(i).toString().contains("model.color")) {
+                    if (list.get(i).toString().contains("item.color")) {
                         toRemove = i;
                     }
                 }

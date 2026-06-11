@@ -10,13 +10,13 @@ import org.jetbrains.annotations.NotNull;
 public interface ImplementedInventory extends Container {
 
     /**
-     * Retrieves the model list of this inventory.
+     * Retrieves the item list of this inventory.
      * Must return the same instance every time it's called.
      */
     NonNullList<ItemStack> getItems();
 
     /**
-     * Creates an inventory from the model list.
+     * Creates an inventory from the item list.
      */
     static ImplementedInventory of(NonNullList<ItemStack> items) {
         return () -> items;
@@ -54,7 +54,7 @@ public interface ImplementedInventory extends Container {
     }
 
     /**
-     * Retrieves the model in the slot.
+     * Retrieves the item in the slot.
      */
     @Override
     default @NotNull ItemStack getItem(int slot) {

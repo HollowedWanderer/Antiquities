@@ -13,6 +13,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import net.hollowed.antique.Antiquities;
 import net.hollowed.antique.index.AntiqueDataComponentTypes;
@@ -29,6 +30,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.contents.TranslatableContents;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.util.GsonHelper;
@@ -154,7 +156,7 @@ public class ClothPatternOnToolRecipe implements CraftingRecipe {
 
 		if (myriadTool != null && clothPattern != null) {
 			ItemStack result = myriadTool.copy();
-			String pattern = "model.antique.cloth_pattern";
+			String pattern = "item.antique.cloth_pattern";
 			Component text = clothPattern.getOrDefault(DataComponents.ITEM_NAME, Component.translatable("item.antique.cloth_pattern"));
 			if (text.getContents() instanceof TranslatableContents translatable) {
 				pattern = translatable.getKey();
@@ -168,7 +170,7 @@ public class ClothPatternOnToolRecipe implements CraftingRecipe {
 			result.set(AntiqueDataComponentTypes.MYRIAD_TOOL, new MyriadToolComponent(
 					component.toolBit(),
 					component.clothType(),
-					pattern,
+					Optional.of(Identifier.parse(pattern)),
 					component.clothColor(),
 					clothPattern.getOrDefault(DataComponents.DYED_COLOR, new DyedItemColor(0xFFFFFF)).rgb()
 			));

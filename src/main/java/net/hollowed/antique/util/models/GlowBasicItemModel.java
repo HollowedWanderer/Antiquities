@@ -165,7 +165,7 @@ public class GlowBasicItemModel implements ItemModel {
 			} else if (identifier.equals(TextureAtlas.LOCATION_BLOCKS)) {
 				return BLOCK_RENDER_TYPE_GETTER;
 			} else {
-				throw new IllegalArgumentException("Atlas " + String.valueOf(identifier) + " can't be usef for model models");
+				throw new IllegalArgumentException("Atlas " + String.valueOf(identifier) + " can't be usef for item models");
 			}
 		}
 	}

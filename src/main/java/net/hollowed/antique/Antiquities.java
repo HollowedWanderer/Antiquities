@@ -39,6 +39,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Predicate;
 
 public class Antiquities implements ModInitializer {
@@ -265,7 +266,7 @@ public class Antiquities implements ModInitializer {
 			myriadTool.set(AntiqueDataComponentTypes.MYRIAD_TOOL, new MyriadToolComponent(
 					ItemStack.EMPTY,
 					"antique:cloth",
-					"",
+					Optional.empty(),
 					0xD43B69,
 					0xFFFFFF
 			));
@@ -275,7 +276,7 @@ public class Antiquities implements ModInitializer {
 			myriadMattock.set(AntiqueDataComponentTypes.MYRIAD_TOOL, new MyriadToolComponent(
 					ItemStack.EMPTY,
 					"antique:cloth",
-					"",
+					Optional.empty(),
 					0xD43B69,
 					0xFFFFFF
 			));
@@ -286,7 +287,7 @@ public class Antiquities implements ModInitializer {
 			myriadAxe.set(AntiqueDataComponentTypes.MYRIAD_TOOL, new MyriadToolComponent(
 					ItemStack.EMPTY,
 					"antique:cloth",
-					"",
+					Optional.empty(),
 					0xD43B69,
 					0xFFFFFF
 			));
@@ -299,7 +300,7 @@ public class Antiquities implements ModInitializer {
 			myriadCleaver.set(AntiqueDataComponentTypes.MYRIAD_TOOL, new MyriadToolComponent(
 					ItemStack.EMPTY,
 					"antique:cloth",
-					"",
+					Optional.empty(),
 					0xD43B69,
 					0xFFFFFF
 			));
@@ -328,7 +329,7 @@ public class Antiquities implements ModInitializer {
 		ItemGroupEvents.modifyEntriesEvent(ANTIQUITIES_CLOTHS_GROUP_KEY).register(itemGroup -> {
 			for (ClothSkinData.ClothSubData data : ClientClothData.getTransforms()) {
 				ItemStack stack = AntiqueItems.CLOTH.getDefaultInstance();
-				stack.set(DataComponents.ITEM_NAME, Component.translatable("model." + data.model().toString().replace(":", ".")));
+				stack.set(DataComponents.ITEM_NAME, Component.translatable("item." + data.model().toString().replace(":", ".")));
 				if (!data.dyeable()) stack.remove(DataComponents.DYED_COLOR);
 				if (!itemGroup.getDisplayStacks().contains(stack)) {
 					itemGroup.accept(stack);
@@ -337,7 +338,7 @@ public class Antiquities implements ModInitializer {
 
 			for (Identifier data : ClientClothData.getOverlayTransforms()) {
 				ItemStack stack = AntiqueItems.CLOTH_PATTERN.getDefaultInstance();
-				stack.set(DataComponents.ITEM_NAME, Component.translatable("model." + data.toString().replace(":", ".") + "_cloth_pattern"));
+				stack.set(DataComponents.ITEM_NAME, Component.translatable("item." + data.toString().replace(":", ".") + "_cloth_pattern"));
 				stack.set(DataComponents.DYED_COLOR, new DyedItemColor(0xFFFFFF));
 				if (!itemGroup.getDisplayStacks().contains(stack)) {
 					itemGroup.accept(stack);
@@ -351,7 +352,7 @@ public class Antiquities implements ModInitializer {
 		myriadShovel.set(AntiqueDataComponentTypes.MYRIAD_TOOL, new MyriadToolComponent(
 				ItemStack.EMPTY,
 				"antique:cloth",
-				"",
+				Optional.empty(),
 				0xD43B69,
 				0xFFFFFF
 		));
@@ -360,6 +361,6 @@ public class Antiquities implements ModInitializer {
 	}
 
 	public static MyriadToolComponent getDefaultMyriadTool() {
-		return new MyriadToolComponent(ItemStack.EMPTY, "", "", 0xffffff, 0xffffff);
+		return new MyriadToolComponent(ItemStack.EMPTY, "", Optional.empty(), 0xffffff, 0xffffff);
 	}
 }

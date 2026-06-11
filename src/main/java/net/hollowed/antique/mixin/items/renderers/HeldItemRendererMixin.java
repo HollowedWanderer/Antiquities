@@ -85,7 +85,7 @@ public abstract class HeldItemRendererMixin<S extends ArmedEntityRenderState, M 
                                 stack.getOrDefault(CAComponents.BOOLEAN_PROPERTY, false),
                                 new Color(component.clothColor()),
                                 new Color(component.patternColor()),
-                                Identifier.parse(component.clothPattern())
+                                component.clothPattern()
                         );
                     }
                 }

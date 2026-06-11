@@ -274,7 +274,7 @@ public class SatchelItem extends Item {
     }
 
     public boolean isInvalidItem(ItemStack stack) {
-        // Check if the model is a satchel, or shulker box
+        // Check if the item is a satchel, or shulker box
         Item item = stack.getItem();
         return item instanceof SatchelItem || item.getDescriptionId().contains("shulker_box");
     }

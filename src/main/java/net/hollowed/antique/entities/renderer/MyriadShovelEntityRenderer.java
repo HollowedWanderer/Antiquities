@@ -78,7 +78,7 @@ public class MyriadShovelEntityRenderer extends EntityRenderer<@NotNull MyriadSh
 						myriadShovelRenderState.glow,
 						new Color(myriadShovelRenderState.color),
 						new Color(myriadShovelRenderState.overlayColor),
-						Identifier.parse(myriadShovelRenderState.pattern)
+						myriadShovelRenderState.pattern
 				);
 			}
 		}

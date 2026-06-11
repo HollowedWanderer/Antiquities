@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
@@ -209,11 +210,11 @@ public class ClothManager {
         return null;
     }
 
-    public void renderCloth(ClothSkinData.ClothSubData data, PoseStack matrices, SubmitNodeCollector queue, int light, boolean glow, Color color, Color overlayColor, Identifier overlay){
+    public void renderCloth(ClothSkinData.ClothSubData data, PoseStack matrices, SubmitNodeCollector queue, int light, boolean glow, Color color, Color overlayColor, Optional<Identifier> overlay) {
         this.renderCloth(data, matrices, queue, light, glow, color, overlayColor, overlay, new Matrix4f());
     }
 
-    public void renderCloth(ClothSkinData.ClothSubData data, PoseStack matrices, SubmitNodeCollector queue, int light, boolean glow, Color color, Color overlayColor, Identifier overlay, Matrix4f reprojectionMatrix) {
+    public void renderCloth(ClothSkinData.ClothSubData data, PoseStack matrices, SubmitNodeCollector queue, int light, boolean glow, Color color, Color overlayColor, Optional<Identifier> overlay, Matrix4f reprojectionMatrix) {
         this.render = true;
         this.data = data;
         Identifier cloth = data.model();
@@ -289,7 +290,7 @@ public class ClothManager {
                     matrices,
                     new Matrix4f(),
                     CLOTH_RENDER_LAYER.apply(cloth),
-                    !overlay.equals(Identifier.parse("")) ? OVERLAY_RENDER_LAYER.apply(clothType, overlay) : null,
+                    overlay.map(id -> OVERLAY_RENDER_LAYER.apply(clothType, id)).orElse(null),
                     queue,
                     a, 
                     b, 

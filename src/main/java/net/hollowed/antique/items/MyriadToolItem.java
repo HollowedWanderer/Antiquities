@@ -32,6 +32,8 @@ import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Optional;
+
 public class MyriadToolItem extends Item {
 
     public MyriadToolItem(Properties settings) {
@@ -81,7 +83,7 @@ public class MyriadToolItem extends Item {
                 return false;
             }
 
-            // Check if the model being added is invalid
+            // Check if the item being added is invalid
             if (isInvalidItem(otherStack)) {
                 return false;
             }
@@ -91,7 +93,7 @@ public class MyriadToolItem extends Item {
                 player.playSound(SoundEvents.BUNDLE_INSERT, 0.8F, 1.0F);
                 setStoredStack(stack, storedStack); // Re-set without empty stacks
 
-                // Clear the cursor stack after adding an model to the tool
+                // Clear the cursor stack after adding an item to the tool
                 slot.setByPlayer(ItemStack.EMPTY);
                 return true;
             }
@@ -150,7 +152,7 @@ public class MyriadToolItem extends Item {
         MyriadToolComponent component = toolStack.getOrDefault(AntiqueDataComponentTypes.MYRIAD_TOOL, Antiquities.getDefaultMyriadTool());
 
         if (ClientClothData.getTransform(component.clothType()).overlay()) {
-            String pattern = "model.antique.cloth_pattern";
+            String pattern = "item.antique.cloth_pattern";
             Component text = patternStack.getOrDefault(DataComponents.ITEM_NAME, Component.translatable("item.antique.cloth_pattern"));
             if (text.getContents() instanceof TranslatableContents translatable) {
                 pattern = translatable.getKey();
@@ -162,7 +164,7 @@ public class MyriadToolItem extends Item {
             toolStack.set(AntiqueDataComponentTypes.MYRIAD_TOOL, new MyriadToolComponent(
                     component.toolBit(),
                     component.clothType(),
-                    pattern,
+                    Optional.of(Identifier.parse(pattern)),
                     component.clothColor(),
                     patternStack.getOrDefault(DataComponents.DYED_COLOR, new DyedItemColor(0xFFFFFF)).rgb()
             ));
@@ -181,7 +183,7 @@ public class MyriadToolItem extends Item {
         boolean remove = false;
 
         if (!clothStack.isEmpty()) {
-            String model = "model.antique.cloth";
+            String model = "item.antique.cloth";
             Component text = clothStack.getOrDefault(DataComponents.ITEM_NAME, Component.translatable("item.antique.cloth"));
             if (text.getContents() instanceof TranslatableContents translatable) {
                 model = translatable.getKey();
@@ -232,14 +234,14 @@ public class MyriadToolItem extends Item {
             }
         }
 
-        clothStack.set(DataComponents.ITEM_NAME, Component.translatable("model." + String.valueOf(component.clothType()).replace(":", ".")));
+        clothStack.set(DataComponents.ITEM_NAME, Component.translatable("item." + String.valueOf(component.clothType()).replace(":", ".")));
 
         component = toolStack.getOrDefault(AntiqueDataComponentTypes.MYRIAD_TOOL, Antiquities.getDefaultMyriadTool());
 
         toolStack.set(AntiqueDataComponentTypes.MYRIAD_TOOL, new MyriadToolComponent(
                 component.toolBit(),
                 component.clothType(),
-                "",
+                Optional.empty(),
                 component.clothColor(),
                 0xFFFFFF
         ));

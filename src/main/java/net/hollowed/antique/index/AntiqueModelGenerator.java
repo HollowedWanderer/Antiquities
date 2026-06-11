@@ -29,7 +29,7 @@ public class AntiqueModelGenerator extends FabricModelProvider {
 
     @Override
     public void generateItemModels(ItemModelGenerators generator) {
-        ModelTemplate test = model(Identifier.withDefaultNamespace("model/generated"), TextureSlot.LAYER0);
+        ModelTemplate test = model(Identifier.withDefaultNamespace("item/generated"), TextureSlot.LAYER0);
 
         test.create(Antiquities.id("test"), TextureMapping.layer0(Antiquities.id("test1")), generator.modelOutput);
         test.create(Antiquities.id("test_other"), TextureMapping.layer0(Antiquities.id("test2")), generator.modelOutput);
