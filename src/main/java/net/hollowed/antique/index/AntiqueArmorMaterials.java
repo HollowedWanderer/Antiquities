@@ -7,9 +7,8 @@ import net.minecraft.world.item.equipment.ArmorMaterials;
 import net.minecraft.world.item.equipment.ArmorType;
 import java.util.EnumMap;
 
-@SuppressWarnings("all")
 public interface AntiqueArmorMaterials extends ArmorMaterials {
-    AdventureArmorMaterial ADVENTURE = new AdventureArmorMaterial(2000, Util.make(new EnumMap(ArmorType.class), (map) -> {
+    AdventureArmorMaterial ADVENTURE = new AdventureArmorMaterial(2000, Util.make(new EnumMap<>(ArmorType.class), (map) -> {
         map.put(ArmorType.BOOTS, 3);
         map.put(ArmorType.LEGGINGS, 2);
         map.put(ArmorType.CHESTPLATE, 6);
