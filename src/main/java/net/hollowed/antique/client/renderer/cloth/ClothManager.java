@@ -260,10 +260,12 @@ public class ClothManager {
         return null;
     }
 
+    @SuppressWarnings("all")
     public void renderCloth(ClothSkinData.ClothSubData data, PoseStack matrices, SubmitNodeCollector queue, int light, boolean glow, Color color, Color overlayColor, Optional<Identifier> overlay) {
         this.renderCloth(data, matrices, queue, light, glow, color, overlayColor, overlay, new Matrix4f());
     }
 
+    @SuppressWarnings("all")
     public void renderCloth(ClothSkinData.ClothSubData data, PoseStack matrices, SubmitNodeCollector queue, int light, boolean glow, Color color, Color overlayColor, Optional<Identifier> overlay, Matrix4f reprojectionMatrix) {
         this.render = true;
         this.particles = true;

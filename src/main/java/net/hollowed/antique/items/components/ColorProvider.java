@@ -163,6 +163,7 @@ public interface ColorProvider {
             return ID;
         }
 
+        @SuppressWarnings("all")
         public static SpriteContentsAnimationStateAccessor findAnimationState(Identifier atlasId, Identifier spriteId) {
             TextureAtlas atlas = Minecraft.getInstance()
                     .getAtlasManager()
