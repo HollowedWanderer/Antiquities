@@ -7,6 +7,8 @@ import net.minecraft.client.particle.Particle;
 import net.minecraft.client.particle.ParticleProvider;
 import net.minecraft.client.particle.SingleQuadParticle;
 import net.minecraft.client.particle.SpriteSet;
+import net.minecraft.client.renderer.LightTexture;
+import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.core.particles.SimpleParticleType;
 import net.minecraft.util.RandomSource;
 import org.jetbrains.annotations.NotNull;
@@ -16,10 +18,11 @@ import org.jspecify.annotations.NonNull;
 @Environment(EnvType.CLIENT)
 public class TyphoSparkParticle extends SingleQuadParticle {
 
-	TyphoSparkParticle(ClientLevel world, double x, double y, double z, double velocityX, double velocityY, double velocityZ, SpriteSet provider) {
-		super(world, x, y, z, provider.get(RandomSource.create()));
-		this.lifetime = this.random.nextInt(15) + 5;
+	TyphoSparkParticle(ClientLevel world, double x, double y, double z, double velocityX, double velocityY, double velocityZ, TextureAtlasSprite textureAtlasSprite) {
+		super(world, x, y, z, textureAtlasSprite);
+		this.lifetime = this.random.nextInt(2) + 2;
 		this.gravity = 0;
+		this.scale(1F);
 		this.xd = velocityX;
 		this.yd = velocityY;
 		this.zd = velocityZ;
@@ -44,6 +47,11 @@ public class TyphoSparkParticle extends SingleQuadParticle {
 	}
 
 	@Override
+	protected int getLightColor(float f) {
+		return LightTexture.FULL_BRIGHT;
+	}
+
+	@Override
 	public @NotNull Layer getLayer() {
 		return Layer.OPAQUE;
 	}
@@ -58,9 +66,7 @@ public class TyphoSparkParticle extends SingleQuadParticle {
 
 		@Override
 		public @Nullable Particle createParticle(@NonNull SimpleParticleType parameters, @NotNull ClientLevel world, double x, double y, double z, double velocityX, double velocityY, double velocityZ, @NotNull RandomSource random) {
-			TyphoSparkParticle particle = new TyphoSparkParticle(world, x, y, z, velocityX, velocityY, velocityZ, this.spriteProvider);
-			particle.setSprite(this.spriteProvider.first());
-			return particle;
+            return new TyphoSparkParticle(world, x, y, z, velocityX, velocityY, velocityZ, this.spriteProvider.get(random));
 		}
 	}
 }
