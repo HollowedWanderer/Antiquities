@@ -4,9 +4,6 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleTypes;
-import net.minecraft.network.RegistryFriendlyByteBuf;
-import net.minecraft.network.codec.ByteBufCodecs;
-import net.minecraft.network.codec.StreamCodec;
 
 import java.util.Optional;
 
@@ -30,16 +27,4 @@ public record ClothParticleData(
             Codec.FLOAT.optionalFieldOf("waterDistance").forGetter(ClothParticleData::waterDistance),
             Codec.FLOAT.optionalFieldOf("waterVelocity").forGetter(ClothParticleData::waterVelocity)
     ).apply(instance, ClothParticleData::new));
-
-    public static final StreamCodec<RegistryFriendlyByteBuf, ClothParticleData> STREAM_CODEC = StreamCodec.composite(
-            ParticleTypes.STREAM_CODEC, ClothParticleData::particle,
-            ByteBufCodecs.FLOAT, ClothParticleData::chance,
-            ByteBufCodecs.FLOAT, ClothParticleData::distance,
-            ByteBufCodecs.FLOAT, ClothParticleData::velocity,
-            ByteBufCodecs.optional(ParticleTypes.STREAM_CODEC), ClothParticleData::waterParticle,
-            ByteBufCodecs.optional(ByteBufCodecs.FLOAT), ClothParticleData::waterChance,
-            ByteBufCodecs.optional(ByteBufCodecs.FLOAT), ClothParticleData::waterDistance,
-            ByteBufCodecs.optional(ByteBufCodecs.FLOAT), ClothParticleData::waterVelocity,
-            ClothParticleData::new
-    );
 }

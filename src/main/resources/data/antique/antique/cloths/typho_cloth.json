@@ -44,6 +44,9 @@
     "waterDistance": 0.2,
     "waterVelocity": 0.025
   },
+  "ambientSound": {
+    "waterSound": "antique:typho_cloth_underwater"
+  },
   "width": 0.2,
   "length": 2.4,
   "gravity": 0,

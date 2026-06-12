@@ -68,7 +68,7 @@ public abstract class FirstPersonHeldItemRendererMixin {
                 if (renderMode == ItemDisplayContext.NONE && stack.getOrDefault(AntiqueDataComponentTypes.MYRIAD_TOOL, MyriadToolComponent.DEFAULT_NO_CLOTH).toolBit().is(AntiqueItems.MYRIAD_CLEAVER_BLADE)) {
                     matrices.translate(-0.15, -0.15, 0);
                 }
-                manager = renderMode == ItemDisplayContext.FIRST_PERSON_RIGHT_HAND ? ClothManager.getOrCreate(entity, Antiquities.id("first_person_right_arm"), data) : ClothManager.getOrCreate(entity, Antiquities.id("first_person_left_arm"), data);
+                manager = renderMode == ItemDisplayContext.FIRST_PERSON_RIGHT_HAND ? ClothManager.getOrCreate(entity, Antiquities.id("right_arm"), data) : ClothManager.getOrCreate(entity, Antiquities.id("left_arm"), data);
                 switch (renderMode) {
                     case ItemDisplayContext.NONE -> {
                         manager = ClothManager.getOrCreate(entity, Antiquities.id("back"), data);

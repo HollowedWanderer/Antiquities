@@ -8,6 +8,7 @@ import java.util.Optional;
 
 import net.hollowed.antique.Antiquities;
 import net.hollowed.antique.AntiquitiesClient;
+import net.hollowed.antique.client.sound.cloth.AmbientClothSoundInstance;
 import net.hollowed.antique.entities.parts.MyriadShovelPart;
 import net.hollowed.antique.index.AntiqueParticles;
 import net.hollowed.antique.items.components.ColorProvider;
@@ -15,9 +16,13 @@ import net.hollowed.antique.mixin.accessors.SpriteContentsAnimationStateAccessor
 import net.hollowed.antique.particles.TyphoSparkParticle;
 import net.hollowed.antique.util.resources.ClothSkin;
 import net.minecraft.core.particles.ParticleOptions;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
+import org.jetbrains.annotations.Nullable;
 import org.joml.Matrix4f;
 import org.joml.Vector3d;
 import org.joml.Vector3f;
@@ -46,24 +51,27 @@ public class ClothManager {
 
     public static final RenderType CLOTH_RENDER_LAYER = RenderTypes.itemEntityTranslucentCull(AntiquitiesClient.CLOTHS_ATLAS_TEXTURE);
 
+    public @Nullable AmbientClothSoundInstance ambientSound;
+
     public Vector3d pos = new Vector3d();
     public List<ClothBody> bodies = new ArrayList<>();
     private int bodyCountCooldown = 0;
     public Entity entity;
     public ClothSkin data;
     public boolean render = false;
+    public boolean particles = false;
 
     private List<Entity> collisionEntities = List.of();
     private long prevTime;
 
-    public ClothManager(Vector3d pos, int BodyCount, ClothSkin data) {
-        reset(pos, BodyCount, data);
+    public ClothManager(Vector3d pos, int bodyCount, ClothSkin data) {
+        reset(pos, bodyCount, data);
     }
 
-    public void reset(Vector3d pos, int BodyCount, ClothSkin data) {
+    public void reset(Vector3d pos, int bodyCount, ClothSkin data) {
         bodies.clear();
         this.data = data;
-        for (int i = 0; i < Math.abs(BodyCount+1); i++) {
+        for (int i = 0; i < Math.abs(bodyCount + 1); i++) {
             ClothBody body = new ClothBody(pos);
             bodies.add(body);
         }
@@ -75,12 +83,54 @@ public class ClothManager {
         }
     }
 
+    public void tickSound() {
+        ClientLevel level = Minecraft.getInstance().level;
+
+        if (level != null) {
+            data.ambientSound().ifPresent(soundData -> {
+                Optional<Identifier> sound = soundData.sound();
+
+                if (bodies.stream().anyMatch(body -> level.getFluidState(BlockPos.containing(body.pos.x, body.pos.y, body.pos.z)).is(FluidTags.WATER))) {
+                    sound = soundData.waterSound().or(soundData::sound);
+                }
+
+                if (!render) {
+                    sound = Optional.empty();
+                }
+
+                sound.ifPresentOrElse(id -> {
+                    if (ambientSound == null) {
+                        ambientSound = new AmbientClothSoundInstance(
+                                new SoundEvent(id, Optional.of(8f)),
+                                entity.getSoundSource(),
+                                entity
+                        );
+                        Minecraft.getInstance().getSoundManager().play(ambientSound);
+                    } else if (!ambientSound.getIdentifier().equals(id)) {
+                        ambientSound.publicStop();
+                        ambientSound = new AmbientClothSoundInstance(
+                                new SoundEvent(id, Optional.of(8f)),
+                                entity.getSoundSource(),
+                                entity
+                        );
+                        Minecraft.getInstance().getSoundManager().play(ambientSound);
+                    }
+                }, () -> {
+                    if (ambientSound != null) {
+                        ambientSound.publicStop();
+                        ambientSound = null;
+                    }
+                });
+            });
+        }
+    }
+
     public void tick() {
         float gravityMultiplier = data.gravity();
         float waterGravityMultiplier = data.waterGravity();
         double length = data.length();
         float delta = Minecraft.getInstance().getDeltaTracker().getGameTimeDeltaTicks();
-        ClientLevel world = Minecraft.getInstance().level;
+        ClientLevel level = Minecraft.getInstance().level;
 
         ClothBody root = bodies.getFirst();
         root.pos = new Vector3d(root.prevPos).lerp(pos, delta * 2);
@@ -95,14 +145,14 @@ public class ClothManager {
             }
         }
 
-        if (world != null) {
+        if (level != null) {
 
             double previousDrag = 0.0;
 
             // Update pass
             for (ClothBody body : bodies) {
                 Vec3 startPos = new Vec3(body.pos.x, body.pos.y, body.pos.z);
-                boolean isWater = world.getFluidState(BlockPos.containing(startPos)).is(FluidTags.WATER);
+                boolean isWater = level.getFluidState(BlockPos.containing(startPos)).is(FluidTags.WATER);
                 Vector3d vel = new Vector3d(body.pos).sub(body.posCache);
                 double maxVel = 0.05;
                 if (vel.length() > maxVel) {
@@ -144,17 +194,17 @@ public class ClothManager {
         }
 
         // Collision pass
-        if (world != null) {
+        if (level != null) {
             List<Vector3d> accels = new ArrayList<>();
 
-            if (world.getGameTime() > (prevTime + 10)) {
-                prevTime = world.getGameTime();
+            if (level.getGameTime() > (prevTime + 10)) {
+                prevTime = level.getGameTime();
                 Vec3 pos = new Vec3(new Vector3f(bodies.getFirst().pos));
-                collisionEntities = world.getEntities(entity, new AABB(pos.subtract(5), pos.add(5)), entity -> !(entity instanceof MyriadShovelPart));
+                collisionEntities = level.getEntities(entity, new AABB(pos.subtract(5), pos.add(5)), entity -> !(entity instanceof MyriadShovelPart));
             }
 
             for (ClothBody body : bodies) {
-                body.slideOutOfBlocks(world);
+                body.slideOutOfBlocks(level);
                 accels.add(body.entityCollisionPerchance(collisionEntities, entity));
                 body.pos.x = Mth.lerp(0.125, body.pos.x, body.posCache.x);
                 body.pos.y = Mth.lerp(0.125, body.pos.y, body.posCache.y);
@@ -261,6 +311,7 @@ public class ClothManager {
 
     public void renderCloth(ClothSkin data, PoseStack matrices, SubmitNodeCollector queue, int light, boolean glow, Color color, Color overlayColor, Optional<Identifier> overlay, Matrix4f reprojectionMatrix) {
         this.render = true;
+        this.particles = true;
         this.data = data;
         Optional<Identifier> cloth = data.model();
         int bodyCount = data.bodyAmount();

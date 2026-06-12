@@ -4,6 +4,7 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.hollowed.antique.index.AntiqueRegistries;
 import net.hollowed.antique.items.components.ClothParticleData;
+import net.hollowed.antique.items.components.ClothSoundData;
 import net.hollowed.antique.items.components.ColorProvider;
 import net.hollowed.antique.items.components.ColorProviders;
 import net.minecraft.core.Holder;
@@ -19,10 +20,38 @@ import org.jspecify.annotations.NonNull;
 
 import java.util.Optional;
 
-public record ClothSkin(Optional<Identifier> model, ColorProvider color, float length, float width,
-                        Optional<ClothParticleData> particleData, float gravity, float waterGravity, int bodyAmount,
-                        int light, boolean emissiveItem, boolean emissiveLayer, boolean overlay, boolean dyeable) {
-    public static final ClothSkin DEFAULT = new ClothSkin(Optional.empty(), new ColorProvider.Constant("d13a68"), 1.4F, 0.1F, Optional.empty(), 1.0F, -0.5F, 8, 0, false, false, false, false);
+public record ClothSkin(
+        Optional<Identifier> model,
+        ColorProvider color,
+        float length,
+        float width,
+        Optional<ClothParticleData> particleData,
+        Optional<ClothSoundData> ambientSound,
+        float gravity,
+        float waterGravity,
+        int bodyAmount,
+        int light,
+        boolean emissiveItem,
+        boolean emissiveLayer,
+        boolean overlay,
+        boolean dyeable
+) {
+    public static final ClothSkin DEFAULT = new ClothSkin(
+            Optional.empty(),
+            new ColorProvider.Constant("d13a68"),
+            1.4F,
+            0.1F,
+            Optional.empty(),
+            Optional.empty(),
+            1.0F,
+            -0.5F,
+            8,
+            0,
+            false,
+            false,
+            false,
+            false
+    );
 
     public static final Codec<ClothSkin> CODEC = RecordCodecBuilder.create(instance -> instance.group(
             Identifier.CODEC.optionalFieldOf("model").forGetter(ClothSkin::model),
@@ -30,6 +59,7 @@ public record ClothSkin(Optional<Identifier> model, ColorProvider color, float l
             Codec.FLOAT.optionalFieldOf("length", 1.4F).forGetter(ClothSkin::length),
             Codec.FLOAT.optionalFieldOf("width", 0.1F).forGetter(ClothSkin::width),
             ClothParticleData.CODEC.optionalFieldOf("particleData").forGetter(ClothSkin::particleData),
+            ClothSoundData.CODEC.optionalFieldOf("ambientSound").forGetter(ClothSkin::ambientSound),
             Codec.FLOAT.optionalFieldOf("gravity", 1.0F).forGetter(ClothSkin::gravity),
             Codec.FLOAT.optionalFieldOf("waterGravity", -0.5F).forGetter(ClothSkin::waterGravity),
             Codec.INT.optionalFieldOf("bodies", 8).forGetter(ClothSkin::bodyAmount),
@@ -39,44 +69,6 @@ public record ClothSkin(Optional<Identifier> model, ColorProvider color, float l
             Codec.BOOL.optionalFieldOf("overlay", false).forGetter(ClothSkin::overlay),
             Codec.BOOL.optionalFieldOf("dyeable", false).forGetter(ClothSkin::dyeable)
     ).apply(instance, ClothSkin::new));
-
-    public static final StreamCodec<RegistryFriendlyByteBuf, ClothSkin> STREAM_CODEC = new StreamCodec<>() {
-        @Override
-        public @NonNull ClothSkin decode(@NonNull RegistryFriendlyByteBuf buf) {
-            return new ClothSkin(
-                    ByteBufCodecs.optional(Identifier.STREAM_CODEC).decode(buf),
-                    ColorProviders.STREAM_CODEC.decode(buf),
-                    buf.readFloat(),
-                    buf.readFloat(),
-                    ByteBufCodecs.optional(ClothParticleData.STREAM_CODEC).decode(buf),
-                    buf.readFloat(),
-                    buf.readFloat(),
-                    buf.readInt(),
-                    buf.readInt(),
-                    buf.readBoolean(),
-                    buf.readBoolean(),
-                    buf.readBoolean(),
-                    buf.readBoolean()
-            );
-        }
-
-        @Override
-        public void encode(@NonNull RegistryFriendlyByteBuf buf, @NonNull ClothSkin data) {
-            ByteBufCodecs.optional(Identifier.STREAM_CODEC).encode(buf, data.model);
-            ColorProviders.STREAM_CODEC.encode(buf, data.color);
-            buf.writeFloat(data.length);
-            buf.writeFloat(data.width);
-            ByteBufCodecs.optional(ClothParticleData.STREAM_CODEC).encode(buf, data.particleData);
-            buf.writeFloat(data.gravity);
-            buf.writeFloat(data.waterGravity);
-            buf.writeInt(data.bodyAmount);
-            buf.writeInt(data.light);
-            buf.writeBoolean(data.emissiveItem);
-            buf.writeBoolean(data.emissiveLayer);
-            buf.writeBoolean(data.overlay);
-            buf.writeBoolean(data.dyeable);
-        }
-    };
 
     public static ClothSkin get(Optional<Identifier> id, @NotNull HolderGetter<ClothSkin> lookup) {
         return id.map(key ->

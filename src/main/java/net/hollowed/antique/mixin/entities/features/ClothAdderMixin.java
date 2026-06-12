@@ -28,6 +28,8 @@ public abstract class ClothAdderMixin implements ClothAccess {
         if (!Minecraft.getInstance().isPaused()) {
             for (Map<Identifier, ClothManager> managers : antique$cloths.values()) {
                 for (ClothManager manager : managers.values()) {
+                    manager.tickSound();
+
                     if (manager.render) {
                         manager.tick();
                         manager.render = false;
@@ -41,7 +43,10 @@ public abstract class ClothAdderMixin implements ClothAccess {
     public void antique$tickParticles() {
         for (Map<Identifier, ClothManager> managers : antique$cloths.values()) {
             for (ClothManager manager : managers.values()) {
-                manager.tickParticles((ClientLevel) (Object) this);
+                if (manager.particles) {
+                    manager.tickParticles((ClientLevel) (Object) this);
+                    manager.particles = false;
+                }
             }
         }
     }
