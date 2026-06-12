@@ -190,14 +190,18 @@ public class ClothManager {
                 }
 
                 if (level.random.nextFloat() < chance) {
+                    double x = (level.random.nextDouble() * 2 - 1);
+                    double y = (level.random.nextDouble() * 2 - 1);
+                    double z = (level.random.nextDouble() * 2 - 1);
+
                     level.addParticle(
                             particle,
-                            body.pos.x + (level.random.nextDouble() * 2 - 1) * distance,
-                            body.pos.y + (level.random.nextDouble() * 2 - 1) * distance,
-                            body.pos.z + (level.random.nextDouble() * 2 - 1) * distance,
-                            (level.random.nextDouble() * 2 - 1) * velocity,
-                            (level.random.nextDouble() * 2 - 1) * velocity,
-                            (level.random.nextDouble() * 2 - 1) * velocity
+                            body.pos.x + x * distance,
+                            body.pos.y + y * distance,
+                            body.pos.z + z * distance,
+                            x * velocity,
+                            y * velocity,
+                            z * velocity
                     );
                 }
             }
