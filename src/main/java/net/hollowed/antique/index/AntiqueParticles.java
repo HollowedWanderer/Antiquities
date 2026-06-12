@@ -1,12 +1,15 @@
 package net.hollowed.antique.index;
 
+import com.mojang.serialization.Codec;
 import net.fabricmc.fabric.api.client.particle.v1.ParticleFactoryRegistry;
 import net.fabricmc.fabric.api.particle.v1.FabricParticleTypes;
 import net.hollowed.antique.Antiquities;
 import net.hollowed.antique.particles.*;
 import net.minecraft.core.Registry;
+import net.minecraft.core.particles.ParticleType;
 import net.minecraft.core.particles.SimpleParticleType;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.network.codec.ByteBufCodecs;
 
 public interface AntiqueParticles {
     SimpleParticleType SPARKLE_PARTICLE = FabricParticleTypes.simple();
@@ -15,7 +18,16 @@ public interface AntiqueParticles {
     SimpleParticleType HIT_MARKER = FabricParticleTypes.simple();
     SimpleParticleType SCRAPE = FabricParticleTypes.simple();
     SimpleParticleType SHOCKWAVE_BUBBLE = FabricParticleTypes.simple();
-    SimpleParticleType TYPHO_SPARK = FabricParticleTypes.simple();
+    ParticleType<TyphoSparkParticle.Options> TYPHO_SPARK = FabricParticleTypes.complex(
+            Codec.INT.optionalFieldOf("sprite").xmap(
+                    TyphoSparkParticle.Options::new,
+                    TyphoSparkParticle.Options::sprite
+            ),
+            ByteBufCodecs.optional(ByteBufCodecs.INT).map(
+                    TyphoSparkParticle.Options::new,
+                    TyphoSparkParticle.Options::sprite
+            )
+    );
 
     static void initialize() {
 	    Registry.register(BuiltInRegistries.PARTICLE_TYPE, Antiquities.id("sparkle_particle"), SPARKLE_PARTICLE);

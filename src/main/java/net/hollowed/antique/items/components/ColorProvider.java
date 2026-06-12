@@ -163,39 +163,43 @@ public interface ColorProvider {
             return ID;
         }
 
+        public static SpriteContentsAnimationStateAccessor findAnimationState(Identifier atlasId, Identifier spriteId) {
+            TextureAtlas atlas = Minecraft.getInstance()
+                    .getAtlasManager()
+                    .getAtlasOrThrow(atlasId);
+
+            for (SpriteContents.AnimationState state : ((TextureAtlasAccessor) atlas).antique$getAnimatedTexturesStates()) {
+                TextureAtlasSprite sprite = ((SpriteContentsAnimationStateExtension) state).antique$getParentSprite();
+
+                if (sprite.contents().name().equals(spriteId)) {
+                    return (SpriteContentsAnimationStateAccessor) state;
+                }
+            }
+
+            throw new NullPointerException("Unable to find sprite " + spriteId + " in atlas " + atlasId);
+        }
+
         @Override
         public int getColor(int tick, float tickDelta) {
             try {
-                TextureAtlas atlas = Minecraft.getInstance()
-                        .getAtlasManager()
-                        .getAtlasOrThrow(this.atlas);
+                SpriteContentsAnimationStateAccessor accessor = findAnimationState(atlas, sprite);
 
-                for (SpriteContents.AnimationState state : ((TextureAtlasAccessor) atlas).antique$getAnimatedTexturesStates()) {
-                    TextureAtlasSprite sprite = ((SpriteContentsAnimationStateExtension) state).antique$getParentSprite();
+                int frameIndex = (frames.size() - 1 - accessor.antique$getFrame() + frameOffset) % frames.size();
+                int frame = frames.get(frameIndex);
 
-                    if (sprite.contents().name().equals(this.sprite)) {
-                        var accessor = (SpriteContentsAnimationStateAccessor) state;
+                if (interpolate) {
+                    int frame2 = frames.get((frameIndex == 0 ? frames.size() : frameIndex) - 1);
+                    float delta = (float) accessor.antique$getSubFrame() / frameTime;
 
-                        int frameIndex = (frames.size() - 1 - accessor.antique$getFrame() + frameOffset) % frames.size();
-                        int frame = frames.get(frameIndex);
+                    float a = (frame & 0xFF) * (1 - delta) + (frame2 & 0xFF) * delta;
+                    float b = ((frame >>> 8) & 0xFF) * (1 - delta) + ((frame2 >>> 8) & 0xFF) * delta;
+                    float c = ((frame >>> 16) & 0xFF) * (1 - delta) + ((frame2 >>> 16) & 0xFF) * delta;
+                    float d = ((frame >>> 24) & 0xFF) * (1 - delta) + ((frame2 >>> 24) & 0xFF) * delta;
 
-                        if (interpolate) {
-                            int frame2 = frames.get((frameIndex == 0 ? frames.size() : frameIndex) - 1);
-                            float delta = (float) accessor.antique$getSubFrame() / frameTime;
-
-                            float a = (frame & 0xFF) * (1 - delta) + (frame2 & 0xFF) * delta;
-                            float b = ((frame >>> 8) & 0xFF) * (1 - delta) + ((frame2 >>> 8) & 0xFF) * delta;
-                            float c = ((frame >>> 16) & 0xFF) * (1 - delta) + ((frame2 >>> 16) & 0xFF) * delta;
-                            float d = ((frame >>> 24) & 0xFF) * (1 - delta) + ((frame2 >>> 24) & 0xFF) * delta;
-
-                            return (int) a | ((int) b) << 8 | ((int) c) << 16 | ((int) d) << 24;
-                        } else {
-                            return frame;
-                        }
-                    }
+                    return (int) a | ((int) b) << 8 | ((int) c) << 16 | ((int) d) << 24;
+                } else {
+                    return frame;
                 }
-
-                throw new NullPointerException("Unable to find sprite " + sprite + " in atlas " + this.atlas);
             } catch (NullPointerException e) {
                 Antiquities.LOGGER.error("Error getting color of sprite animated color provider {}", this, e);
                 return 0;
