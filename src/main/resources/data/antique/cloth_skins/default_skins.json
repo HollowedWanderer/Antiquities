@@ -83,7 +83,7 @@
       "length": 3.15,
       "width": 0.166,
       "gravity": 4,
-      "water_gravity": 0.8,
+      "waterGravity": 0.8,
       "bodies": 1
     },
     {
@@ -342,8 +342,21 @@
         "atlas": "antique:cloths",
         "sprite": "antique:cloth/typho_cloth_emissive"
       },
+      "particleData": {
+        "particle": {
+          "type": "antique:typho_spark"
+        },
+        "chance": 0.01,
+        "distance": 0.01,
+        "velocity": 0.01,
+        "waterChance": 0.2,
+        "waterDistance": 0.01,
+        "waterVelocity": 0.05
+      },
       "width": 0.166,
       "length": 2.1,
+      "gravity": 0,
+      "waterGravity": 0,
       "bodies": 12,
       "emissiveLayer": true,
       "emissiveItem": true

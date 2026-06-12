@@ -7,7 +7,9 @@ import java.util.Optional;
 
 import net.hollowed.antique.AntiquitiesClient;
 import net.hollowed.antique.entities.parts.MyriadShovelPart;
+import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.tags.FluidTags;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 import org.joml.Matrix4f;
 import org.joml.Vector3d;
@@ -44,6 +46,7 @@ public class ClothManager {
     public Entity entity;
     public ClothSkinData.ClothSubData data;
     public boolean render = false;
+    public boolean particles = false;
 
     private List<Entity> collisionEntities = List.of();
     private long prevTime;
@@ -170,6 +173,37 @@ public class ClothManager {
         }
     }
 
+    public void tickParticles(Level level) {
+        data.particleData().ifPresent(data -> {
+            for (ClothBody body : bodies) {
+                boolean water = level.getFluidState(BlockPos.containing(body.pos.x, body.pos.y, body.pos.z)).is(FluidTags.WATER);
+                ParticleOptions particle = data.particle();
+                float chance = data.chance();
+                float distance = data.distance();
+                float velocity = data.velocity();
+
+                if (water) {
+                    particle = data.waterParticle().orElse(particle);
+                    chance = data.waterChance().orElse(chance);
+                    distance = data.waterDistance().orElse(distance);
+                    velocity = data.waterVelocity().orElse(velocity);
+                }
+
+                if (level.random.nextFloat() < chance) {
+                    level.addParticle(
+                            particle,
+                            body.pos.x + (level.random.nextDouble() * 2 - 1) * distance,
+                            body.pos.y + (level.random.nextDouble() * 2 - 1) * distance,
+                            body.pos.z + (level.random.nextDouble() * 2 - 1) * distance,
+                            (level.random.nextDouble() * 2 - 1) * velocity,
+                            (level.random.nextDouble() * 2 - 1) * velocity,
+                            (level.random.nextDouble() * 2 - 1) * velocity
+                    );
+                }
+            }
+        });
+    }
+
     private void resetCloth() {
         Vector3d offset = new Vector3d(0, -0.2, 0);
         for (int i = 0; i < bodies.size(); i++) {
@@ -210,6 +244,7 @@ public class ClothManager {
 
     public void renderCloth(ClothSkinData.ClothSubData data, PoseStack matrices, SubmitNodeCollector queue, int light, boolean glow, Color color, Color overlayColor, Optional<Identifier> overlay, Matrix4f reprojectionMatrix) {
         this.render = true;
+        this.particles = true;
         this.data = data;
         Optional<Identifier> cloth = data.model();
         int bodyCount = data.bodyAmount();
