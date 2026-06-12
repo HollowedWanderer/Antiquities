@@ -46,12 +46,11 @@ public class ClothManager {
     public static final RenderType CLOTH_RENDER_LAYER = RenderTypes.itemEntityTranslucentCull(AntiquitiesClient.CLOTHS_ATLAS_TEXTURE);
 
     public Vector3d pos = new Vector3d();
-    public ArrayList<ClothBody> bodies = new ArrayList<>();
+    public List<ClothBody> bodies = new ArrayList<>();
     private int bodyCountCooldown = 0;
     public Entity entity;
     public ClothSkin data;
     public boolean render = false;
-    public boolean particles = false;
 
     private List<Entity> collisionEntities = List.of();
     private long prevTime;
@@ -264,7 +263,7 @@ public class ClothManager {
     }
 
     public void renderCloth(ClothSkin data, PoseStack matrices, SubmitNodeCollector queue, int light, boolean glow, Color color, Color overlayColor, Optional<Identifier> overlay, Matrix4f reprojectionMatrix) {
-        this.particles = true;
+        this.render = true;
         this.data = data;
         Optional<Identifier> cloth = data.model();
         int bodyCount = data.bodyAmount();
