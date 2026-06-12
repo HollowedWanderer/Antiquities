@@ -3,7 +3,7 @@ package net.hollowed.antique.index;
 import com.mojang.serialization.Codec;
 import net.hollowed.antique.Antiquities;
 import net.hollowed.antique.items.components.MyriadToolComponent;
-import net.hollowed.antique.util.resources.ClothOverlayData;
+import net.hollowed.antique.util.resources.ClothPatternData;
 import net.hollowed.antique.util.resources.ClothSkinData;
 import net.minecraft.core.Registry;
 import net.minecraft.core.component.DataComponentType;
@@ -36,12 +36,12 @@ public interface AntiqueDataComponentTypes {
                     .networkSynchronized(ResourceKey.streamCodec(AntiqueRegistries.CLOTHS))
                     .build()
     );
-    DataComponentType<ResourceKey<ClothOverlayData>> CLOTH_OVERLAY_TYPE = Registry.register(
+    DataComponentType<ResourceKey<ClothPatternData>> CLOTH_PATTERN_TYPE = Registry.register(
             BuiltInRegistries.DATA_COMPONENT_TYPE,
-            Antiquities.id("cloth_overlay_type"),
-            DataComponentType.<ResourceKey<ClothOverlayData>>builder()
-                    .persistent(ResourceKey.codec(AntiqueRegistries.CLOTH_OVERLAYS))
-                    .networkSynchronized(ResourceKey.streamCodec(AntiqueRegistries.CLOTH_OVERLAYS))
+            Antiquities.id("cloth_pattern_type"),
+            DataComponentType.<ResourceKey<ClothPatternData>>builder()
+                    .persistent(ResourceKey.codec(AntiqueRegistries.CLOTH_PATTERNS))
+                    .networkSynchronized(ResourceKey.streamCodec(AntiqueRegistries.CLOTH_PATTERNS))
                     .build()
     );
     DataComponentType<Integer> COUNTER = Registry.register(

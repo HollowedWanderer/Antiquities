@@ -82,7 +82,6 @@ public class Antiquities implements ModInitializer {
 
 		ResourceLoader.get(PackType.CLIENT_RESOURCES).registerReloader(id("staff_transforms"), new MyriadStaffTransformResourceReloadListener());
 		ResourceLoader.get(PackType.CLIENT_RESOURCES).registerReloader(id("pedestal_transforms"), new PedestalDisplayListener());
-		ResourceLoader.get(PackType.SERVER_DATA).registerReloader(id("cloth_overlays"), new ClothOverlayListener());
 
 		/*
 			Packets
@@ -95,7 +94,6 @@ public class Antiquities implements ModInitializer {
 		PayloadTypeRegistry.playC2S().register(CrawlPacketPayload.ID, CrawlPacketPayload.CODEC);
 		PayloadTypeRegistry.playC2S().register(DyePacketPayload.ID, DyePacketPayload.CODEC);
 		PayloadTypeRegistry.playS2C().register(IllusionerParticlePacketPayload.ID, IllusionerParticlePacketPayload.CODEC);
-		PayloadTypeRegistry.playS2C().register(ClothOverlayPacketPayload.ID, ClothOverlayPacketPayload.CODEC);
 		PayloadTypeRegistry.playS2C().register(AddClothItemsPayload.ID, AddClothItemsPayload.CODEC);
 		PayloadTypeRegistry.playS2C().register(ShockwaveParticlesPayload.ID, ShockwaveParticlesPayload.CODEC);
 
@@ -320,12 +318,12 @@ public class Antiquities implements ModInitializer {
 					});
 			group.getContext()
 					.holders()
-					.lookupOrThrow(AntiqueRegistries.CLOTH_OVERLAYS)
-					.getOrThrow(AntiqueClothOverlayTags.CREATIVE_TAB_ORDER)
+					.lookupOrThrow(AntiqueRegistries.CLOTH_PATTERNS)
+					.getOrThrow(AntiqueClothPatternTags.CREATIVE_TAB_ORDER)
 					.forEach(skin -> {
                         ItemStack stack = AntiqueItems.CLOTH.getDefaultInstance();
 
-						stack.set(AntiqueDataComponentTypes.CLOTH_OVERLAY_TYPE, skin.unwrapKey().orElseThrow());
+						stack.set(AntiqueDataComponentTypes.CLOTH_PATTERN_TYPE, skin.unwrapKey().orElseThrow());
 						stack.set(DataComponents.DYED_COLOR, new DyedItemColor(0xFFFFFF));
 
 						if (!group.getDisplayStacks().contains(stack)) {

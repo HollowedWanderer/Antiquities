@@ -11,7 +11,7 @@ import net.hollowed.antique.AntiquitiesClient;
 import net.hollowed.antique.client.sound.cloth.AmbientClothSoundInstance;
 import net.hollowed.antique.entities.parts.MyriadShovelPart;
 import net.hollowed.antique.index.AntiqueParticles;
-import net.hollowed.antique.util.resources.ClothOverlayData;
+import net.hollowed.antique.util.resources.ClothPatternData;
 import net.hollowed.antique.util.resources.ColorProvider;
 import net.hollowed.antique.mixin.accessors.SpriteContentsAnimationStateAccessor;
 import net.hollowed.antique.particles.TyphoSparkParticle;
@@ -19,7 +19,6 @@ import net.hollowed.antique.util.resources.ClothSkinData;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.core.Holder;
 import net.minecraft.core.particles.ParticleOptions;
-import net.minecraft.resources.ResourceKey;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.world.level.Level;
@@ -307,11 +306,11 @@ public class ClothManager {
         return null;
     }
 
-    public void renderCloth(Holder<ClothSkinData> data, PoseStack matrices, SubmitNodeCollector queue, int light, boolean glow, Color color, Color overlayColor, Optional<? extends Holder<ClothOverlayData>> overlay) {
-        this.renderCloth(data, matrices, queue, light, glow, color, overlayColor, overlay, new Matrix4f());
+    public void renderCloth(Holder<ClothSkinData> data, PoseStack matrices, SubmitNodeCollector queue, int light, boolean glow, Color color, Color patternColor, Optional<? extends Holder<ClothPatternData>> pattern) {
+        this.renderCloth(data, matrices, queue, light, glow, color, patternColor, pattern, new Matrix4f());
     }
 
-    public void renderCloth(Holder<ClothSkinData> skin, PoseStack matrices, SubmitNodeCollector queue, int light, boolean glow, Color color, Color overlayColor, Optional<? extends Holder<ClothOverlayData>> overlay, Matrix4f reprojectionMatrix) {
+    public void renderCloth(Holder<ClothSkinData> skin, PoseStack matrices, SubmitNodeCollector queue, int light, boolean glow, Color color, Color patternColor, Optional<? extends Holder<ClothPatternData>> pattern, Matrix4f reprojectionMatrix) {
         this.render = true;
         this.particles = true;
         this.data = skin.value();
@@ -428,11 +427,11 @@ public class ClothManager {
                 );
             }
 
-            overlay.ifPresent(holder -> {
-                TextureAtlasSprite overlaySprite = Minecraft.getInstance()
+            pattern.ifPresent(holder -> {
+                TextureAtlasSprite patternSprite = Minecraft.getInstance()
                         .getAtlasManager()
                         .getAtlasOrThrow(AntiquitiesClient.CLOTHS_ATLAS)
-                        .getSprite(holder.unwrapKey().orElseThrow().identifier().withPrefix("cloth/overlay/").withSuffix("_" + skin.value().shape().orElseThrow()));
+                        .getSprite(holder.unwrapKey().orElseThrow().identifier().withPrefix("cloth/pattern/").withSuffix("_" + skin.value().shape().orElseThrow()));
                 drawQuad(
                         matrices,
                         new Matrix4f(),
@@ -443,12 +442,12 @@ public class ClothManager {
                         b,
                         posEnd,
                         negEnd,
-                        new Vec2(overlaySprite.getU0(), overlaySprite.getV(uvTop)),
-                        new Vec2(overlaySprite.getU1(), overlaySprite.getV(uvTop)),
-                        new Vec2(overlaySprite.getU1(), overlaySprite.getV(uvBot)),
-                        new Vec2(overlaySprite.getU0(), overlaySprite.getV(uvBot)),
+                        new Vec2(patternSprite.getU0(), patternSprite.getV(uvTop)),
+                        new Vec2(patternSprite.getU1(), patternSprite.getV(uvTop)),
+                        new Vec2(patternSprite.getU1(), patternSprite.getV(uvBot)),
+                        new Vec2(patternSprite.getU0(), patternSprite.getV(uvBot)),
                         glow ? 255 : finalLight,
-                        overlayColor
+                        patternColor
                 );
             });
         }

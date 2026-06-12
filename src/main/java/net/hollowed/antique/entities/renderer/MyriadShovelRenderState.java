@@ -1,6 +1,6 @@
 package net.hollowed.antique.entities.renderer;
 
-import net.hollowed.antique.util.resources.ClothOverlayData;
+import net.hollowed.antique.util.resources.ClothPatternData;
 import net.hollowed.antique.util.resources.ClothSkinData;
 import net.minecraft.client.renderer.entity.state.EntityRenderState;
 import net.minecraft.core.Holder;
@@ -14,9 +14,9 @@ public class MyriadShovelRenderState extends EntityRenderState {
     public Entity entity;
     public ItemStack stack;
     public Optional<Integer> color;
-    public Optional<Integer> overlayColor;
+    public Optional<Integer> patternColor;
     public boolean isEnchanted;
     public boolean glow;
     public Optional<? extends Holder<ClothSkinData>> cloth;
-    public Optional<? extends Holder<ClothOverlayData>> pattern;
+    public Optional<? extends Holder<ClothPatternData>> pattern;
 }

@@ -22,7 +22,6 @@ import net.hollowed.antique.util.resources.ClothSkinData;
 import net.hollowed.combatamenities.util.items.CAComponents;
 import net.minecraft.client.color.item.ItemTintSources;
 import net.minecraft.client.gui.screens.MenuScreens;
-import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderers;
 import net.minecraft.client.renderer.chunk.ChunkSectionLayer;
 import net.minecraft.client.renderer.entity.EntityRenderers;
@@ -105,7 +104,6 @@ public class AntiquitiesClient implements ClientModInitializer {
         PedestalPacketReceiver.registerClientPacket();
         WallJumpParticlePacketReceiver.registerClientPacket();
         IllusionerParticlePacketReceiver.registerClientPacket();
-        ClothOverlayPacketReceiver.registerClientPacket();
         AddClothItemsPacketReceiver.registerClientPacket();
         ShockwaveParticlesReceiver.registerClientPacket();
 
@@ -212,15 +210,15 @@ public class AntiquitiesClient implements ClientModInitializer {
                     String clothName = cloth.cloth().identifier().toLanguageKey();
                     list.add(2, Component.literal(" - ").append(Component.translatable("item." + clothName)).withColor(new Color(cloth.clothColor().orElse(ClothSkinData.DEFAULT_COLOR)).brighter().getRGB()));
 
-                    cloth.overlay().ifPresent(overlay -> {
-                        String patternName = overlay.identifier().toLanguageKey();
-                        Component pattern = Component.literal(" - ").append(Component.translatable("item." + patternName + "_cloth_pattern")).withColor(new Color(cloth.overlayColor().orElse(ClothSkinData.DEFAULT_COLOR)).brighter().getRGB());
+                    cloth.pattern().ifPresent(pattern -> {
+                        String patternName = pattern.identifier().toLanguageKey();
+                        Component text = Component.literal(" - ").append(Component.translatable("item." + patternName + "_cloth_pattern")).withColor(new Color(cloth.patternColor().orElse(ClothSkinData.DEFAULT_COLOR)).brighter().getRGB());
 
                         if (itemStack.getOrDefault(CAComponents.BOOLEAN_PROPERTY, false)) {
-                            pattern = pattern.copy().append(Component.literal(" - ").withColor(0xff4adbb8)).append(Component.translatable("item.antique.glowing").withColor(0xff4adbb8));
+                            text = text.copy().append(Component.literal(" - ").withColor(0xff4adbb8)).append(Component.translatable("item.antique.glowing").withColor(0xff4adbb8));
                         }
 
-                        list.add(3, pattern);
+                        list.add(3, text);
                     });
                 });
             }

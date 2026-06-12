@@ -6,8 +6,7 @@ import net.hollowed.antique.index.AntiqueDataComponentTypes;
 import net.hollowed.antique.index.AntiqueItems;
 import net.hollowed.antique.items.components.MyriadToolComponent;
 import net.hollowed.antique.util.interfaces.duck.ArmedRenderStateAccess;
-import net.hollowed.antique.util.resources.ClothInstance;
-import net.hollowed.antique.util.resources.ClothOverlayData;
+import net.hollowed.antique.util.resources.ClothPatternData;
 import net.hollowed.antique.util.resources.ClothSkinData;
 import net.hollowed.combatamenities.util.items.CAComponents;
 import net.minecraft.client.model.ArmedModel;
@@ -33,7 +32,6 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 import java.awt.*;
-import java.util.Optional;
 
 @Mixin(ItemInHandLayer.class)
 public abstract class HeldItemRendererMixin<S extends ArmedEntityRenderState, M extends EntityModel<S> & ArmedModel<S>> extends RenderLayer<S, @NotNull M> {
@@ -84,8 +82,8 @@ public abstract class HeldItemRendererMixin<S extends ArmedEntityRenderState, M 
                                     i,
                                     stack.getOrDefault(CAComponents.BOOLEAN_PROPERTY, false),
                                     new Color(cloth.clothColor().orElse(ClothSkinData.DEFAULT_COLOR)),
-                                    new Color(cloth.overlayColor().orElse(0xFFFFFFFF)),
-                                    ClothOverlayData.getHolderFromKey(cloth.overlay(), living.registryAccess())
+                                    new Color(cloth.patternColor().orElse(0xFFFFFFFF)),
+                                    ClothPatternData.getHolderFromKey(cloth.pattern(), living.registryAccess())
                             );
                         }
                     }

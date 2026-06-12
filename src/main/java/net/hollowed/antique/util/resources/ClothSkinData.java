@@ -28,7 +28,7 @@ public record ClothSkinData(
         int light,
         boolean emissiveItem,
         boolean emissiveLayer,
-        boolean overlay,
+        boolean patternable,
         boolean dyeable
 ) {
     public static final String DEFAULT_SHAPE = "default";
@@ -58,7 +58,7 @@ public record ClothSkinData(
     );
 
     public ClothSkinData {
-        if (overlay && shape.isEmpty()) {
+        if (patternable && shape.isEmpty()) {
             throw new IllegalStateException("Must specify a cloth shape to be dyeable");
         }
     }
@@ -78,7 +78,7 @@ public record ClothSkinData(
             Codec.INT.optionalFieldOf("light", 0).forGetter(ClothSkinData::light),
             Codec.BOOL.optionalFieldOf("emissiveItem", false).forGetter(ClothSkinData::emissiveItem),
             Codec.BOOL.optionalFieldOf("emissiveLayer", false).forGetter(ClothSkinData::emissiveLayer),
-            Codec.BOOL.optionalFieldOf("overlay", false).forGetter(ClothSkinData::overlay),
+            Codec.BOOL.optionalFieldOf("patternable", false).forGetter(ClothSkinData::patternable),
             Codec.BOOL.optionalFieldOf("dyeable", false).forGetter(ClothSkinData::dyeable)
     ).apply(instance, ClothSkinData::new));
 

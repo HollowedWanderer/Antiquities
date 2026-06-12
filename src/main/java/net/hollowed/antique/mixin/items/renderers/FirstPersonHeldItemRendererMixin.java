@@ -6,8 +6,7 @@ import net.hollowed.antique.index.AntiqueDataComponentTypes;
 import net.hollowed.antique.index.AntiqueItems;
 import net.hollowed.antique.items.components.MyriadToolComponent;
 import net.hollowed.antique.mixin.accessors.RendererAccessor;
-import net.hollowed.antique.util.resources.ClothInstance;
-import net.hollowed.antique.util.resources.ClothOverlayData;
+import net.hollowed.antique.util.resources.ClothPatternData;
 import net.hollowed.antique.util.resources.ClothSkinData;
 import net.hollowed.combatamenities.util.items.CAComponents;
 import net.minecraft.client.Camera;
@@ -99,8 +98,8 @@ public abstract class FirstPersonHeldItemRendererMixin {
                                 light,
                                 stack.getOrDefault(CAComponents.BOOLEAN_PROPERTY, false),
                                 new Color(component.cloth().get().clothColor().orElse(ClothSkinData.DEFAULT_COLOR)),
-                                new Color(component.cloth().get().overlayColor().orElse(0xFFFFFFFF)),
-                                ClothOverlayData.getHolderFromKey(component.cloth().get().overlay(), entity.registryAccess()),
+                                new Color(component.cloth().get().patternColor().orElse(0xFFFFFFFF)),
+                                ClothPatternData.getHolderFromKey(component.cloth().get().pattern(), entity.registryAccess()),
                                 reproject ? reprojectMatrix : new Matrix4f()
                         );
                     }

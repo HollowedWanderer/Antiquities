@@ -3,16 +3,13 @@ package net.hollowed.antique.items;
 import net.hollowed.antique.Antiquities;
 import net.hollowed.antique.index.AntiqueDataComponentTypes;
 import net.hollowed.antique.index.AntiqueItems;
-import net.hollowed.antique.index.AntiqueRegistries;
 import net.hollowed.antique.util.resources.ClothInstance;
 import net.hollowed.antique.items.components.MyriadToolComponent;
-import net.hollowed.antique.util.resources.ClothOverlayData;
+import net.hollowed.antique.util.resources.ClothPatternData;
 import net.hollowed.antique.util.resources.ClothSkinData;
 import net.hollowed.combatamenities.util.items.CAComponents;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.contents.TranslatableContents;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.sounds.SoundEvents;
@@ -155,9 +152,9 @@ public class MyriadToolItem extends Item {
 
         component.cloth().ifPresentOrElse(
                 cloth -> {
-                    if (ClothSkinData.get(cloth.cloth(), player.registryAccess()).overlay()) {
-                        Optional<ResourceKey<ClothOverlayData>> overlay = Optional.ofNullable(patternStack.get(AntiqueDataComponentTypes.CLOTH_OVERLAY_TYPE));
-                        toolStack.set(AntiqueDataComponentTypes.MYRIAD_TOOL, component.withCloth(Optional.of(cloth.withOverlay(overlay))));
+                    if (ClothSkinData.get(cloth.cloth(), player.registryAccess()).patternable()) {
+                        Optional<ResourceKey<ClothPatternData>> pattern = Optional.ofNullable(patternStack.get(AntiqueDataComponentTypes.CLOTH_PATTERN_TYPE));
+                        toolStack.set(AntiqueDataComponentTypes.MYRIAD_TOOL, component.withCloth(Optional.of(cloth.withPattern(pattern))));
                         toolStack.set(CAComponents.BOOLEAN_PROPERTY, patternStack.getOrDefault(CAComponents.BOOLEAN_PROPERTY, false));
 
                         player.playSound(SoundEvents.DYE_USE, 1.0F, 1.0F);

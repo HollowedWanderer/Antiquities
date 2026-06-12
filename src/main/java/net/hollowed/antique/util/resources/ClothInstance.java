@@ -20,8 +20,8 @@ import java.util.Optional;
 public record ClothInstance(
         ResourceKey<ClothSkinData> cloth,
         Optional<Integer> clothColor,
-        Optional<ResourceKey<ClothOverlayData>> overlay,
-        Optional<Integer> overlayColor
+        Optional<ResourceKey<ClothPatternData>> pattern,
+        Optional<Integer> patternColor
 ) {
     public static final ClothInstance DEFAULT = new ClothInstance(
             ResourceKey.create(AntiqueRegistries.CLOTHS, Antiquities.id("cloth")),
@@ -33,15 +33,15 @@ public record ClothInstance(
     public static final Codec<ClothInstance> CODEC = RecordCodecBuilder.create(instance -> instance.group(
             ResourceKey.codec(AntiqueRegistries.CLOTHS).fieldOf("cloth").forGetter(ClothInstance::cloth),
             Codec.INT.optionalFieldOf("cloth_color").forGetter(ClothInstance::clothColor),
-            ResourceKey.codec(AntiqueRegistries.CLOTH_OVERLAYS).optionalFieldOf("overlay").forGetter(ClothInstance::overlay),
-            Codec.INT.optionalFieldOf("dye_color").forGetter(ClothInstance::overlayColor)
+            ResourceKey.codec(AntiqueRegistries.CLOTH_PATTERNS).optionalFieldOf("patternable").forGetter(ClothInstance::pattern),
+            Codec.INT.optionalFieldOf("pattern_color").forGetter(ClothInstance::patternColor)
     ).apply(instance, ClothInstance::new));
 
     public static final StreamCodec<RegistryFriendlyByteBuf, ClothInstance> STREAM_CODEC = StreamCodec.composite(
             ResourceKey.streamCodec(AntiqueRegistries.CLOTHS), ClothInstance::cloth,
             ByteBufCodecs.optional(ByteBufCodecs.INT), ClothInstance::clothColor,
-            ByteBufCodecs.optional(ResourceKey.streamCodec(AntiqueRegistries.CLOTH_OVERLAYS)), ClothInstance::overlay,
-            ByteBufCodecs.optional(ByteBufCodecs.INT), ClothInstance::overlayColor,
+            ByteBufCodecs.optional(ResourceKey.streamCodec(AntiqueRegistries.CLOTH_PATTERNS)), ClothInstance::pattern,
+            ByteBufCodecs.optional(ByteBufCodecs.INT), ClothInstance::patternColor,
             ClothInstance::new
     );
 
@@ -55,37 +55,37 @@ public record ClothInstance(
     }
 
     public ClothInstance withCloth(ResourceKey<ClothSkinData> cloth) {
-        return new ClothInstance(cloth, clothColor, overlay, overlayColor);
+        return new ClothInstance(cloth, clothColor, pattern, patternColor);
     }
 
     public ClothInstance withClothColor(Optional<Integer> clothColor) {
-        return new ClothInstance(cloth, clothColor, overlay, overlayColor);
+        return new ClothInstance(cloth, clothColor, pattern, patternColor);
     }
 
-    public ClothInstance withOverlay(Optional<ResourceKey<ClothOverlayData>> overlay) {
-        return new ClothInstance(cloth, clothColor, overlay, overlayColor);
+    public ClothInstance withPattern(Optional<ResourceKey<ClothPatternData>> pattern) {
+        return new ClothInstance(cloth, clothColor, pattern, patternColor);
     }
 
-    public ClothInstance withOverlayColor(Optional<Integer> overlayColor) {
-        return new ClothInstance(cloth, clothColor, overlay, overlayColor);
+    public ClothInstance withPatternColor(Optional<Integer> patternColor) {
+        return new ClothInstance(cloth, clothColor, pattern, patternColor);
     }
 
     public ClothInstance withCloth(ItemStack stack) {
         ResourceKey<ClothSkinData> cloth = stack.getOrDefault(AntiqueDataComponentTypes.CLOTH_TYPE, ClothSkinData.DEFAULT_KEY);
         Optional<Integer> clothColor = Optional.ofNullable(stack.get(DataComponents.DYED_COLOR)).map(DyedItemColor::rgb);
-        return new ClothInstance(cloth, clothColor, overlay, overlayColor);
+        return new ClothInstance(cloth, clothColor, pattern, patternColor);
     }
 
-    public ClothInstance withOverlay(ItemStack stack) {
-        Optional<ResourceKey<ClothOverlayData>> overlay = Optional.ofNullable(stack.get(AntiqueDataComponentTypes.CLOTH_OVERLAY_TYPE));
-        Optional<Integer> overlayColor = Optional.ofNullable(stack.get(DataComponents.DYED_COLOR)).map(DyedItemColor::rgb);
-        return new ClothInstance(cloth, clothColor, overlay, overlayColor);
+    public ClothInstance withPattern(ItemStack stack) {
+        Optional<ResourceKey<ClothPatternData>> pattern = Optional.ofNullable(stack.get(AntiqueDataComponentTypes.CLOTH_PATTERN_TYPE));
+        Optional<Integer> patternColor = Optional.ofNullable(stack.get(DataComponents.DYED_COLOR)).map(DyedItemColor::rgb);
+        return new ClothInstance(cloth, clothColor, pattern, patternColor);
     }
 
     public Optional<ClothInstance> exportCloth(ItemStack stack) {
-        return overlay.map(overlay -> {
-            stack.set(AntiqueDataComponentTypes.CLOTH_OVERLAY_TYPE, overlay);
-            overlayColor.ifPresentOrElse(
+        return pattern.map(pattern -> {
+            stack.set(AntiqueDataComponentTypes.CLOTH_PATTERN_TYPE, pattern);
+            patternColor.ifPresentOrElse(
                     rgb -> stack.set(DataComponents.DYED_COLOR, new DyedItemColor(rgb)),
                     () -> stack.remove(DataComponents.DYED_COLOR)
             );
@@ -103,11 +103,11 @@ public record ClothInstance(
     }
 
     public ItemStack exportClothToTool(ItemStack toolStack, MyriadToolComponent tool) {
-        return overlay.map(overlay -> {
+        return pattern.map(pattern -> {
             ItemStack stack = new ItemStack(AntiqueItems.CLOTH_PATTERN);
 
-            stack.set(AntiqueDataComponentTypes.CLOTH_OVERLAY_TYPE, overlay);
-            overlayColor.ifPresentOrElse(
+            stack.set(AntiqueDataComponentTypes.CLOTH_PATTERN_TYPE, pattern);
+            patternColor.ifPresentOrElse(
                     rgb -> stack.set(DataComponents.DYED_COLOR, new DyedItemColor(rgb)),
                     () -> stack.remove(DataComponents.DYED_COLOR)
             );

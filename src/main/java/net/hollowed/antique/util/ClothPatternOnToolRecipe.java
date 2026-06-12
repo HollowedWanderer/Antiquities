@@ -13,22 +13,16 @@ import net.hollowed.antique.index.AntiqueItems;
 import net.hollowed.antique.index.AntiqueRecipeSerializer;
 import net.hollowed.antique.index.AntiqueRegistries;
 import net.hollowed.antique.items.components.MyriadToolComponent;
-import net.hollowed.antique.util.resources.ClothOverlayData;
-import net.hollowed.antique.util.resources.ClothSkinData;
+import net.hollowed.antique.util.resources.ClothPatternData;
 import net.hollowed.combatamenities.util.items.CAComponents;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.NonNullList;
-import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.RegistryFriendlyByteBuf;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.contents.TranslatableContents;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.component.DyedItemColor;
 import net.minecraft.world.item.crafting.CraftingBookCategory;
 import net.minecraft.world.item.crafting.CraftingInput;
 import net.minecraft.world.item.crafting.CraftingRecipe;
@@ -101,13 +95,13 @@ public class ClothPatternOnToolRecipe implements CraftingRecipe {
 		} else {
 			if (world instanceof ServerLevel) {
 				for (ItemStack stack : craftingRecipeInput.items()) {
-					boolean overlay = stack.getOrDefault(AntiqueDataComponentTypes.MYRIAD_TOOL, MyriadToolComponent.DEFAULT_NO_CLOTH)
+					boolean patternable = stack.getOrDefault(AntiqueDataComponentTypes.MYRIAD_TOOL, MyriadToolComponent.DEFAULT_NO_CLOTH)
 							.cloth()
 							.map(cloth ->
 									world.registryAccess()
 											.lookupOrThrow(AntiqueRegistries.CLOTHS)
 											.get(cloth.cloth())
-											.map(skin -> skin.value().overlay())
+											.map(skin -> skin.value().patternable())
 											.orElseGet(() -> {
 												Antiquities.LOGGER.error("Nonexistent cloth type {}", cloth.cloth().identifier());
 												return false;
@@ -115,7 +109,7 @@ public class ClothPatternOnToolRecipe implements CraftingRecipe {
 							)
 							.orElse(false);
 
-					if (stack.is(AntiqueItems.MYRIAD_TOOL) && !overlay) {
+					if (stack.is(AntiqueItems.MYRIAD_TOOL) && !patternable) {
 						return false;
 					}
 				}
@@ -142,9 +136,9 @@ public class ClothPatternOnToolRecipe implements CraftingRecipe {
 			ItemStack result = myriadTool.copy();
 
 			MyriadToolComponent component = result.getOrDefault(AntiqueDataComponentTypes.MYRIAD_TOOL, MyriadToolComponent.DEFAULT_NO_CLOTH);
-			Optional<ResourceKey<ClothOverlayData>> overlay = Optional.ofNullable(clothPattern.get(AntiqueDataComponentTypes.CLOTH_OVERLAY_TYPE));
+			Optional<ResourceKey<ClothPatternData>> pattern = Optional.ofNullable(clothPattern.get(AntiqueDataComponentTypes.CLOTH_PATTERN_TYPE));
 
-			result.set(AntiqueDataComponentTypes.MYRIAD_TOOL, component.withCloth(cloth -> cloth.withOverlay(overlay)));
+			result.set(AntiqueDataComponentTypes.MYRIAD_TOOL, component.withCloth(cloth -> cloth.withPattern(pattern)));
 			result.set(CAComponents.BOOLEAN_PROPERTY, clothPattern.getOrDefault(CAComponents.BOOLEAN_PROPERTY, false));
 
 			return result;

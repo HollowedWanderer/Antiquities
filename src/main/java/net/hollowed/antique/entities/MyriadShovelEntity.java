@@ -9,9 +9,8 @@ import net.hollowed.antique.index.AntiqueEntities;
 import net.hollowed.antique.entities.parts.MyriadShovelPart;
 import net.hollowed.antique.index.AntiqueTrackedData;
 import net.hollowed.antique.util.resources.ClothInstance;
-import net.hollowed.antique.util.resources.ClothOverlayData;
+import net.hollowed.antique.util.resources.ClothPatternData;
 import net.hollowed.antique.util.resources.ClothSkinData;
-import net.hollowed.antique.util.resources.ColorProvider;
 import net.hollowed.antique.items.components.MyriadToolComponent;
 import net.hollowed.antique.util.interfaces.duck.ClothAccess;
 import net.hollowed.combatamenities.index.CAParticles;
@@ -19,7 +18,6 @@ import net.hollowed.combatamenities.util.items.CAComponents;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
-import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -81,12 +79,12 @@ public class MyriadShovelEntity extends AbstractArrow {
 		this.setPierceLevel((byte) 5);
 	}
 
-	public Optional<Integer> getDyeColor() {
+	public Optional<Integer> getClothColor() {
 		return this.entityData.get(ATTRIBUTES).cloth().flatMap(ClothInstance::clothColor);
 	}
 
-	public Optional<Integer> getOverlayColor() {
-		return this.entityData.get(ATTRIBUTES).cloth().flatMap(ClothInstance::overlayColor);
+	public Optional<Integer> getPatternColor() {
+		return this.entityData.get(ATTRIBUTES).cloth().flatMap(ClothInstance::patternColor);
 	}
 
 	public boolean getGlow() {
@@ -111,8 +109,8 @@ public class MyriadShovelEntity extends AbstractArrow {
 		return getAttributes().cloth().map(ClothInstance::cloth);
 	}
 
-	public Optional<ResourceKey<ClothOverlayData>> getPattern() {
-		return getAttributes().cloth().flatMap(ClothInstance::overlay);
+	public Optional<ResourceKey<ClothPatternData>> getPattern() {
+		return getAttributes().cloth().flatMap(ClothInstance::pattern);
 	}
 
 	public MyriadToolComponent getAttributes() {

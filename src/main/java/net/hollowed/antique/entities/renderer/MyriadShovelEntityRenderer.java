@@ -5,10 +5,7 @@ import net.fabricmc.api.Environment;
 import net.hollowed.antique.Antiquities;
 import net.hollowed.antique.client.renderer.cloth.ClothManager;
 import net.hollowed.antique.entities.MyriadShovelEntity;
-import net.hollowed.antique.index.AntiqueDataComponentTypes;
-import net.hollowed.antique.index.AntiqueItems;
-import net.hollowed.antique.items.components.MyriadToolComponent;
-import net.hollowed.antique.util.resources.ClothOverlayData;
+import net.hollowed.antique.util.resources.ClothPatternData;
 import net.hollowed.antique.util.resources.ClothSkinData;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.SubmitNodeCollector;
@@ -17,7 +14,6 @@ import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.item.ItemStackRenderState;
 import net.minecraft.client.renderer.state.CameraRenderState;
 import net.minecraft.client.renderer.texture.OverlayTexture;
-import net.minecraft.core.Holder;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -60,7 +56,7 @@ public class MyriadShovelEntityRenderer extends EntityRenderer<@NotNull MyriadSh
 					state.cloth.map(holder -> holder.unwrapKey().orElseThrow().identifier()),
 					state.pattern,
 					state.color,
-					state.overlayColor,
+					state.patternColor,
 					state.emissiveItem
 			));
 			 */
@@ -81,7 +77,7 @@ public class MyriadShovelEntityRenderer extends EntityRenderer<@NotNull MyriadSh
 							state.lightCoords,
 							state.glow,
 							new Color(state.color.orElse(ClothSkinData.DEFAULT_COLOR)),
-							new Color(state.overlayColor.orElse(0xFFFFFFFF)),
+							new Color(state.patternColor.orElse(0xFFFFFFFF)),
 							state.pattern
 					);
 				}
@@ -103,11 +99,11 @@ public class MyriadShovelEntityRenderer extends EntityRenderer<@NotNull MyriadSh
 		super.extractRenderState(entity, state, f);
 		state.entity = entity;
 		state.stack = entity.getPickupItemStackOrigin();
-		state.color = entity.getDyeColor();
-		state.overlayColor = entity.getOverlayColor();
+		state.color = entity.getClothColor();
+		state.patternColor = entity.getPatternColor();
 		state.isEnchanted = entity.isEnchanted();
 		state.glow = entity.getGlow();
 		state.cloth = ClothSkinData.getHolderFromKey(entity.getCloth(), entity.level());
-		state.pattern = ClothOverlayData.getHolderFromKey(entity.getPattern(), entity.level());
+		state.pattern = ClothPatternData.getHolderFromKey(entity.getPattern(), entity.level());
 	}
 }
