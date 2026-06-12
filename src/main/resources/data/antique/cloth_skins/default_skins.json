@@ -347,10 +347,10 @@
           "type": "antique:typho_spark"
         },
         "chance": 0.01,
-        "distance": 0.01,
-        "velocity": 0.01,
-        "waterChance": 0.2,
-        "waterDistance": 0.01,
+        "distance": 0.25,
+        "velocity": 0.005,
+        "waterChance": 0.1,
+        "waterDistance": 0.25,
         "waterVelocity": 0.05
       },
       "width": 0.166,
