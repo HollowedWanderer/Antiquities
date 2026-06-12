@@ -27,7 +27,7 @@ public record ClothSkinData(
                 Codec.FLOAT.optionalFieldOf("length", 1.4F).forGetter(ClothSubData::length),
                 Codec.FLOAT.optionalFieldOf("width", 0.1F).forGetter(ClothSubData::width),
                 Codec.FLOAT.optionalFieldOf("gravity", 1.0F).forGetter(ClothSubData::gravity),
-                Codec.FLOAT.optionalFieldOf("water_gravity", -0.5F).forGetter(ClothSubData::waterGravity),
+                Codec.FLOAT.optionalFieldOf("waterGravity", -0.5F).forGetter(ClothSubData::waterGravity),
                 Codec.INT.optionalFieldOf("bodies", 8).forGetter(ClothSubData::bodyAmount),
                 Codec.INT.optionalFieldOf("light", 0).forGetter(ClothSubData::light),
                 Codec.BOOL.optionalFieldOf("emissiveItem", false).forGetter(ClothSubData::emissiveItem),
