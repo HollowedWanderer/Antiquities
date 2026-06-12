@@ -42,7 +42,7 @@ public class SatchelPacketReceiver {
                     if (!currentSatchelStack.isEmpty()) {
                         if (currentHotbarStack.getItem() instanceof MyriadToolItem && !MyriadToolItem.isInvalidItem(currentSatchelStack)) {
                             myriadItem = MyriadToolItem.getStoredStack(currentHotbarStack);
-                            MyriadToolItem.setStoredStack(currentHotbarStack, currentSatchelStack);
+                            MyriadToolItem.setToolBit(currentHotbarStack, currentSatchelStack);
                             player.level().playSound(null, player.blockPosition(), SoundEvents.BUNDLE_REMOVE_ONE, SoundSource.PLAYERS, 1.0F, 1.0F);
                         } else {
                             List<ItemStack> storedStacks = new ArrayList<>(SatchelItem.getStoredStacks(satchelInventory));
@@ -64,10 +64,10 @@ public class SatchelPacketReceiver {
                             if (currentSatchelStack.isEmpty()) {
                                 playerInventory.removeItemNoUpdate(currentHotbarSlot);
                             } else {
-                                MyriadToolItem.setStoredStack(currentHotbarStack, ItemStack.EMPTY);
+                                MyriadToolItem.setToolBit(currentHotbarStack, ItemStack.EMPTY);
                             }
                         } else {
-                            MyriadToolItem.setStoredStack(currentHotbarStack, ItemStack.EMPTY);
+                            MyriadToolItem.setToolBit(currentHotbarStack, ItemStack.EMPTY);
                         }
                     } else {
                         playerInventory.removeItemNoUpdate(currentHotbarSlot);

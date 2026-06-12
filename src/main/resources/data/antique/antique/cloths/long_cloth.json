@@ -1,5 +1,5 @@
 {
-  "model": "antique:long_cloth",
+  "shape": "long",
   "length": 2.8,
   "bodies": 16,
   "dyeable": true,

@@ -13,8 +13,8 @@ import net.hollowed.antique.Antiquities;
 import net.hollowed.antique.index.AntiqueDataComponentTypes;
 import net.hollowed.antique.index.AntiqueItemTags;
 import net.hollowed.antique.items.components.MyriadToolComponent;
-import net.hollowed.antique.util.resources.ClientClothData;
-import net.hollowed.antique.util.resources.ClothSkin;
+import net.hollowed.antique.util.resources.ClothInstance;
+import net.hollowed.antique.util.resources.ClothSkinData;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.color.item.ItemTintSource;
 import net.minecraft.client.color.item.ItemTintSources;
@@ -182,7 +182,7 @@ public class MyriadClothItemModel implements ItemModel {
 			ItemStack stack,
 			@NotNull ItemModelResolver resolver,
 			@NotNull ItemDisplayContext displayContext,
-			@Nullable ClientLevel world,
+			@Nullable ClientLevel level,
 			@Nullable ItemOwner heldItemContext,
 			int seed
 	) {
@@ -191,7 +191,7 @@ public class MyriadClothItemModel implements ItemModel {
 
 		MyriadToolComponent component = stack.getOrDefault(AntiqueDataComponentTypes.MYRIAD_TOOL, MyriadToolComponent.DEFAULT_NO_CLOTH);
 
-		Identifier modelVariantId = component.clothType().orElseGet(() -> Antiquities.id("empty"));
+		Identifier modelVariantId = component.cloth().map(cloth -> cloth.cloth().identifier()).orElseGet(() -> Antiquities.id("empty"));
 
 		state.appendModelIdentityElement(modelVariantId);
 
@@ -230,17 +230,17 @@ public class MyriadClothItemModel implements ItemModel {
 		this.settings.applyToLayer(tintLayer, displayContext);
 
 		if (selected != null && selected.length > 0) {
-			List<BakedQuad> newQuads = getNewQuads(selected, component.emissiveItem() ? List.of(15) : List.of());
+			List<BakedQuad> newQuads = getNewQuads(selected, component.cloth().flatMap(cloth -> Optional.ofNullable(level).map(level1 -> ClothSkinData.get(cloth.cloth(), level1).emissiveItem())).orElse(false) ? List.of(15) : List.of());
 			tintLayer.prepareQuadList().addAll(newQuads);
 		}
 
-		if (world != null && ClothSkin.get(Optional.of(modelVariantId), world.registryAccess()).dyeable()
+		if (level != null && ClothSkinData.get(Optional.of(modelVariantId), level).dyeable()
 				|| tintLayer.prepareQuadList().isEmpty()
 				|| isFallback) {
 			int n = this.tints.size();
 			int[] t = tintLayer.prepareTintLayers(n);
 			for (int i = 0; i < n; i++) {
-				int c = this.tints.get(i).calculate(stack, world, heldItemContext == null ? null : heldItemContext.asLivingEntity());
+				int c = this.tints.get(i).calculate(stack, level, heldItemContext == null ? null : heldItemContext.asLivingEntity());
 				t[i] = c;
 				state.appendModelIdentityElement(c);
 			}

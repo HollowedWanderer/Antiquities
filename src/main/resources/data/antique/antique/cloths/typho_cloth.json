@@ -1,5 +1,4 @@
 {
-  "model": "antique:typho_cloth",
   "color": {
     "type": "antique:sprite_animated",
     "frames": [
@@ -51,7 +50,7 @@
   "length": 2.4,
   "gravity": 0,
   "waterGravity": 0,
-  "bodies": 16,
+  "bodies": 8,
   "emissiveLayer": true,
   "emissiveItem": true
 }

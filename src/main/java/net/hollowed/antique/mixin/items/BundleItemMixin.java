@@ -80,7 +80,7 @@ public abstract class BundleItemMixin extends Item {
                         ItemStack toolBitStack = mutable.removeOne();
 
                         if (toolBitStack != null) {
-                            MyriadToolItem.setStoredStack(itemStack2, toolBitStack);
+                            MyriadToolItem.setToolBit(itemStack2, toolBitStack);
                             playRemoveOneSound(player);
                             if (!replacementStack.isEmpty() && !(slot.allowModification(player) && mutable.tryInsert(replacementStack) > 0)) {
                                 playInsertFailSound(player);
@@ -92,7 +92,7 @@ public abstract class BundleItemMixin extends Item {
                         cir.setReturnValue(true);
                     } else if (!replacementStack.isEmpty()) {
                         if (slot.allowModification(player) && mutable.tryInsert(replacementStack) > 0) {
-                            MyriadToolItem.setStoredStack(itemStack2, ItemStack.EMPTY);
+                            MyriadToolItem.setToolBit(itemStack2, ItemStack.EMPTY);
                             playInsertSound(player);
                         } else {
                             playInsertFailSound(player);

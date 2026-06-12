@@ -11,10 +11,7 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.hollowed.antique.Antiquities;
-import net.hollowed.antique.index.AntiqueDataComponentTypes;
-import net.hollowed.antique.items.components.MyriadToolComponent;
-import net.hollowed.antique.util.resources.ClientClothData;
-import net.hollowed.antique.util.resources.ClothSkin;
+import net.hollowed.antique.util.resources.ClothSkinData;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.color.item.ItemTintSource;
 import net.minecraft.client.color.item.ItemTintSources;
@@ -168,7 +165,7 @@ public class ClothItemModel implements ItemModel {
 			ItemStack stack,
 			@NotNull ItemModelResolver resolver,
 			@NotNull ItemDisplayContext displayContext,
-			@Nullable ClientLevel world,
+			@Nullable ClientLevel level,
 			@Nullable ItemOwner heldItemContext,
 			int seed
 	) {
@@ -200,11 +197,11 @@ public class ClothItemModel implements ItemModel {
 			Collections.addAll(layerRenderState.prepareQuadList(), selected);
 		}
 
-		if (world != null && ClothSkin.get(Optional.of(Identifier.parse(modelVariantId)), world.registryAccess()).dyeable()) {
+		if (level != null && ClothSkinData.get(Optional.of(Identifier.parse(modelVariantId)), level).dyeable()) {
 			int n = this.tints.size();
 			int[] t = layerRenderState.prepareTintLayers(n);
 			for (int i = 0; i < n; i++) {
-				int c = this.tints.get(i).calculate(stack, world, heldItemContext == null ? null : heldItemContext.asLivingEntity());
+				int c = this.tints.get(i).calculate(stack, level, heldItemContext == null ? null : heldItemContext.asLivingEntity());
 				t[i] = c;
 				state.appendModelIdentityElement(c);
 			}

@@ -7,11 +7,14 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import java.util.List;
 import java.util.Optional;
 
+import net.hollowed.antique.Antiquities;
 import net.hollowed.antique.index.AntiqueDataComponentTypes;
 import net.hollowed.antique.index.AntiqueItems;
 import net.hollowed.antique.index.AntiqueRecipeSerializer;
 import net.hollowed.antique.index.AntiqueRegistries;
 import net.hollowed.antique.items.components.MyriadToolComponent;
+import net.hollowed.antique.util.resources.ClothOverlayData;
+import net.hollowed.antique.util.resources.ClothSkinData;
 import net.hollowed.combatamenities.util.items.CAComponents;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.NonNullList;
@@ -22,6 +25,7 @@ import net.minecraft.network.chat.contents.TranslatableContents;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.DyedItemColor;
@@ -95,17 +99,19 @@ public class ClothPatternOnToolRecipe implements CraftingRecipe {
 		if (craftingRecipeInput.ingredientCount() != this.ingredients.size()) {
 			return false;
 		} else {
-			if (world instanceof ServerLevel serverWorld) {
+			if (world instanceof ServerLevel) {
 				for (ItemStack stack : craftingRecipeInput.items()) {
 					boolean overlay = stack.getOrDefault(AntiqueDataComponentTypes.MYRIAD_TOOL, MyriadToolComponent.DEFAULT_NO_CLOTH)
-							.clothType()
-							.map(clothType ->
+							.cloth()
+							.map(cloth ->
 									world.registryAccess()
 											.lookupOrThrow(AntiqueRegistries.CLOTHS)
-											.get(clothType)
-											.orElseThrow(() -> new NullPointerException("Nonexistent cloth type " + clothType))
-											.value()
-											.overlay()
+											.get(cloth.cloth())
+											.map(skin -> skin.value().overlay())
+											.orElseGet(() -> {
+												Antiquities.LOGGER.error("Nonexistent cloth type {}", cloth.cloth().identifier());
+												return false;
+											})
 							)
 							.orElse(false);
 
@@ -134,30 +140,16 @@ public class ClothPatternOnToolRecipe implements CraftingRecipe {
 
 		if (myriadTool != null && clothPattern != null) {
 			ItemStack result = myriadTool.copy();
-			String pattern = "item.antique.cloth_pattern";
-			Component text = clothPattern.getOrDefault(DataComponents.ITEM_NAME, Component.translatable("item.antique.cloth_pattern"));
-			if (text.getContents() instanceof TranslatableContents translatable) {
-				pattern = translatable.getKey();
-			}
-			pattern = pattern.substring(pattern.indexOf(".") + 1);
-			pattern = pattern.replace(".", ":");
-			pattern = pattern.substring(0, pattern.indexOf("_"));
 
 			MyriadToolComponent component = result.getOrDefault(AntiqueDataComponentTypes.MYRIAD_TOOL, MyriadToolComponent.DEFAULT_NO_CLOTH);
+			Optional<ResourceKey<ClothOverlayData>> overlay = Optional.ofNullable(clothPattern.get(AntiqueDataComponentTypes.CLOTH_OVERLAY_TYPE));
 
-			result.set(AntiqueDataComponentTypes.MYRIAD_TOOL, new MyriadToolComponent(
-					component.toolBit(),
-					component.clothType(),
-					Optional.of(Identifier.parse(pattern)),
-					component.clothColor(),
-					clothPattern.getOrDefault(DataComponents.DYED_COLOR, new DyedItemColor(0xFFFFFF)).rgb(),
-					component.emissiveItem()
-			));
-
+			result.set(AntiqueDataComponentTypes.MYRIAD_TOOL, component.withCloth(cloth -> cloth.withOverlay(overlay)));
 			result.set(CAComponents.BOOLEAN_PROPERTY, clothPattern.getOrDefault(CAComponents.BOOLEAN_PROPERTY, false));
 
 			return result;
 		}
+
 		return ItemStack.EMPTY;
 	}
 
@@ -170,7 +162,7 @@ public class ClothPatternOnToolRecipe implements CraftingRecipe {
 						)
 						.apply(instance, ClothPatternOnToolRecipe::new)
 		);
-		public static final StreamCodec<RegistryFriendlyByteBuf, ClothPatternOnToolRecipe> PACKET_CODEC = StreamCodec.composite(
+		public static final StreamCodec<RegistryFriendlyByteBuf, ClothPatternOnToolRecipe> STREAM_CODEC = StreamCodec.composite(
 				ByteBufCodecs.STRING_UTF8,
 				recipe -> recipe.group,
 				CraftingBookCategory.STREAM_CODEC,
@@ -187,7 +179,7 @@ public class ClothPatternOnToolRecipe implements CraftingRecipe {
 
 		@Override
 		public @NotNull StreamCodec<RegistryFriendlyByteBuf, ClothPatternOnToolRecipe> streamCodec() {
-			return PACKET_CODEC;
+			return STREAM_CODEC;
 		}
 	}
 }

@@ -7,7 +7,7 @@ import net.minecraft.network.syncher.EntityDataSerializer;
 
 public class AntiqueTrackedData {
 
-    public static final EntityDataSerializer<MyriadToolComponent> MYRIAD_ATTRIBUTES = EntityDataSerializer.forValueType(MyriadToolComponent.PACKET_CODEC);
+    public static final EntityDataSerializer<MyriadToolComponent> MYRIAD_ATTRIBUTES = EntityDataSerializer.forValueType(MyriadToolComponent.STREAM_CODEC);
 
     public static void initialize() {
         FabricTrackedDataRegistry.register(Antiquities.id("myriad_tool_attributes"), MYRIAD_ATTRIBUTES);

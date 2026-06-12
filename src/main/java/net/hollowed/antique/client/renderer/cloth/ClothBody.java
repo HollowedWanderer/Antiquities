@@ -42,8 +42,8 @@ public class ClothBody {
 
         double delta = restLength - dist;
 
-        // Normalize the axis and scale by delta * 0.5 for even correction
-        Vector3d correction = axis.normalize().mul(delta * 0.25);
+        // Normalize the axis and scale by delta for even correction
+        Vector3d correction = axis.normalize().mul(delta);
 
         // Apply the correction
 //        if (!isPinned) pos.add(correction);

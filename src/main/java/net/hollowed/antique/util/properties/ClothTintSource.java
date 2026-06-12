@@ -4,6 +4,7 @@ import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.hollowed.antique.index.AntiqueDataComponentTypes;
 import net.hollowed.antique.items.components.MyriadToolComponent;
+import net.hollowed.antique.util.resources.ClothInstance;
 import net.minecraft.client.color.item.ItemTintSource;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.util.ARGB;
@@ -27,7 +28,7 @@ public record ClothTintSource(int defaultColor) implements ItemTintSource {
 	public int calculate(ItemStack stack, @Nullable ClientLevel world, @Nullable LivingEntity user) {
 		MyriadToolComponent component = stack.get(AntiqueDataComponentTypes.MYRIAD_TOOL);
 		return component != null
-			? ARGB.opaque(component.clothColor().getColorClient())
+			? ARGB.opaque(component.cloth().flatMap(ClothInstance::clothColor).orElse(0xFFFFFF))
 			: ARGB.opaque(this.defaultColor);
 	}
 

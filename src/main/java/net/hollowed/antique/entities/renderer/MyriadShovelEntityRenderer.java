@@ -8,8 +8,8 @@ import net.hollowed.antique.entities.MyriadShovelEntity;
 import net.hollowed.antique.index.AntiqueDataComponentTypes;
 import net.hollowed.antique.index.AntiqueItems;
 import net.hollowed.antique.items.components.MyriadToolComponent;
-import net.hollowed.antique.util.resources.ClientClothData;
-import net.hollowed.antique.util.resources.ClothSkin;
+import net.hollowed.antique.util.resources.ClothOverlayData;
+import net.hollowed.antique.util.resources.ClothSkinData;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.entity.EntityRenderer;
@@ -54,6 +54,7 @@ public class MyriadShovelEntityRenderer extends EntityRenderer<@NotNull MyriadSh
 
 		if (state.entity instanceof MyriadShovelEntity entity) {
 			ItemStack shovel = entity.getPickupItemStackOrigin();
+			/*
 			shovel.set(AntiqueDataComponentTypes.MYRIAD_TOOL, new MyriadToolComponent(
 					AntiqueItems.MYRIAD_SHOVEL_HEAD.getDefaultInstance(),
 					state.cloth.map(holder -> holder.unwrapKey().orElseThrow().identifier()),
@@ -62,27 +63,29 @@ public class MyriadShovelEntityRenderer extends EntityRenderer<@NotNull MyriadSh
 					state.overlayColor,
 					state.emissiveItem
 			));
+			 */
 
 			ItemStackRenderState stackRenderState = new ItemStackRenderState();
 			Minecraft.getInstance().getItemModelResolver().appendItemLayers(stackRenderState, shovel, ItemDisplayContext.FIRST_PERSON_RIGHT_HAND, Minecraft.getInstance().level, null, 1);
 			stackRenderState.submit(matrixStack, queue, state.lightCoords, OverlayTexture.NO_OVERLAY, 0);
 
-			ClothSkin data = state.cloth.map(Holder::value).orElse(ClothSkin.DEFAULT);
+			state.cloth.ifPresent(cloth -> {
+				ClothManager manager = ClothManager.getOrCreate(entity, Antiquities.id("spade"), cloth.value());
 
-			ClothManager manager = ClothManager.getOrCreate(entity, Antiquities.id("spade"), data);
-			if(manager != null) {
-				matrixStack.translate(0.05, 0.3, 0.1);
-				manager.renderCloth(
-						data,
-						matrixStack,
-						queue,
-						state.lightCoords,
-						state.glow,
-						new Color(state.color.getColorClient()),
-						new Color(state.overlayColor),
-						state.pattern
-				);
-			}
+				if (manager != null) {
+					matrixStack.translate(0.05, 0.3, 0.1);
+					manager.renderCloth(
+							cloth,
+							matrixStack,
+							queue,
+							state.lightCoords,
+							state.glow,
+							new Color(state.color.orElse(ClothSkinData.DEFAULT_COLOR)),
+							new Color(state.overlayColor.orElse(0xFFFFFFFF)),
+							state.pattern
+					);
+				}
+			});
 		}
 		matrixStack.popPose();
 	}
@@ -104,8 +107,7 @@ public class MyriadShovelEntityRenderer extends EntityRenderer<@NotNull MyriadSh
 		state.overlayColor = entity.getOverlayColor();
 		state.isEnchanted = entity.isEnchanted();
 		state.glow = entity.getGlow();
-		state.cloth = ClothSkin.getHolder(entity.getCloth(), entity.level());
-		state.pattern = entity.getPattern();
-		state.emissiveItem = entity.getEmissiveItem();
+		state.cloth = ClothSkinData.getHolderFromKey(entity.getCloth(), entity.level());
+		state.pattern = ClothOverlayData.getHolderFromKey(entity.getPattern(), entity.level());
 	}
 }

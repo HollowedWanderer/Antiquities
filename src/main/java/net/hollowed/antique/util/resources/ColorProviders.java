@@ -1,4 +1,4 @@
-package net.hollowed.antique.items.components;
+package net.hollowed.antique.util.resources;
 
 import com.mojang.datafixers.util.Either;
 import com.mojang.serialization.Codec;

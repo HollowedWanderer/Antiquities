@@ -18,6 +18,7 @@ import net.hollowed.antique.networking.*;
 import net.hollowed.antique.util.interfaces.duck.ClothAccess;
 import net.hollowed.antique.util.models.*;
 import net.hollowed.antique.util.properties.*;
+import net.hollowed.antique.util.resources.ClothSkinData;
 import net.hollowed.combatamenities.util.items.CAComponents;
 import net.minecraft.client.color.item.ItemTintSources;
 import net.minecraft.client.gui.screens.MenuScreens;
@@ -207,21 +208,20 @@ public class AntiquitiesClient implements ClientModInitializer {
 
                 list.add(1, line);
 
-                component.clothType().ifPresent(id -> {
-                    String clothName = id.toLanguageKey();
-                    Component cloth = Component.literal(" - ").append(Component.translatable("item." + clothName)).withColor(new Color(component.clothColor().getColorClient()).brighter().getRGB());
-                    list.add(2, cloth);
-                });
+                component.cloth().ifPresent(cloth -> {
+                    String clothName = cloth.cloth().identifier().toLanguageKey();
+                    list.add(2, Component.literal(" - ").append(Component.translatable("item." + clothName)).withColor(new Color(cloth.clothColor().orElse(ClothSkinData.DEFAULT_COLOR)).brighter().getRGB()));
 
-                component.clothPattern().ifPresent(id -> {
-                    String patternName = id.toLanguageKey();
-                    Component pattern = Component.literal(" - ").append(Component.translatable("item." + patternName + "_cloth_pattern")).withColor(new Color(component.patternColor()).brighter().getRGB());
+                    cloth.overlay().ifPresent(overlay -> {
+                        String patternName = overlay.identifier().toLanguageKey();
+                        Component pattern = Component.literal(" - ").append(Component.translatable("item." + patternName + "_cloth_pattern")).withColor(new Color(cloth.overlayColor().orElse(ClothSkinData.DEFAULT_COLOR)).brighter().getRGB());
 
-                    if (itemStack.getOrDefault(CAComponents.BOOLEAN_PROPERTY, false)) {
-                        pattern = pattern.copy().append(Component.literal(" - ").withColor(0xff4adbb8)).append(Component.translatable("item.antique.glowing").withColor(0xff4adbb8));
-                    }
+                        if (itemStack.getOrDefault(CAComponents.BOOLEAN_PROPERTY, false)) {
+                            pattern = pattern.copy().append(Component.literal(" - ").withColor(0xff4adbb8)).append(Component.translatable("item.antique.glowing").withColor(0xff4adbb8));
+                        }
 
-                    list.add(3, pattern);
+                        list.add(3, pattern);
+                    });
                 });
             }
             if (itemStack.is(AntiqueItems.CLOTH_PATTERN)) {

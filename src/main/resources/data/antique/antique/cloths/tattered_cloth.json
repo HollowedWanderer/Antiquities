@@ -1,5 +1,5 @@
 {
-  "model": "antique:tattered_cloth",
+  "shape": "tattered",
   "dyeable": true,
   "overlay": true
 }

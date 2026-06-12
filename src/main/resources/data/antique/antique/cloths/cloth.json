@@ -1,5 +1,5 @@
 {
-  "model": "antique:cloth",
+  "shape": "default",
   "dyeable": true,
   "overlay": true
 }

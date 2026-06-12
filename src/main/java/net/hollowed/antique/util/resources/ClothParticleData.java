@@ -1,4 +1,4 @@
-package net.hollowed.antique.items.components;
+package net.hollowed.antique.util.resources;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
