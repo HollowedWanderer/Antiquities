@@ -2,6 +2,7 @@ package net.hollowed.antique.particles;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.hollowed.antique.index.AntiqueParticles;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.particle.Particle;
 import net.minecraft.client.particle.ParticleProvider;
@@ -9,17 +10,21 @@ import net.minecraft.client.particle.SingleQuadParticle;
 import net.minecraft.client.particle.SpriteSet;
 import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import net.minecraft.core.particles.ParticleOptions;
+import net.minecraft.core.particles.ParticleType;
 import net.minecraft.core.particles.SimpleParticleType;
 import net.minecraft.util.RandomSource;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jspecify.annotations.NonNull;
 
+import java.util.Optional;
+
 @Environment(EnvType.CLIENT)
 public class TyphoSparkParticle extends SingleQuadParticle {
 
-	TyphoSparkParticle(ClientLevel world, double x, double y, double z, double velocityX, double velocityY, double velocityZ, TextureAtlasSprite textureAtlasSprite) {
-		super(world, x, y, z, textureAtlasSprite);
+	TyphoSparkParticle(ClientLevel world, double x, double y, double z, double velocityX, double velocityY, double velocityZ, TextureAtlasSprite sprite) {
+		super(world, x, y, z, sprite);
 		this.lifetime = this.random.nextInt(2) + 2;
 		this.gravity = 0;
 		this.scale(1F);
@@ -57,7 +62,17 @@ public class TyphoSparkParticle extends SingleQuadParticle {
 	}
 
 	@Environment(EnvType.CLIENT)
-	public static class Factory implements ParticleProvider<@NotNull SimpleParticleType> {
+	public record Options(
+			Optional<Integer> sprite
+	) implements ParticleOptions {
+		@Override
+		public @NonNull ParticleType<?> getType() {
+			return AntiqueParticles.TYPHO_SPARK;
+		}
+	}
+
+	@Environment(EnvType.CLIENT)
+	public static class Factory implements ParticleProvider<@NotNull Options> {
 		private final SpriteSet spriteProvider;
 
 		public Factory(SpriteSet spriteProvider) {
@@ -65,8 +80,8 @@ public class TyphoSparkParticle extends SingleQuadParticle {
 		}
 
 		@Override
-		public @Nullable Particle createParticle(@NonNull SimpleParticleType parameters, @NotNull ClientLevel world, double x, double y, double z, double velocityX, double velocityY, double velocityZ, @NotNull RandomSource random) {
-            return new TyphoSparkParticle(world, x, y, z, velocityX, velocityY, velocityZ, this.spriteProvider.get(random));
+		public @Nullable Particle createParticle(@NonNull Options parameters, @NotNull ClientLevel world, double x, double y, double z, double velocityX, double velocityY, double velocityZ, @NotNull RandomSource random) {
+            return new TyphoSparkParticle(world, x, y, z, velocityX, velocityY, velocityZ, parameters.sprite.map(i -> spriteProvider.get(i, 7)).orElseGet(() -> spriteProvider.get(random)));
 		}
 	}
 }

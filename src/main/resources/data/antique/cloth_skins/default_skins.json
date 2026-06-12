@@ -347,17 +347,17 @@
           "type": "antique:typho_spark"
         },
         "chance": 0.01,
-        "distance": 0.25,
+        "distance": 0.2,
         "velocity": 0.005,
-        "waterChance": 0.1,
-        "waterDistance": 0.25,
-        "waterVelocity": 0.05
+        "waterChance": 0.15,
+        "waterDistance": 0.2,
+        "waterVelocity": 0.025
       },
-      "width": 0.166,
-      "length": 2.1,
+      "width": 0.2,
+      "length": 2.4,
       "gravity": 0,
       "waterGravity": 0,
-      "bodies": 12,
+      "bodies": 16,
       "emissiveLayer": true,
       "emissiveItem": true
     }

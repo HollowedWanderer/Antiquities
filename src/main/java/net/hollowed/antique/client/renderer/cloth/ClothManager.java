@@ -5,8 +5,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import net.hollowed.antique.Antiquities;
 import net.hollowed.antique.AntiquitiesClient;
 import net.hollowed.antique.entities.parts.MyriadShovelPart;
+import net.hollowed.antique.index.AntiqueParticles;
+import net.hollowed.antique.items.components.ColorProvider;
+import net.hollowed.antique.mixin.accessors.SpriteContentsAnimationStateAccessor;
+import net.hollowed.antique.particles.TyphoSparkParticle;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.world.level.Level;
@@ -175,7 +180,8 @@ public class ClothManager {
 
     public void tickParticles(Level level) {
         data.particleData().ifPresent(data -> {
-            for (ClothBody body : bodies) {
+            for (int i = 0; i < bodies.size(); i++) {
+                ClothBody body = bodies.get(i);
                 boolean water = level.getFluidState(BlockPos.containing(body.pos.x, body.pos.y, body.pos.z)).is(FluidTags.WATER);
                 ParticleOptions particle = data.particle();
                 float chance = data.chance();
@@ -190,18 +196,30 @@ public class ClothManager {
                 }
 
                 if (level.random.nextFloat() < chance) {
-                    double x = (level.random.nextDouble() * 2 - 1);
-                    double y = (level.random.nextDouble() * 2 - 1);
-                    double z = (level.random.nextDouble() * 2 - 1);
+                    Vector3d pos = new Vector3d(
+                            level.random.nextDouble() * 2 - 1,
+                            level.random.nextDouble() * 2 - 1,
+                            level.random.nextDouble() * 2 - 1
+                    ).normalize();
+
+                    if (particle.getType() == AntiqueParticles.TYPHO_SPARK) {
+                        SpriteContentsAnimationStateAccessor accessor = ColorProvider.SpriteAnimated.findAnimationState(
+                                AntiquitiesClient.CLOTHS_ATLAS,
+                                Antiquities.id("cloth/typho_cloth_emissive")
+                        );
+                        particle = new TyphoSparkParticle.Options(
+                                Optional.of((int) (((float) i / bodies.size() + (23 - accessor.antique$getFrame()) / 23f) * 8) % 8)
+                        );
+                    }
 
                     level.addParticle(
                             particle,
-                            body.pos.x + x * distance,
-                            body.pos.y + y * distance,
-                            body.pos.z + z * distance,
-                            x * velocity,
-                            y * velocity,
-                            z * velocity
+                            body.pos.x + pos.x * distance,
+                            body.pos.y + pos.y * distance,
+                            body.pos.z + pos.z * distance,
+                            pos.x * velocity,
+                            pos.y * velocity,
+                            pos.z * velocity
                     );
                 }
             }
