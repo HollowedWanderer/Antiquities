@@ -7,7 +7,7 @@ import net.hollowed.antique.index.AntiqueItems;
 import net.hollowed.antique.items.components.MyriadToolComponent;
 import net.hollowed.antique.util.interfaces.duck.ArmedRenderStateAccess;
 import net.hollowed.antique.util.resources.ClientClothData;
-import net.hollowed.antique.util.resources.ClothSkinData;
+import net.hollowed.antique.util.resources.ClothSkin;
 import net.hollowed.combatamenities.util.items.CAComponents;
 import net.minecraft.client.model.ArmedModel;
 import net.minecraft.client.model.EntityModel;
@@ -67,7 +67,7 @@ public abstract class HeldItemRendererMixin<S extends ArmedEntityRenderState, M 
             if (entity instanceof LivingEntity living) {
                 ItemStack stack = living.getItemHeldByArm(arm);
 
-                ClothSkinData.ClothSubData data = ClientClothData.getTransform(stack.getOrDefault(AntiqueDataComponentTypes.MYRIAD_TOOL, MyriadToolComponent.DEFAULT_NO_CLOTH).clothType());
+                ClothSkin data = ClientClothData.getTransform(stack.getOrDefault(AntiqueDataComponentTypes.MYRIAD_TOOL, MyriadToolComponent.DEFAULT_NO_CLOTH).clothType());
                 Object name = stack.getOrDefault(DataComponents.CUSTOM_NAME, "");
                 if (stack.is(AntiqueItems.MYRIAD_TOOL) && !(name.equals(Component.literal("Perfected Staff")) || name.equals(Component.literal("Orb Staff")) || name.equals(Component.literal("Lapis Staff")))) {
                     manager = arm == HumanoidArm.RIGHT ? ClothManager.getOrCreate(entity, Antiquities.id(entity.getId() + "_right_arm"), data) : ClothManager.getOrCreate(entity, Antiquities.id(entity.getId() + "_left_arm"), data);

@@ -6,8 +6,8 @@ import net.hollowed.antique.index.AntiqueScreenHandlerType;
 import net.hollowed.antique.items.MyriadToolItem;
 import net.hollowed.antique.items.components.ColorProvider;
 import net.hollowed.antique.items.components.MyriadToolComponent;
-import net.hollowed.antique.util.resources.ClothSkinData;
 import net.hollowed.antique.util.resources.ClothSkinListener;
+import net.hollowed.antique.util.resources.ClothSkin;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.world.Container;
@@ -64,7 +64,7 @@ public class DyeingScreenHandler extends AbstractContainerMenu {
 			@Override
 			public boolean mayPlace(@NotNull ItemStack stack) {
 				if (stack.is(AntiqueItems.MYRIAD_TOOL)) {
-					ClothSkinData.ClothSubData data = ClothSkinListener.getTransform(stack.getOrDefault(AntiqueDataComponentTypes.MYRIAD_TOOL, MyriadToolComponent.DEFAULT_NO_CLOTH).clothType());
+					ClothSkin data = ClothSkinListener.getTransform(stack.getOrDefault(AntiqueDataComponentTypes.MYRIAD_TOOL, MyriadToolComponent.DEFAULT_NO_CLOTH).clothType());
 					return data.dyeable();
 				}
 				return stack.is(ItemTags.DYEABLE);

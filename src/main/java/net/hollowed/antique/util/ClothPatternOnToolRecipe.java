@@ -20,7 +20,8 @@ import net.hollowed.antique.index.AntiqueDataComponentTypes;
 import net.hollowed.antique.index.AntiqueItems;
 import net.hollowed.antique.index.AntiqueRecipeSerializer;
 import net.hollowed.antique.items.components.MyriadToolComponent;
-import net.hollowed.antique.util.resources.ClothSkinData;
+import net.hollowed.antique.util.resources.ClothSkins;
+import net.hollowed.antique.util.resources.ClothSkin;
 import net.hollowed.combatamenities.util.items.CAComponents;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.NonNullList;
@@ -52,7 +53,7 @@ public class ClothPatternOnToolRecipe implements CraftingRecipe {
 	final List<Ingredient> ingredients;
 	@Nullable
 	private PlacementInfo ingredientPlacement;
-	public static final Map<String, ClothSkinData.ClothSubData> TRANSFORMS = new LinkedHashMap<>();
+	public static final Map<String, ClothSkin> TRANSFORMS = new LinkedHashMap<>();
 
 	public ClothPatternOnToolRecipe(String group, CraftingBookCategory category, List<Ingredient> ingredients) {
 		this.group = group;
@@ -103,8 +104,8 @@ public class ClothPatternOnToolRecipe implements CraftingRecipe {
 	}
 
 	@SuppressWarnings("all")
-	public static ClothSkinData.ClothSubData getTransform(Optional<Identifier> id) {
-		return id.map(i -> TRANSFORMS.getOrDefault(i, ClothSkinData.DEFAULT)).orElse(ClothSkinData.DEFAULT);
+	public static ClothSkin getTransform(Optional<Identifier> id) {
+		return id.map(i -> TRANSFORMS.getOrDefault(i, ClothSkin.DEFAULT)).orElse(ClothSkin.DEFAULT);
 	}
 
 	@SuppressWarnings("all")
@@ -118,10 +119,10 @@ public class ClothPatternOnToolRecipe implements CraftingRecipe {
 					if (manager.getResource(id).isPresent()) {
 						try (InputStream stream = manager.getResource(id).get().open()) {
 							JsonObject json = GsonHelper.parse(new InputStreamReader(stream, StandardCharsets.UTF_8));
-							DataResult<ClothSkinData> result = ClothSkinData.CODEC.parse(JsonOps.INSTANCE, json);
+							DataResult<ClothSkins> result = ClothSkins.CODEC.parse(JsonOps.INSTANCE, json);
 
 							result.resultOrPartial(Antiquities.LOGGER::error).ifPresent(data -> {
-								for (ClothSkinData.ClothSubData entry : data.list()) {
+								for (ClothSkin entry : data.list()) {
 									TRANSFORMS.putIfAbsent(entry.model().orElseThrow().getPath(), entry);
 								}
 							});

@@ -12,6 +12,7 @@ import net.hollowed.antique.index.AntiqueParticles;
 import net.hollowed.antique.items.components.ColorProvider;
 import net.hollowed.antique.mixin.accessors.SpriteContentsAnimationStateAccessor;
 import net.hollowed.antique.particles.TyphoSparkParticle;
+import net.hollowed.antique.util.resources.ClothSkin;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.world.level.Level;
@@ -24,7 +25,6 @@ import org.joml.Vector4f;
 import com.mojang.blaze3d.vertex.PoseStack;
 
 import net.hollowed.antique.util.interfaces.duck.ClothAccess;
-import net.hollowed.antique.util.resources.ClothSkinData;
 import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
@@ -49,18 +49,18 @@ public class ClothManager {
     public ArrayList<ClothBody> bodies = new ArrayList<>();
     private int bodyCountCooldown = 0;
     public Entity entity;
-    public ClothSkinData.ClothSubData data;
+    public ClothSkin data;
     public boolean render = false;
     public boolean particles = false;
 
     private List<Entity> collisionEntities = List.of();
     private long prevTime;
 
-    public ClothManager(Vector3d pos, int BodyCount, ClothSkinData.ClothSubData data) {
+    public ClothManager(Vector3d pos, int BodyCount, ClothSkin data) {
         reset(pos, BodyCount, data);
     }
 
-    public void reset(Vector3d pos, int BodyCount, ClothSkinData.ClothSubData data) {
+    public void reset(Vector3d pos, int BodyCount, ClothSkin data) {
         bodies.clear();
         this.data = data;
         for (int i = 0; i < Math.abs(BodyCount+1); i++) {
@@ -248,24 +248,22 @@ public class ClothManager {
         return (red << 16) | (green << 8) | blue;
     }
 
-    public static ClothManager getOrCreate(Entity entity, Identifier id, ClothSkinData.ClothSubData data) {
+    public static ClothManager getOrCreate(Entity entity, Identifier id, ClothSkin data) {
         if (Minecraft.getInstance().level instanceof ClothAccess clothAccess) {
-            clothAccess.antique$getManagers().computeIfAbsent(id, k -> {
+            return clothAccess.antique$getManagers().computeIfAbsent(id, k -> {
                 ClothManager manager = new ClothManager(new Vector3d(entity.getX(), entity.getY(), entity.getZ()), 8, data);
                 manager.entity = entity;
                 return manager;
             });
-            return clothAccess.antique$getManagers().get(id);
         }
         return null;
     }
 
-    public void renderCloth(ClothSkinData.ClothSubData data, PoseStack matrices, SubmitNodeCollector queue, int light, boolean glow, Color color, Color overlayColor, Optional<Identifier> overlay) {
+    public void renderCloth(ClothSkin data, PoseStack matrices, SubmitNodeCollector queue, int light, boolean glow, Color color, Color overlayColor, Optional<Identifier> overlay) {
         this.renderCloth(data, matrices, queue, light, glow, color, overlayColor, overlay, new Matrix4f());
     }
 
-    public void renderCloth(ClothSkinData.ClothSubData data, PoseStack matrices, SubmitNodeCollector queue, int light, boolean glow, Color color, Color overlayColor, Optional<Identifier> overlay, Matrix4f reprojectionMatrix) {
-        this.render = true;
+    public void renderCloth(ClothSkin data, PoseStack matrices, SubmitNodeCollector queue, int light, boolean glow, Color color, Color overlayColor, Optional<Identifier> overlay, Matrix4f reprojectionMatrix) {
         this.particles = true;
         this.data = data;
         Optional<Identifier> cloth = data.model();
@@ -437,5 +435,10 @@ public class ClothManager {
             vertexConsumer.addVertex(matrix, posC.x, posC.y, posC.z).setOverlay(OverlayTexture.NO_OVERLAY).setNormal(0, 1, 0).setLight(light).setUv(uvD.x, uvD.y).setColor(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha());
             vertexConsumer.addVertex(matrix, posD.x, posD.y, posD.z).setOverlay(OverlayTexture.NO_OVERLAY).setNormal(0, 1, 0).setLight(light).setUv(uvC.x, uvC.y).setColor(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha());
         });
+    }
+
+    @Override
+    public String toString() {
+        return "ClothManager{pos=" + pos + ", entity=" + entity + ", skin=" + data.model() + "}";
     }
 }

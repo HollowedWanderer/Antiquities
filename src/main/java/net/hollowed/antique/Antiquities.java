@@ -303,7 +303,7 @@ public class Antiquities implements ModInitializer {
 
 	public static void addClothItems() {
 		ItemGroupEvents.modifyEntriesEvent(ANTIQUITIES_CLOTHS_GROUP_KEY).register(itemGroup -> {
-			for (ClothSkinData.ClothSubData data : ClientClothData.TRANSFORMS.values()) {
+			for (ClothSkin data : ClientClothData.TRANSFORMS.values()) {
 				ItemStack stack = AntiqueItems.CLOTH.getDefaultInstance();
 				stack.set(DataComponents.ITEM_NAME, Component.translatable(data.model().orElseThrow().toLanguageKey("item")));
 				if (!data.dyeable()) stack.remove(DataComponents.DYED_COLOR);

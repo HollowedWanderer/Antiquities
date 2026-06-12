@@ -16,10 +16,10 @@ import java.util.Map;
 
 public class ClothBody {
 
-    Vector3d pos;
-    Vector3d prevPos;
-    Vector3d posCache;
-    Vector3d accel = new Vector3d();
+    public Vector3d pos;
+    public Vector3d prevPos;
+    public Vector3d posCache;
+    public Vector3d accel = new Vector3d();
 
     public ClothBody(Vector3d worldPos) {
         pos = prevPos = new Vector3d(worldPos);

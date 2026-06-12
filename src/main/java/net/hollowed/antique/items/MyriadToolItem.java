@@ -6,7 +6,7 @@ import net.hollowed.antique.index.AntiqueItems;
 import net.hollowed.antique.items.components.ColorProvider;
 import net.hollowed.antique.items.components.MyriadToolComponent;
 import net.hollowed.antique.util.resources.ClientClothData;
-import net.hollowed.antique.util.resources.ClothSkinData;
+import net.hollowed.antique.util.resources.ClothSkin;
 import net.hollowed.combatamenities.util.items.CAComponents;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -181,7 +181,7 @@ public class MyriadToolItem extends Item {
     private ItemStack swapCloth(Player player, ItemStack toolStack, ItemStack clothStack) {
         MyriadToolComponent component = toolStack.getOrDefault(AntiqueDataComponentTypes.MYRIAD_TOOL, MyriadToolComponent.DEFAULT_NO_CLOTH);
 
-        ClothSkinData.ClothSubData toolData = ClientClothData.getTransform(component.clothType());
+        ClothSkin toolData = ClientClothData.getTransform(component.clothType());
         boolean remove = false;
 
         if (!clothStack.isEmpty()) {
@@ -194,7 +194,7 @@ public class MyriadToolItem extends Item {
             DyedItemColor clothColor = clothStack.getOrDefault(DataComponents.DYED_COLOR, new DyedItemColor(0xD43B69));
 
             if (component.clothType().isEmpty()) remove = true;
-            ClothSkinData.ClothSubData clothData = ClientClothData.getTransform(Optional.of(Identifier.parse(model)));
+            ClothSkin clothData = ClientClothData.getTransform(Optional.of(Identifier.parse(model)));
 
             if (toolData.dyeable()) {
                 clothStack.set(DataComponents.DYED_COLOR, new DyedItemColor(component.clothColor().getConstantColor(color -> "Cloths cannot both be dyeable and have a non-constant color")));

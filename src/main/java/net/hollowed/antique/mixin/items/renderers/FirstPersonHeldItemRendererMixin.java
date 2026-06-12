@@ -7,7 +7,7 @@ import net.hollowed.antique.index.AntiqueItems;
 import net.hollowed.antique.items.components.MyriadToolComponent;
 import net.hollowed.antique.mixin.accessors.RendererAccessor;
 import net.hollowed.antique.util.resources.ClientClothData;
-import net.hollowed.antique.util.resources.ClothSkinData;
+import net.hollowed.antique.util.resources.ClothSkin;
 import net.hollowed.combatamenities.util.items.CAComponents;
 import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
@@ -53,7 +53,7 @@ public abstract class FirstPersonHeldItemRendererMixin {
         if (entity instanceof Player player) {
             if (stack.is(AntiqueItems.MYRIAD_TOOL)) {
                 boolean reproject = true;
-                ClothSkinData.ClothSubData data = ClientClothData.getTransform(stack.getOrDefault(AntiqueDataComponentTypes.MYRIAD_TOOL, MyriadToolComponent.DEFAULT_NO_CLOTH).clothType());
+                ClothSkin data = ClientClothData.getTransform(stack.getOrDefault(AntiqueDataComponentTypes.MYRIAD_TOOL, MyriadToolComponent.DEFAULT_NO_CLOTH).clothType());
 
                 MyriadToolComponent component = stack.getOrDefault(AntiqueDataComponentTypes.MYRIAD_TOOL, MyriadToolComponent.DEFAULT_NO_CLOTH);
 
@@ -69,7 +69,7 @@ public abstract class FirstPersonHeldItemRendererMixin {
                 if (renderMode == ItemDisplayContext.NONE && stack.getOrDefault(AntiqueDataComponentTypes.MYRIAD_TOOL, MyriadToolComponent.DEFAULT_NO_CLOTH).toolBit().is(AntiqueItems.MYRIAD_CLEAVER_BLADE)) {
                     matrices.translate(-0.15, -0.15, 0);
                 }
-                manager = renderMode == ItemDisplayContext.FIRST_PERSON_RIGHT_HAND ? ClothManager.getOrCreate(entity, Antiquities.id(entity.getId() + "_first_person_right_arm"), data) : ClothManager.getOrCreate(entity, Antiquities.id(entity.getId() + "_first_person_left_arm"), data);
+                manager = renderMode == ItemDisplayContext.FIRST_PERSON_RIGHT_HAND ? ClothManager.getOrCreate(entity, Antiquities.id(entity.getId() + "_right_arm"), data) : ClothManager.getOrCreate(entity, Antiquities.id(entity.getId() + "_left_arm"), data);
                 switch (renderMode) {
                     case ItemDisplayContext.NONE -> {
                         manager = ClothManager.getOrCreate(entity, Antiquities.id(entity.getId() + "_back"), data);

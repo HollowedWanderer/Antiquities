@@ -14,7 +14,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 public class ClothSkinListener implements ResourceManagerReloadListener {
-    public static final Map<Identifier, ClothSkinData.ClothSubData> TRANSFORMS = new LinkedHashMap<>();
+    public static final Map<Identifier, ClothSkin> TRANSFORMS = new LinkedHashMap<>();
 
     @Override
     public void onResourceManagerReload(ResourceManager manager) {
@@ -22,10 +22,10 @@ public class ClothSkinListener implements ResourceManagerReloadListener {
             if (manager.getResource(id).isPresent()) {
                 try (InputStream stream = manager.getResource(id).get().open()) {
                     JsonObject json = GsonHelper.parse(new InputStreamReader(stream, StandardCharsets.UTF_8));
-                    DataResult<ClothSkinData> result = ClothSkinData.CODEC.parse(JsonOps.INSTANCE, json);
+                    DataResult<ClothSkins> result = ClothSkins.CODEC.parse(JsonOps.INSTANCE, json);
 
                     result.resultOrPartial(Antiquities.LOGGER::error).ifPresent(data -> {
-                        for (ClothSkinData.ClothSubData entry : data.list()) {
+                        for (ClothSkin entry : data.list()) {
                             TRANSFORMS.putIfAbsent(entry.model().orElseThrow(), entry);
                         }
                     });
@@ -37,7 +37,7 @@ public class ClothSkinListener implements ResourceManagerReloadListener {
     }
 
     @SuppressWarnings("all")
-    public static ClothSkinData.ClothSubData getTransform(Optional<Identifier> id) {
-        return id.map(i -> TRANSFORMS.getOrDefault(i, ClothSkinData.DEFAULT)).orElse(ClothSkinData.DEFAULT);
+    public static ClothSkin getTransform(Optional<Identifier> id) {
+        return id.map(i -> TRANSFORMS.getOrDefault(i, ClothSkin.DEFAULT)).orElse(ClothSkin.DEFAULT);
     }
 }

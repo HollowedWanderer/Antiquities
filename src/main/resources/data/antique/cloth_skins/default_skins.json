@@ -346,10 +346,10 @@
         "particle": {
           "type": "antique:typho_spark"
         },
-        "chance": 0.01,
+        "chance": 0.005,
         "distance": 0.2,
         "velocity": 0.005,
-        "waterChance": 0.15,
+        "waterChance": 0.25,
         "waterDistance": 0.2,
         "waterVelocity": 0.025
       },
