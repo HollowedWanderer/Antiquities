@@ -1,5 +1,5 @@
 {
   "shape": "tattered",
   "dyeable": true,
-  "overlay": true
+  "patternable": true
 }

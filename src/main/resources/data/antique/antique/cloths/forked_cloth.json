@@ -4,5 +4,5 @@
   "length": 2.1,
   "bodies": 12,
   "dyeable": true,
-  "overlay": true
+  "patternable": true
 }
