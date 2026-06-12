@@ -342,6 +342,17 @@
         "atlas": "antique:cloths",
         "sprite": "antique:cloth/typho_cloth_emissive"
       },
+      "particleData": {
+        "particle": {
+          "type": "antique:typho_spark"
+        },
+        "chance": 0.01,
+        "distance": 0.01,
+        "velocity": 0.01,
+        "waterChance": 0.2,
+        "waterDistance": 0.01,
+        "waterVelocity": 0.05
+      },
       "width": 0.166,
       "length": 2.1,
       "gravity": 0,

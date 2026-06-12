@@ -15,11 +15,13 @@ import net.hollowed.antique.client.armor.models.AdventureArmor;
 import net.hollowed.antique.entities.renderer.*;
 import net.hollowed.antique.items.components.MyriadToolComponent;
 import net.hollowed.antique.networking.*;
+import net.hollowed.antique.util.interfaces.duck.ClothAccess;
 import net.hollowed.antique.util.models.*;
 import net.hollowed.antique.util.properties.*;
 import net.hollowed.combatamenities.util.items.CAComponents;
 import net.minecraft.client.color.item.ItemTintSources;
 import net.minecraft.client.gui.screens.MenuScreens;
+import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderers;
 import net.minecraft.client.renderer.chunk.ChunkSectionLayer;
 import net.minecraft.client.renderer.entity.EntityRenderers;
@@ -54,6 +56,8 @@ public class AntiquitiesClient implements ClientModInitializer {
 
     @Override
     public void onInitializeClient() {
+
+        ClientTickEvents.START_WORLD_TICK.register(level -> ((ClothAccess) level).antique$tickParticles());
 
         AntiqueKeyBindings.initialize();
 

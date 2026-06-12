@@ -15,6 +15,7 @@ public interface AntiqueParticles {
     SimpleParticleType HIT_MARKER = FabricParticleTypes.simple();
     SimpleParticleType SCRAPE = FabricParticleTypes.simple();
     SimpleParticleType SHOCKWAVE_BUBBLE = FabricParticleTypes.simple();
+    SimpleParticleType TYPHO_SPARK = FabricParticleTypes.simple();
 
     static void initialize() {
 	    Registry.register(BuiltInRegistries.PARTICLE_TYPE, Antiquities.id("sparkle_particle"), SPARKLE_PARTICLE);
@@ -23,6 +24,7 @@ public interface AntiqueParticles {
         Registry.register(BuiltInRegistries.PARTICLE_TYPE, Antiquities.id("hit_marker"), HIT_MARKER);
         Registry.register(BuiltInRegistries.PARTICLE_TYPE, Antiquities.id("scrape"), SCRAPE);
         Registry.register(BuiltInRegistries.PARTICLE_TYPE, Antiquities.id("shockwave_bubble"), SHOCKWAVE_BUBBLE);
+        Registry.register(BuiltInRegistries.PARTICLE_TYPE, Antiquities.id("typho_spark"), TYPHO_SPARK);
     }
 
     static void initializeClient() {
@@ -32,5 +34,6 @@ public interface AntiqueParticles {
         ParticleFactoryRegistry.getInstance().register(HIT_MARKER, HitMarkerParticle.Factory::new);
         ParticleFactoryRegistry.getInstance().register(SCRAPE, GlowParticle.ScrapeFactory::new);
         ParticleFactoryRegistry.getInstance().register(SHOCKWAVE_BUBBLE, ShockwaveBubbleParticle.Factory::new);
+        ParticleFactoryRegistry.getInstance().register(TYPHO_SPARK, TyphoSparkParticle.Factory::new);
     }
 }
