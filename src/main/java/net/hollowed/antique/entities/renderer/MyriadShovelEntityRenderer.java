@@ -17,6 +17,7 @@ import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.item.ItemStackRenderState;
 import net.minecraft.client.renderer.state.CameraRenderState;
 import net.minecraft.client.renderer.texture.OverlayTexture;
+import net.minecraft.core.Holder;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -34,15 +35,15 @@ public class MyriadShovelEntityRenderer extends EntityRenderer<@NotNull MyriadSh
 	}
 
 	@Override
-	public void submit(MyriadShovelRenderState myriadShovelRenderState, PoseStack matrixStack, @NotNull SubmitNodeCollector queue, @NotNull CameraRenderState cameraState) {
+	public void submit(MyriadShovelRenderState state, PoseStack matrixStack, @NotNull SubmitNodeCollector queue, @NotNull CameraRenderState cameraState) {
 		matrixStack.pushPose();
 
 		float multiplier = 1.25F;
 
-		matrixStack.translate(myriadShovelRenderState.entity.getViewVector(0).multiply(multiplier, multiplier, -multiplier));
+		matrixStack.translate(state.entity.getViewVector(0).multiply(multiplier, multiplier, -multiplier));
 
-		matrixStack.mulPose(Axis.YP.rotationDegrees(myriadShovelRenderState.entity.getYRot() - 180.0F));
-		matrixStack.mulPose(Axis.XP.rotationDegrees(myriadShovelRenderState.entity.getXRot() - 105.0F));
+		matrixStack.mulPose(Axis.YP.rotationDegrees(state.entity.getYRot() - 180.0F));
+		matrixStack.mulPose(Axis.XP.rotationDegrees(state.entity.getXRot() - 105.0F));
 
 		matrixStack.scale(1.5F, 1.5F, 1.5F);
 		matrixStack.translate(0, 0, 0.125);
@@ -51,35 +52,35 @@ public class MyriadShovelEntityRenderer extends EntityRenderer<@NotNull MyriadSh
 		matrixStack.mulPose(Axis.ZP.rotationDegrees(15.0F));
 		matrixStack.mulPose(Axis.XP.rotationDegrees(-20.0F));
 
-		if (myriadShovelRenderState.entity instanceof MyriadShovelEntity entity) {
+		if (state.entity instanceof MyriadShovelEntity entity) {
 			ItemStack shovel = entity.getPickupItemStackOrigin();
 			shovel.set(AntiqueDataComponentTypes.MYRIAD_TOOL, new MyriadToolComponent(
 					AntiqueItems.MYRIAD_SHOVEL_HEAD.getDefaultInstance(),
-					myriadShovelRenderState.cloth,
-					myriadShovelRenderState.pattern,
-					myriadShovelRenderState.color,
-					myriadShovelRenderState.overlayColor,
-					myriadShovelRenderState.emissiveItem
+					state.cloth.map(holder -> holder.unwrapKey().orElseThrow().identifier()),
+					state.pattern,
+					state.color,
+					state.overlayColor,
+					state.emissiveItem
 			));
 
 			ItemStackRenderState stackRenderState = new ItemStackRenderState();
 			Minecraft.getInstance().getItemModelResolver().appendItemLayers(stackRenderState, shovel, ItemDisplayContext.FIRST_PERSON_RIGHT_HAND, Minecraft.getInstance().level, null, 1);
-			stackRenderState.submit(matrixStack, queue, myriadShovelRenderState.lightCoords, OverlayTexture.NO_OVERLAY, 0);
+			stackRenderState.submit(matrixStack, queue, state.lightCoords, OverlayTexture.NO_OVERLAY, 0);
 
-			ClothSkin data = ClientClothData.getTransform(shovel.getOrDefault(AntiqueDataComponentTypes.MYRIAD_TOOL, MyriadToolComponent.DEFAULT_NO_CLOTH).clothType());
+			ClothSkin data = state.cloth.map(Holder::value).orElse(ClothSkin.DEFAULT);
 
-			ClothManager manager = ClothManager.getOrCreate(entity, Antiquities.id(entity.getId() + "_spade"), data);
+			ClothManager manager = ClothManager.getOrCreate(entity, Antiquities.id("spade"), data);
 			if(manager != null) {
 				matrixStack.translate(0.05, 0.3, 0.1);
 				manager.renderCloth(
 						data,
 						matrixStack,
 						queue,
-						myriadShovelRenderState.lightCoords,
-						myriadShovelRenderState.glow,
-						new Color(myriadShovelRenderState.color.getColorClient()),
-						new Color(myriadShovelRenderState.overlayColor),
-						myriadShovelRenderState.pattern
+						state.lightCoords,
+						state.glow,
+						new Color(state.color.getColorClient()),
+						new Color(state.overlayColor),
+						state.pattern
 				);
 			}
 		}
@@ -95,16 +96,16 @@ public class MyriadShovelEntityRenderer extends EntityRenderer<@NotNull MyriadSh
 		return new MyriadShovelRenderState();
 	}
 
-	public void extractRenderState(@NonNull MyriadShovelEntity myriadShovelEntity, @NonNull MyriadShovelRenderState myriadShovelRenderState, float f) {
-		super.extractRenderState(myriadShovelEntity, myriadShovelRenderState, f);
-		myriadShovelRenderState.entity = myriadShovelEntity;
-		myriadShovelRenderState.stack = myriadShovelEntity.getPickupItemStackOrigin();
-		myriadShovelRenderState.color = myriadShovelEntity.getDyeColor();
-		myriadShovelRenderState.overlayColor = myriadShovelEntity.getOverlayColor();
-		myriadShovelRenderState.isEnchanted = myriadShovelEntity.isEnchanted();
-		myriadShovelRenderState.glow = myriadShovelEntity.getGlow();
-		myriadShovelRenderState.cloth = myriadShovelEntity.getCloth();
-		myriadShovelRenderState.pattern = myriadShovelEntity.getPattern();
-		myriadShovelRenderState.emissiveItem = myriadShovelEntity.getEmissiveItem();
+	public void extractRenderState(@NonNull MyriadShovelEntity entity, @NonNull MyriadShovelRenderState state, float f) {
+		super.extractRenderState(entity, state, f);
+		state.entity = entity;
+		state.stack = entity.getPickupItemStackOrigin();
+		state.color = entity.getDyeColor();
+		state.overlayColor = entity.getOverlayColor();
+		state.isEnchanted = entity.isEnchanted();
+		state.glow = entity.getGlow();
+		state.cloth = ClothSkin.getHolder(entity.getCloth(), entity.level());
+		state.pattern = entity.getPattern();
+		state.emissiveItem = entity.getEmissiveItem();
 	}
 }

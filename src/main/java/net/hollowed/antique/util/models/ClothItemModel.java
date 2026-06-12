@@ -11,7 +11,10 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.hollowed.antique.Antiquities;
+import net.hollowed.antique.index.AntiqueDataComponentTypes;
+import net.hollowed.antique.items.components.MyriadToolComponent;
 import net.hollowed.antique.util.resources.ClientClothData;
+import net.hollowed.antique.util.resources.ClothSkin;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.color.item.ItemTintSource;
 import net.minecraft.client.color.item.ItemTintSources;
@@ -197,7 +200,7 @@ public class ClothItemModel implements ItemModel {
 			Collections.addAll(layerRenderState.prepareQuadList(), selected);
 		}
 
-		if (ClientClothData.getTransform(Optional.of(Identifier.parse(modelVariantId))).dyeable()) {
+		if (world != null && ClothSkin.get(Optional.of(Identifier.parse(modelVariantId)), world.registryAccess()).dyeable()) {
 			int n = this.tints.size();
 			int[] t = layerRenderState.prepareTintLayers(n);
 			for (int i = 0; i < n; i++) {

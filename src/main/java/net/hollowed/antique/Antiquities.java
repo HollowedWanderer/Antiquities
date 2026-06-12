@@ -3,10 +3,12 @@ package net.hollowed.antique;
 import eu.midnightdust.lib.config.MidnightConfig;
 import net.fabricmc.api.ModInitializer;
 
+import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientBlockEntityEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.item.v1.DefaultItemComponentEvents;
 import net.fabricmc.fabric.api.itemgroup.v1.FabricItemGroup;
 import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
+import net.fabricmc.fabric.api.networking.v1.EntityTrackingEvents;
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
 import net.fabricmc.fabric.api.resource.ResourcePackActivationType;
@@ -78,12 +80,12 @@ public class Antiquities implements ModInitializer {
 		AntiquePlacedFeatures.initialize();
 		AntiqueFeatures.initialize();
 		AntiqueTrackedData.initialize();
+		AntiqueRegistries.initialize();
 
 		MidnightConfig.init(MOD_ID, AntiquitiesConfig.class);
 
 		ResourceLoader.get(PackType.CLIENT_RESOURCES).registerReloader(id("staff_transforms"), new MyriadStaffTransformResourceReloadListener());
 		ResourceLoader.get(PackType.CLIENT_RESOURCES).registerReloader(id("pedestal_transforms"), new PedestalDisplayListener());
-		ResourceLoader.get(PackType.SERVER_DATA).registerReloader(id("cloth_skins"), new ClothSkinListener());
 		ResourceLoader.get(PackType.SERVER_DATA).registerReloader(id("cloth_overlays"), new ClothOverlayListener());
 
 		/*
@@ -97,7 +99,6 @@ public class Antiquities implements ModInitializer {
 		PayloadTypeRegistry.playC2S().register(CrawlPacketPayload.ID, CrawlPacketPayload.CODEC);
 		PayloadTypeRegistry.playC2S().register(DyePacketPayload.ID, DyePacketPayload.CODEC);
 		PayloadTypeRegistry.playS2C().register(IllusionerParticlePacketPayload.ID, IllusionerParticlePacketPayload.CODEC);
-		PayloadTypeRegistry.playS2C().register(ClothSkinPacketPayload.ID, ClothSkinPacketPayload.CODEC);
 		PayloadTypeRegistry.playS2C().register(ClothOverlayPacketPayload.ID, ClothOverlayPacketPayload.CODEC);
 		PayloadTypeRegistry.playS2C().register(AddClothItemsPayload.ID, AddClothItemsPayload.CODEC);
 		PayloadTypeRegistry.playS2C().register(ShockwaveParticlesPayload.ID, ShockwaveParticlesPayload.CODEC);
@@ -302,22 +303,31 @@ public class Antiquities implements ModInitializer {
 	}
 
 	public static void addClothItems() {
-		ItemGroupEvents.modifyEntriesEvent(ANTIQUITIES_CLOTHS_GROUP_KEY).register(itemGroup -> {
-			for (ClothSkin data : ClientClothData.TRANSFORMS.values()) {
-				ItemStack stack = AntiqueItems.CLOTH.getDefaultInstance();
-				stack.set(DataComponents.ITEM_NAME, Component.translatable(data.model().orElseThrow().toLanguageKey("item")));
-				if (!data.dyeable()) stack.remove(DataComponents.DYED_COLOR);
-				if (!itemGroup.getDisplayStacks().contains(stack)) {
-					itemGroup.accept(stack);
-				}
-			}
+		ItemGroupEvents.modifyEntriesEvent(ANTIQUITIES_CLOTHS_GROUP_KEY).register(group -> {
+			group.getContext()
+					.holders()
+					.lookupOrThrow(AntiqueRegistries.CLOTHS)
+					.getOrThrow(AntiqueClothTags.CREATIVE_TAB_ORDER)
+					.forEach(skin -> {
+                        ItemStack stack = AntiqueItems.CLOTH.getDefaultInstance();
+
+						stack.set(DataComponents.ITEM_NAME, Component.translatable(skin.value().model().orElseThrow().toLanguageKey("item")));
+
+						if (!skin.value().dyeable()) {
+							stack.remove(DataComponents.DYED_COLOR);
+						}
+
+						if (!group.getDisplayStacks().contains(stack)) {
+							group.accept(stack);
+						}
+					});
 
 			for (Identifier data : ClientClothData.OVERLAY_TRANSFORMS) {
 				ItemStack stack = AntiqueItems.CLOTH_PATTERN.getDefaultInstance();
 				stack.set(DataComponents.ITEM_NAME, Component.translatable(data.toLanguageKey("item") + "_cloth_pattern"));
 				stack.set(DataComponents.DYED_COLOR, new DyedItemColor(0xFFFFFF));
-				if (!itemGroup.getDisplayStacks().contains(stack)) {
-					itemGroup.accept(stack);
+				if (!group.getDisplayStacks().contains(stack)) {
+					group.accept(stack);
 				}
 			}
 		});

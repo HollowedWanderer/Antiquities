@@ -1,0 +1,7 @@
+{
+  "model": "antique:long_cloth",
+  "length": 2.8,
+  "bodies": 16,
+  "dyeable": true,
+  "overlay": true
+}

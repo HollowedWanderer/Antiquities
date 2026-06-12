@@ -1,0 +1,54 @@
+{
+  "model": "antique:typho_cloth",
+  "color": {
+    "type": "antique:sprite_animated",
+    "frames": [
+      "6D2C60",
+      "872B56",
+      "9C314E",
+      "B23846",
+      "C73E3E",
+      "D54F42",
+      "E45F45",
+      "F27049",
+      "F2873E",
+      "F29F34",
+      "F2B629",
+      "D8C93E",
+      "BFDD54",
+      "A6F069",
+      "83D294",
+      "61B3BE",
+      "3E95E9",
+      "4285D9",
+      "4575CA",
+      "4965BA",
+      "4453A2",
+      "3E408B",
+      "392E73",
+      "532D69"
+    ],
+    "frameTime": 5,
+    "interpolate": true,
+    "atlas": "antique:cloths",
+    "sprite": "antique:cloth/typho_cloth_emissive"
+  },
+  "particleData": {
+    "particle": {
+      "type": "antique:typho_spark"
+    },
+    "chance": 0.005,
+    "distance": 0.2,
+    "velocity": 0.005,
+    "waterChance": 0.25,
+    "waterDistance": 0.2,
+    "waterVelocity": 0.025
+  },
+  "width": 0.2,
+  "length": 2.4,
+  "gravity": 0,
+  "waterGravity": 0,
+  "bodies": 16,
+  "emissiveLayer": true,
+  "emissiveItem": true
+}

@@ -2,6 +2,7 @@ package net.hollowed.antique.client.renderer.cloth;
 
 import java.awt.Color;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 
@@ -242,19 +243,15 @@ public class ClothManager {
         return new Vec3(cameraPos.x + localPos.x(), cameraPos.y + localPos.y(), cameraPos.z + localPos.z());
     }
 
-    @SuppressWarnings("unused")
-    public int rgbToDecimal(int red, int green, int blue) {
-        return (red << 16) | (green << 8) | blue;
-    }
-
     public static ClothManager getOrCreate(Entity entity, Identifier id, ClothSkin data) {
         if (Minecraft.getInstance().level instanceof ClothAccess clothAccess) {
-            return clothAccess.antique$getManagers().computeIfAbsent(id, k -> {
+            return clothAccess.antique$getManagers().computeIfAbsent(entity, k -> new HashMap<>()).computeIfAbsent(id, k -> {
                 ClothManager manager = new ClothManager(new Vector3d(entity.getX(), entity.getY(), entity.getZ()), 8, data);
                 manager.entity = entity;
                 return manager;
             });
         }
+
         return null;
     }
 

@@ -1,0 +1,9 @@
+{
+  "model": "antique:dripstone_cloth",
+  "color": "927965",
+  "length": 3.15,
+  "width": 0.166,
+  "gravity": 4,
+  "waterGravity": 0.8,
+  "bodies": 1
+}

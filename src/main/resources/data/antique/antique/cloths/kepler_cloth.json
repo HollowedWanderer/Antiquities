@@ -1,0 +1,9 @@
+{
+  "model": "antique:kepler_cloth",
+  "color": "74285d",
+  "length": 2.8,
+  "width": 0.166,
+  "bodies": 16,
+  "gravity": 0.5,
+  "light": 255
+}

@@ -2,12 +2,11 @@ package net.hollowed.antique.blocks.screens;
 
 import net.hollowed.antique.index.AntiqueDataComponentTypes;
 import net.hollowed.antique.index.AntiqueItems;
+import net.hollowed.antique.index.AntiqueRegistries;
 import net.hollowed.antique.index.AntiqueScreenHandlerType;
 import net.hollowed.antique.items.MyriadToolItem;
 import net.hollowed.antique.items.components.ColorProvider;
 import net.hollowed.antique.items.components.MyriadToolComponent;
-import net.hollowed.antique.util.resources.ClothSkinListener;
-import net.hollowed.antique.util.resources.ClothSkin;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.world.Container;
@@ -64,8 +63,19 @@ public class DyeingScreenHandler extends AbstractContainerMenu {
 			@Override
 			public boolean mayPlace(@NotNull ItemStack stack) {
 				if (stack.is(AntiqueItems.MYRIAD_TOOL)) {
-					ClothSkin data = ClothSkinListener.getTransform(stack.getOrDefault(AntiqueDataComponentTypes.MYRIAD_TOOL, MyriadToolComponent.DEFAULT_NO_CLOTH).clothType());
-					return data.dyeable();
+					return stack.getOrDefault(AntiqueDataComponentTypes.MYRIAD_TOOL, MyriadToolComponent.DEFAULT_NO_CLOTH)
+							.clothType()
+							.map(clothType ->
+									context.evaluate((level, pos) ->
+											level.registryAccess()
+													.lookupOrThrow(AntiqueRegistries.CLOTHS)
+													.get(clothType)
+													.orElseThrow(() -> new NullPointerException("Nonexistent cloth type " + clothType))
+									)
+											.map(cloth -> cloth.value().dyeable())
+											.orElse(false)
+							)
+							.orElse(false);
 				}
 				return stack.is(ItemTags.DYEABLE);
 			}

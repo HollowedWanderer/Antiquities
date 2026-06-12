@@ -1,27 +1,17 @@
 package net.hollowed.antique.util;
 
-import com.google.gson.JsonObject;
 import com.mojang.serialization.Codec;
-import com.mojang.serialization.DataResult;
-import com.mojang.serialization.JsonOps;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.nio.charset.StandardCharsets;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
-import net.hollowed.antique.Antiquities;
 import net.hollowed.antique.index.AntiqueDataComponentTypes;
 import net.hollowed.antique.index.AntiqueItems;
 import net.hollowed.antique.index.AntiqueRecipeSerializer;
+import net.hollowed.antique.index.AntiqueRegistries;
 import net.hollowed.antique.items.components.MyriadToolComponent;
-import net.hollowed.antique.util.resources.ClothSkins;
-import net.hollowed.antique.util.resources.ClothSkin;
 import net.hollowed.combatamenities.util.items.CAComponents;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.NonNullList;
@@ -33,8 +23,6 @@ import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.server.packs.resources.ResourceManager;
-import net.minecraft.util.GsonHelper;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.DyedItemColor;
 import net.minecraft.world.item.crafting.CraftingBookCategory;
@@ -53,7 +41,6 @@ public class ClothPatternOnToolRecipe implements CraftingRecipe {
 	final List<Ingredient> ingredients;
 	@Nullable
 	private PlacementInfo ingredientPlacement;
-	public static final Map<String, ClothSkin> TRANSFORMS = new LinkedHashMap<>();
 
 	public ClothPatternOnToolRecipe(String group, CraftingBookCategory category, List<Ingredient> ingredients) {
 		this.group = group;
@@ -104,36 +91,25 @@ public class ClothPatternOnToolRecipe implements CraftingRecipe {
 	}
 
 	@SuppressWarnings("all")
-	public static ClothSkin getTransform(Optional<Identifier> id) {
-		return id.map(i -> TRANSFORMS.getOrDefault(i, ClothSkin.DEFAULT)).orElse(ClothSkin.DEFAULT);
-	}
-
-	@SuppressWarnings("all")
 	public boolean matches(CraftingInput craftingRecipeInput, @NotNull Level world) {
 		if (craftingRecipeInput.ingredientCount() != this.ingredients.size()) {
 			return false;
 		} else {
 			if (world instanceof ServerLevel serverWorld) {
-				ResourceManager manager = serverWorld.getServer().getResourceManager();
-				manager.listResources("cloth_skins", path -> path.getPath().endsWith(".json")).keySet().forEach(id -> {
-					if (manager.getResource(id).isPresent()) {
-						try (InputStream stream = manager.getResource(id).get().open()) {
-							JsonObject json = GsonHelper.parse(new InputStreamReader(stream, StandardCharsets.UTF_8));
-							DataResult<ClothSkins> result = ClothSkins.CODEC.parse(JsonOps.INSTANCE, json);
-
-							result.resultOrPartial(Antiquities.LOGGER::error).ifPresent(data -> {
-								for (ClothSkin entry : data.list()) {
-									TRANSFORMS.putIfAbsent(entry.model().orElseThrow().getPath(), entry);
-								}
-							});
-						} catch (Exception e) {
-							Antiquities.LOGGER.error("Failed to load transform for {}: {}", id, e.getMessage());
-						}
-					}
-				});
-
 				for (ItemStack stack : craftingRecipeInput.items()) {
-					if (stack.is(AntiqueItems.MYRIAD_TOOL) && !getTransform(stack.getOrDefault(AntiqueDataComponentTypes.MYRIAD_TOOL, MyriadToolComponent.DEFAULT_NO_CLOTH).clothType()).overlay()) {
+					boolean overlay = stack.getOrDefault(AntiqueDataComponentTypes.MYRIAD_TOOL, MyriadToolComponent.DEFAULT_NO_CLOTH)
+							.clothType()
+							.map(clothType ->
+									world.registryAccess()
+											.lookupOrThrow(AntiqueRegistries.CLOTHS)
+											.get(clothType)
+											.orElseThrow(() -> new NullPointerException("Nonexistent cloth type " + clothType))
+											.value()
+											.overlay()
+							)
+							.orElse(false);
+
+					if (stack.is(AntiqueItems.MYRIAD_TOOL) && !overlay) {
 						return false;
 					}
 				}

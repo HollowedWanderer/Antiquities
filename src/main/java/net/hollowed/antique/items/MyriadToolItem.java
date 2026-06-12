@@ -152,7 +152,7 @@ public class MyriadToolItem extends Item {
     private void addPattern(Player player, ItemStack toolStack, ItemStack patternStack) {
         MyriadToolComponent component = toolStack.getOrDefault(AntiqueDataComponentTypes.MYRIAD_TOOL, MyriadToolComponent.DEFAULT_NO_CLOTH);
 
-        if (ClientClothData.getTransform(component.clothType()).overlay()) {
+        if (ClothSkin.get(component.clothType(), player.registryAccess()).overlay()) {
             String pattern = "item.antique.cloth_pattern";
             Component text = patternStack.getOrDefault(DataComponents.ITEM_NAME, Component.translatable("item.antique.cloth_pattern"));
             if (text.getContents() instanceof TranslatableContents translatable) {
@@ -181,7 +181,7 @@ public class MyriadToolItem extends Item {
     private ItemStack swapCloth(Player player, ItemStack toolStack, ItemStack clothStack) {
         MyriadToolComponent component = toolStack.getOrDefault(AntiqueDataComponentTypes.MYRIAD_TOOL, MyriadToolComponent.DEFAULT_NO_CLOTH);
 
-        ClothSkin toolData = ClientClothData.getTransform(component.clothType());
+        ClothSkin toolData = ClothSkin.get(component.clothType(), player.registryAccess());
         boolean remove = false;
 
         if (!clothStack.isEmpty()) {
@@ -194,7 +194,7 @@ public class MyriadToolItem extends Item {
             DyedItemColor clothColor = clothStack.getOrDefault(DataComponents.DYED_COLOR, new DyedItemColor(0xD43B69));
 
             if (component.clothType().isEmpty()) remove = true;
-            ClothSkin clothData = ClientClothData.getTransform(Optional.of(Identifier.parse(model)));
+            ClothSkin clothData = ClothSkin.get(Optional.of(Identifier.parse(model)), player.registryAccess());
 
             if (toolData.dyeable()) {
                 clothStack.set(DataComponents.DYED_COLOR, new DyedItemColor(component.clothColor().getConstantColor(color -> "Cloths cannot both be dyeable and have a non-constant color")));

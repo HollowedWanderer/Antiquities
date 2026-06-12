@@ -14,6 +14,7 @@ import net.hollowed.antique.index.AntiqueDataComponentTypes;
 import net.hollowed.antique.index.AntiqueItemTags;
 import net.hollowed.antique.items.components.MyriadToolComponent;
 import net.hollowed.antique.util.resources.ClientClothData;
+import net.hollowed.antique.util.resources.ClothSkin;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.color.item.ItemTintSource;
 import net.minecraft.client.color.item.ItemTintSources;
@@ -233,7 +234,7 @@ public class MyriadClothItemModel implements ItemModel {
 			tintLayer.prepareQuadList().addAll(newQuads);
 		}
 
-		if (ClientClothData.getTransform(Optional.of(modelVariantId)).dyeable()
+		if (world != null && ClothSkin.get(Optional.of(modelVariantId), world.registryAccess()).dyeable()
 				|| tintLayer.prepareQuadList().isEmpty()
 				|| isFallback) {
 			int n = this.tints.size();

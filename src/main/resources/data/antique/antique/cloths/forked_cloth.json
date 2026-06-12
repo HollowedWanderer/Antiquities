@@ -1,0 +1,8 @@
+{
+  "model": "antique:forked_cloth",
+  "width": 0.166,
+  "length": 2.1,
+  "bodies": 12,
+  "dyeable": true,
+  "overlay": true
+}

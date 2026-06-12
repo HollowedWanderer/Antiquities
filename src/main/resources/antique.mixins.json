@@ -95,6 +95,7 @@
     "items.BundleTooltipShowsAll",
     "items.PreventItemActionsMixin",
     "items.TooltipComponentMixin",
+    "items.renderers.EntityMixin",
     "items.renderers.FirstPersonHeldItemRendererMixin",
     "items.renderers.FirstPersonItemMixin",
     "items.renderers.HeldItemRendererMixin",

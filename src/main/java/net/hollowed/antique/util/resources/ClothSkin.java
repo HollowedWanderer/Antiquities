@@ -2,13 +2,19 @@ package net.hollowed.antique.util.resources;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.hollowed.antique.index.AntiqueRegistries;
 import net.hollowed.antique.items.components.ClothParticleData;
 import net.hollowed.antique.items.components.ColorProvider;
 import net.hollowed.antique.items.components.ColorProviders;
+import net.minecraft.core.Holder;
+import net.minecraft.core.HolderGetter;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.world.level.Level;
+import org.jetbrains.annotations.NotNull;
 import org.jspecify.annotations.NonNull;
 
 import java.util.Optional;
@@ -71,4 +77,34 @@ public record ClothSkin(Optional<Identifier> model, ColorProvider color, float l
             buf.writeBoolean(data.dyeable);
         }
     };
+
+    public static ClothSkin get(Optional<Identifier> id, @NotNull HolderGetter<ClothSkin> lookup) {
+        return id.map(key ->
+                lookup.get(ResourceKey.create(AntiqueRegistries.CLOTHS, key))
+                        .map(Holder.Reference::value)
+                        .orElse(ClothSkin.DEFAULT)
+        ).orElse(ClothSkin.DEFAULT);
+    }
+
+    public static ClothSkin get(Optional<Identifier> id, @NotNull HolderGetter.Provider lookup) {
+        return get(id, lookup.lookupOrThrow(AntiqueRegistries.CLOTHS));
+    }
+
+    public static ClothSkin get(Optional<Identifier> id, @NotNull Level level) {
+        return get(id, level.registryAccess());
+    }
+
+    public static Optional<Holder.Reference<ClothSkin>> getHolder(Optional<Identifier> id, @NotNull HolderGetter<ClothSkin> lookup) {
+        return id.flatMap(key ->
+                lookup.get(ResourceKey.create(AntiqueRegistries.CLOTHS, key))
+        );
+    }
+
+    public static Optional<Holder.Reference<ClothSkin>> getHolder(Optional<Identifier> id, @NotNull HolderGetter.Provider lookup) {
+        return getHolder(id, lookup.lookupOrThrow(AntiqueRegistries.CLOTHS));
+    }
+
+    public static Optional<Holder.Reference<ClothSkin>> getHolder(Optional<Identifier> id, @NotNull Level level) {
+        return getHolder(id, level.registryAccess());
+    }
 }
