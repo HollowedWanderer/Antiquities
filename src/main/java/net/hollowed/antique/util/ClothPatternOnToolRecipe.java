@@ -19,7 +19,6 @@ import net.hollowed.antique.Antiquities;
 import net.hollowed.antique.index.AntiqueDataComponentTypes;
 import net.hollowed.antique.index.AntiqueItems;
 import net.hollowed.antique.index.AntiqueRecipeSerializer;
-import net.hollowed.antique.items.components.ColorProvider;
 import net.hollowed.antique.items.components.MyriadToolComponent;
 import net.hollowed.antique.util.resources.ClothSkinData;
 import net.hollowed.combatamenities.util.items.CAComponents;
@@ -103,6 +102,7 @@ public class ClothPatternOnToolRecipe implements CraftingRecipe {
 		return defaultedList;
 	}
 
+	@SuppressWarnings("all")
 	public static ClothSkinData.ClothSubData getTransform(Optional<Identifier> id) {
 		return id.map(i -> TRANSFORMS.getOrDefault(i, ClothSkinData.DEFAULT)).orElse(ClothSkinData.DEFAULT);
 	}
@@ -173,7 +173,8 @@ public class ClothPatternOnToolRecipe implements CraftingRecipe {
 					component.clothType(),
 					Optional.of(Identifier.parse(pattern)),
 					component.clothColor(),
-					clothPattern.getOrDefault(DataComponents.DYED_COLOR, new DyedItemColor(0xFFFFFF)).rgb()
+					clothPattern.getOrDefault(DataComponents.DYED_COLOR, new DyedItemColor(0xFFFFFF)).rgb(),
+					component.emissiveItem()
 			));
 
 			result.set(CAComponents.BOOLEAN_PROPERTY, clothPattern.getOrDefault(CAComponents.BOOLEAN_PROPERTY, false));

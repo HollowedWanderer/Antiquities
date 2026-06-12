@@ -229,7 +229,8 @@ public class MyriadClothItemModel implements ItemModel {
 		this.settings.applyToLayer(tintLayer, displayContext);
 
 		if (selected != null && selected.length > 0) {
-			Collections.addAll(tintLayer.prepareQuadList(), selected);
+			List<BakedQuad> newQuads = getNewQuads(selected, component.emissiveItem() ? List.of(15) : List.of());
+			tintLayer.prepareQuadList().addAll(newQuads);
 		}
 
 		if (ClientClothData.getTransform(Optional.of(modelVariantId)).dyeable()
@@ -247,6 +248,20 @@ public class MyriadClothItemModel implements ItemModel {
 		if (this.animated) {
 			state.setAnimated();
 		}
+	}
+
+	private @NotNull List<BakedQuad> getNewQuads(BakedQuad[] selected, List<Integer> emissions) {
+		List<BakedQuad> newQuads = new java.util.ArrayList<>(List.of());
+		String spriteId = selected[0].sprite().contents().name().getPath();
+		int glowIndex = 0;
+		for (BakedQuad quad : selected) {
+			if (!(quad.sprite().contents().name().getPath().equals(spriteId))) {
+				glowIndex++;
+				spriteId = quad.sprite().contents().name().getPath();
+			}
+			newQuads.add(new BakedQuad(quad.position0(), quad.position1(), quad.position2(), quad.position3(), quad.packedUV0(), quad.packedUV1(), quad.packedUV2(), quad.packedUV3(), quad.tintIndex(), quad.direction(), quad.sprite(), quad.shade(), glowIndex >= emissions.size() ? quad.lightEmission() : emissions.get(glowIndex)));
+		}
+		return newQuads;
 	}
 
 	private static boolean shouldUseSpecialGlint(ItemStack stack) {

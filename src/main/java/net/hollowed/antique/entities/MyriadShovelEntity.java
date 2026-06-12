@@ -111,6 +111,10 @@ public class MyriadShovelEntity extends AbstractArrow {
 		return this.entityData.get(ATTRIBUTES).clothPattern();
 	}
 
+	public boolean getEmissiveItem() {
+		return this.entityData.get(ATTRIBUTES).emissiveItem();
+	}
+
 	public MyriadToolComponent getAttributes() {
 		return this.entityData.get(ATTRIBUTES);
 	}

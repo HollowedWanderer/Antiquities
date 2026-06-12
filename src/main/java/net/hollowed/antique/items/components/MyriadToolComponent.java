@@ -20,21 +20,23 @@ import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.component.TooltipProvider;
 import org.jetbrains.annotations.NotNull;
 
-public record MyriadToolComponent(ItemStack toolBit, Optional<Identifier> clothType, Optional<Identifier> clothPattern, ColorProvider clothColor, int patternColor) implements TooltipProvider {
+public record MyriadToolComponent(ItemStack toolBit, Optional<Identifier> clothType, Optional<Identifier> clothPattern, ColorProvider clothColor, int patternColor, boolean emissiveItem) implements TooltipProvider {
 
     public static final MyriadToolComponent DEFAULT_WITH_CLOTH = new MyriadToolComponent(
             ItemStack.EMPTY,
             Optional.of(Antiquities.id("cloth")),
             Optional.empty(),
             new ColorProvider.Constant(0xD43B69),
-            0xFFFFFF
+            0xFFFFFF,
+            false
     );
     public static final MyriadToolComponent DEFAULT_NO_CLOTH = new MyriadToolComponent(
             ItemStack.EMPTY,
             Optional.empty(),
             Optional.empty(),
             new ColorProvider.Constant(0xFFFFFF),
-            0xFFFFFF
+            0xFFFFFF,
+            false
     );
 
     public static final Codec<MyriadToolComponent> CODEC = RecordCodecBuilder.create(instance -> instance.group(
@@ -45,7 +47,8 @@ public record MyriadToolComponent(ItemStack toolBit, Optional<Identifier> clothT
             Identifier.CODEC.optionalFieldOf("cloth_type").forGetter(MyriadToolComponent::clothType),
             Identifier.CODEC.optionalFieldOf("cloth_pattern").forGetter(MyriadToolComponent::clothPattern),
             ColorProviders.CODEC.fieldOf("cloth_color").forGetter(MyriadToolComponent::clothColor),
-            Codec.INT.fieldOf("pattern_color").forGetter(MyriadToolComponent::patternColor)
+            Codec.INT.fieldOf("pattern_color").forGetter(MyriadToolComponent::patternColor),
+            Codec.BOOL.fieldOf("emissive_item").forGetter(MyriadToolComponent::emissiveItem)
     ).apply(instance, MyriadToolComponent::new));
 
     public static final StreamCodec<RegistryFriendlyByteBuf, MyriadToolComponent> PACKET_CODEC = StreamCodec.composite(
@@ -54,6 +57,7 @@ public record MyriadToolComponent(ItemStack toolBit, Optional<Identifier> clothT
             ByteBufCodecs.optional(Identifier.STREAM_CODEC), MyriadToolComponent::clothPattern,
             ColorProviders.STREAM_CODEC, MyriadToolComponent::clothColor,
             ByteBufCodecs.INT, MyriadToolComponent::patternColor,
+            ByteBufCodecs.BOOL, MyriadToolComponent::emissiveItem,
             MyriadToolComponent::new
     );
 

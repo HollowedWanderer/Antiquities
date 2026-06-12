@@ -179,7 +179,8 @@ public class DyeingScreenHandler extends AbstractContainerMenu {
 							component.clothType(),
 							component.clothPattern(),
 							new ColorProvider.Constant(intValue),
-							component.patternColor()
+							component.patternColor(),
+							component.emissiveItem()
 					));
 				}
 			} else {

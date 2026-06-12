@@ -36,6 +36,7 @@ public class ClothSkinListener implements ResourceManagerReloadListener {
         });
     }
 
+    @SuppressWarnings("all")
     public static ClothSkinData.ClothSubData getTransform(Optional<Identifier> id) {
         return id.map(i -> TRANSFORMS.getOrDefault(i, ClothSkinData.DEFAULT)).orElse(ClothSkinData.DEFAULT);
     }

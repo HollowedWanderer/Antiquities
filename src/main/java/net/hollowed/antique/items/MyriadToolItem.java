@@ -75,7 +75,7 @@ public class MyriadToolItem extends Item {
                 return true;
             }
 
-            if (otherStack.is(AntiqueItems.CLOTH_PATTERN) && !stack.getOrDefault(AntiqueDataComponentTypes.MYRIAD_TOOL, MyriadToolComponent.DEFAULT_NO_CLOTH).clothType().isEmpty()) {
+            if (otherStack.is(AntiqueItems.CLOTH_PATTERN) && stack.getOrDefault(AntiqueDataComponentTypes.MYRIAD_TOOL, MyriadToolComponent.DEFAULT_NO_CLOTH).clothType().isPresent()) {
                 addPattern(player, stack, otherStack);
                 return true;
             }
@@ -115,7 +115,7 @@ public class MyriadToolItem extends Item {
                     player.playSound(SoundEvents.BUNDLE_REMOVE_ONE, 1.0F, 1.0F);
                     setStoredStack(stack, storedStack);
                     return true;
-                } else if (!stack.getOrDefault(AntiqueDataComponentTypes.MYRIAD_TOOL, MyriadToolComponent.DEFAULT_NO_CLOTH).clothType().isEmpty()) {
+                } else if (stack.getOrDefault(AntiqueDataComponentTypes.MYRIAD_TOOL, MyriadToolComponent.DEFAULT_NO_CLOTH).clothType().isPresent()) {
                     cursorStackReference.set(swapCloth(player, stack, otherStack));
                     return true;
                 }
@@ -126,7 +126,7 @@ public class MyriadToolItem extends Item {
                 return true;
             }
 
-            if (otherStack.is(AntiqueItems.CLOTH_PATTERN) && !stack.getOrDefault(AntiqueDataComponentTypes.MYRIAD_TOOL, MyriadToolComponent.DEFAULT_NO_CLOTH).clothType().isEmpty()) {
+            if (otherStack.is(AntiqueItems.CLOTH_PATTERN) && stack.getOrDefault(AntiqueDataComponentTypes.MYRIAD_TOOL, MyriadToolComponent.DEFAULT_NO_CLOTH).clothType().isPresent()) {
                 addPattern(player, stack, otherStack);
                 return true;
             }
@@ -167,7 +167,8 @@ public class MyriadToolItem extends Item {
                     component.clothType(),
                     Optional.of(Identifier.parse(pattern)),
                     component.clothColor(),
-                    patternStack.getOrDefault(DataComponents.DYED_COLOR, new DyedItemColor(0xFFFFFF)).rgb()
+                    patternStack.getOrDefault(DataComponents.DYED_COLOR, new DyedItemColor(0xFFFFFF)).rgb(),
+                    component.emissiveItem()
             ));
             toolStack.set(CAComponents.BOOLEAN_PROPERTY, patternStack.getOrDefault(CAComponents.BOOLEAN_PROPERTY, false));
 
@@ -206,7 +207,8 @@ public class MyriadToolItem extends Item {
                     Optional.of(Identifier.parse(model)),
                     component.clothPattern(),
                     clothData.dyeable() ? new ColorProvider.Constant(clothColor.rgb()) : clothData.color(),
-                    component.patternColor()
+                    component.patternColor(),
+                    clothData.emissiveItem()
             ));
         } else {
             toolStack.set(AntiqueDataComponentTypes.MYRIAD_TOOL, new MyriadToolComponent(
@@ -214,7 +216,8 @@ public class MyriadToolItem extends Item {
                     Optional.empty(),
                     component.clothPattern(),
                     new ColorProvider.Constant(0xFFFFFF),
-                    component.patternColor()
+                    component.patternColor(),
+                    false
             ));
 
             clothStack = AntiqueItems.CLOTH.getDefaultInstance();
@@ -235,7 +238,8 @@ public class MyriadToolItem extends Item {
                 component.clothType(),
                 Optional.empty(),
                 component.clothColor(),
-                0xFFFFFF
+                0xFFFFFF,
+                component.emissiveItem()
         ));
         player.playSound(SoundEvents.BUNDLE_INSERT, 1.0F, 1.0F);
 
@@ -264,7 +268,7 @@ public class MyriadToolItem extends Item {
             tool.remove(DataComponents.WEAPON);
             tool.remove(net.hollowed.combatamenities.util.items.CAComponents.INTEGER_PROPERTY);
         }
-        tool.set(AntiqueDataComponentTypes.MYRIAD_TOOL, new MyriadToolComponent(newStack, component.clothType(), component.clothPattern(), component.clothColor(), component.patternColor()));
+        tool.set(AntiqueDataComponentTypes.MYRIAD_TOOL, new MyriadToolComponent(newStack, component.clothType(), component.clothPattern(), component.clothColor(), component.patternColor(), component.emissiveItem()));
         if (!newStack.isEmpty()) {
             String rawId = BuiltInRegistries.ITEM.getKey(newStack.getItem()).toString();
             Identifier identifier = Identifier.parse(rawId.substring(0, rawId.lastIndexOf("_")));

@@ -22,6 +22,7 @@ import net.minecraft.world.item.ItemStack;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 import org.jetbrains.annotations.NotNull;
+import org.jspecify.annotations.NonNull;
 
 import java.awt.*;
 
@@ -57,7 +58,8 @@ public class MyriadShovelEntityRenderer extends EntityRenderer<@NotNull MyriadSh
 					myriadShovelRenderState.cloth,
 					myriadShovelRenderState.pattern,
 					myriadShovelRenderState.color,
-					myriadShovelRenderState.overlayColor
+					myriadShovelRenderState.overlayColor,
+					myriadShovelRenderState.emissiveItem
 			));
 
 			ItemStackRenderState stackRenderState = new ItemStackRenderState();
@@ -85,15 +87,15 @@ public class MyriadShovelEntityRenderer extends EntityRenderer<@NotNull MyriadSh
 	}
 
 	@Override
-	protected boolean affectedByCulling(MyriadShovelEntity entity) {
+	protected boolean affectedByCulling(@NonNull MyriadShovelEntity entity) {
 		return false;
 	}
 
-	public MyriadShovelRenderState createRenderState() {
+	public @NonNull MyriadShovelRenderState createRenderState() {
 		return new MyriadShovelRenderState();
 	}
 
-	public void extractRenderState(MyriadShovelEntity myriadShovelEntity, MyriadShovelRenderState myriadShovelRenderState, float f) {
+	public void extractRenderState(@NonNull MyriadShovelEntity myriadShovelEntity, @NonNull MyriadShovelRenderState myriadShovelRenderState, float f) {
 		super.extractRenderState(myriadShovelEntity, myriadShovelRenderState, f);
 		myriadShovelRenderState.entity = myriadShovelEntity;
 		myriadShovelRenderState.stack = myriadShovelEntity.getPickupItemStackOrigin();
@@ -103,5 +105,6 @@ public class MyriadShovelEntityRenderer extends EntityRenderer<@NotNull MyriadSh
 		myriadShovelRenderState.glow = myriadShovelEntity.getGlow();
 		myriadShovelRenderState.cloth = myriadShovelEntity.getCloth();
 		myriadShovelRenderState.pattern = myriadShovelEntity.getPattern();
+		myriadShovelRenderState.emissiveItem = myriadShovelEntity.getEmissiveItem();
 	}
 }
