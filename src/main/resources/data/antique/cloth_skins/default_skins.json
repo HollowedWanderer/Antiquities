@@ -310,7 +310,7 @@
     {
       "model": "antique:typho_cloth",
       "color": {
-        "type": "antique:animated",
+        "type": "antique:sprite_animated",
         "frames": [
           "6D2C60",
           "872B56",
@@ -338,7 +338,9 @@
           "532D69"
         ],
         "frameTime": 5,
-        "interpolate": true
+        "interpolate": true,
+        "atlas": "antique:cloths",
+        "sprite": "antique:cloth/typho_cloth_emissive"
       },
       "width": 0.166,
       "length": 2.1,

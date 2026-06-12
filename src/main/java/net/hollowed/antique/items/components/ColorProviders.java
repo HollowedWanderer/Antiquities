@@ -21,12 +21,14 @@ public class ColorProviders {
         Map<Identifier, MapCodec<? extends ColorProvider>> map = new HashMap<>();
         map.put(ColorProvider.Constant.ID, ColorProvider.Constant.CODEC);
         map.put(ColorProvider.Animated.ID, ColorProvider.Animated.CODEC);
+        map.put(ColorProvider.SpriteAnimated.ID, ColorProvider.SpriteAnimated.CODEC);
         return map;
     });
     public static final Map<Identifier, StreamCodec<ByteBuf, ? extends ColorProvider>> STREAM_REGISTRY = Util.make(() -> {
         Map<Identifier, StreamCodec<ByteBuf, ? extends ColorProvider>> map = new HashMap<>();
         map.put(ColorProvider.Constant.ID, ColorProvider.Constant.STREAM_CODEC);
         map.put(ColorProvider.Animated.ID, ColorProvider.Animated.STREAM_CODEC);
+        map.put(ColorProvider.SpriteAnimated.ID, ColorProvider.SpriteAnimated.STREAM_CODEC);
         return map;
     });
     @SuppressWarnings("unchecked")

@@ -5,7 +5,7 @@
 
 package net.hollowed.antique.entities;
 
-import net.hollowed.antique.util.interfaces.duck.SetSpellTicks;
+import net.hollowed.antique.util.interfaces.duck.SpellTicksExtension;
 import net.hollowed.antique.util.delay.TickDelayScheduler;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -298,7 +298,7 @@ public class IllusionerCloneEntity extends SpellcasterIllager implements RangedA
 
         public void start() {
             this.spellCooldown = this.adjustedTickDelay(this.getInitialCooldown());
-            if (entity instanceof SetSpellTicks access) {
+            if (entity instanceof SpellTicksExtension access) {
                 access.antiquities$setSpellTicks(this.getSpellTicks());
             }
             this.startTime = entity.tickCount + this.startTimeDelay();

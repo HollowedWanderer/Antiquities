@@ -1,12 +1,12 @@
-package net.hollowed.antique.mixin.accessors;
+package net.hollowed.antique.mixin.ext;
 
-import net.hollowed.antique.util.interfaces.duck.SetSpellTicks;
+import net.hollowed.antique.util.interfaces.duck.SpellTicksExtension;
 import net.minecraft.world.entity.monster.illager.SpellcasterIllager;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 
 @Mixin(SpellcasterIllager.class)
-public class SpellTicksAccessor implements SetSpellTicks {
+public class SpellTicksMixin implements SpellTicksExtension {
 
     @Shadow protected int spellCastingTickCount;
 
