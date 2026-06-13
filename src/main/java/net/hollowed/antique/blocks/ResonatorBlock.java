@@ -1,8 +1,7 @@
 package net.hollowed.antique.blocks;
 
 import com.mojang.serialization.MapCodec;
-import net.hollowed.antique.blocks.entities.ResonatorBlockEntity;
-import net.hollowed.antique.index.AntiqueBlockEntities;
+import net.hollowed.antique.util.shockwave.Shockwave;
 import net.hollowed.antique.util.shockwave.ShockwaveManager;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -16,9 +15,6 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.ScheduledTickAccess;
 import net.minecraft.world.level.block.*;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.block.entity.BlockEntityTicker;
-import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
@@ -28,11 +24,10 @@ import net.minecraft.world.level.block.state.properties.IntegerProperty;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.level.redstone.Orientation;
-import net.minecraft.world.ticks.TickPriority;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
-public class ResonatorBlock extends BaseEntityBlock implements SimpleWaterloggedBlock {
+public class ResonatorBlock extends Block implements SimpleWaterloggedBlock {
     public static final IntegerProperty CHARGE = IntegerProperty.create("charge", 0, 15);
     public static final MapCodec<ResonatorBlock> CODEC = simpleCodec(ResonatorBlock::new);
     private static final EnumProperty<FrontAndTop> ORIENTATION = BlockStateProperties.ORIENTATION;
@@ -48,28 +43,6 @@ public class ResonatorBlock extends BaseEntityBlock implements SimpleWaterlogged
                         .setValue(POWERED, false)
                         .setValue(CHARGE, 0)
         );
-    }
-
-    @Override
-    public @Nullable <T extends BlockEntity> BlockEntityTicker<T> getTicker(
-            @NonNull Level level,
-            @NonNull BlockState state,
-            @NonNull BlockEntityType<T> type
-    ) {
-        return (level1, pos, state1, entity) -> {
-            if (level1 instanceof ServerLevel serverLevel) {
-                ResonatorBlockEntity entity1 = (ResonatorBlockEntity) entity;
-
-                if (entity1.shockwave != null && entity1.shockwave.tick(serverLevel)) {
-                    entity1.shockwave = null;
-                }
-            }
-        };
-    }
-
-    @Override
-    public @Nullable BlockEntity newBlockEntity(@NonNull BlockPos pos, @NonNull BlockState state) {
-        return new ResonatorBlockEntity(pos, state);
     }
 
     @Override
@@ -114,17 +87,6 @@ public class ResonatorBlock extends BaseEntityBlock implements SimpleWaterlogged
     }
 
     @Override
-    protected void tick(
-            @NonNull BlockState state,
-            @NonNull ServerLevel level,
-            @NonNull BlockPos pos,
-            @NonNull RandomSource randomSource
-    ) {
-        ResonatorBlockEntity entity = level.getBlockEntity(pos, AntiqueBlockEntities.RESONATOR_BLOCK_ENTITY).orElseThrow();
-        entity.shockwave = new ShockwaveManager(pos, state.getValue(ORIENTATION).front(), 24f, 1);
-    }
-
-    @Override
     protected void neighborChanged(
             @NonNull BlockState state,
             @NonNull Level level,
@@ -135,7 +97,9 @@ public class ResonatorBlock extends BaseEntityBlock implements SimpleWaterlogged
     ) {
         if (getInputSignal(level, pos, state) > 0) {
             if (!state.getValue(POWERED)) {
-                level.scheduleTick(pos, this, 2, TickPriority.VERY_HIGH);
+                if (level instanceof ServerLevel serverLevel) {
+                    ShockwaveManager.createShockwave(new Shockwave(pos, state.getValue(ORIENTATION).front(), 2.5f, 24f, 2), serverLevel);
+                }
                 level.setBlock(pos, state.setValue(POWERED, true), Block.UPDATE_ALL);
             }
         } else {
@@ -153,7 +117,9 @@ public class ResonatorBlock extends BaseEntityBlock implements SimpleWaterlogged
     ) {
         if (getInputSignal(level, pos, state) > 0) {
             if (!state.getValue(POWERED)) {
-                level.scheduleTick(pos, this, 2, TickPriority.VERY_HIGH);
+                if (level instanceof ServerLevel serverLevel) {
+                    ShockwaveManager.createShockwave(new Shockwave(pos, state.getValue(ORIENTATION).front(), 2.5f, 24f, 2), serverLevel);
+                }
                 level.setBlock(pos, state.setValue(POWERED, true), Block.UPDATE_ALL);
             }
         } else {

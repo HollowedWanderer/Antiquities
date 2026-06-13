@@ -1,4 +1,4 @@
-package net.hollowed.antique.mixin.worldgen;
+package net.hollowed.antique.mixin.world;
 
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;

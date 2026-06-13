@@ -58,8 +58,9 @@
     "items.CrossbowItemMixin",
     "items.MyriadAxeBlockMixin",
     "items.SlotMixin",
-    "worldgen.ChunkNoiseSamplerMixin",
-    "worldgen.NoiseChunkGeneratorMixin"
+    "ext.ShockwaveTickMixin",
+    "world.ChunkNoiseSamplerMixin",
+    "world.NoiseChunkGeneratorMixin"
   ],
   "injectors": {
     "defaultRequire": 1

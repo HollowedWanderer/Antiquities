@@ -1,4 +1,4 @@
-package net.hollowed.antique.mixin.worldgen;
+package net.hollowed.antique.mixin.world;
 
 import com.llamalad7.mixinextras.sugar.Local;
 import net.hollowed.antique.index.AntiqueBlockTags;
