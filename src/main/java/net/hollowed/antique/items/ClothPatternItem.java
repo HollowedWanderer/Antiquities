@@ -1,6 +1,10 @@
 package net.hollowed.antique.items;
 
+import net.hollowed.antique.index.AntiqueDataComponentTypes;
+import net.hollowed.antique.util.resources.ClothPatternData;
 import net.hollowed.combatamenities.util.items.CAComponents;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.entity.SlotAccess;
 import net.minecraft.world.entity.player.Player;
@@ -10,10 +14,22 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import org.jetbrains.annotations.NotNull;
+import org.jspecify.annotations.NonNull;
 
 public class ClothPatternItem extends Item {
     public ClothPatternItem(Properties settings) {
         super(settings);
+    }
+
+    @Override
+    public @NonNull Component getName(@NonNull ItemStack stack) {
+        ResourceKey<ClothPatternData> cloth = stack.get(AntiqueDataComponentTypes.CLOTH_PATTERN_TYPE);
+
+        if (cloth == null) {
+            return super.getName(stack);
+        }
+
+        return Component.translatable(cloth.identifier().toLanguageKey("item"));
     }
 
     @Override

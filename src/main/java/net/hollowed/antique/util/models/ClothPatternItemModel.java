@@ -7,6 +7,7 @@ import net.fabricmc.api.Environment;
 import net.hollowed.antique.Antiquities;
 import net.hollowed.antique.index.AntiqueDataComponentTypes;
 import net.hollowed.antique.util.resources.ClothPatternData;
+import net.hollowed.antique.util.resources.ClothSkinData;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.ItemBlockRenderTypes;
@@ -40,6 +41,7 @@ import java.util.function.Supplier;
 @Environment(EnvType.CLIENT)
 public class ClothPatternItemModel implements ItemModel {
 
+	public static final FileToIdConverter ROOT_MODEL_LISTER = FileToIdConverter.json("models");
 	public static final FileToIdConverter ITEM_MODEL_LISTER = FileToIdConverter.json("models/cloth_pattern");
 
 	private final Map<Identifier, List<BakedQuad>> quads;
@@ -86,15 +88,20 @@ public class ClothPatternItemModel implements ItemModel {
 			state.appendModelIdentityElement(glint);
 		}
 
-		Identifier pattern = Optional.ofNullable(stack.get(AntiqueDataComponentTypes.CLOTH_PATTERN_TYPE))
+		Optional<ResourceKey<ClothPatternData>> pattern = Optional.ofNullable(stack.get(AntiqueDataComponentTypes.CLOTH_PATTERN_TYPE));
+		Identifier patternId = pattern
 				.map(ResourceKey::identifier)
 				.orElse(Antiquities.id("cloth_pattern"));
-		state.appendModelIdentityElement(pattern);
+		state.appendModelIdentityElement(patternId);
 
-		List<BakedQuad> selected = quads.get(pattern);
+		List<BakedQuad> selected = quads.computeIfAbsent(patternId, key -> {
+			Antiquities.LOGGER.error("Couldn't get item model for cloth pattern {}", patternId);
+			return quads.get(Antiquities.id("cloth_pattern"));
+		});
 
 		layer.setExtents(this.extents);
 		layer.setRenderType(Sheets.translucentItemSheet());
+		layer.setUsesBlockLight(false);
 		this.settings.applyToLayer(layer, displayContext);
 		layer.prepareQuadList().addAll(selected);
 
@@ -109,11 +116,11 @@ public class ClothPatternItemModel implements ItemModel {
 
 		@Override
 		public void resolveDependencies(Resolver resolver) {
-			resolver.markDependency(Antiquities.id("item/cloth_pattern"));
+			resolver.markDependency(Antiquities.id("cloth_pattern/cloth_pattern"));
 
 			ITEM_MODEL_LISTER.listMatchingResources(Minecraft.getInstance().getResourceManager())
 					.keySet()
-					.forEach(resolver::markDependency);
+					.forEach(file -> resolver.markDependency(ROOT_MODEL_LISTER.fileToId(file)));
 		}
 
 		@Override
@@ -121,14 +128,14 @@ public class ClothPatternItemModel implements ItemModel {
 			ModelBaker baker = context.blockModelBaker();
 			Map<Identifier, List<BakedQuad>> variantQuads = new HashMap<>();
 
-			ResolvedModel baseBaked = baker.getModel(Antiquities.id("item/cloth_pattern"));
+			ResolvedModel baseBaked = baker.getModel(Antiquities.id("cloth_pattern/cloth_pattern"));
 			TextureSlots baseTex = baseBaked.getTopTextureSlots();
 			ModelRenderProperties settings = ModelRenderProperties.fromResolvedModel(baker, baseBaked, baseTex);
 
-			ITEM_MODEL_LISTER.listMatchingResources(Minecraft.getInstance().getResourceManager()).keySet().forEach(id -> {
-				ResolvedModel model = baker.getModel(id);
+			ITEM_MODEL_LISTER.listMatchingResources(Minecraft.getInstance().getResourceManager()).keySet().forEach(file -> {
+				ResolvedModel model = baker.getModel(ROOT_MODEL_LISTER.fileToId(file));
 				TextureSlots textures = model.getTopTextureSlots();
-				variantQuads.computeIfAbsent(id, key -> new ArrayList<>()).addAll(model.bakeTopGeometry(textures, baker, BlockModelRotation.IDENTITY).getAll());
+				variantQuads.computeIfAbsent(ITEM_MODEL_LISTER.fileToId(file), key -> new ArrayList<>()).addAll(model.bakeTopGeometry(textures, baker, BlockModelRotation.IDENTITY).getAll());
 			});
 
 			return new ClothPatternItemModel(variantQuads, settings);

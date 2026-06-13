@@ -38,6 +38,7 @@ import java.util.function.Supplier;
 @Environment(EnvType.CLIENT)
 public class ClothItemModel implements ItemModel {
 
+	public static final FileToIdConverter ROOT_MODEL_LISTER = FileToIdConverter.json("models");
 	public static final FileToIdConverter ITEM_MODEL_LISTER = FileToIdConverter.json("models/cloth");
 
 	private final Map<Identifier, List<BakedQuad>> quads;
@@ -93,12 +94,13 @@ public class ClothItemModel implements ItemModel {
 		state.appendModelIdentityElement(clothId);
 
 		List<BakedQuad> selected = quads.computeIfAbsent(clothId, key -> {
-			Antiquities.LOGGER.error("Couldn't get model for cloth {}", clothId);
-			return new ArrayList<>();
+			Antiquities.LOGGER.error("Couldn't get item model for cloth {}", clothId);
+			return quads.get(Antiquities.id("cloth"));
 		});
 
 		layer.setExtents(this.extents);
 		layer.setRenderType(Sheets.translucentItemSheet());
+		layer.setUsesBlockLight(false);
 		this.settings.applyToLayer(layer, displayContext);
 		layer.prepareQuadList().addAll(selected);
 
@@ -127,11 +129,11 @@ public class ClothItemModel implements ItemModel {
 
 		@Override
 		public void resolveDependencies(Resolver resolver) {
-			resolver.markDependency(Antiquities.id("item/cloth"));
+			resolver.markDependency(Antiquities.id("cloth/cloth"));
 
 			ITEM_MODEL_LISTER.listMatchingResources(Minecraft.getInstance().getResourceManager())
 					.keySet()
-					.forEach(id -> resolver.markDependency(ITEM_MODEL_LISTER.fileToId(id)));
+					.forEach(id -> resolver.markDependency(ROOT_MODEL_LISTER.fileToId(id)));
 		}
 
 		@Override
@@ -139,15 +141,14 @@ public class ClothItemModel implements ItemModel {
 			ModelBaker baker = context.blockModelBaker();
 			Map<Identifier, List<BakedQuad>> variantQuads = new HashMap<>();
 
-			ResolvedModel baseBaked = baker.getModel(Antiquities.id("item/cloth"));
+			ResolvedModel baseBaked = baker.getModel(Antiquities.id("cloth/cloth"));
 			TextureSlots baseTex = baseBaked.getTopTextureSlots();
 			ModelRenderProperties settings = ModelRenderProperties.fromResolvedModel(baker, baseBaked, baseTex);
 
 			ITEM_MODEL_LISTER.listMatchingResources(Minecraft.getInstance().getResourceManager()).keySet().forEach(file -> {
-				Identifier id = ITEM_MODEL_LISTER.fileToId(file);
-				ResolvedModel model = baker.getModel(id);
+				ResolvedModel model = baker.getModel(ROOT_MODEL_LISTER.fileToId(file));
 				TextureSlots textures = model.getTopTextureSlots();
-				variantQuads.computeIfAbsent(id, key -> new ArrayList<>()).addAll(model.bakeTopGeometry(textures, baker, BlockModelRotation.IDENTITY).getAll());
+				variantQuads.computeIfAbsent(ITEM_MODEL_LISTER.fileToId(file), key -> new ArrayList<>()).addAll(model.bakeTopGeometry(textures, baker, BlockModelRotation.IDENTITY).getAll());
 			});
 
 			return new ClothItemModel(variantQuads, settings, tints);

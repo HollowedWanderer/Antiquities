@@ -320,10 +320,10 @@ public class Antiquities implements ModInitializer {
 					.holders()
 					.lookupOrThrow(AntiqueRegistries.CLOTH_PATTERNS)
 					.getOrThrow(AntiqueClothPatternTags.CREATIVE_TAB_ORDER)
-					.forEach(skin -> {
-                        ItemStack stack = AntiqueItems.CLOTH.getDefaultInstance();
+					.forEach(pattern -> {
+                        ItemStack stack = AntiqueItems.CLOTH_PATTERN.getDefaultInstance();
 
-						stack.set(AntiqueDataComponentTypes.CLOTH_PATTERN_TYPE, skin.unwrapKey().orElseThrow());
+						stack.set(AntiqueDataComponentTypes.CLOTH_PATTERN_TYPE, pattern.unwrapKey().orElseThrow());
 						stack.set(DataComponents.DYED_COLOR, new DyedItemColor(0xFFFFFF));
 
 						if (!group.getDisplayStacks().contains(stack)) {

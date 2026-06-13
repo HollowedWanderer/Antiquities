@@ -1,7 +1,6 @@
 {
-	"parent": "minecraft:item/handheld",
-	"textures": {
-		"layer0": "antique:item/cloth/lizard_cloth_item",
-		"layer1": "antique:item/cloth/lizard_cloth_item_large"
-	}
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "antique:item/lizard_cloth"
+  }
 }

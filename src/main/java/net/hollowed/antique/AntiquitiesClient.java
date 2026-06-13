@@ -212,7 +212,7 @@ public class AntiquitiesClient implements ClientModInitializer {
 
                     cloth.pattern().ifPresent(pattern -> {
                         String patternName = pattern.identifier().toLanguageKey();
-                        Component text = Component.literal(" - ").append(Component.translatable("item." + patternName + "_cloth_pattern")).withColor(new Color(cloth.patternColor().orElse(ClothSkinData.DEFAULT_COLOR)).brighter().getRGB());
+                        Component text = Component.literal(" - ").append(Component.translatable("item." + patternName)).withColor(new Color(cloth.patternColor().orElse(ClothSkinData.DEFAULT_COLOR)).brighter().getRGB());
 
                         if (itemStack.getOrDefault(CAComponents.BOOLEAN_PROPERTY, false)) {
                             text = text.copy().append(Component.literal(" - ").withColor(0xff4adbb8)).append(Component.translatable("item.antique.glowing").withColor(0xff4adbb8));
