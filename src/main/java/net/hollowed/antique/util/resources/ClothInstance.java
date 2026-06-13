@@ -4,9 +4,7 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.hollowed.antique.Antiquities;
 import net.hollowed.antique.index.AntiqueDataComponentTypes;
-import net.hollowed.antique.index.AntiqueItems;
 import net.hollowed.antique.index.AntiqueRegistries;
-import net.hollowed.antique.items.components.MyriadToolComponent;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
@@ -80,53 +78,5 @@ public record ClothInstance(
         Optional<ResourceKey<ClothPatternData>> pattern = Optional.ofNullable(stack.get(AntiqueDataComponentTypes.CLOTH_PATTERN_TYPE));
         Optional<Integer> patternColor = Optional.ofNullable(stack.get(DataComponents.DYED_COLOR)).map(DyedItemColor::rgb);
         return new ClothInstance(cloth, clothColor, pattern, patternColor);
-    }
-
-    public Optional<ClothInstance> exportCloth(ItemStack stack) {
-        return pattern.map(pattern -> {
-            stack.set(AntiqueDataComponentTypes.CLOTH_PATTERN_TYPE, pattern);
-            patternColor.ifPresentOrElse(
-                    rgb -> stack.set(DataComponents.DYED_COLOR, new DyedItemColor(rgb)),
-                    () -> stack.remove(DataComponents.DYED_COLOR)
-            );
-
-            return new ClothInstance(cloth, clothColor, Optional.empty(), Optional.empty());
-        }).or(() -> {
-            stack.set(AntiqueDataComponentTypes.CLOTH_TYPE, cloth);
-            clothColor.ifPresentOrElse(
-                    rgb -> stack.set(DataComponents.DYED_COLOR, new DyedItemColor(rgb)),
-                    () -> stack.remove(DataComponents.DYED_COLOR)
-            );
-
-            return Optional.empty();
-        });
-    }
-
-    public ItemStack exportClothToTool(ItemStack toolStack, MyriadToolComponent tool) {
-        return pattern.map(pattern -> {
-            ItemStack stack = new ItemStack(AntiqueItems.CLOTH_PATTERN);
-
-            stack.set(AntiqueDataComponentTypes.CLOTH_PATTERN_TYPE, pattern);
-            patternColor.ifPresentOrElse(
-                    rgb -> stack.set(DataComponents.DYED_COLOR, new DyedItemColor(rgb)),
-                    () -> stack.remove(DataComponents.DYED_COLOR)
-            );
-
-            toolStack.set(AntiqueDataComponentTypes.MYRIAD_TOOL, tool.withCloth(Optional.of(new ClothInstance(cloth, clothColor, Optional.empty(), Optional.empty()))));
-
-            return stack;
-        }).orElseGet(() -> {
-            ItemStack stack = new ItemStack(AntiqueItems.CLOTH);
-
-            stack.set(AntiqueDataComponentTypes.CLOTH_TYPE, cloth);
-            clothColor.ifPresentOrElse(
-                    rgb -> stack.set(DataComponents.DYED_COLOR, new DyedItemColor(rgb)),
-                    () -> stack.remove(DataComponents.DYED_COLOR)
-            );
-
-            toolStack.set(AntiqueDataComponentTypes.MYRIAD_TOOL, tool.withCloth(Optional.empty()));
-
-            return stack;
-        });
     }
 }
