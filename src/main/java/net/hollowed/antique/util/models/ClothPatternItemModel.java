@@ -5,6 +5,8 @@ import com.mojang.serialization.MapCodec;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.hollowed.antique.Antiquities;
+import net.hollowed.antique.index.AntiqueDataComponentTypes;
+import net.hollowed.antique.util.resources.ClothPatternData;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.ItemBlockRenderTypes;
@@ -17,15 +19,13 @@ import net.minecraft.client.renderer.item.ItemModelResolver;
 import net.minecraft.client.renderer.item.ItemStackRenderState;
 import net.minecraft.client.renderer.item.ModelRenderProperties;
 import net.minecraft.client.renderer.rendertype.RenderType;
-import net.minecraft.client.renderer.texture.TextureAtlas;
+import net.minecraft.client.renderer.rendertype.RenderTypes;
 import net.minecraft.client.resources.model.BlockModelRotation;
 import net.minecraft.client.resources.model.ModelBaker;
 import net.minecraft.client.resources.model.ResolvedModel;
-import net.minecraft.core.component.DataComponents;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.contents.TranslatableContents;
+import net.minecraft.resources.FileToIdConverter;
 import net.minecraft.resources.Identifier;
-import net.minecraft.server.packs.resources.ResourceManager;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.world.entity.ItemOwner;
 import net.minecraft.world.item.*;
@@ -40,111 +40,30 @@ import java.util.function.Supplier;
 @Environment(EnvType.CLIENT)
 public class ClothPatternItemModel implements ItemModel {
 
-	private static final Function<ItemStack, RenderType> ITEM_RENDER_TYPE_GETTER = (itemStack) -> Sheets.translucentItemSheet();
-	private static final Function<ItemStack, RenderType> BLOCK_RENDER_TYPE_GETTER = (itemStack) -> {
-		Item item = itemStack.getItem();
-		if (item instanceof BlockItem blockItem) {
-			ChunkSectionLayer chunkSectionLayer = ItemBlockRenderTypes.getChunkRenderType(blockItem.getBlock().defaultBlockState());
-			if (chunkSectionLayer != ChunkSectionLayer.TRANSLUCENT) {
-				return Sheets.cutoutBlockSheet();
-			}
-		}
+	public static final FileToIdConverter ITEM_MODEL_LISTER = FileToIdConverter.json("models/cloth_pattern");
 
-		return Sheets.translucentBlockItemSheet();
-	};
-
-	private final List<BakedQuad> quads;
-	private final Supplier<Vector3fc[]> vector;
+	private final Map<Identifier, List<BakedQuad>> quads;
+	private final Supplier<Vector3fc[]> extents;
 	private final ModelRenderProperties settings;
 	private final boolean animated;
-	private static final ArrayList<String> models = new ArrayList<>();
-	private final Function<ItemStack, RenderType> renderType;
 
-	private record QuadKey(String variant) {}
-	private final Map<QuadKey, BakedQuad[]> quadIndex;
-
-	public ClothPatternItemModel(List<BakedQuad> quads, ModelRenderProperties settings, Function<ItemStack, RenderType> function) {
+	public ClothPatternItemModel(Map<Identifier, List<BakedQuad>> quads, ModelRenderProperties settings) {
 		this.quads = quads;
 		this.settings = settings;
-		this.vector = Suppliers.memoize(() -> computeExtents(this.quads));
-		this.quadIndex = buildQuadIndex(quads);
-		this.renderType = function;
-		boolean bl = false;
+		this.extents = Suppliers.memoize(() -> {
+			Set<Vector3fc> extents = new HashSet<>();
 
-		for (BakedQuad bakedQuad : quads) {
-			if (bakedQuad.sprite().contents().isAnimated()) {
-				bl = true;
-				break;
-			}
-		}
-
-		this.animated = bl;
-	}
-
-	private static Map<QuadKey, BakedQuad[]> buildQuadIndex(List<BakedQuad> quads) {
-		Map<QuadKey, List<BakedQuad>> temp = new HashMap<>(64);
-
-		for (BakedQuad quad : quads) {
-			Identifier id = quad.sprite().contents().name();
-			String path = id.getPath();
-
-			String variant = extractVariantName(path);
-			variant = variant.intern();
-
-			QuadKey key = new QuadKey(variant);
-			temp.computeIfAbsent(key, k -> new ArrayList<>(8)).add(quad);
-		}
-
-		Map<QuadKey, BakedQuad[]> out = new HashMap<>(temp.size());
-		for (Map.Entry<QuadKey, List<BakedQuad>> e : temp.entrySet()) {
-			out.put(e.getKey(), e.getValue().toArray(BakedQuad[]::new));
-		}
-		return out;
-	}
-
-	private static String extractVariantName(String path) {
-		int lastSlash = path.lastIndexOf('/');
-		String name = lastSlash >= 0 ? path.substring(lastSlash + 1) : path;
-		return name.isEmpty() ? "cloth_pattern" : name;
-	}
-
-	public static Vector3fc[] computeExtents(List<BakedQuad> list) {
-		Set<Vector3fc> set = new HashSet<>();
-
-		for(BakedQuad bakedQuad : list) {
-			for(int i = 0; i < 4; ++i) {
-				set.add(bakedQuad.position(i));
-			}
-		}
-
-		return set.toArray(Vector3fc[]::new);
-	}
-
-	@SuppressWarnings("all")
-	static Function<ItemStack, RenderType> detectRenderType(List<BakedQuad> list) {
-		Iterator<BakedQuad> iterator = list.iterator();
-		if (!iterator.hasNext()) {
-			return ITEM_RENDER_TYPE_GETTER;
-		} else {
-			Identifier identifier = iterator.next().sprite().atlasLocation();
-
-			while(iterator.hasNext()) {
-				BakedQuad bakedQuad = iterator.next();
-				Identifier identifier2 = bakedQuad.sprite().atlasLocation();
-				if (!identifier2.equals(identifier)) {
-					String var10002 = String.valueOf(identifier);
-					throw new IllegalStateException("Multiple atlases used in model, expected " + var10002 + ", but also got " + String.valueOf(identifier2));
+			for (List<BakedQuad> list : this.quads.values()) {
+				for (BakedQuad quad : list) {
+					for (int i = 0; i < 4; ++i) {
+						extents.add(quad.position(i));
+					}
 				}
 			}
 
-			if (identifier.equals(TextureAtlas.LOCATION_ITEMS)) {
-				return ITEM_RENDER_TYPE_GETTER;
-			} else if (identifier.equals(TextureAtlas.LOCATION_BLOCKS)) {
-				return BLOCK_RENDER_TYPE_GETTER;
-			} else {
-				throw new IllegalArgumentException("Atlas " + identifier + " can't be usef for item models");
-			}
-		}
+			return extents.toArray(Vector3fc[]::new);
+		});
+		this.animated = quads.values().stream().anyMatch(list -> list.stream().anyMatch(quad -> quad.sprite().contents().isAnimated()));
 	}
 
 	@Override
@@ -153,109 +72,70 @@ public class ClothPatternItemModel implements ItemModel {
 			ItemStack stack,
 			@NotNull ItemModelResolver resolver,
 			@NotNull ItemDisplayContext displayContext,
-			@Nullable ClientLevel world,
+			@Nullable ClientLevel level,
 			@Nullable ItemOwner heldItemContext,
 			int seed
 	) {
 		state.appendModelIdentityElement(this);
-		ItemStackRenderState.LayerRenderState layerRenderState = state.newLayer();
+		ItemStackRenderState.LayerRenderState layer = state.newLayer();
+
 		if (stack.hasFoil()) {
-			ItemStackRenderState.FoilType glint = shouldUseSpecialGlint(stack) ? ItemStackRenderState.FoilType.SPECIAL : ItemStackRenderState.FoilType.STANDARD;
-			layerRenderState.setFoilType(glint);
+			ItemStackRenderState.FoilType glint = ItemStackRenderState.FoilType.STANDARD;
+			layer.setFoilType(glint);
 			state.setAnimated();
 			state.appendModelIdentityElement(glint);
 		}
 
-		String modelVariant = "item.antique.cloth_pattern";
-		Component text = stack.getOrDefault(DataComponents.ITEM_NAME, Component.translatable("item.antique.cloth_pattern"));
-		if (text.getContents() instanceof TranslatableContents translatable) {
-			modelVariant = translatable.getKey();
-		}
-		modelVariant = modelVariant.substring(modelVariant.lastIndexOf(".") + 1);
-		state.appendModelIdentityElement(modelVariant);
+		Identifier pattern = Optional.ofNullable(stack.get(AntiqueDataComponentTypes.CLOTH_PATTERN_TYPE))
+				.map(ResourceKey::identifier)
+				.orElse(Antiquities.id("cloth_pattern"));
+		state.appendModelIdentityElement(pattern);
 
-		BakedQuad[] selected = quadIndex.get(new QuadKey(modelVariant));
-		if (selected == null || selected.length == 0) selected = quadIndex.get(new QuadKey("cloth_pattern"));
+		List<BakedQuad> selected = quads.get(pattern);
 
-		layerRenderState.setExtents(this.vector);
-		layerRenderState.setRenderType(this.renderType.apply(stack));
-		this.settings.applyToLayer(layerRenderState, displayContext);
-		if (selected != null && selected.length > 0) {
-			Collections.addAll(layerRenderState.prepareQuadList(), selected);
-		}
+		layer.setExtents(this.extents);
+		layer.setRenderType(Sheets.translucentItemSheet());
+		this.settings.applyToLayer(layer, displayContext);
+		layer.prepareQuadList().addAll(selected);
 
 		if (this.animated) {
 			state.setAnimated();
 		}
 	}
 
-	private static boolean shouldUseSpecialGlint(ItemStack stack) {
-		return stack.is(ItemTags.COMPASSES) || stack.is(Items.CLOCK);
-	}
-
 	@Environment(EnvType.CLIENT)
 	public record Unbaked() implements ItemModel.Unbaked {
-		public static final MapCodec<net.hollowed.antique.util.models.ClothPatternItemModel.Unbaked> CODEC = MapCodec.unit(new net.hollowed.antique.util.models.ClothPatternItemModel.Unbaked());
+		public static final MapCodec<ClothPatternItemModel.Unbaked> CODEC = MapCodec.unit(new ClothPatternItemModel.Unbaked());
 
 		@Override
 		public void resolveDependencies(Resolver resolver) {
 			resolver.markDependency(Antiquities.id("item/cloth_pattern"));
 
-			ResourceManager manager = Minecraft.getInstance().getResourceManager();
-			manager.listResources("models/item", path -> path.getPath().endsWith(".json")).keySet().forEach(id -> {
-				if (manager.getResource(id).isPresent() && id.getPath().contains("_cloth_pattern")) {
-					String string = id.toString();
-					string = string.substring(0, string.indexOf("."));
-					string = string.substring(0, string.indexOf(":") + 1) + string.substring(string.indexOf("/") + 1);
-					if (!models.contains(string)) {
-						models.add(string);
-					}
-				}
-			});
-
-			for (String model : models) {
-				resolver.markDependency(Identifier.parse(model));
-			}
+			ITEM_MODEL_LISTER.listMatchingResources(Minecraft.getInstance().getResourceManager())
+					.keySet()
+					.forEach(resolver::markDependency);
 		}
 
 		@Override
 		public @NotNull ItemModel bake(BakingContext context) {
 			ModelBaker baker = context.blockModelBaker();
-			List<BakedQuad> variantQuads = new ArrayList<>(64);
-
-			if (!models.contains("antique:item/cloth_pattern")) {
-				models.add("antique:item/cloth_pattern");
-			}
+			Map<Identifier, List<BakedQuad>> variantQuads = new HashMap<>();
 
 			ResolvedModel baseBaked = baker.getModel(Antiquities.id("item/cloth_pattern"));
 			TextureSlots baseTex = baseBaked.getTopTextureSlots();
 			ModelRenderProperties settings = ModelRenderProperties.fromResolvedModel(baker, baseBaked, baseTex);
 
-			ResourceManager manager = Minecraft.getInstance().getResourceManager();
-			manager.listResources("models/item", path -> path.getPath().endsWith(".json")).keySet().forEach(id -> {
-				if (manager.getResource(id).isPresent() && id.getPath().contains("_cloth_pattern")) {
-					String string = id.toString();
-					string = string.substring(0, string.indexOf("."));
-					string = string.substring(0, string.indexOf(":") + 1) + string.substring(string.indexOf("/") + 1);
-					if (!models.contains(string)) {
-						models.add(string);
-					}
-				}
+			ITEM_MODEL_LISTER.listMatchingResources(Minecraft.getInstance().getResourceManager()).keySet().forEach(id -> {
+				ResolvedModel model = baker.getModel(id);
+				TextureSlots textures = model.getTopTextureSlots();
+				variantQuads.computeIfAbsent(id, key -> new ArrayList<>()).addAll(model.bakeTopGeometry(textures, baker, BlockModelRotation.IDENTITY).getAll());
 			});
 
-			for (String model : models) {
-				ResolvedModel m = baker.getModel(Identifier.parse(model));
-				TextureSlots tex = m.getTopTextureSlots();
-				variantQuads.addAll(m.bakeTopGeometry(tex, baker, BlockModelRotation.IDENTITY).getAll());
-			}
-
-			Function<ItemStack, RenderType> function = detectRenderType(variantQuads);
-
-			return new ClothPatternItemModel(variantQuads, settings, function);
+			return new ClothPatternItemModel(variantQuads, settings);
 		}
 
 		@Override
-		public @NotNull MapCodec<net.hollowed.antique.util.models.ClothPatternItemModel.Unbaked> type() {
+		public @NotNull MapCodec<ClothPatternItemModel.Unbaked> type() {
 			return CODEC;
 		}
 	}

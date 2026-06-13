@@ -2,6 +2,7 @@ package net.hollowed.antique.util.resources;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.hollowed.antique.Antiquities;
 import net.hollowed.antique.index.AntiqueRegistries;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderGetter;
