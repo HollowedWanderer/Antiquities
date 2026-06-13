@@ -82,6 +82,7 @@ public class Antiquities implements ModInitializer {
 
 		ResourceLoader.get(PackType.CLIENT_RESOURCES).registerReloader(id("staff_transforms"), new MyriadStaffTransformResourceReloadListener());
 		ResourceLoader.get(PackType.CLIENT_RESOURCES).registerReloader(id("pedestal_transforms"), new PedestalDisplayListener());
+		ResourceLoader.get(PackType.CLIENT_RESOURCES).registerReloader(id("cloth_models"), new ClothModelListener());
 
 		/*
 			Packets
@@ -168,8 +169,21 @@ public class Antiquities implements ModInitializer {
 						Items.BUNDLE, Items.WHITE_BUNDLE, Items.LIGHT_GRAY_BUNDLE, Items.GRAY_BUNDLE, Items.BLACK_BUNDLE, Items.BROWN_BUNDLE, Items.RED_BUNDLE,
 						Items.ORANGE_BUNDLE, Items.YELLOW_BUNDLE, Items.LIME_BUNDLE, Items.GREEN_BUNDLE, Items.CYAN_BUNDLE, Items.LIGHT_BLUE_BUNDLE, Items.BLUE_BUNDLE,
 						Items.PURPLE_BUNDLE, Items.MAGENTA_BUNDLE, Items.PINK_BUNDLE
-						),
+				),
 				(builder, item) -> builder.set(DataComponents.ENCHANTABLE, new Enchantable(10))
+		));
+
+		DefaultItemComponentEvents.MODIFY.register(ctx -> ctx.modify(
+				List.of(
+						AntiqueItems.CLOTH
+				),
+				(builder, item) -> builder.set(AntiqueDataComponentTypes.CLOTH_TYPE, ResourceKey.create(AntiqueRegistries.CLOTHS, id("cloth")))
+		));
+		DefaultItemComponentEvents.MODIFY.register(ctx -> ctx.modify(
+				List.of(
+						AntiqueItems.MYRIAD_TOOL
+				),
+				(builder, item) -> builder.set(AntiqueDataComponentTypes.MYRIAD_TOOL, MyriadToolComponent.DEFAULT_NO_CLOTH)
 		));
 
 		/*

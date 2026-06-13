@@ -13,7 +13,7 @@ import java.util.Optional;
 public class MyriadShovelRenderState extends EntityRenderState {
     public Entity entity;
     public ItemStack stack;
-    public Optional<Integer> color;
+    public Integer color;
     public Optional<Integer> patternColor;
     public boolean isEnchanted;
     public boolean glow;

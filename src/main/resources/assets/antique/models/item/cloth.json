@@ -1,6 +1,6 @@
 {
   "parent": "minecraft:item/generated",
   "textures": {
-    "layer0": "antique:item/line_cloth_pattern"
+    "layer0": "antique:item/cloth"
   }
 }

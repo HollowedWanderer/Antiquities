@@ -11,11 +11,15 @@ import net.hollowed.antique.AntiquitiesClient;
 import net.hollowed.antique.client.sound.cloth.AmbientClothSoundInstance;
 import net.hollowed.antique.entities.parts.MyriadShovelPart;
 import net.hollowed.antique.index.AntiqueParticles;
+import net.hollowed.antique.util.resources.ClothModelListener;
 import net.hollowed.antique.util.resources.ClothPatternData;
 import net.hollowed.antique.util.resources.ColorProvider;
 import net.hollowed.antique.mixin.accessors.SpriteContentsAnimationStateAccessor;
 import net.hollowed.antique.particles.TyphoSparkParticle;
 import net.hollowed.antique.util.resources.ClothSkinData;
+import net.hollowed.antique.util.resources.client.ClothModelData;
+import net.hollowed.antique.util.resources.client.ClothSprite;
+import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.core.Holder;
 import net.minecraft.core.particles.ParticleOptions;
@@ -314,7 +318,10 @@ public class ClothManager {
         this.render = true;
         this.particles = true;
         this.data = skin.value();
-        Identifier texture = skin.value().texture().orElse(skin.unwrapKey().orElseThrow().identifier());
+        ClothModelData model = ClothModelListener.MODELS.computeIfAbsent(skin.value().model().orElse(skin.unwrapKey().orElseThrow().identifier()), key -> {
+            Antiquities.LOGGER.error("Nonexistent cloth model {}", key);
+            return ClothModelData.EMPTY;
+        });
         int bodyCount = skin.value().bodyAmount();
         float width = skin.value().width();
         if (skin.value().light() != 0) light = skin.value().light();
@@ -381,54 +388,32 @@ public class ClothManager {
 
             int finalLight = light;
 
-            TextureAtlasSprite baseSprite = Minecraft.getInstance()
-                    .getAtlasManager()
-                    .getAtlasOrThrow(AntiquitiesClient.CLOTHS_ATLAS)
-                    .getSprite(texture.withPrefix("cloth/"));
-            drawQuad(
-                    matrices,
-                    new Matrix4f(),
-                    CLOTH_RENDER_LAYER,
-                    queue,
-                    1,
-                    a,
-                    b,
-                    posEnd,
-                    negEnd,
-                    new Vec2(baseSprite.getU0(), baseSprite.getV(uvTop)),
-                    new Vec2(baseSprite.getU1(), baseSprite.getV(uvTop)),
-                    new Vec2(baseSprite.getU1(), baseSprite.getV(uvBot)),
-                    new Vec2(baseSprite.getU0(), baseSprite.getV(uvBot)),
-                    finalLight,
-                    color
-            );
-
-            if (skin.value().emissiveLayer()) {
-                TextureAtlasSprite emissiveSprite = Minecraft.getInstance()
+            for (ClothSprite spriteData : model.worldSprites()) {
+                TextureAtlasSprite sprite = Minecraft.getInstance()
                         .getAtlasManager()
                         .getAtlasOrThrow(AntiquitiesClient.CLOTHS_ATLAS)
-                        .getSprite(texture.withPrefix("cloth/").withSuffix("_emissive"));
+                        .getSprite(spriteData.texture());
                 drawQuad(
                         matrices,
                         new Matrix4f(),
                         CLOTH_RENDER_LAYER,
                         queue,
-                        2,
+                        1,
                         a,
                         b,
                         posEnd,
                         negEnd,
-                        new Vec2(emissiveSprite.getU0(), emissiveSprite.getV(uvTop)),
-                        new Vec2(emissiveSprite.getU1(), emissiveSprite.getV(uvTop)),
-                        new Vec2(emissiveSprite.getU1(), emissiveSprite.getV(uvBot)),
-                        new Vec2(emissiveSprite.getU0(), emissiveSprite.getV(uvBot)),
-                        255,
+                        new Vec2(sprite.getU0(), sprite.getV(uvTop)),
+                        new Vec2(sprite.getU1(), sprite.getV(uvTop)),
+                        new Vec2(sprite.getU1(), sprite.getV(uvBot)),
+                        new Vec2(sprite.getU0(), sprite.getV(uvBot)),
+                        spriteData.light().map(l -> LightTexture.pack(l, l)).orElse(finalLight),
                         color
                 );
             }
 
             pattern.ifPresent(holder -> {
-                TextureAtlasSprite patternSprite = Minecraft.getInstance()
+                TextureAtlasSprite sprite = Minecraft.getInstance()
                         .getAtlasManager()
                         .getAtlasOrThrow(AntiquitiesClient.CLOTHS_ATLAS)
                         .getSprite(holder.unwrapKey().orElseThrow().identifier().withPrefix("cloth/pattern/").withSuffix("_" + skin.value().shape().orElseThrow()));
@@ -442,10 +427,10 @@ public class ClothManager {
                         b,
                         posEnd,
                         negEnd,
-                        new Vec2(patternSprite.getU0(), patternSprite.getV(uvTop)),
-                        new Vec2(patternSprite.getU1(), patternSprite.getV(uvTop)),
-                        new Vec2(patternSprite.getU1(), patternSprite.getV(uvBot)),
-                        new Vec2(patternSprite.getU0(), patternSprite.getV(uvBot)),
+                        new Vec2(sprite.getU0(), sprite.getV(uvTop)),
+                        new Vec2(sprite.getU1(), sprite.getV(uvTop)),
+                        new Vec2(sprite.getU1(), sprite.getV(uvBot)),
+                        new Vec2(sprite.getU0(), sprite.getV(uvBot)),
                         glow ? 255 : finalLight,
                         patternColor
                 );
@@ -481,6 +466,6 @@ public class ClothManager {
 
     @Override
     public String toString() {
-        return "ClothManager{pos=" + pos + ", entity=" + entity + ", texture=" + data.texture() + "}";
+        return "ClothManager{pos=" + pos + ", entity=" + entity + ", model=" + data.model() + "}";
     }
 }

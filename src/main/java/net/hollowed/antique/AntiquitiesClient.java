@@ -29,6 +29,8 @@ import net.minecraft.client.renderer.entity.ThrownItemRenderer;
 import net.minecraft.client.renderer.item.ItemModels;
 import net.minecraft.client.renderer.item.properties.conditional.ConditionalItemModelProperties;
 import net.minecraft.client.renderer.item.properties.select.SelectItemModelProperties;
+import net.minecraft.client.renderer.rendertype.RenderType;
+import net.minecraft.client.renderer.rendertype.RenderTypes;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.chat.Component;
@@ -41,6 +43,7 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import java.awt.*;
+import java.util.Objects;
 
 public class AntiquitiesClient implements ClientModInitializer {
 
@@ -51,7 +54,6 @@ public class AntiquitiesClient implements ClientModInitializer {
     private static boolean wasCrawling = false; // Store previous key state
 
     public static final Identifier CLOTHS_ATLAS = Antiquities.id("cloths");
-
     public static final Identifier CLOTHS_ATLAS_TEXTURE = CLOTHS_ATLAS.withPath(path -> "textures/atlas/" + path + ".png");
 
     @Override
@@ -66,7 +68,7 @@ public class AntiquitiesClient implements ClientModInitializer {
         ItemModels.ID_MAPPER.put(Antiquities.id("satchel/selected_item"), SatchelSelectedItemModel.Unbaked.CODEC);
         ItemModels.ID_MAPPER.put(Antiquities.id("bag/selected_item"), BagOfTricksSelectedItemModel.Unbaked.CODEC);
         ItemModels.ID_MAPPER.put(Antiquities.id("bag/first_stack"), BagOfTricksFirstStackItemModel.Unbaked.CODEC);
-        ItemModels.ID_MAPPER.put(Antiquities.id("myriad_cloth"), MyriadClothItemModel.Unbaked.CODEC);
+        ItemModels.ID_MAPPER.put(Antiquities.id("myriad_cloth"), TiedClothItemModel.Unbaked.CODEC);
         ItemModels.ID_MAPPER.put(Antiquities.id("cloth"), ClothItemModel.Unbaked.CODEC);
         ItemModels.ID_MAPPER.put(Antiquities.id("cloth_pattern"), ClothPatternItemModel.Unbaked.CODEC);
         ItemModels.ID_MAPPER.put(Antiquities.id("model_glow"), GlowBasicItemModel.Unbaked.CODEC);
@@ -208,11 +210,11 @@ public class AntiquitiesClient implements ClientModInitializer {
 
                 component.cloth().ifPresent(cloth -> {
                     String clothName = cloth.cloth().identifier().toLanguageKey();
-                    list.add(2, Component.literal(" - ").append(Component.translatable("item." + clothName)).withColor(new Color(cloth.clothColor().orElse(ClothSkinData.DEFAULT_COLOR)).brighter().getRGB()));
+                    list.add(2, Component.literal(" - ").append(Component.translatable("item." + clothName)).withColor(new Color(cloth.clothColor().orElseGet(() -> ClothSkinData.get(cloth.cloth(), Objects.requireNonNull(tooltipContext.registries())).color().getColorClient())).brighter().getRGB()));
 
                     cloth.pattern().ifPresent(pattern -> {
                         String patternName = pattern.identifier().toLanguageKey();
-                        Component text = Component.literal(" - ").append(Component.translatable("item." + patternName)).withColor(new Color(cloth.patternColor().orElse(ClothSkinData.DEFAULT_COLOR)).brighter().getRGB());
+                        Component text = Component.literal(" - ").append(Component.translatable("item." + patternName)).withColor(new Color(cloth.patternColor().orElse(0xFFFFFFFF)).brighter().getRGB());
 
                         if (itemStack.getOrDefault(CAComponents.BOOLEAN_PROPERTY, false)) {
                             text = text.copy().append(Component.literal(" - ").withColor(0xff4adbb8)).append(Component.translatable("item.antique.glowing").withColor(0xff4adbb8));

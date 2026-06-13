@@ -1,6 +1,6 @@
 {
   "color": {
-    "type": "antique:sprite_animated",
+    "type": "antique:animated",
     "frames": [
       "6D2C60",
       "872B56",
@@ -28,9 +28,7 @@
       "532D69"
     ],
     "frameTime": 5,
-    "interpolate": true,
-    "atlas": "antique:cloths",
-    "sprite": "antique:cloth/typho_cloth_emissive"
+    "interpolate": true
   },
   "particleData": {
     "particle": {
@@ -48,9 +46,6 @@
   },
   "width": 0.2,
   "length": 2.4,
-  "gravity": 0,
-  "waterGravity": 0,
-  "bodies": 8,
-  "emissiveLayer": true,
-  "emissiveItem": true
+  "gravity": 0.25,
+  "bodies": 8
 }

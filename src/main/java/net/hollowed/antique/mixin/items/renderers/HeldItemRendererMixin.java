@@ -81,7 +81,7 @@ public abstract class HeldItemRendererMixin<S extends ArmedEntityRenderState, M 
                                     submitNodeCollector,
                                     i,
                                     stack.getOrDefault(CAComponents.BOOLEAN_PROPERTY, false),
-                                    new Color(cloth.clothColor().orElse(ClothSkinData.DEFAULT_COLOR)),
+                                    new Color(cloth.clothColor().orElseGet(() -> data.value().color().getColorClient())),
                                     new Color(cloth.patternColor().orElse(0xFFFFFFFF)),
                                     ClothPatternData.getHolderFromKey(cloth.pattern(), living.registryAccess())
                             );

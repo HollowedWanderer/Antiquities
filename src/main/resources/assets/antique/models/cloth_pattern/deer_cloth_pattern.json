@@ -1,6 +1,2 @@
 {
-  "parent": "minecraft:item/generated",
-  "textures": {
-    "layer0": "antique:item/deer_cloth_pattern"
-  }
 }

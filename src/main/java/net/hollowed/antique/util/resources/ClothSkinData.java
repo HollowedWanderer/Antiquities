@@ -15,7 +15,7 @@ import java.util.Optional;
 
 public record ClothSkinData(
         Optional<String> translationKey,
-        Optional<Identifier> texture,
+        Optional<Identifier> model,
         Optional<String> shape,
         ColorProvider color,
         float length,
@@ -26,8 +26,6 @@ public record ClothSkinData(
         float waterGravity,
         int bodyAmount,
         int light,
-        boolean emissiveItem,
-        boolean emissiveLayer,
         boolean patternable,
         boolean dyeable
 ) {
@@ -52,8 +50,6 @@ public record ClothSkinData(
             8,
             0,
             false,
-            false,
-            false,
             false
     );
 
@@ -65,7 +61,7 @@ public record ClothSkinData(
 
     public static final Codec<ClothSkinData> CODEC = RecordCodecBuilder.create(instance -> instance.group(
             Codec.STRING.optionalFieldOf("translationKey").forGetter(ClothSkinData::translationKey),
-            Identifier.CODEC.optionalFieldOf("texture").forGetter(ClothSkinData::texture),
+            Identifier.CODEC.optionalFieldOf("model").forGetter(ClothSkinData::model),
             Codec.STRING.optionalFieldOf("shape").forGetter(ClothSkinData::shape),
             ColorProviders.CODEC.optionalFieldOf("color", new ColorProvider.Constant(DEFAULT_COLOR)).forGetter(ClothSkinData::color),
             Codec.FLOAT.optionalFieldOf("length", 1.4F).forGetter(ClothSkinData::length),
@@ -76,8 +72,6 @@ public record ClothSkinData(
             Codec.FLOAT.optionalFieldOf("waterGravity", -0.5F).forGetter(ClothSkinData::waterGravity),
             Codec.INT.optionalFieldOf("bodies", 8).forGetter(ClothSkinData::bodyAmount),
             Codec.INT.optionalFieldOf("light", 0).forGetter(ClothSkinData::light),
-            Codec.BOOL.optionalFieldOf("emissiveItem", false).forGetter(ClothSkinData::emissiveItem),
-            Codec.BOOL.optionalFieldOf("emissiveLayer", false).forGetter(ClothSkinData::emissiveLayer),
             Codec.BOOL.optionalFieldOf("patternable", false).forGetter(ClothSkinData::patternable),
             Codec.BOOL.optionalFieldOf("dyeable", false).forGetter(ClothSkinData::dyeable)
     ).apply(instance, ClothSkinData::new));
