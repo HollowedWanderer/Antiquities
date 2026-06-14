@@ -24,6 +24,7 @@ import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.phys.AABB;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Matrix4f;
@@ -86,6 +87,10 @@ public class ClothManager {
         }
     }
 
+    public boolean isWater(Level level, BlockPos pos) {
+        return level.getFluidState(pos).is(FluidTags.WATER) || level.getBlockState(pos).is(Blocks.WATER_CAULDRON);
+    }
+
     public void tickSound() {
         ClientLevel level = Minecraft.getInstance().level;
 
@@ -93,7 +98,7 @@ public class ClothManager {
             data.ambientSound().ifPresent(soundData -> {
                 Optional<Identifier> sound = soundData.sound();
 
-                if (bodies.stream().anyMatch(body -> level.getFluidState(BlockPos.containing(body.pos.x, body.pos.y, body.pos.z)).is(FluidTags.WATER))) {
+                if (bodies.stream().anyMatch(body -> isWater(level, BlockPos.containing(body.pos.x, body.pos.y, body.pos.z)))) {
                     sound = soundData.waterSound().or(soundData::sound);
                 }
 
@@ -154,8 +159,7 @@ public class ClothManager {
 
             // Update pass
             for (ClothBody body : bodies) {
-                Vec3 startPos = new Vec3(body.pos.x, body.pos.y, body.pos.z);
-                boolean isWater = level.getFluidState(BlockPos.containing(startPos)).is(FluidTags.WATER);
+                boolean isWater = isWater(level, BlockPos.containing(body.pos.x, body.pos.y, body.pos.z));
                 Vector3d vel = new Vector3d(body.pos).sub(body.posCache);
                 double maxVel = 0.05;
                 if (vel.length() > maxVel) {
@@ -235,7 +239,7 @@ public class ClothManager {
         data.particleData().ifPresent(data -> {
             for (int i = 0; i < bodies.size(); i++) {
                 ClothBody body = bodies.get(i);
-                boolean water = level.getFluidState(BlockPos.containing(body.pos.x, body.pos.y, body.pos.z)).is(FluidTags.WATER);
+                boolean water = isWater(level, BlockPos.containing(body.pos.x, body.pos.y, body.pos.z));
                 ParticleOptions particle = data.particle();
                 float chance = data.chance();
                 float distance = data.distance();

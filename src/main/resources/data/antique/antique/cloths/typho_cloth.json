@@ -45,7 +45,7 @@
     "waterSound": "antique:typho_cloth_underwater"
   },
   "width": 0.2,
-  "length": 240,
+  "length": 2.4,
   "gravity": 0.25,
   "bodies": 8
 }
