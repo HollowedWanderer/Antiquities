@@ -21,6 +21,8 @@ import net.minecraft.sounds.SoundEvent;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.LayeredCauldronBlock;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Matrix4f;
@@ -75,8 +77,31 @@ public class ClothManager {
         }
     }
 
-    public boolean isWater(Level level, BlockPos pos) {
-        return level.getFluidState(pos).is(FluidTags.WATER) || level.getBlockState(pos).is(Blocks.WATER_CAULDRON);
+    public static boolean isWater(Level level, Vector3d pos) {
+        BlockPos blockPos = BlockPos.containing(pos.x, pos.y, pos.z);
+        double fract = pos.y - blockPos.getY();
+
+        if (level.getFluidState(blockPos).is(FluidTags.WATER)) {
+            return true;
+        }
+
+        BlockState block = level.getBlockState(blockPos);
+
+        if (block.is(Blocks.WATER_CAULDRON)) {
+            switch (block.getValue(LayeredCauldronBlock.LEVEL)) {
+                case 1 -> {
+                    return fract <= 10f / 16f;
+                }
+                case 2 -> {
+                    return fract <= 13f / 16f;
+                }
+                case 3 -> {
+                    return true;
+                }
+            }
+        }
+
+        return false;
     }
 
     public void tickSound() {
@@ -86,7 +111,7 @@ public class ClothManager {
             data.ambientSound().ifPresent(soundData -> {
                 Optional<Identifier> sound = soundData.sound();
 
-                if (bodies.stream().anyMatch(body -> isWater(level, BlockPos.containing(body.pos.x, body.pos.y, body.pos.z)))) {
+                if (bodies.stream().anyMatch(body -> isWater(level, body.pos))) {
                     sound = soundData.waterSound().or(soundData::sound);
                 }
 
@@ -147,7 +172,7 @@ public class ClothManager {
 
             // Update pass
             for (ClothBody body : bodies) {
-                boolean isWater = isWater(level, BlockPos.containing(body.pos.x, body.pos.y, body.pos.z));
+                boolean isWater = isWater(level, body.pos);
                 Vector3d vel = new Vector3d(body.pos).sub(body.posCache);
                 double maxVel = 0.05;
                 if (vel.length() > maxVel) {
@@ -227,7 +252,7 @@ public class ClothManager {
         data.particleData().ifPresent(data -> {
             for (int i = 0; i < bodies.size(); i++) {
                 ClothBody body = bodies.get(i);
-                boolean water = isWater(level, BlockPos.containing(body.pos.x, body.pos.y, body.pos.z));
+                boolean water = isWater(level, body.pos);
                 ParticleOptions particle = data.particle();
                 float chance = data.chance();
                 float distance = data.distance();

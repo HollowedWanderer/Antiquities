@@ -101,8 +101,8 @@ public class BasicClothRenderer implements ClothRenderer {
             ClothBody body = cloth.bodies.get(i);
             ClothBody nextBody = cloth.bodies.get(i + 1);
 
-            Vector3f pos = new Vector3f(new Vector3f(body.getPos()).sub(new Vector3f(cameraPos)));
-            Vector3f nextPos = new Vector3f(new Vector3f(nextBody.getPos()).sub(new Vector3f(cameraPos)));
+            Vector3f pos = new Vector3f(body.getPos()).sub(new Vector3f(cameraPos));
+            Vector3f nextPos = new Vector3f(nextBody.getPos()).sub(new Vector3f(cameraPos));
 
             if (i == 0) pos = new Vector3f(cloth.pos).sub(new Vector3f(cameraPos));
 

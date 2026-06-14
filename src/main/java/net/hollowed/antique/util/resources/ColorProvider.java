@@ -8,7 +8,7 @@ import io.netty.buffer.ByteBuf;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.hollowed.antique.Antiquities;
-import net.hollowed.antique.client.ext.SpriteContentsAnimationStateExtension;
+import net.hollowed.antique.util.interfaces.duck.SpriteContentsAnimationStateExtension;
 import net.hollowed.antique.mixin.accessors.SpriteContentsAnimationStateAccessor;
 import net.hollowed.antique.mixin.accessors.TextureAtlasAccessor;
 import net.minecraft.client.Minecraft;

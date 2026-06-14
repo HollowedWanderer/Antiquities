@@ -1,6 +1,6 @@
 package net.hollowed.antique.mixin.ext;
 
-import net.hollowed.antique.client.ext.SpriteContentsAnimationStateExtension;
+import net.hollowed.antique.util.interfaces.duck.SpriteContentsAnimationStateExtension;
 import net.minecraft.client.renderer.texture.SpriteContents;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import org.spongepowered.asm.mixin.Mixin;
