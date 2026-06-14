@@ -6,8 +6,7 @@ import net.hollowed.antique.Antiquities;
 import net.hollowed.antique.client.renderer.cloth.ClothManager;
 import net.hollowed.antique.entities.MyriadShovelEntity;
 import net.hollowed.antique.index.AntiqueDataComponentTypes;
-import net.hollowed.antique.index.AntiqueItems;
-import net.hollowed.antique.items.components.MyriadToolComponent;
+import net.hollowed.antique.util.ClothUtil;
 import net.hollowed.antique.util.resources.ClothPatternData;
 import net.hollowed.antique.util.resources.ClothSkinData;
 import net.minecraft.client.Minecraft;
@@ -68,7 +67,7 @@ public class MyriadShovelEntityRenderer extends EntityRenderer<@NotNull MyriadSh
 							matrixStack,
 							queue,
 							state.lightCoords,
-							state.glow,
+							ClothUtil.getClothPatternGlowing(state.stack),
 							new Color(state.color),
 							new Color(state.patternColor.orElse(0xFFFFFFFF)),
 							state.pattern
@@ -98,7 +97,6 @@ public class MyriadShovelEntityRenderer extends EntityRenderer<@NotNull MyriadSh
 		state.color = entity.getClothColor().orElseGet(() -> cloth.map(skin -> skin.value().color().getColorClient()).orElse(ClothSkinData.DEFAULT_COLOR));
 		state.patternColor = entity.getPatternColor();
 		state.isEnchanted = entity.isEnchanted();
-		state.glow = entity.getGlow();
 		state.cloth = cloth;
 		state.pattern = ClothPatternData.getHolderFromKey(entity.getPattern(), entity.level());
 	}

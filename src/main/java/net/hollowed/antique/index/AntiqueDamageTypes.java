@@ -2,7 +2,6 @@ package net.hollowed.antique.index;
 
 import net.hollowed.antique.Antiquities;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.damagesource.DamageType;

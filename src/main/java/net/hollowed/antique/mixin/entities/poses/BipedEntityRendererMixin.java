@@ -5,7 +5,6 @@ import net.hollowed.antique.items.MyriadToolItem;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.renderer.entity.HumanoidMobRenderer;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.resources.Identifier;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.entity.Mob;

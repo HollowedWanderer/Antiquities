@@ -13,7 +13,6 @@ import net.hollowed.antique.util.resources.ClothSkinData;
 import net.hollowed.antique.items.components.MyriadToolComponent;
 import net.hollowed.antique.util.interfaces.duck.ClothAccess;
 import net.hollowed.combatamenities.index.CAParticles;
-import net.hollowed.combatamenities.util.items.CAComponents;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
@@ -52,7 +51,6 @@ public class MyriadShovelEntity extends AbstractArrow {
 	public static final EntityDataAccessor<MyriadToolComponent> ATTRIBUTES = SynchedEntityData.defineId(MyriadShovelEntity.class, AntiqueTrackedData.MYRIAD_ATTRIBUTES);
 	public static final EntityDataAccessor<Boolean> ENCHANTED = SynchedEntityData.defineId(MyriadShovelEntity.class, EntityDataSerializers.BOOLEAN);
 	public static final EntityDataAccessor<Byte> PIERCE_LEVEL = SynchedEntityData.defineId(MyriadShovelEntity.class, EntityDataSerializers.BYTE);
-	public static final EntityDataAccessor<Boolean> GLOW = SynchedEntityData.defineId(MyriadShovelEntity.class, EntityDataSerializers.BOOLEAN);
     private boolean dealtDamage;
 	public int returnTimer;
 	@Nullable
@@ -65,7 +63,6 @@ public class MyriadShovelEntity extends AbstractArrow {
 		this.setBaseDamage(8);
 		this.setPickupItemStack(Antiquities.getMyriadShovelStack());
 		this.entityData.set(ATTRIBUTES, this.getPickupItemStackOrigin().getOrDefault(AntiqueDataComponentTypes.MYRIAD_TOOL, MyriadToolComponent.DEFAULT_NO_CLOTH));
-		this.entityData.set(GLOW, this.getPickupItemStackOrigin().getOrDefault(CAComponents.BOOLEAN_PROPERTY, false));
 		this.setPierceLevel((byte) 5);
 	}
 
@@ -74,7 +71,6 @@ public class MyriadShovelEntity extends AbstractArrow {
 		this.setBaseDamage(8);
 		this.entityData.set(LOYALTY, this.getLoyalty(stack));
 		this.entityData.set(ENCHANTED, stack.hasFoil());
-		this.entityData.set(GLOW, stack.getOrDefault(CAComponents.BOOLEAN_PROPERTY, false));
 		this.setPickupItemStack(stack);
 		this.entityData.set(ATTRIBUTES, this.getPickupItemStackOrigin().getOrDefault(AntiqueDataComponentTypes.MYRIAD_TOOL, MyriadToolComponent.DEFAULT_NO_CLOTH));
 		this.setPierceLevel((byte) 5);
@@ -86,10 +82,6 @@ public class MyriadShovelEntity extends AbstractArrow {
 
 	public Optional<Integer> getPatternColor() {
 		return this.entityData.get(ATTRIBUTES).cloth().flatMap(cloth -> Optional.ofNullable(cloth.get(AntiqueDataComponentTypes.CLOTH_PATTERN_COLOR)).map(DyedItemColor::rgb));
-	}
-
-	public boolean getGlow() {
-		return this.entityData.get(GLOW);
 	}
 
 	public void summonPart() {
@@ -123,7 +115,6 @@ public class MyriadShovelEntity extends AbstractArrow {
 		super.defineSynchedData(builder);
 		builder.define(LOYALTY, (byte)0);
 		builder.define(ENCHANTED, false);
-		builder.define(GLOW, false);
 		builder.define(ATTRIBUTES, MyriadToolComponent.DEFAULT_NO_CLOTH);
 		builder.define(PIERCE_LEVEL, (byte) 0);
 	}
@@ -287,7 +278,6 @@ public class MyriadShovelEntity extends AbstractArrow {
 		this.dealtDamage = view.getBooleanOr("DealtDamage", false);
 		this.entityData.set(LOYALTY, this.getLoyalty(this.getPickupItemStackOrigin()));
 		this.entityData.set(ENCHANTED, view.getBooleanOr("Glint", false));
-		this.entityData.set(GLOW, view.getBooleanOr("Glow", false));
 		this.entityData.set(ATTRIBUTES, view.read("Attributes", MyriadToolComponent.CODEC).orElseGet(Suppliers.ofInstance(MyriadToolComponent.DEFAULT_NO_CLOTH)));
 		this.setPierceLevel(view.getByteOr("PierceLevel", (byte) 0));
 	}
@@ -297,7 +287,6 @@ public class MyriadShovelEntity extends AbstractArrow {
 		super.addAdditionalSaveData(view);
 		view.putBoolean("DealtDamage", this.dealtDamage);
 		view.putBoolean("Glint", this.isEnchanted());
-		view.putBoolean("Glow", this.getGlow());
 		view.putByte("PierceLevel", this.getPierceLevel());
 		view.store("Attributes", MyriadToolComponent.CODEC, this.getAttributes());
 	}

@@ -4,7 +4,7 @@ import com.google.common.collect.Sets;
 import net.hollowed.antique.Antiquities;
 import net.minecraft.client.model.geom.ModelLayerLocation;
 import net.minecraft.client.model.geom.ModelLayers;
-import net.minecraft.resources.Identifier;
+
 import java.util.Set;
 
 public class AntiqueEntityLayers extends ModelLayers {

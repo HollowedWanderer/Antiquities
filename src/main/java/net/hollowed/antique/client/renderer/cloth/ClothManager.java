@@ -15,10 +15,6 @@ import net.hollowed.antique.util.resources.*;
 import net.hollowed.antique.mixin.accessors.SpriteContentsAnimationStateAccessor;
 import net.hollowed.antique.particles.TyphoSparkParticle;
 import net.hollowed.antique.util.resources.client.ClothModelData;
-import net.hollowed.antique.util.resources.client.ClothPatternModelData;
-import net.hollowed.antique.util.resources.client.ClothSprite;
-import net.minecraft.client.renderer.LightTexture;
-import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.core.Holder;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.sounds.SoundEvent;
@@ -39,21 +35,13 @@ import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.SubmitNodeCollector;
-import net.minecraft.client.renderer.rendertype.RenderType;
-import net.minecraft.client.renderer.rendertype.RenderTypes;
-import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.phys.Vec2;
 import net.minecraft.world.phys.Vec3;
 
 public class ClothManager {
-
-    private static final double CAMERA_FOV_DECAY = .1;
-
-    public static final RenderType CLOTH_RENDER_LAYER = RenderTypes.itemEntityTranslucentCull(AntiquitiesClient.CLOTHS_ATLAS_TEXTURE);
 
     public @Nullable AmbientClothSoundInstance ambientSound;
 
@@ -291,15 +279,6 @@ public class ClothManager {
         }
     }
 
-    public static Vec3 matrixToVec(PoseStack matrixStack) {
-        Matrix4f matrix = matrixStack.last().pose();
-        Camera camera = Minecraft.getInstance().gameRenderer.getMainCamera();
-        Vector4f localPos = new Vector4f(0, 0, 0, 1);
-        matrix.transform(localPos);
-        Vec3 cameraPos = camera.position();
-        return new Vec3(cameraPos.x + localPos.x(), cameraPos.y + localPos.y(), cameraPos.z + localPos.z());
-    }
-
     public static ClothManager getOrCreate(Entity entity, Identifier id, ClothSkinData data) {
         if (Minecraft.getInstance().level instanceof ClothAccess clothAccess) {
             return clothAccess.antique$getManagers().computeIfAbsent(entity, k -> new HashMap<>()).computeIfAbsent(id, k -> {
@@ -312,11 +291,11 @@ public class ClothManager {
         return null;
     }
 
-    public void renderCloth(Holder<ClothSkinData> data, PoseStack matrices, SubmitNodeCollector queue, int light, boolean glow, Color color, Color patternColor, Optional<? extends Holder<ClothPatternData>> pattern) {
-        this.renderCloth(data, matrices, queue, light, glow, color, patternColor, pattern, new Matrix4f());
+    public void renderCloth(Holder<ClothSkinData> data, PoseStack matrices, SubmitNodeCollector queue, int light, boolean patternGlow, Color color, Color patternColor, Optional<? extends Holder<ClothPatternData>> pattern) {
+        this.renderCloth(data, matrices, queue, light, patternGlow, color, patternColor, pattern, new Matrix4f());
     }
 
-    public void renderCloth(Holder<ClothSkinData> skin, PoseStack matrices, SubmitNodeCollector queue, int light, boolean glow, Color color, Color patternColor, Optional<? extends Holder<ClothPatternData>> pattern, Matrix4f reprojectionMatrix) {
+    public void renderCloth(Holder<ClothSkinData> skin, PoseStack matrices, SubmitNodeCollector queue, int light, boolean patternGlow, Color color, Color patternColor, Optional<? extends Holder<ClothPatternData>> pattern, Matrix4f reprojectionMatrix) {
         this.render = true;
         this.particles = true;
         this.data = skin.value();
@@ -324,12 +303,8 @@ public class ClothManager {
             Antiquities.LOGGER.error("Nonexistent cloth model {}", key);
             return ClothModelData.EMPTY;
         });
-        int bodyCount = skin.value().bodyAmount();
-        float width = skin.value().width();
-        if (skin.value().light() != 0) light = skin.value().light();
-        if (!skin.value().dyeable()) color = Color.WHITE;
 
-        Vec3 position = matrixToVec(matrices);
+        int bodyCount = skin.value().bodyAmount();
 
         if (bodyCount != 0 && this.bodyCountCooldown <= 0 && bodyCount != (bodies.size() - 1)) {
             setBodyCount(bodyCount);
@@ -340,139 +315,32 @@ public class ClothManager {
             this.bodyCountCooldown--;
         }
 
-        Vector3f lastA = null;
-        Vector3f lastB = null;
+        Vec3 position = matrixToVec(matrices);
 
         Vector3d danglePos = new Vector3d(position.x, position.y, position.z);
         pos = new Vector3d(danglePos);
 
-        matrices.pushPose();
-
-        int count = bodies.size() - 1;
-
-        // Get camera position, only once, no more is needed.
-        final Vec3 cameraPosVec3d = Minecraft.getInstance().gameRenderer.getMainCamera().position();
-        final Vector3d cameraPos = new Vector3d(cameraPosVec3d.x, cameraPosVec3d.y, cameraPosVec3d.z);
-        
-        Vector3f toCam = new Vector3f();
-        Vector3f thicknessVec = new Vector3f();
-
-        for (int i = 0; i < count; i++) {
-            float worldPositionWeight = 1f - ((float)Math.exp(-i * CAMERA_FOV_DECAY));
-            ClothBody body = bodies.get(i);
-            ClothBody nextBody = bodies.get(i + 1);
-
-            Vector3f pos = new Vector3f(new Vector3f(body.getPos()).sub(new Vector3f(cameraPos)));
-            Vector3f nextPos = new Vector3f(new Vector3f(nextBody.getPos()).sub(new Vector3f(cameraPos)));
-
-            if (i == 0) pos = new Vector3f(this.pos).sub(new Vector3f(cameraPos));
-
-            applyReprojection(reprojectionMatrix, pos, worldPositionWeight);
-            applyReprojection(reprojectionMatrix, nextPos, worldPositionWeight);
-
-            float uvTop = (1f / count) * i;
-            float uvBot = uvTop + (1f / count);
-
-            // Compute thickness vector from segment midpoint
-            pos.add(nextPos, toCam).normalize();
-            pos.sub(nextPos, thicknessVec).cross(toCam).normalize().mul(width);
-
-            Vector3f a = lastA != null ? lastA : pos.sub(thicknessVec, new Vector3f());
-            Vector3f b = lastB != null ? lastB : pos.add(thicknessVec, new Vector3f());
-
-            // Compute end vertices for this segment
-            Vector3f posEnd = nextPos.add(thicknessVec, new Vector3f());
-            Vector3f negEnd = nextPos.sub(thicknessVec, new Vector3f());
-
-            // Cache for next loop
-            lastA = negEnd;
-            lastB = posEnd;
-
-            int finalLight = light;
-            int[] layer = { 1 };
-
-            for (ClothSprite spriteData : model.worldSprites()) {
-                TextureAtlasSprite sprite = Minecraft.getInstance()
-                        .getAtlasManager()
-                        .getAtlasOrThrow(AntiquitiesClient.CLOTHS_ATLAS)
-                        .getSprite(spriteData.texture());
-                drawQuad(
-                        matrices,
-                        new Matrix4f(),
-                        CLOTH_RENDER_LAYER,
-                        queue,
-                        layer[0]++,
-                        a,
-                        b,
-                        posEnd,
-                        negEnd,
-                        new Vec2(sprite.getU0(), sprite.getV(uvTop)),
-                        new Vec2(sprite.getU1(), sprite.getV(uvTop)),
-                        new Vec2(sprite.getU1(), sprite.getV(uvBot)),
-                        new Vec2(sprite.getU0(), sprite.getV(uvBot)),
-                        spriteData.light().map(l -> LightTexture.pack(l, l)).orElse(finalLight),
-                        color
-                );
-            }
-
-            pattern.ifPresent(holder -> {
-                skin.value().shape().ifPresent(shape -> {
-                    ClothPatternModelData patternModel = ClothPatternModelListener.MODELS.get(holder.value().model().orElseGet(() -> holder.unwrapKey().orElseThrow().identifier()));
-
-                    if (patternModel != null) {
-                        for (ClothSprite spriteData : patternModel.worldSprites()) {
-                            TextureAtlasSprite sprite = Minecraft.getInstance()
-                                    .getAtlasManager()
-                                    .getAtlasOrThrow(AntiquitiesClient.CLOTHS_ATLAS)
-                                    .getSprite(spriteData.texture().withSuffix("_" + shape));
-                            drawQuad(
-                                    matrices,
-                                    new Matrix4f(),
-                                    CLOTH_RENDER_LAYER,
-                                    queue,
-                                    layer[0]++,
-                                    a,
-                                    b,
-                                    posEnd,
-                                    negEnd,
-                                    new Vec2(sprite.getU0(), sprite.getV(uvTop)),
-                                    new Vec2(sprite.getU1(), sprite.getV(uvTop)),
-                                    new Vec2(sprite.getU1(), sprite.getV(uvBot)),
-                                    new Vec2(sprite.getU0(), sprite.getV(uvBot)),
-                                    glow ? 255 : finalLight,
-                                    patternColor
-                            );
-                        }
-                    }
-                });
-            });
-        }
-
-        matrices.popPose();
+        model.worldRenderer().render(
+                this,
+                skin,
+                matrices,
+                queue,
+                light,
+                patternGlow,
+                color,
+                patternColor,
+                pattern,
+                reprojectionMatrix
+        );
     }
 
-    private static void applyReprojection(Matrix4f res, Vector3f toReproj, float weight) {
-        Vector4f transformed = res.transform(new Vector4f(toReproj.x, toReproj.y, toReproj.z, 1f));
-        transformed.div(transformed.w);
-        transformed.mul(weight);
-        toReproj.mul(1f - weight);
-        toReproj.x += transformed.x;
-        toReproj.y += transformed.y;
-        toReproj.z += transformed.z;
-    }
-
-    public void drawQuad(PoseStack matrices, Matrix4f matrix, RenderType layer, SubmitNodeCollector queue, int order, Vector3f posA, Vector3f posB, Vector3f posC, Vector3f posD, Vec2 uvA, Vec2 uvB, Vec2 uvC, Vec2 uvD, int light, Color color) {
-        queue.order(order).submitCustomGeometry(matrices, layer, (matricesEntry, vertexConsumer) -> {
-            vertexConsumer.addVertex(matrix, posD.x, posD.y, posD.z).setOverlay(OverlayTexture.NO_OVERLAY).setNormal(0, 1, 0).setLight(light).setUv(uvC.x, uvC.y).setColor(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha());
-            vertexConsumer.addVertex(matrix, posC.x, posC.y, posC.z).setOverlay(OverlayTexture.NO_OVERLAY).setNormal(0, 1, 0).setLight(light).setUv(uvD.x, uvD.y).setColor(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha());
-            vertexConsumer.addVertex(matrix, posB.x, posB.y, posB.z).setOverlay(OverlayTexture.NO_OVERLAY).setNormal(0, 1, 0).setLight(light).setUv(uvA.x, uvA.y).setColor(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha());
-            vertexConsumer.addVertex(matrix, posA.x, posA.y, posA.z).setOverlay(OverlayTexture.NO_OVERLAY).setNormal(0, 1, 0).setLight(light).setUv(uvB.x, uvB.y).setColor(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha());
-
-            vertexConsumer.addVertex(matrix, posA.x, posA.y, posA.z).setOverlay(OverlayTexture.NO_OVERLAY).setNormal(0, 1, 0).setLight(light).setUv(uvB.x, uvB.y).setColor(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha());
-            vertexConsumer.addVertex(matrix, posB.x, posB.y, posB.z).setOverlay(OverlayTexture.NO_OVERLAY).setNormal(0, 1, 0).setLight(light).setUv(uvA.x, uvA.y).setColor(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha());
-            vertexConsumer.addVertex(matrix, posC.x, posC.y, posC.z).setOverlay(OverlayTexture.NO_OVERLAY).setNormal(0, 1, 0).setLight(light).setUv(uvD.x, uvD.y).setColor(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha());
-            vertexConsumer.addVertex(matrix, posD.x, posD.y, posD.z).setOverlay(OverlayTexture.NO_OVERLAY).setNormal(0, 1, 0).setLight(light).setUv(uvC.x, uvC.y).setColor(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha());
-        });
+    public static Vec3 matrixToVec(PoseStack matrixStack) {
+        Matrix4f matrix = matrixStack.last().pose();
+        Camera camera = Minecraft.getInstance().gameRenderer.getMainCamera();
+        Vector4f localPos = new Vector4f(0, 0, 0, 1);
+        matrix.transform(localPos);
+        Vec3 cameraPos = camera.position();
+        return new Vec3(cameraPos.x + localPos.x(), cameraPos.y + localPos.y(), cameraPos.z + localPos.z());
     }
 
     @Override
