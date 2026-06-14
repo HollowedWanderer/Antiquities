@@ -7,9 +7,7 @@ import net.hollowed.antique.index.AntiqueItems;
 import net.hollowed.antique.items.components.MyriadToolComponent;
 import net.hollowed.antique.mixin.accessors.RendererAccessor;
 import net.hollowed.antique.util.ClothUtil;
-import net.hollowed.antique.util.resources.ClothPatternData;
 import net.hollowed.antique.util.resources.ClothSkinData;
-import net.hollowed.combatamenities.util.items.CAComponents;
 import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GameRenderer;
@@ -100,7 +98,7 @@ public abstract class FirstPersonHeldItemRendererMixin {
                                     matrices,
                                     orderedRenderCommandQueue,
                                     light,
-                                    stack.getOrDefault(CAComponents.BOOLEAN_PROPERTY, false),
+                                    ClothUtil.getClothPatternGlowing(component.cloth().get()),
                                     new Color(ClothUtil.getDynamicClothColor(component.cloth().get(), player.registryAccess()).orElse(0xFFFFFFFF)),
                                     new Color(ClothUtil.getClothPatternColor(component.cloth().get()).orElse(0xFFFFFFFF)),
                                     ClothUtil.getClothPatternData(component.cloth().get(), player.registryAccess()),

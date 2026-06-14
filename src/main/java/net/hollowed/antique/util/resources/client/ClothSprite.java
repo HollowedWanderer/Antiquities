@@ -5,8 +5,6 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.hollowed.antique.util.resources.ColorProvider;
-import net.hollowed.antique.util.resources.ColorProviders;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.resources.Identifier;
 import org.jetbrains.annotations.NotNull;

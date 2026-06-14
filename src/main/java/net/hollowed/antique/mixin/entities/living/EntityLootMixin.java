@@ -4,7 +4,6 @@ import net.hollowed.antique.Antiquities;
 import net.hollowed.antique.index.AntiqueItems;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.damagesource.DamageSource;

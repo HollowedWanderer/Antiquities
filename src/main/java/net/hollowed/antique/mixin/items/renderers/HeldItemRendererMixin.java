@@ -7,9 +7,7 @@ import net.hollowed.antique.index.AntiqueItems;
 import net.hollowed.antique.items.components.MyriadToolComponent;
 import net.hollowed.antique.util.ClothUtil;
 import net.hollowed.antique.util.interfaces.duck.ArmedRenderStateAccess;
-import net.hollowed.antique.util.resources.ClothPatternData;
 import net.hollowed.antique.util.resources.ClothSkinData;
-import net.hollowed.combatamenities.util.items.CAComponents;
 import net.minecraft.client.model.ArmedModel;
 import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.renderer.SubmitNodeCollector;
@@ -84,7 +82,7 @@ public abstract class HeldItemRendererMixin<S extends ArmedEntityRenderState, M 
                                         matrices,
                                         submitNodeCollector,
                                         i,
-                                        stack.getOrDefault(CAComponents.BOOLEAN_PROPERTY, false),
+                                        ClothUtil.getClothPatternGlowing(component.cloth().get()),
                                         new Color(ClothUtil.getDynamicClothColor(component.cloth().get(), living.registryAccess()).orElse(0xFFFFFFFF)),
                                         new Color(ClothUtil.getClothPatternColor(component.cloth().get()).orElse(0xFFFFFFFF)),
                                         ClothUtil.getClothPatternData(component.cloth().get(), living.registryAccess())
