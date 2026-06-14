@@ -47,6 +47,7 @@
     "entities.projectile.PotionThrowSoundMixin",
     "entities.projectile.ProjectileHitOverride",
     "entities.projectile.TridentVisualsMixin",
+    "ext.ShockwaveTickMixin",
     "ext.SpellTicksMixin",
     "items.AxeItemMixin",
     "items.BowItemMixin",
@@ -56,9 +57,9 @@
     "items.BundleShowsAllContents",
     "items.CakeThrowMixin",
     "items.CrossbowItemMixin",
+    "items.DyedItemColorMixin",
     "items.MyriadAxeBlockMixin",
     "items.SlotMixin",
-    "ext.ShockwaveTickMixin",
     "world.ChunkNoiseSamplerMixin",
     "world.NoiseChunkGeneratorMixin"
   ],
