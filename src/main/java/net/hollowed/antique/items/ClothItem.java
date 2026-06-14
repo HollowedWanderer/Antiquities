@@ -50,7 +50,7 @@ public class ClothItem extends Item {
     public @NonNull InteractionResult use(@NonNull Level level, @NonNull Player player, @NonNull InteractionHand hand) {
         ItemStack stack = player.getItemInHand(hand);
 
-        if (stack.get(DataComponents.DYED_COLOR) != null) {
+        if (stack.get(DataComponents.DYED_COLOR) != null || stack.get(AntiqueDataComponentTypes.CLOTH_PATTERN_TYPE) != null || stack.get(AntiqueDataComponentTypes.CLOTH_PATTERN_COLOR) != null) {
             BlockHitResult hit = getPlayerPOVHitResult(level, player, ClipContext.Fluid.NONE);
 
             if (hit.getType() == HitResult.Type.BLOCK) {

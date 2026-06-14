@@ -274,23 +274,23 @@ public class Antiquities implements ModInitializer {
 
 		ItemGroupEvents.modifyEntriesEvent(ANTIQUITIES_ITEMS_GROUP_KEY).register(itemGroup -> {
 			ItemStack myriadTool = AntiqueItems.MYRIAD_TOOL.getDefaultInstance();
-			myriadTool.set(AntiqueDataComponentTypes.MYRIAD_TOOL, MyriadToolComponent.DEFAULT_WITH_CLOTH);
+			myriadTool.set(AntiqueDataComponentTypes.MYRIAD_TOOL, MyriadToolComponent.getDefaultWithCloth());
 			itemGroup.accept(myriadTool);
 
 			ItemStack myriadMattock = AntiqueItems.MYRIAD_TOOL.getDefaultInstance();
-			myriadMattock.set(AntiqueDataComponentTypes.MYRIAD_TOOL, MyriadToolComponent.DEFAULT_WITH_CLOTH);
+			myriadMattock.set(AntiqueDataComponentTypes.MYRIAD_TOOL, MyriadToolComponent.getDefaultWithCloth());
 			MyriadToolItem.setToolBit(myriadMattock, AntiqueItems.MYRIAD_PICK_HEAD.getDefaultInstance());
 			itemGroup.accept(myriadMattock);
 
 			ItemStack myriadAxe = AntiqueItems.MYRIAD_TOOL.getDefaultInstance();
-			myriadAxe.set(AntiqueDataComponentTypes.MYRIAD_TOOL, MyriadToolComponent.DEFAULT_WITH_CLOTH);
+			myriadAxe.set(AntiqueDataComponentTypes.MYRIAD_TOOL, MyriadToolComponent.getDefaultWithCloth());
 			MyriadToolItem.setToolBit(myriadAxe, AntiqueItems.MYRIAD_AXE_HEAD.getDefaultInstance());
 			itemGroup.accept(myriadAxe);
 
 			itemGroup.accept(getMyriadShovelStack());
 
 			ItemStack myriadCleaver = AntiqueItems.MYRIAD_TOOL.getDefaultInstance();
-			myriadCleaver.set(AntiqueDataComponentTypes.MYRIAD_TOOL, MyriadToolComponent.DEFAULT_WITH_CLOTH);
+			myriadCleaver.set(AntiqueDataComponentTypes.MYRIAD_TOOL, MyriadToolComponent.getDefaultWithCloth());
 			MyriadToolItem.setToolBit(myriadCleaver, AntiqueItems.MYRIAD_CLEAVER_BLADE.getDefaultInstance());
 			itemGroup.accept(myriadCleaver);
 
@@ -350,7 +350,7 @@ public class Antiquities implements ModInitializer {
 
 	public static ItemStack getMyriadShovelStack() {
 		ItemStack myriadShovel = AntiqueItems.MYRIAD_TOOL.getDefaultInstance();
-		myriadShovel.set(AntiqueDataComponentTypes.MYRIAD_TOOL, MyriadToolComponent.DEFAULT_WITH_CLOTH);
+		myriadShovel.set(AntiqueDataComponentTypes.MYRIAD_TOOL, MyriadToolComponent.getDefaultWithCloth());
 		MyriadToolItem.setToolBit(myriadShovel, AntiqueItems.MYRIAD_SHOVEL_HEAD.getDefaultInstance());
 		return myriadShovel;
 	}

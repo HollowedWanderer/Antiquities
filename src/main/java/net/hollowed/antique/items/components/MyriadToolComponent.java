@@ -17,10 +17,13 @@ public record MyriadToolComponent(
         Optional<ItemStack> cloth
 ) {
 
-    public static final MyriadToolComponent DEFAULT_WITH_CLOTH = new MyriadToolComponent(
-            ItemStack.EMPTY,
-            Optional.of(new ItemStack(AntiqueItems.CLOTH))
-    );
+    public static MyriadToolComponent getDefaultWithCloth() {
+        return new MyriadToolComponent(
+                ItemStack.EMPTY,
+                Optional.of(AntiqueItems.CLOTH.getDefaultInstance())
+        );
+    }
+
     public static final MyriadToolComponent DEFAULT_NO_CLOTH = new MyriadToolComponent(
             ItemStack.EMPTY,
             Optional.empty()
