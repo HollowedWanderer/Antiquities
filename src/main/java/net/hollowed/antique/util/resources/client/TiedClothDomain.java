@@ -10,7 +10,7 @@ import net.minecraft.resources.Identifier;
 @Environment(EnvType.CLIENT)
 public enum TiedClothDomain {
     INVENTORY,
-    WORLD;
+    HAND;
 
     public static final Codec<TiedClothDomain> CODEC = Codec.STRING.flatXmap(
             string -> {
@@ -29,7 +29,7 @@ public enum TiedClothDomain {
                 case NORMAL -> Antiquities.id("item/cloth_item");
                 case LARGE -> Antiquities.id("item/cloth_item_large");
             };
-            case WORLD -> switch (size) {
+            case HAND -> switch (size) {
                 case NORMAL -> Antiquities.id("item/cloth_hand");
                 case LARGE -> Antiquities.id("item/cloth_hand_large");
             };
