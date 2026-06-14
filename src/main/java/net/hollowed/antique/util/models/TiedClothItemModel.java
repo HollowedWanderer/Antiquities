@@ -134,7 +134,7 @@ public class TiedClothItemModel implements ItemModel {
 		ClothKey key = new ClothKey(
 				clothId,
 				large ? TiedClothSize.LARGE : TiedClothSize.NORMAL,
-				(context == ItemDisplayContext.GROUND || context == ItemDisplayContext.FIXED || context == ItemDisplayContext.GUI) ? TiedClothDomain.INVENTORY : TiedClothDomain.WORLD
+				(context == ItemDisplayContext.GROUND || context == ItemDisplayContext.FIXED || context == ItemDisplayContext.GUI) ? TiedClothDomain.INVENTORY : TiedClothDomain.HAND
 		);
 		List<BakedQuad> selected = quads.get(key);
 

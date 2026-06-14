@@ -4,6 +4,7 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.hollowed.antique.util.CodecUtil;
 import net.minecraft.resources.FileToIdConverter;
 import net.minecraft.resources.Identifier;
 
@@ -19,9 +20,9 @@ public record ClothModelData(
 ) {
     public static final ClothModelData EMPTY = new ClothModelData(List.of(), List.of(), Map.of());
     public static final Codec<ClothModelData> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-            ClothSprite.CODEC.listOf().optionalFieldOf("world", List.of()).forGetter(ClothModelData::worldSprites),
-            ClothSprite.CODEC.listOf().optionalFieldOf("item", List.of()).forGetter(ClothModelData::itemSprites),
-            Codec.unboundedMap(TiedClothSize.CODEC, Codec.unboundedMap(TiedClothDomain.CODEC, ClothSprite.CODEC.listOf())).optionalFieldOf("tied", Map.of()).forGetter(ClothModelData::tiedSprites)
+            CodecUtil.compactListOf(ClothSprite.CODEC).optionalFieldOf("world", List.of()).forGetter(ClothModelData::worldSprites),
+            CodecUtil.compactListOf(ClothSprite.CODEC).optionalFieldOf("item", List.of()).forGetter(ClothModelData::itemSprites),
+            Codec.unboundedMap(TiedClothSize.CODEC, Codec.unboundedMap(TiedClothDomain.CODEC, CodecUtil.compactListOf(ClothSprite.CODEC))).optionalFieldOf("tied", Map.of()).forGetter(ClothModelData::tiedSprites)
     ).apply(instance, ClothModelData::new));
     public static final FileToIdConverter FILE_LISTER = FileToIdConverter.json("models/cloth");
 
