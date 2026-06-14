@@ -6,7 +6,6 @@ import net.hollowed.antique.index.AntiqueItems;
 import net.hollowed.antique.index.AntiqueScreenHandlerType;
 import net.hollowed.antique.items.components.MyriadToolComponent;
 import net.hollowed.antique.util.ClothUtil;
-import net.hollowed.antique.util.resources.ClothSkinData;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.world.Container;
@@ -179,7 +178,7 @@ public class DyeingScreenHandler extends AbstractContainerMenu {
 				MyriadToolComponent component = result.get(AntiqueDataComponentTypes.MYRIAD_TOOL);
 
 				if (component != null) {
-					result.set(AntiqueDataComponentTypes.MYRIAD_TOOL, component.withCloth(cloth -> ClothUtil.setClothPatternColor(cloth, Optional.of(dyeColor))));
+					result.set(AntiqueDataComponentTypes.MYRIAD_TOOL, component.withCloth(cloth -> ClothUtil.setClothPatternColor(cloth, Optional.of(dyeColor.rgb()))));
 				} else {
 					result.set(DataComponents.DYED_COLOR, dyeColor);
 				}

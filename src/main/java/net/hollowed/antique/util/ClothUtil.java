@@ -6,7 +6,6 @@ import net.hollowed.antique.util.resources.ClothPatternData;
 import net.hollowed.antique.util.resources.ClothSkinData;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderLookup;
-import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.item.ItemStack;
@@ -81,6 +80,10 @@ public class ClothUtil {
         return Optional.ofNullable(stack.get(AntiqueDataComponentTypes.CLOTH_PATTERN_TYPE));
     }
 
+    public static boolean getClothPatternGlowing(ItemStack stack) {
+        return stack.getOrDefault(AntiqueDataComponentTypes.CLOTH_PATTERN_GLOWING, false);
+    }
+
     public static Optional<Holder.Reference<ClothPatternData>> getClothPatternData(ItemStack stack, @Nullable HolderLookup.Provider registries) {
         return getClothPattern(stack).flatMap(key -> Optional.ofNullable(registries).map(r -> ClothPatternData.getHolder(key, r)));
     }
@@ -103,15 +106,20 @@ public class ClothUtil {
         return stack;
     }
 
-    public static ItemStack setClothPatternColor(ItemStack stack, Optional<DyedItemColor> color) {
+    public static ItemStack setClothPatternGlowing(ItemStack stack, boolean glowing) {
+        stack.set(AntiqueDataComponentTypes.CLOTH_PATTERN_GLOWING, glowing);
+        return stack;
+    }
+
+    public static ItemStack setClothPatternColor(ItemStack stack, Optional<Integer> color) {
         if (stack.getItem() instanceof ClothPatternItem) {
             color.ifPresentOrElse(
-                    key -> stack.set(DataComponents.DYED_COLOR, key),
+                    key -> stack.set(DataComponents.DYED_COLOR, new DyedItemColor(key)),
                     () -> stack.remove(DataComponents.DYED_COLOR)
             );
         } else {
             color.ifPresentOrElse(
-                    key -> stack.set(AntiqueDataComponentTypes.CLOTH_PATTERN_COLOR, key),
+                    key -> stack.set(AntiqueDataComponentTypes.CLOTH_PATTERN_COLOR, new DyedItemColor(key)),
                     () -> stack.remove(AntiqueDataComponentTypes.CLOTH_PATTERN_COLOR)
             );
         }

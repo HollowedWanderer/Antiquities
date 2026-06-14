@@ -1,8 +1,8 @@
 package net.hollowed.antique.items;
 
+import net.hollowed.antique.index.AntiqueDataComponentTypes;
 import net.hollowed.antique.util.ClothUtil;
 import net.hollowed.antique.util.resources.ClothPatternData;
-import net.hollowed.combatamenities.util.items.CAComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.entity.SlotAccess;
@@ -40,7 +40,7 @@ public class ClothPatternItem extends Item {
     }
 
     private void addInk(Player player, ItemStack patternStack, ItemStack inkStack) {
-        patternStack.set(CAComponents.BOOLEAN_PROPERTY, inkStack.is(Items.GLOW_INK_SAC));
+        patternStack.set(AntiqueDataComponentTypes.CLOTH_PATTERN_GLOWING, inkStack.is(Items.GLOW_INK_SAC));
         player.playSound(inkStack.is(Items.GLOW_INK_SAC) ? SoundEvents.GLOW_INK_SAC_USE : SoundEvents.INK_SAC_USE, 1.0F, 1.0F);
         inkStack.consume(1, player);
     }

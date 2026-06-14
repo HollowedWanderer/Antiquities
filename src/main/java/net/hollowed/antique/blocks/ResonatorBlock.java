@@ -24,6 +24,7 @@ import net.minecraft.world.level.block.state.properties.IntegerProperty;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.level.redstone.Orientation;
+import net.minecraft.world.ticks.TickPriority;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
@@ -87,6 +88,11 @@ public class ResonatorBlock extends Block implements SimpleWaterloggedBlock {
     }
 
     @Override
+    protected void tick(@NonNull BlockState blockState, @NonNull ServerLevel serverLevel, @NonNull BlockPos blockPos, @NonNull RandomSource randomSource) {
+        ShockwaveManager.createShockwave(new Shockwave(blockPos, blockState.getValue(ORIENTATION).front(), 2.5f, 24f, 3), serverLevel);
+    }
+
+    @Override
     protected void neighborChanged(
             @NonNull BlockState state,
             @NonNull Level level,
@@ -97,9 +103,7 @@ public class ResonatorBlock extends Block implements SimpleWaterloggedBlock {
     ) {
         if (getInputSignal(level, pos, state) > 0) {
             if (!state.getValue(POWERED)) {
-                if (level instanceof ServerLevel serverLevel) {
-                    ShockwaveManager.createShockwave(new Shockwave(pos, state.getValue(ORIENTATION).front(), 2.5f, 24f, 3), serverLevel);
-                }
+                level.scheduleTick(pos, this, 2, TickPriority.VERY_HIGH);
                 level.setBlock(pos, state.setValue(POWERED, true), Block.UPDATE_ALL);
             }
         } else {
@@ -117,9 +121,7 @@ public class ResonatorBlock extends Block implements SimpleWaterloggedBlock {
     ) {
         if (getInputSignal(level, pos, state) > 0) {
             if (!state.getValue(POWERED)) {
-                if (level instanceof ServerLevel serverLevel) {
-                    ShockwaveManager.createShockwave(new Shockwave(pos, state.getValue(ORIENTATION).front(), 2.5f, 24f, 3), serverLevel);
-                }
+                level.scheduleTick(pos, this, 2, TickPriority.VERY_HIGH);
                 level.setBlock(pos, state.setValue(POWERED, true), Block.UPDATE_ALL);
             }
         } else {

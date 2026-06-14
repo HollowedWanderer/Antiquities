@@ -38,6 +38,8 @@ public class ClothItem extends Item {
         if (clickAction == ClickAction.SECONDARY) {
             if (otherStack.getItem() instanceof ClothPatternItem) {
                 ClothUtil.setClothPattern(itemStack, ClothUtil.getClothPattern(otherStack));
+                ClothUtil.setClothPatternGlowing(itemStack, ClothUtil.getClothPatternGlowing(otherStack));
+                ClothUtil.setClothPatternColor(itemStack, ClothUtil.getClothPatternColor(otherStack));
                 player.playSound(SoundEvents.BOOK_PAGE_TURN, 1.0F, 1.0F); // TODO better sound
                 return true;
             }
