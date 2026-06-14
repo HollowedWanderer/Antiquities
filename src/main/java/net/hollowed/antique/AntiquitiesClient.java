@@ -20,8 +20,6 @@ import net.hollowed.antique.util.interfaces.duck.ClothAccess;
 import net.hollowed.antique.util.models.*;
 import net.hollowed.antique.util.properties.*;
 import net.hollowed.antique.util.resources.ClothPatternData;
-import net.hollowed.antique.util.resources.ClothSkinData;
-import net.hollowed.combatamenities.util.items.CAComponents;
 import net.minecraft.client.color.item.ItemTintSources;
 import net.minecraft.client.gui.screens.MenuScreens;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderers;
@@ -31,8 +29,6 @@ import net.minecraft.client.renderer.entity.ThrownItemRenderer;
 import net.minecraft.client.renderer.item.ItemModels;
 import net.minecraft.client.renderer.item.properties.conditional.ConditionalItemModelProperties;
 import net.minecraft.client.renderer.item.properties.select.SelectItemModelProperties;
-import net.minecraft.client.renderer.rendertype.RenderType;
-import net.minecraft.client.renderer.rendertype.RenderTypes;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.chat.Component;
@@ -198,28 +194,31 @@ public class AntiquitiesClient implements ClientModInitializer {
 
                 list.add(1, line);
 
-                component.cloth().ifPresent(cloth -> {
-                    ClothUtil.getCloth(cloth).ifPresent(clothKey -> {
-                        String clothName = clothKey.identifier().toLanguageKey();
-                        list.add(2, Component.literal(" - ").append(Component.translatable("item." + clothName)).withColor(new Color(ClothUtil.getDynamicClothColor(cloth, context.registries()).orElse(0xFFFFFFFF)).brighter().getRGB()));
+                component.cloth().ifPresent(cloth -> ClothUtil.getCloth(cloth).ifPresent(clothKey -> {
+                    String clothName = clothKey.identifier().toLanguageKey();
+                    list.add(2, Component.literal(" - ").append(Component.translatable("item." + clothName)).withColor(new Color(ClothUtil.getDynamicClothColor(cloth, context.registries()).orElse(0xFFFFFFFF)).brighter().getRGB()));
 
-                        Optional.ofNullable(cloth.get(AntiqueDataComponentTypes.CLOTH_PATTERN_TYPE)).ifPresent(pattern -> {
-                            String patternName = pattern.identifier().toLanguageKey();
-                            Component text = Component.literal(" - ").append(Component.translatable("item." + patternName)).withColor(new Color(ClothUtil.getClothPatternColor(cloth).orElse(0xFFFFFFFF)).brighter().getRGB());
+                    Optional.ofNullable(cloth.get(AntiqueDataComponentTypes.CLOTH_PATTERN_TYPE)).ifPresent(pattern -> {
+                        String patternName = pattern.identifier().toLanguageKey();
+                        Component text = Component.literal(" - ").append(Component.translatable("item." + patternName)).withColor(new Color(ClothUtil.getClothPatternColor(cloth).orElse(0xFFFFFFFF)).brighter().getRGB());
 
-                            if (itemStack.getOrDefault(AntiqueDataComponentTypes.CLOTH_PATTERN_GLOWING, false)) {
-                                text = text.copy().append(Component.literal(" - ").withColor(0xff4adbb8)).append(Component.translatable("item.antique.glowing").withColor(0xFF4ADBB8));
-                            }
+                        if (cloth.getOrDefault(AntiqueDataComponentTypes.CLOTH_PATTERN_GLOWING, false)) {
+                            text = text.copy().append(Component.literal(" - ").withColor(0xff4adbb8)).append(Component.translatable("item.antique.glowing").withColor(0xFF4ADBB8));
+                        }
 
-                            list.add(3, text);
-                        });
+                        list.add(3, text);
                     });
-                });
+                }));
             }
 
             if (itemStack.is(AntiqueItems.CLOTH)) {
                 ClothUtil.getClothPattern(itemStack).ifPresent(pattern -> {
-                    list.add(2, Component.literal(" - ").append(Component.translatable(ClothPatternData.getTranslationKey(pattern))).withColor(new Color(ClothUtil.getClothPatternColor(itemStack).orElse(0xFFFFFFFF)).brighter().getRGB()));
+                    Component text = Component.literal(" - ").append(Component.translatable(ClothPatternData.getTranslationKey(pattern))).withColor(new Color(ClothUtil.getClothPatternColor(itemStack).orElse(0xFFFFFFFF)).brighter().getRGB());
+                    if (itemStack.getOrDefault(AntiqueDataComponentTypes.CLOTH_PATTERN_GLOWING, false)) {
+                        text = text.copy().append(Component.literal(" - ").withColor(0xff4adbb8)).append(Component.translatable("item.antique.glowing").withColor(0xFF4ADBB8));
+                    }
+
+                    list.add(2, text);
                 });
             }
 
