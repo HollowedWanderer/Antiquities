@@ -111,7 +111,7 @@ public class Shockwave {
     }
 
     public void pushEntity(Node node, Entity entity, double speed) {
-        entity.push(node.path[node.path.length - 1].getUnitVec3().multiply(speed, speed, speed));
+        entity.addDeltaMovement(node.path[node.path.length - 1].getUnitVec3().multiply(speed, speed, speed));
         entity.hurtMarked = true;
     }
 

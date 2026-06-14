@@ -98,7 +98,7 @@ public class ResonatorBlock extends Block implements SimpleWaterloggedBlock {
         if (getInputSignal(level, pos, state) > 0) {
             if (!state.getValue(POWERED)) {
                 if (level instanceof ServerLevel serverLevel) {
-                    ShockwaveManager.createShockwave(new Shockwave(pos, state.getValue(ORIENTATION).front(), 2.5f, 24f, 2), serverLevel);
+                    ShockwaveManager.createShockwave(new Shockwave(pos, state.getValue(ORIENTATION).front(), 2.5f, 24f, 3), serverLevel);
                 }
                 level.setBlock(pos, state.setValue(POWERED, true), Block.UPDATE_ALL);
             }
@@ -118,7 +118,7 @@ public class ResonatorBlock extends Block implements SimpleWaterloggedBlock {
         if (getInputSignal(level, pos, state) > 0) {
             if (!state.getValue(POWERED)) {
                 if (level instanceof ServerLevel serverLevel) {
-                    ShockwaveManager.createShockwave(new Shockwave(pos, state.getValue(ORIENTATION).front(), 2.5f, 24f, 2), serverLevel);
+                    ShockwaveManager.createShockwave(new Shockwave(pos, state.getValue(ORIENTATION).front(), 2.5f, 24f, 3), serverLevel);
                 }
                 level.setBlock(pos, state.setValue(POWERED, true), Block.UPDATE_ALL);
             }
