@@ -221,7 +221,7 @@ public class AntiquitiesClient implements ClientModInitializer {
 
             if (itemStack.is(AntiqueItems.CLOTH)) {
                 ClothUtil.getClothPattern(itemStack).ifPresent(pattern -> {
-                    list.add(Component.literal(" - ").append(Component.translatable(ClothPatternData.getTranslationKey(pattern))).withColor(new Color(ClothUtil.getClothPatternColor(itemStack).orElse(0xFFFFFFFF)).brighter().getRGB()));
+                    list.add(2, Component.literal(" - ").append(Component.translatable(ClothPatternData.getTranslationKey(pattern))).withColor(new Color(ClothUtil.getClothPatternColor(itemStack).orElse(0xFFFFFFFF)).brighter().getRGB()));
                 });
             }
 
