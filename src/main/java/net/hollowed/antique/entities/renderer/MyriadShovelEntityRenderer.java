@@ -67,7 +67,7 @@ public class MyriadShovelEntityRenderer extends EntityRenderer<@NotNull MyriadSh
 							matrixStack,
 							queue,
 							state.lightCoords,
-							ClothUtil.getClothPatternGlowing(state.stack),
+							state.patternGlow,
 							new Color(state.color),
 							new Color(state.patternColor.orElse(0xFFFFFFFF)),
 							state.pattern
@@ -96,6 +96,7 @@ public class MyriadShovelEntityRenderer extends EntityRenderer<@NotNull MyriadSh
 		state.stack = stack;
 		state.color = entity.getClothColor().orElseGet(() -> cloth.map(skin -> skin.value().color().getColorClient()).orElse(ClothSkinData.DEFAULT_COLOR));
 		state.patternColor = entity.getPatternColor();
+		state.patternGlow = entity.getAttributes().cloth().map(ClothUtil::getClothPatternGlowing).orElse(false);
 		state.isEnchanted = entity.isEnchanted();
 		state.cloth = cloth;
 		state.pattern = ClothPatternData.getHolderFromKey(entity.getPattern(), entity.level());

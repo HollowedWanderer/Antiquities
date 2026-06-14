@@ -82,7 +82,7 @@ public abstract class HeldItemRendererMixin<S extends ArmedEntityRenderState, M 
                                         matrices,
                                         submitNodeCollector,
                                         i,
-                                        ClothUtil.getClothPatternGlowing(stack),
+                                        ClothUtil.getClothPatternGlowing(component.cloth().get()),
                                         new Color(ClothUtil.getDynamicClothColor(component.cloth().get(), living.registryAccess()).orElse(0xFFFFFFFF)),
                                         new Color(ClothUtil.getClothPatternColor(component.cloth().get()).orElse(0xFFFFFFFF)),
                                         ClothUtil.getClothPatternData(component.cloth().get(), living.registryAccess())

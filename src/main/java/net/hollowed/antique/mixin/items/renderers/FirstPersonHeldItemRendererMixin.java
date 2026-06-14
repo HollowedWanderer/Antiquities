@@ -98,7 +98,7 @@ public abstract class FirstPersonHeldItemRendererMixin {
                                     matrices,
                                     orderedRenderCommandQueue,
                                     light,
-                                    ClothUtil.getClothPatternGlowing(stack),
+                                    ClothUtil.getClothPatternGlowing(component.cloth().get()),
                                     new Color(ClothUtil.getDynamicClothColor(component.cloth().get(), player.registryAccess()).orElse(0xFFFFFFFF)),
                                     new Color(ClothUtil.getClothPatternColor(component.cloth().get()).orElse(0xFFFFFFFF)),
                                     ClothUtil.getClothPatternData(component.cloth().get(), player.registryAccess()),
