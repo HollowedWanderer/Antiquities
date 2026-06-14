@@ -22,7 +22,7 @@
           "light": 15
         }
       ],
-      "world": [
+      "hand": [
         "antique:item/typho_cloth_hand",
         {
           "texture": "antique:item/typho_cloth_hand_emissive",
@@ -38,7 +38,7 @@
           "light": 15
         }
       ],
-      "world": [
+      "hand": [
         "antique:item/typho_cloth_hand_large",
         {
           "texture": "antique:item/typho_cloth_hand_large_emissive",

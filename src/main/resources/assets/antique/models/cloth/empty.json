@@ -7,7 +7,7 @@
       "inventory": [
         "antique:item/empty_item"
       ],
-      "world": [
+      "hand": [
         "antique:item/empty_hand"
       ]
     },
@@ -15,7 +15,7 @@
       "inventory": [
         "antique:item/empty_item_large"
       ],
-      "world": [
+      "hand": [
         "antique:item/empty_hand_large"
       ]
     }

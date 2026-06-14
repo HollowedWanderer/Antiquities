@@ -1,2 +1,12 @@
 {
+  "tied": {
+    "normal": {
+      "inventory": "antique:item/hollowed_cloth_item",
+      "hand": "antique:item/hollowed_cloth_hand"
+    },
+    "large": {
+      "inventory": "antique:item/hollowed_cloth_item_large",
+      "hand": "antique:item/hollowed_cloth_hand_large"
+    }
+  }
 }

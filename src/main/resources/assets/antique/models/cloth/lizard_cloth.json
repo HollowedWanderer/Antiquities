@@ -1,2 +1,10 @@
 {
+  "tied": {
+    "normal": {
+      "inventory": "antique:item/lizard_cloth_item"
+    },
+    "large": {
+      "inventory": "antique:item/lizard_cloth_item_large"
+    }
+  }
 }

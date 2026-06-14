@@ -1,2 +1,10 @@
 {
+  "tied": {
+    "normal": {
+      "inventory": "antique:item/orange_portal_cloth_item"
+    },
+    "large": {
+      "inventory": "antique:item/orange_portal_cloth_item_large"
+    }
+  }
 }

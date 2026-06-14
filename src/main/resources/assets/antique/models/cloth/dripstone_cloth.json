@@ -1,2 +1,12 @@
 {
+  "tied": {
+    "normal": {
+      "inventory": "antique:item/dripstone_cloth_item",
+      "hand": "antique:item/dripstone_cloth_hand"
+    },
+    "large": {
+      "inventory": "antique:item/dripstone_cloth_item_large",
+      "hand": "antique:item/dripstone_cloth_hand_large"
+    }
+  }
 }

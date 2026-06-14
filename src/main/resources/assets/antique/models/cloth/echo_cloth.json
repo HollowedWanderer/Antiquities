@@ -1,2 +1,17 @@
 {
+  "world": [
+    "antique:cloth/echo_cloth",
+    {
+      "texture": "antique:cloth/echo_cloth_emissive",
+      "light": 15
+    }
+  ],
+  "tied": {
+    "normal": {
+      "inventory": "antique:item/echo_cloth_item"
+    },
+    "large": {
+      "inventory": "antique:item/echo_cloth_item_large"
+    }
+  }
 }

@@ -1,2 +1,12 @@
 {
+  "tied": {
+    "normal": {
+      "inventory": "antique:item/shiny_cloth_item",
+      "hand": "antique:item/shiny_cloth_hand"
+    },
+    "large": {
+      "inventory": "antique:item/shiny_cloth_item_large",
+      "hand": "antique:item/shiny_cloth_hand_large"
+    }
+  }
 }

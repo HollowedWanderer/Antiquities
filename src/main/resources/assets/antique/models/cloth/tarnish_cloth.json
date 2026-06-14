@@ -1,2 +1,12 @@
 {
+  "tied": {
+    "normal": {
+      "inventory": "antique:item/tarnish_cloth_item",
+      "hand": "antique:item/tarnish_cloth_hand"
+    },
+    "large": {
+      "inventory": "antique:item/tarnish_cloth_item_large",
+      "hand": "antique:item/tarnish_cloth_hand_large"
+    }
+  }
 }

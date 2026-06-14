@@ -17,7 +17,7 @@ import net.minecraft.world.inventory.ClickAction;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
+import net.minecraft.world.item.component.DyedItemColor;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
@@ -50,7 +50,7 @@ public class ClothItem extends Item {
     public @NonNull InteractionResult use(@NonNull Level level, @NonNull Player player, @NonNull InteractionHand hand) {
         ItemStack stack = player.getItemInHand(hand);
 
-        if (stack.get(DataComponents.DYED_COLOR) != null || stack.get(AntiqueDataComponentTypes.CLOTH_PATTERN_TYPE) != null || stack.get(AntiqueDataComponentTypes.CLOTH_PATTERN_COLOR) != null) {
+        if (stack.getOrDefault(DataComponents.DYED_COLOR, new DyedItemColor(0xFFFFFF)).rgb() != 0xFFFFFF || stack.get(AntiqueDataComponentTypes.CLOTH_PATTERN_TYPE) != null || stack.get(AntiqueDataComponentTypes.CLOTH_PATTERN_COLOR) != null) {
             BlockHitResult hit = getPlayerPOVHitResult(level, player, ClipContext.Fluid.NONE);
 
             if (hit.getType() == HitResult.Type.BLOCK) {
@@ -74,7 +74,7 @@ public class ClothItem extends Item {
                             level.setBlock(pos, state.setValue(LayeredCauldronBlock.LEVEL, waterLevel - 1), Block.UPDATE_ALL);
                         }
 
-                        stack.remove(DataComponents.DYED_COLOR);
+                        stack.set(DataComponents.DYED_COLOR, new DyedItemColor(0xFFFFFF));
                         stack.remove(AntiqueDataComponentTypes.CLOTH_PATTERN_TYPE);
                         stack.remove(AntiqueDataComponentTypes.CLOTH_PATTERN_COLOR);
 
