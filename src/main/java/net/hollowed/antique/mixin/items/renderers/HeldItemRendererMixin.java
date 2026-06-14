@@ -5,6 +5,7 @@ import net.hollowed.antique.client.renderer.cloth.ClothManager;
 import net.hollowed.antique.index.AntiqueDataComponentTypes;
 import net.hollowed.antique.index.AntiqueItems;
 import net.hollowed.antique.items.components.MyriadToolComponent;
+import net.hollowed.antique.util.ClothUtil;
 import net.hollowed.antique.util.interfaces.duck.ArmedRenderStateAccess;
 import net.hollowed.antique.util.resources.ClothPatternData;
 import net.hollowed.antique.util.resources.ClothSkinData;
@@ -32,6 +33,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 import java.awt.*;
+import java.util.Optional;
 
 @Mixin(ItemInHandLayer.class)
 public abstract class HeldItemRendererMixin<S extends ArmedEntityRenderState, M extends EntityModel<S> & ArmedModel<S>> extends RenderLayer<S, @NotNull M> {
@@ -68,23 +70,26 @@ public abstract class HeldItemRendererMixin<S extends ArmedEntityRenderState, M 
                 MyriadToolComponent component = stack.getOrDefault(AntiqueDataComponentTypes.MYRIAD_TOOL, MyriadToolComponent.DEFAULT_NO_CLOTH);
 
                 component.cloth().ifPresent(cloth -> {
-                    Holder.Reference<ClothSkinData> data = ClothSkinData.getHolder(cloth.cloth(), living.registryAccess());
-                    Object name = stack.getOrDefault(DataComponents.CUSTOM_NAME, "");
+                    Optional<Holder.Reference<ClothSkinData>> data = ClothUtil.getClothData(component.cloth().get(), living.registryAccess());
 
-                    if (stack.is(AntiqueItems.MYRIAD_TOOL) && !(name.equals(Component.literal("Perfected Staff")) || name.equals(Component.literal("Orb Staff")) || name.equals(Component.literal("Lapis Staff")))) {
-                        ClothManager manager = arm == HumanoidArm.RIGHT ? ClothManager.getOrCreate(entity, Antiquities.id("right_arm"), data.value()) : ClothManager.getOrCreate(entity, Antiquities.id("left_arm"), data.value());
+                    if (data.isPresent()) {
+                        Object name = stack.getOrDefault(DataComponents.CUSTOM_NAME, "");
 
-                        if (manager != null) {
-                            manager.renderCloth(
-                                    data,
-                                    matrices,
-                                    submitNodeCollector,
-                                    i,
-                                    stack.getOrDefault(CAComponents.BOOLEAN_PROPERTY, false),
-                                    new Color(cloth.clothColor().orElseGet(() -> data.value().color().getColorClient())),
-                                    new Color(cloth.patternColor().orElse(0xFFFFFFFF)),
-                                    ClothPatternData.getHolderFromKey(cloth.pattern(), living.registryAccess())
-                            );
+                        if (stack.is(AntiqueItems.MYRIAD_TOOL) && !(name.equals(Component.literal("Perfected Staff")) || name.equals(Component.literal("Orb Staff")) || name.equals(Component.literal("Lapis Staff")))) {
+                            ClothManager manager = arm == HumanoidArm.RIGHT ? ClothManager.getOrCreate(entity, Antiquities.id("right_arm"), data.get().value()) : ClothManager.getOrCreate(entity, Antiquities.id("left_arm"), data.get().value());
+
+                            if (manager != null) {
+                                manager.renderCloth(
+                                        data.get(),
+                                        matrices,
+                                        submitNodeCollector,
+                                        i,
+                                        stack.getOrDefault(CAComponents.BOOLEAN_PROPERTY, false),
+                                        new Color(ClothUtil.getDynamicClothColor(component.cloth().get(), living.registryAccess()).orElse(0xFFFFFFFF)),
+                                        new Color(ClothUtil.getClothPatternColor(component.cloth().get()).orElse(0xFFFFFFFF)),
+                                        ClothUtil.getClothPatternData(component.cloth().get(), living.registryAccess())
+                                );
+                            }
                         }
                     }
                 });

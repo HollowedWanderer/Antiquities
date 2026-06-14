@@ -1,10 +1,9 @@
 package net.hollowed.antique.items;
 
-import net.hollowed.antique.index.AntiqueDataComponentTypes;
+import net.hollowed.antique.util.ClothUtil;
 import net.hollowed.antique.util.resources.ClothPatternData;
 import net.hollowed.combatamenities.util.items.CAComponents;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceKey;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.entity.SlotAccess;
 import net.minecraft.world.entity.player.Player;
@@ -23,35 +22,20 @@ public class ClothPatternItem extends Item {
 
     @Override
     public @NonNull Component getName(@NonNull ItemStack stack) {
-        ResourceKey<ClothPatternData> cloth = stack.get(AntiqueDataComponentTypes.CLOTH_PATTERN_TYPE);
-
-        if (cloth == null) {
-            return super.getName(stack);
-        }
-
-        return Component.translatable(cloth.identifier().toLanguageKey("item"));
-    }
-
-    @Override
-    public boolean overrideStackedOnOther(@NotNull ItemStack stack, Slot slot, @NotNull ClickAction clickType, @NotNull Player player) {
-        ItemStack otherStack = slot.getItem();
-        if (clickType == ClickAction.PRIMARY) {
-            if (otherStack.is(Items.INK_SAC) || otherStack.is(Items.GLOW_INK_SAC)) {
-                addInk(player, stack, otherStack);
-                return true;
-            }
-        }
-        return super.overrideStackedOnOther(stack, slot, clickType, player);
+        return ClothUtil.getClothPattern(stack)
+                .<Component>map(cloth -> Component.translatable(ClothPatternData.getTranslationKey(cloth)))
+                .orElseGet(() -> super.getName(stack));
     }
 
     @Override
     public boolean overrideOtherStackedOnMe(@NotNull ItemStack stack, @NotNull ItemStack otherStack, @NotNull Slot slot, @NotNull ClickAction clickType, @NotNull Player player, @NotNull SlotAccess cursorStackReference) {
-        if (clickType == ClickAction.PRIMARY) {
+        if (clickType == ClickAction.SECONDARY) {
             if (otherStack.is(Items.INK_SAC) || otherStack.is(Items.GLOW_INK_SAC)) {
                 addInk(player, stack, otherStack);
                 return true;
             }
         }
+
         return super.overrideOtherStackedOnMe(stack, otherStack, slot, clickType, player, cursorStackReference);
     }
 

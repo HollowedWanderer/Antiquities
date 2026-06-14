@@ -12,20 +12,27 @@ import java.util.Optional;
 
 @Environment(EnvType.CLIENT)
 public record ClothPatternModelData(
-        List<ClothSprite> sprites
+        List<ClothSprite> worldSprites,
+        List<ClothSprite> itemSprites
 ) {
     public static final Codec<ClothPatternModelData> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-            ClothSprite.CODEC.listOf().optionalFieldOf("sprites", List.of()).forGetter(ClothPatternModelData::sprites)
+            ClothSprite.CODEC.listOf().optionalFieldOf("world", List.of()).forGetter(ClothPatternModelData::worldSprites),
+            ClothSprite.CODEC.listOf().optionalFieldOf("item", List.of()).forGetter(ClothPatternModelData::itemSprites)
     ).apply(instance, ClothPatternModelData::new));
     public static final FileToIdConverter FILE_LISTER = FileToIdConverter.json("models/cloth_pattern");
 
     public ClothPatternModelData fillDefaultSprites(Identifier id) {
-        List<ClothSprite> sprites = this.sprites;
+        List<ClothSprite> worldSprites = this.worldSprites;
+        List<ClothSprite> itemSprites = this.itemSprites;
 
-        if (sprites.isEmpty()) {
-            sprites = List.of(new ClothSprite(id.withPrefix("item/"), Optional.empty(), false));
+        if (worldSprites.isEmpty()) {
+            worldSprites = List.of(new ClothSprite(id.withPrefix("cloth/pattern/"), Optional.empty(), false));
         }
 
-        return new ClothPatternModelData(sprites);
+        if (itemSprites.isEmpty()) {
+            itemSprites = List.of(new ClothSprite(id.withPrefix("item/"), Optional.empty(), false));
+        }
+
+        return new ClothPatternModelData(worldSprites, itemSprites);
     }
 }

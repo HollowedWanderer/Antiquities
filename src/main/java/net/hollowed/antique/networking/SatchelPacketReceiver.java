@@ -40,7 +40,7 @@ public class SatchelPacketReceiver {
 
                     // Move the selected satchel stack to the hotbar
                     if (!currentSatchelStack.isEmpty()) {
-                        if (currentHotbarStack.getItem() instanceof MyriadToolItem && !MyriadToolItem.isInvalidItem(currentSatchelStack)) {
+                        if (currentHotbarStack.getItem() instanceof MyriadToolItem && !MyriadToolItem.isInvalidToolBit(currentSatchelStack)) {
                             myriadItem = MyriadToolItem.getStoredStack(currentHotbarStack);
                             MyriadToolItem.setToolBit(currentHotbarStack, currentSatchelStack);
                             player.level().playSound(null, player.blockPosition(), SoundEvents.BUNDLE_REMOVE_ONE, SoundSource.PLAYERS, 1.0F, 1.0F);

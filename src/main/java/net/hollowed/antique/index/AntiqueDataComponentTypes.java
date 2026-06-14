@@ -8,8 +8,11 @@ import net.hollowed.antique.util.resources.ClothSkinData;
 import net.minecraft.core.Registry;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.component.DyedItemColor;
+
 import java.util.List;
 
 public interface AntiqueDataComponentTypes {
@@ -42,6 +45,22 @@ public interface AntiqueDataComponentTypes {
             DataComponentType.<ResourceKey<ClothPatternData>>builder()
                     .persistent(ResourceKey.codec(AntiqueRegistries.CLOTH_PATTERNS))
                     .networkSynchronized(ResourceKey.streamCodec(AntiqueRegistries.CLOTH_PATTERNS))
+                    .build()
+    );
+    DataComponentType<DyedItemColor> CLOTH_PATTERN_COLOR = Registry.register(
+            BuiltInRegistries.DATA_COMPONENT_TYPE,
+            Antiquities.id("cloth_pattern_color"),
+            DataComponentType.<DyedItemColor>builder()
+                    .persistent(DyedItemColor.CODEC)
+                    .networkSynchronized(DyedItemColor.STREAM_CODEC)
+                    .build()
+    );
+    DataComponentType<Boolean> CLOTH_PATTERN_GLOWING = Registry.register(
+            BuiltInRegistries.DATA_COMPONENT_TYPE,
+            Antiquities.id("cloth_pattern_glowing"),
+            DataComponentType.<Boolean>builder()
+                    .persistent(Codec.BOOL)
+                    .networkSynchronized(ByteBufCodecs.BOOL)
                     .build()
     );
     DataComponentType<Integer> COUNTER = Registry.register(

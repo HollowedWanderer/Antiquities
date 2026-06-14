@@ -83,6 +83,7 @@ public class Antiquities implements ModInitializer {
 		ResourceLoader.get(PackType.CLIENT_RESOURCES).registerReloader(id("staff_transforms"), new MyriadStaffTransformResourceReloadListener());
 		ResourceLoader.get(PackType.CLIENT_RESOURCES).registerReloader(id("pedestal_transforms"), new PedestalDisplayListener());
 		ResourceLoader.get(PackType.CLIENT_RESOURCES).registerReloader(id("cloth_models"), new ClothModelListener());
+		ResourceLoader.get(PackType.CLIENT_RESOURCES).registerReloader(id("cloth_pattern_models"), new ClothPatternModelListener());
 
 		/*
 			Packets

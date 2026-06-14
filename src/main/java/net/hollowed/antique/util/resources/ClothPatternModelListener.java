@@ -4,7 +4,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.mojang.serialization.JsonOps;
 import net.hollowed.antique.Antiquities;
-import net.hollowed.antique.util.resources.client.ClothModelData;
+import net.hollowed.antique.util.resources.client.ClothPatternModelData;
 import net.hollowed.combatamenities.util.delay.ClientTickDelayScheduler;
 import net.minecraft.client.Minecraft;
 import net.minecraft.resources.Identifier;
@@ -17,8 +17,8 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-public class ClothModelListener implements ResourceManagerReloadListener {
-    public static final Map<Identifier, ClothModelData> MODELS = new HashMap<>();
+public class ClothPatternModelListener implements ResourceManagerReloadListener {
+    public static final Map<Identifier, ClothPatternModelData> MODELS = new HashMap<>();
 
     public void onResourceManagerReload(@NotNull ResourceManager manager) {
         Minecraft.getInstance().execute(() -> this.actuallyLoad(manager));
@@ -28,18 +28,18 @@ public class ClothModelListener implements ResourceManagerReloadListener {
         ClientTickDelayScheduler.schedule(-1, () -> {
             MODELS.clear();
 
-            ClothModelData.FILE_LISTER.listMatchingResources(manager).forEach((file, resource) -> {
-                Identifier id = ClothModelData.FILE_LISTER.fileToId(file);
+            ClothPatternModelData.FILE_LISTER.listMatchingResources(manager).forEach((file, resource) -> {
+                Identifier id = ClothPatternModelData.FILE_LISTER.fileToId(file);
 
                 try (BufferedReader reader = resource.openAsReader()) {
                     JsonObject json = JsonParser.parseReader(reader).getAsJsonObject();
-                    ClothModelData.CODEC.decode(JsonOps.INSTANCE, json)
+                    ClothPatternModelData.CODEC.decode(JsonOps.INSTANCE, json)
                             .ifSuccess(result -> {
                                 MODELS.put(id, result.getFirst().fillDefaultSprites(id));
                             })
-                            .ifError(error -> Antiquities.LOGGER.error("Error loading cloth model {}: {}", file, error.message()));
+                            .ifError(error -> Antiquities.LOGGER.error("Error loading cloth pattern model {}: {}", file, error.message()));
                 } catch (IOException e) {
-                    Antiquities.LOGGER.error("Error loading cloth model {}", file, e);
+                    Antiquities.LOGGER.error("Error loading cloth pattern model {}", file, e);
                 }
             });
         });

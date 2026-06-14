@@ -14,7 +14,6 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Optional;
 
 public record ClothSkinData(
-        Optional<String> translationKey,
         Optional<Identifier> model,
         Optional<String> shape,
         ColorProvider color,
@@ -39,7 +38,6 @@ public record ClothSkinData(
     public static final ClothSkinData DEFAULT = new ClothSkinData(
             Optional.empty(),
             Optional.empty(),
-            Optional.empty(),
             new ColorProvider.Constant(DEFAULT_COLOR),
             1.4F,
             0.1F,
@@ -60,7 +58,6 @@ public record ClothSkinData(
     }
 
     public static final Codec<ClothSkinData> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-            Codec.STRING.optionalFieldOf("translationKey").forGetter(ClothSkinData::translationKey),
             Identifier.CODEC.optionalFieldOf("model").forGetter(ClothSkinData::model),
             Codec.STRING.optionalFieldOf("shape").forGetter(ClothSkinData::shape),
             ColorProviders.CODEC.optionalFieldOf("color", new ColorProvider.Constant(DEFAULT_COLOR)).forGetter(ClothSkinData::color),
@@ -75,6 +72,10 @@ public record ClothSkinData(
             Codec.BOOL.optionalFieldOf("patternable", false).forGetter(ClothSkinData::patternable),
             Codec.BOOL.optionalFieldOf("dyeable", false).forGetter(ClothSkinData::dyeable)
     ).apply(instance, ClothSkinData::new));
+
+    public static String getTranslationKey(ResourceKey<ClothSkinData> key) {
+        return key.identifier().toLanguageKey("item");
+    }
 
     public static ClothSkinData get(Optional<Identifier> id, @NotNull HolderGetter<ClothSkinData> lookup) {
         return id.map(key ->

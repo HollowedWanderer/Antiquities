@@ -15,9 +15,11 @@ import net.hollowed.antique.client.armor.models.AdventureArmor;
 import net.hollowed.antique.entities.renderer.*;
 import net.hollowed.antique.items.components.MyriadToolComponent;
 import net.hollowed.antique.networking.*;
+import net.hollowed.antique.util.ClothUtil;
 import net.hollowed.antique.util.interfaces.duck.ClothAccess;
 import net.hollowed.antique.util.models.*;
 import net.hollowed.antique.util.properties.*;
+import net.hollowed.antique.util.resources.ClothPatternData;
 import net.hollowed.antique.util.resources.ClothSkinData;
 import net.hollowed.combatamenities.util.items.CAComponents;
 import net.minecraft.client.color.item.ItemTintSources;
@@ -34,7 +36,9 @@ import net.minecraft.client.renderer.rendertype.RenderTypes;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.contents.TranslatableContents;
 import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.entity.projectile.throwableitemprojectile.Snowball;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -44,6 +48,7 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import java.awt.*;
 import java.util.Objects;
+import java.util.Optional;
 
 public class AntiquitiesClient implements ClientModInitializer {
 
@@ -168,75 +173,66 @@ public class AntiquitiesClient implements ClientModInitializer {
             }
         });
 
-        ItemTooltipCallback.EVENT.register((itemStack, tooltipContext, tooltipType, list) -> {
-            for (int i = 0; i < list.size(); i++) {
-                if (list.get(i).toString().contains("item.color")) {
-                    Color color = new Color(itemStack.getOrDefault(DataComponents.DYED_COLOR, new DyedItemColor(0xFFFFFF)).rgb());
-                    list.set(i, list.get(i).copy().withColor(color.brighter().getRGB()));
+        ItemTooltipCallback.EVENT.register((itemStack, context, tooltipType, list) -> {
+            list.replaceAll(text -> {
+                if (text.getContents() instanceof TranslatableContents translatable && translatable.getKey().contains("item.color")) {
+                    return text.copy().withColor(new Color(itemStack.getOrDefault(DataComponents.DYED_COLOR, new DyedItemColor(0xFFFFFF)).rgb()).brighter().getRGB());
+                } else {
+                    return text;
                 }
-            }
+            });
 
             if (itemStack.is(AntiqueItems.MYRIAD_TOOL)) {
-                int toRemove = -1;
-                for (int i = 0; i < list.size(); i++) {
-                    if (list.get(i).toString().contains("dyed")) {
-                        toRemove = i;
-                    }
-                }
-                if (toRemove != -1) list.remove(toRemove);
-            }
-            if (itemStack.is(AntiqueItems.MYRIAD_TOOL)) {
+                list.removeIf(component -> component.getContents() instanceof TranslatableContents translatable && (translatable.getKey().contains("dyed") || translatable.getKey().contains("item.color")));
+
                 MyriadToolComponent component = itemStack.getOrDefault(AntiqueDataComponentTypes.MYRIAD_TOOL, MyriadToolComponent.DEFAULT_NO_CLOTH);
 
-                int toRemove = -1;
-                for (int i = 0; i < list.size(); i++) {
-                    if (list.get(i).toString().contains("item.color")) {
-                        toRemove = i;
-                    }
-                }
-                if (toRemove != -1) list.remove(toRemove);
-                Component line = Component.translatable("item.antique.myriad_tool.no_tool").withColor(11184810);
+                Component line = Component.translatable("item.antique.myriad_tool.no_tool").withColor(0xAAAAAA);
 
-                ItemStack storedStack = itemStack.getOrDefault(AntiqueDataComponentTypes.MYRIAD_TOOL, MyriadToolComponent.DEFAULT_NO_CLOTH).toolBit();
+                ItemStack toolBit = itemStack.getOrDefault(AntiqueDataComponentTypes.MYRIAD_TOOL, MyriadToolComponent.DEFAULT_NO_CLOTH).toolBit();
 
-                if (!storedStack.isEmpty()) {
-                    String string = storedStack.getItem().getDescriptionId();
+                if (!toolBit.isEmpty()) {
+                    String string = toolBit.getItem().getDescriptionId();
                     string = string.substring(20);
                     string = "item.antique.myriad_tool." + string.substring(0, string.indexOf("_"));
-                    line = Component.translatable(string).withColor(11184810);
+                    line = Component.translatable(string).withColor(0xAAAAAA);
                 }
 
                 list.add(1, line);
 
                 component.cloth().ifPresent(cloth -> {
-                    String clothName = cloth.cloth().identifier().toLanguageKey();
-                    list.add(2, Component.literal(" - ").append(Component.translatable("item." + clothName)).withColor(new Color(cloth.clothColor().orElseGet(() -> ClothSkinData.get(cloth.cloth(), Objects.requireNonNull(tooltipContext.registries())).color().getColorClient())).brighter().getRGB()));
+                    ClothUtil.getCloth(cloth).ifPresent(clothKey -> {
+                        String clothName = clothKey.identifier().toLanguageKey();
+                        list.add(2, Component.literal(" - ").append(Component.translatable("item." + clothName)).withColor(new Color(ClothUtil.getDynamicClothColor(cloth, context.registries()).orElse(0xFFFFFFFF)).brighter().getRGB()));
 
-                    cloth.pattern().ifPresent(pattern -> {
-                        String patternName = pattern.identifier().toLanguageKey();
-                        Component text = Component.literal(" - ").append(Component.translatable("item." + patternName)).withColor(new Color(cloth.patternColor().orElse(0xFFFFFFFF)).brighter().getRGB());
+                        Optional.ofNullable(cloth.get(AntiqueDataComponentTypes.CLOTH_PATTERN_TYPE)).ifPresent(pattern -> {
+                            String patternName = pattern.identifier().toLanguageKey();
+                            Component text = Component.literal(" - ").append(Component.translatable("item." + patternName)).withColor(new Color(ClothUtil.getClothPatternColor(cloth).orElse(0xFFFFFFFF)).brighter().getRGB());
 
-                        if (itemStack.getOrDefault(CAComponents.BOOLEAN_PROPERTY, false)) {
-                            text = text.copy().append(Component.literal(" - ").withColor(0xff4adbb8)).append(Component.translatable("item.antique.glowing").withColor(0xff4adbb8));
-                        }
+                            if (itemStack.getOrDefault(AntiqueDataComponentTypes.CLOTH_PATTERN_GLOWING, false)) {
+                                text = text.copy().append(Component.literal(" - ").withColor(0xff4adbb8)).append(Component.translatable("item.antique.glowing").withColor(0xFF4ADBB8));
+                            }
 
-                        list.add(3, text);
+                            list.add(3, text);
+                        });
                     });
                 });
             }
+
+            if (itemStack.is(AntiqueItems.CLOTH)) {
+                ClothUtil.getClothPattern(itemStack).ifPresent(pattern -> {
+                    list.add(Component.literal(" - ").append(Component.translatable(ClothPatternData.getTranslationKey(pattern))).withColor(new Color(ClothUtil.getClothPatternColor(itemStack).orElse(0xFFFFFFFF)).brighter().getRGB()));
+                });
+            }
+
             if (itemStack.is(AntiqueItems.CLOTH_PATTERN)) {
-                if (itemStack.getOrDefault(CAComponents.BOOLEAN_PROPERTY, false)) {
-                    list.add(2, Component.translatable("item.antique.glowing").withColor(0xff4adbb8));
+                if (itemStack.getOrDefault(AntiqueDataComponentTypes.CLOTH_PATTERN_GLOWING, false)) {
+                    list.add(2, Component.translatable("item.antique.glowing").withColor(0xFF4ADBB8));
                 }
             }
+
             if (itemStack.is(Items.BOW) || itemStack.is(Items.CROSSBOW)) {
-                int toRemove = -1;
-                for (int i = 0; i < list.size(); i++) {
-                    if (list.get(i).toString().contains("item.color")) {
-                        toRemove = i;
-                    }
-                }
-                if (toRemove != -1) list.remove(toRemove);
+                list.removeIf(component -> component.getContents() instanceof TranslatableContents translatable && translatable.getKey().contains("item.color"));
             }
         });
     }

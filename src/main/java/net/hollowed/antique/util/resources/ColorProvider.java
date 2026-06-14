@@ -21,6 +21,7 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.Identifier;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Function;
 
 public interface ColorProvider {
@@ -28,8 +29,8 @@ public interface ColorProvider {
 
     int getColor(int tick, float tickDelta);
 
-    default int getConstantColor(Function<ColorProvider, String> error) {
-        throw new UnsupportedOperationException(error.apply(this));
+    default Optional<Integer> getConstantColor() {
+        return Optional.empty();
     }
 
     @Environment(EnvType.CLIENT)
@@ -66,8 +67,8 @@ public interface ColorProvider {
         }
 
         @Override
-        public int getConstantColor(Function<ColorProvider, String> error) {
-            return color;
+        public Optional<Integer> getConstantColor() {
+            return Optional.of(color);
         }
     }
 

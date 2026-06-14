@@ -14,6 +14,7 @@ import net.hollowed.antique.index.AntiqueRecipeSerializer;
 import net.hollowed.antique.index.AntiqueRegistries;
 import net.hollowed.antique.items.components.MyriadToolComponent;
 import net.hollowed.antique.util.resources.ClothPatternData;
+import net.hollowed.antique.util.resources.ClothSkinData;
 import net.hollowed.combatamenities.util.items.CAComponents;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.NonNullList;
@@ -97,15 +98,9 @@ public class ClothPatternOnToolRecipe implements CraftingRecipe {
 				for (ItemStack stack : craftingRecipeInput.items()) {
 					boolean patternable = stack.getOrDefault(AntiqueDataComponentTypes.MYRIAD_TOOL, MyriadToolComponent.DEFAULT_NO_CLOTH)
 							.cloth()
-							.map(cloth ->
-									world.registryAccess()
-											.lookupOrThrow(AntiqueRegistries.CLOTHS)
-											.get(cloth.cloth())
+							.flatMap(cloth ->
+									ClothUtil.getClothData(stack, world.registryAccess())
 											.map(skin -> skin.value().patternable())
-											.orElseGet(() -> {
-												Antiquities.LOGGER.error("Nonexistent cloth type {}", cloth.cloth().identifier());
-												return false;
-											})
 							)
 							.orElse(false);
 
@@ -136,9 +131,9 @@ public class ClothPatternOnToolRecipe implements CraftingRecipe {
 			ItemStack result = myriadTool.copy();
 
 			MyriadToolComponent component = result.getOrDefault(AntiqueDataComponentTypes.MYRIAD_TOOL, MyriadToolComponent.DEFAULT_NO_CLOTH);
-			Optional<ResourceKey<ClothPatternData>> pattern = Optional.ofNullable(clothPattern.get(AntiqueDataComponentTypes.CLOTH_PATTERN_TYPE));
+			Optional<ResourceKey<ClothPatternData>> pattern = ClothUtil.getClothPattern(clothPattern);
 
-			result.set(AntiqueDataComponentTypes.MYRIAD_TOOL, component.withCloth(cloth -> cloth.withPattern(pattern)));
+			result.set(AntiqueDataComponentTypes.MYRIAD_TOOL, component.withCloth(cloth -> ClothUtil.setClothPattern(cloth.copy(), pattern)));
 			result.set(CAComponents.BOOLEAN_PROPERTY, clothPattern.getOrDefault(CAComponents.BOOLEAN_PROPERTY, false));
 
 			return result;

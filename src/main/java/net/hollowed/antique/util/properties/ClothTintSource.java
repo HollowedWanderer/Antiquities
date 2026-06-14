@@ -4,14 +4,15 @@ import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.hollowed.antique.index.AntiqueDataComponentTypes;
 import net.hollowed.antique.items.components.MyriadToolComponent;
-import net.hollowed.antique.util.resources.ClothInstance;
 import net.hollowed.antique.util.resources.ClothSkinData;
 import net.minecraft.client.color.item.ItemTintSource;
 import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.util.ARGB;
 import net.minecraft.util.ExtraCodecs;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.component.DyedItemColor;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -33,11 +34,11 @@ public record ClothTintSource(int defaultColor) implements ItemTintSource {
 		return component != null
 				? ARGB.opaque(component.cloth()
 				.flatMap(cloth ->
-						cloth.clothColor().or(() -> {
+						Optional.ofNullable(cloth.get(DataComponents.DYED_COLOR)).map(DyedItemColor::rgb).or(() -> {
 							if (level == null) {
 								return Optional.empty();
 							} else {
-								return Optional.of(ClothSkinData.get(cloth.cloth(), level).color().getColorClient());
+								return Optional.of(ClothSkinData.get(cloth.getOrDefault(AntiqueDataComponentTypes.CLOTH_TYPE, ClothSkinData.DEFAULT_KEY), level).color().getColorClient());
 							}
 						})
 				)

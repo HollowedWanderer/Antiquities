@@ -6,6 +6,7 @@ import net.hollowed.antique.index.AntiqueDataComponentTypes;
 import net.hollowed.antique.index.AntiqueItems;
 import net.hollowed.antique.items.components.MyriadToolComponent;
 import net.hollowed.antique.mixin.accessors.RendererAccessor;
+import net.hollowed.antique.util.ClothUtil;
 import net.hollowed.antique.util.resources.ClothPatternData;
 import net.hollowed.antique.util.resources.ClothSkinData;
 import net.hollowed.combatamenities.util.items.CAComponents;
@@ -30,6 +31,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import com.mojang.blaze3d.vertex.PoseStack;
 import java.awt.*;
+import java.util.Optional;
 
 @Mixin(ItemInHandRenderer.class)
 public abstract class FirstPersonHeldItemRendererMixin {
@@ -73,37 +75,39 @@ public abstract class FirstPersonHeldItemRendererMixin {
                 }
 
                 if (component.cloth().isPresent()) {
-                    Holder.Reference<ClothSkinData> data = ClothSkinData.getHolder(component.cloth().get().cloth(), player.registryAccess());
-                    manager = renderMode == ItemDisplayContext.FIRST_PERSON_RIGHT_HAND ? ClothManager.getOrCreate(entity, Antiquities.id("right_arm"), data.value()) : ClothManager.getOrCreate(entity, Antiquities.id("left_arm"), data.value());
+                    Optional<Holder.Reference<ClothSkinData>> data = ClothUtil.getClothData(component.cloth().get(), player.registryAccess());
 
-                    switch (renderMode) {
-                        case ItemDisplayContext.NONE -> {
-                            manager = ClothManager.getOrCreate(entity, Antiquities.id("back"), data.value());
+                    if (data.isPresent()) {
+                        manager = renderMode == ItemDisplayContext.FIRST_PERSON_RIGHT_HAND ? ClothManager.getOrCreate(entity, Antiquities.id("right_arm"), data.get().value()) : ClothManager.getOrCreate(entity, Antiquities.id("left_arm"), data.get().value());
+
+                        switch (renderMode) {
+                            case ItemDisplayContext.NONE -> {
+                                manager = ClothManager.getOrCreate(entity, Antiquities.id("back"), data.get().value());
+                                reproject = false;
+                            }
+                            case ItemDisplayContext.GUI -> manager = null;
+                        }
+
+                        if (player.getInventory().getItem(42).equals(stack)) {
+                            manager = ClothManager.getOrCreate(entity, Antiquities.id("belt"), data.get().value());
                             reproject = false;
                         }
-                        case ItemDisplayContext.GUI -> manager = null;
-                    }
 
-                    if (player.getInventory().getItem(42).equals(stack)) {
-                        manager = ClothManager.getOrCreate(entity, Antiquities.id("belt"), data.value());
-                        reproject = false;
+                        if (manager != null) {
+                            Matrix4f reprojectMatrix = this.getReprojectMatrix();
+                            manager.renderCloth(
+                                    data.get(),
+                                    matrices,
+                                    orderedRenderCommandQueue,
+                                    light,
+                                    stack.getOrDefault(CAComponents.BOOLEAN_PROPERTY, false),
+                                    new Color(ClothUtil.getDynamicClothColor(component.cloth().get(), player.registryAccess()).orElse(0xFFFFFFFF)),
+                                    new Color(ClothUtil.getClothPatternColor(component.cloth().get()).orElse(0xFFFFFFFF)),
+                                    ClothUtil.getClothPatternData(component.cloth().get(), player.registryAccess()),
+                                    reproject ? reprojectMatrix : new Matrix4f()
+                            );
+                        }
                     }
-
-                    if (manager != null) {
-                        Matrix4f reprojectMatrix = this.getReprojectMatrix();
-                        manager.renderCloth(
-                                data,
-                                matrices,
-                                orderedRenderCommandQueue,
-                                light,
-                                stack.getOrDefault(CAComponents.BOOLEAN_PROPERTY, false),
-                                new Color(component.cloth().get().clothColor().orElseGet(() -> data.value().color().getColorClient())),
-                                new Color(component.cloth().get().patternColor().orElse(0xFFFFFFFF)),
-                                ClothPatternData.getHolderFromKey(component.cloth().get().pattern(), entity.registryAccess()),
-                                reproject ? reprojectMatrix : new Matrix4f()
-                        );
-                    }
-                } else {
                 }
             }
         }

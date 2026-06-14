@@ -2,7 +2,6 @@ package net.hollowed.antique.util.resources;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.hollowed.antique.Antiquities;
 import net.hollowed.antique.index.AntiqueRegistries;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderGetter;
@@ -14,18 +13,19 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Optional;
 
 public record ClothPatternData(
-        Optional<String> translationKey,
-        Optional<Identifier> texture
+        Optional<Identifier> model
 ) {
     public static final ClothPatternData DEFAULT = new ClothPatternData(
-            Optional.empty(),
             Optional.empty()
     );
 
     public static final Codec<ClothPatternData> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-            Codec.STRING.optionalFieldOf("translationKey").forGetter(ClothPatternData::translationKey),
-            Identifier.CODEC.optionalFieldOf("texture").forGetter(ClothPatternData::texture)
+            Identifier.CODEC.optionalFieldOf("model").forGetter(ClothPatternData::model)
     ).apply(instance, ClothPatternData::new));
+
+    public static String getTranslationKey(ResourceKey<ClothPatternData> key) {
+        return key.identifier().toLanguageKey("item");
+    }
 
     public static ClothPatternData get(Optional<Identifier> id, @NotNull HolderGetter<ClothPatternData> lookup) {
         return id.map(key ->

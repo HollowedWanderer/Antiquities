@@ -5,6 +5,7 @@ import net.hollowed.antique.index.AntiqueDataComponentTypes;
 import net.hollowed.antique.index.AntiqueItems;
 import net.hollowed.antique.index.AntiqueScreenHandlerType;
 import net.hollowed.antique.items.components.MyriadToolComponent;
+import net.hollowed.antique.util.ClothUtil;
 import net.hollowed.antique.util.resources.ClothSkinData;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.tags.ItemTags;
@@ -67,8 +68,9 @@ public class DyeingScreenHandler extends AbstractContainerMenu {
 					return stack.getOrDefault(AntiqueDataComponentTypes.MYRIAD_TOOL, MyriadToolComponent.DEFAULT_NO_CLOTH)
 							.cloth()
 							.map(key ->
-									context.evaluate((level, pos) -> ClothSkinData.get(key.cloth(), level))
-											.map(ClothSkinData::dyeable)
+									context.evaluate((level, pos) -> ClothUtil.getClothData(stack, level.registryAccess()))
+											.flatMap(it -> it)
+											.map(skin -> skin.value().dyeable())
 											.orElse(false)
 							)
 							.orElse(false);
@@ -173,13 +175,13 @@ public class DyeingScreenHandler extends AbstractContainerMenu {
 
 		if (this.hexCode != null && this.hexCode.length() == 6) {
 			try {
-				int dyeColor = Integer.parseInt(this.hexCode, 16);
+				DyedItemColor dyeColor = new DyedItemColor(Integer.parseInt(this.hexCode, 16));
 				MyriadToolComponent component = result.get(AntiqueDataComponentTypes.MYRIAD_TOOL);
 
 				if (component != null) {
-					result.set(AntiqueDataComponentTypes.MYRIAD_TOOL, component.withCloth(cloth -> cloth.withPatternColor(Optional.of(dyeColor))));
+					result.set(AntiqueDataComponentTypes.MYRIAD_TOOL, component.withCloth(cloth -> ClothUtil.setClothPatternColor(cloth, Optional.of(dyeColor))));
 				} else {
-					result.set(DataComponents.DYED_COLOR, new DyedItemColor(dyeColor));
+					result.set(DataComponents.DYED_COLOR, dyeColor);
 				}
 			} catch (NumberFormatException e) {
                 Antiquities.LOGGER.error("Invalid hexadecimal string format: {}", e.getMessage());

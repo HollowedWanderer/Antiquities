@@ -8,7 +8,6 @@ import net.hollowed.antique.index.AntiqueDataComponentTypes;
 import net.hollowed.antique.items.MyriadToolItem;
 import net.hollowed.antique.items.components.MyriadToolComponent;
 import net.hollowed.antique.networking.DyePacketPayload;
-import net.hollowed.antique.util.resources.ClothInstance;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.EditBox;
@@ -26,6 +25,8 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.DyedItemColor;
 import org.jetbrains.annotations.NotNull;
 import org.lwjgl.glfw.GLFW;
+
+import java.util.Optional;
 
 @Environment(EnvType.CLIENT)
 public class DyeingScreen extends AbstractContainerScreen<@NotNull DyeingScreenHandler> implements ContainerListener {
@@ -117,7 +118,7 @@ public class DyeingScreen extends AbstractContainerScreen<@NotNull DyeingScreenH
 			if (result.getItem() instanceof MyriadToolItem) {
 				rgb = result.getOrDefault(AntiqueDataComponentTypes.MYRIAD_TOOL, MyriadToolComponent.DEFAULT_NO_CLOTH)
 						.cloth()
-						.flatMap(ClothInstance::clothColor)
+						.flatMap(stack -> Optional.ofNullable(stack.get(DataComponents.DYED_COLOR)).map(DyedItemColor::rgb))
 						.orElse(0xFFFFFF);
 			} else {
 				rgb = result.getOrDefault(DataComponents.DYED_COLOR, new DyedItemColor(0xFFFFFF)).rgb();

@@ -10,6 +10,7 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import org.joml.Vector3d;
 
+import java.text.NumberFormat;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -154,5 +155,10 @@ public class ClothBody {
         double push1 = maxB - minA;
         double push2 = minB - maxA;
         return Math.abs(push1) < Math.abs(push2) ? push1 : push2;
+    }
+
+    @Override
+    public String toString() {
+        return pos.toString(NumberFormat.getInstance());
     }
 }

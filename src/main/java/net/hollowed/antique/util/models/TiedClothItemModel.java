@@ -20,6 +20,7 @@ import net.hollowed.antique.Antiquities;
 import net.hollowed.antique.index.AntiqueDataComponentTypes;
 import net.hollowed.antique.index.AntiqueItemTags;
 import net.hollowed.antique.items.components.MyriadToolComponent;
+import net.hollowed.antique.util.ClothUtil;
 import net.hollowed.antique.util.resources.ClothSkinData;
 import net.hollowed.antique.util.resources.client.ClothModelData;
 import net.hollowed.antique.util.resources.client.ClothSprite;
@@ -41,6 +42,7 @@ import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.client.resources.model.*;
 import net.minecraft.resources.FileToIdConverter;
 import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.entity.ItemOwner;
 import net.minecraft.world.item.*;
 import org.jetbrains.annotations.NotNull;
@@ -112,7 +114,10 @@ public class TiedClothItemModel implements ItemModel {
 
 		MyriadToolComponent component = stack.getOrDefault(AntiqueDataComponentTypes.MYRIAD_TOOL, MyriadToolComponent.DEFAULT_NO_CLOTH);
 
-		Identifier clothId = component.cloth().map(cloth -> cloth.cloth().identifier()).orElseGet(() -> Antiquities.id("empty"));
+		Identifier clothId = component.cloth()
+				.flatMap(ClothUtil::getCloth)
+				.map(ResourceKey::identifier)
+				.orElseGet(() -> Antiquities.id("empty"));
 
 		state.appendModelIdentityElement(clothId);
 

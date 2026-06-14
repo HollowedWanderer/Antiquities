@@ -145,7 +145,7 @@ public class ClothPatternItemModel implements ItemModel {
 								TextureSlots.Data.Builder builder = new TextureSlots.Data.Builder();
 								int layer = 0;
 
-								for (ClothSprite sprite : model.sprites()) {
+								for (ClothSprite sprite : model.itemSprites()) {
 									builder.addTexture("layer" + (layer++), new Material(TextureAtlas.LOCATION_ITEMS, sprite.texture()));
 								}
 
@@ -158,7 +158,7 @@ public class ClothPatternItemModel implements ItemModel {
 										BlockModelRotation.IDENTITY,
 										file::toString
 								).getAll();
-								variantQuads.put(id, ClothSprite.applyToQuads(quads, model.sprites()));
+								variantQuads.put(id, ClothSprite.applyToQuads(quads, model.itemSprites()));
 							})
 							.ifError(error -> Antiquities.LOGGER.error("Error loading cloth model {}: {}", file, error.message()));
 				} catch (IOException e) {

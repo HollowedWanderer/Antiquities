@@ -11,13 +11,11 @@ import net.hollowed.antique.AntiquitiesClient;
 import net.hollowed.antique.client.sound.cloth.AmbientClothSoundInstance;
 import net.hollowed.antique.entities.parts.MyriadShovelPart;
 import net.hollowed.antique.index.AntiqueParticles;
-import net.hollowed.antique.util.resources.ClothModelListener;
-import net.hollowed.antique.util.resources.ClothPatternData;
-import net.hollowed.antique.util.resources.ColorProvider;
+import net.hollowed.antique.util.resources.*;
 import net.hollowed.antique.mixin.accessors.SpriteContentsAnimationStateAccessor;
 import net.hollowed.antique.particles.TyphoSparkParticle;
-import net.hollowed.antique.util.resources.ClothSkinData;
 import net.hollowed.antique.util.resources.client.ClothModelData;
+import net.hollowed.antique.util.resources.client.ClothPatternModelData;
 import net.hollowed.antique.util.resources.client.ClothSprite;
 import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
@@ -387,6 +385,7 @@ public class ClothManager {
             lastB = posEnd;
 
             int finalLight = light;
+            int[] layer = { 1 };
 
             for (ClothSprite spriteData : model.worldSprites()) {
                 TextureAtlasSprite sprite = Minecraft.getInstance()
@@ -398,7 +397,7 @@ public class ClothManager {
                         new Matrix4f(),
                         CLOTH_RENDER_LAYER,
                         queue,
-                        1,
+                        layer[0]++,
                         a,
                         b,
                         posEnd,
@@ -414,27 +413,33 @@ public class ClothManager {
 
             pattern.ifPresent(holder -> {
                 skin.value().shape().ifPresent(shape -> {
-                    TextureAtlasSprite sprite = Minecraft.getInstance()
-                            .getAtlasManager()
-                            .getAtlasOrThrow(AntiquitiesClient.CLOTHS_ATLAS)
-                            .getSprite(holder.unwrapKey().orElseThrow().identifier().withPrefix("cloth/pattern/").withSuffix("_" + shape));
-                    drawQuad(
-                            matrices,
-                            new Matrix4f(),
-                            CLOTH_RENDER_LAYER,
-                            queue,
-                            3,
-                            a,
-                            b,
-                            posEnd,
-                            negEnd,
-                            new Vec2(sprite.getU0(), sprite.getV(uvTop)),
-                            new Vec2(sprite.getU1(), sprite.getV(uvTop)),
-                            new Vec2(sprite.getU1(), sprite.getV(uvBot)),
-                            new Vec2(sprite.getU0(), sprite.getV(uvBot)),
-                            glow ? 255 : finalLight,
-                            patternColor
-                    );
+                    ClothPatternModelData patternModel = ClothPatternModelListener.MODELS.get(holder.value().model().orElseGet(() -> holder.unwrapKey().orElseThrow().identifier()));
+
+                    if (patternModel != null) {
+                        for (ClothSprite spriteData : patternModel.worldSprites()) {
+                            TextureAtlasSprite sprite = Minecraft.getInstance()
+                                    .getAtlasManager()
+                                    .getAtlasOrThrow(AntiquitiesClient.CLOTHS_ATLAS)
+                                    .getSprite(spriteData.texture().withSuffix("_" + shape));
+                            drawQuad(
+                                    matrices,
+                                    new Matrix4f(),
+                                    CLOTH_RENDER_LAYER,
+                                    queue,
+                                    layer[0]++,
+                                    a,
+                                    b,
+                                    posEnd,
+                                    negEnd,
+                                    new Vec2(sprite.getU0(), sprite.getV(uvTop)),
+                                    new Vec2(sprite.getU1(), sprite.getV(uvTop)),
+                                    new Vec2(sprite.getU1(), sprite.getV(uvBot)),
+                                    new Vec2(sprite.getU0(), sprite.getV(uvBot)),
+                                    glow ? 255 : finalLight,
+                                    patternColor
+                            );
+                        }
+                    }
                 });
             });
         }
