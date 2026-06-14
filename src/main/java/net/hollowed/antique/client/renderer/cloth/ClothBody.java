@@ -2,6 +2,7 @@ package net.hollowed.antique.client.renderer.cloth;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.core.BlockBox;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.block.state.BlockState;
@@ -105,20 +106,9 @@ public class ClothBody {
     }
 
     public void slideOutOfBlocks(ClientLevel world) {
-        double padding = 0.00075;
+        double padding = 1.0 / 16;
 
         Vec3 startPos = new Vec3(pos.x, pos.y, pos.z);
-        BlockPos blockPos = BlockPos.containing(startPos);
-        BlockState state = world.getBlockState(blockPos);
-
-        // If there's no collision shape, just return the original point
-        if (state.isAir()) return;
-        VoxelShape shape = state.getCollisionShape(world, blockPos);
-        if (shape.isEmpty()) return;
-
-        // Convert the shape to world space
-        VoxelShape worldShape = shape.move(blockPos.getX(), blockPos.getY(), blockPos.getZ());
-        List<AABB> collBoxes = worldShape.toAabbs();
 
         // Itty-bitty bounding box
         double x = startPos.x;
@@ -128,26 +118,41 @@ public class ClothBody {
         // Build a small bounding box around the point
         AABB pointBox = new AABB(x - padding, y - padding, z - padding, x + padding, y + padding, z + padding);
 
-        // Try sliding out by checking overlaps
-        double dx = 0, dy = 0, dz = 0;
-        for (AABB box : collBoxes) {
-            if (box.intersects(pointBox)) {
-                double xOverlap = getOverlap(pointBox.minX, pointBox.maxX, box.minX, box.maxX);
-                double yOverlap = getOverlap(pointBox.minY, pointBox.maxY, box.minY, box.maxY);
-                double zOverlap = getOverlap(pointBox.minZ, pointBox.maxZ, box.minZ, box.maxZ);
+        for (BlockPos blockPos : BlockBox.of(BlockPos.containing(pointBox.minX, pointBox.minY, pointBox.minZ), BlockPos.containing(pointBox.maxX, pointBox.maxY, pointBox.maxZ))) {
+            BlockState state = world.getBlockState(blockPos);
 
-                // Pick the smallest overlap to push out
-                if (Math.abs(xOverlap) < Math.abs(yOverlap) && Math.abs(xOverlap) < Math.abs(zOverlap)) {
-                    dx += xOverlap;
-                } else if (Math.abs(yOverlap) < Math.abs(zOverlap)) {
-                    dy += yOverlap;
-                } else {
-                    dz += zOverlap;
+            // If there's no collision shape, just return the original point
+            if (state.isAir()) continue;
+            VoxelShape shape = state.getCollisionShape(world, blockPos);
+            if (shape.isEmpty()) continue;
+
+            // Convert the shape to world space
+            VoxelShape worldShape = shape.move(blockPos.getX(), blockPos.getY(), blockPos.getZ());
+            List<AABB> collBoxes = worldShape.toAabbs();
+
+            // Try sliding out by checking overlaps
+            for (AABB box : collBoxes) {
+                if (box.intersects(pointBox)) {
+                    double xOverlap = getOverlap(pointBox.minX, pointBox.maxX, box.minX, box.maxX);
+                    double yOverlap = getOverlap(pointBox.minY, pointBox.maxY, box.minY, box.maxY);
+                    double zOverlap = getOverlap(pointBox.minZ, pointBox.maxZ, box.minZ, box.maxZ);
+
+                    // Pick the smallest overlap to push out
+                    if (Math.abs(xOverlap) < Math.abs(yOverlap) && Math.abs(xOverlap) < Math.abs(zOverlap)) {
+                        x += xOverlap;
+                        pointBox = pointBox.move(xOverlap, 0, 0);
+                    } else if (Math.abs(yOverlap) < Math.abs(zOverlap)) {
+                        y += yOverlap;
+                        pointBox = pointBox.move(0, yOverlap, 0);
+                    } else {
+                        z += zOverlap;
+                        pointBox = pointBox.move(0, 0, zOverlap);
+                    }
                 }
             }
         }
 
-        pos = new Vector3d(x + dx, y + dy, z + dz);
+        pos.set(x, y, z);
     }
 
     private double getOverlap(double minA, double maxA, double minB, double maxB) {
