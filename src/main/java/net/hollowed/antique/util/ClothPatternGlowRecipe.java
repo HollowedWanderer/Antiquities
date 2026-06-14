@@ -101,7 +101,7 @@ public class ClothPatternGlowRecipe implements CraftingRecipe {
 						)
 						.apply(instance, ClothPatternGlowRecipe::new)
 		);
-		public static final StreamCodec<RegistryFriendlyByteBuf, ClothPatternGlowRecipe> PACKET_CODEC = StreamCodec.composite(
+		public static final StreamCodec<RegistryFriendlyByteBuf, ClothPatternGlowRecipe> STREAM_CODEC = StreamCodec.composite(
 				ByteBufCodecs.STRING_UTF8,
 				recipe -> recipe.group,
 				CraftingBookCategory.STREAM_CODEC,
@@ -118,7 +118,7 @@ public class ClothPatternGlowRecipe implements CraftingRecipe {
 
 		@Override
 		public @NotNull StreamCodec<RegistryFriendlyByteBuf, ClothPatternGlowRecipe> streamCodec() {
-			return PACKET_CODEC;
+			return STREAM_CODEC;
 		}
 	}
 }

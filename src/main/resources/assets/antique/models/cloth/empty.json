@@ -1,0 +1,23 @@
+{
+  "item": [
+    "antique:item/empty"
+  ],
+  "tied": {
+    "normal": {
+      "inventory": [
+        "antique:item/empty_item"
+      ],
+      "world": [
+        "antique:item/empty_hand"
+      ]
+    },
+    "large": {
+      "inventory": [
+        "antique:item/empty_item_large"
+      ],
+      "world": [
+        "antique:item/empty_hand_large"
+      ]
+    }
+  }
+}

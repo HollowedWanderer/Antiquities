@@ -8,9 +8,8 @@ import net.fabricmc.fabric.api.item.v1.DefaultItemComponentEvents;
 import net.fabricmc.fabric.api.itemgroup.v1.FabricItemGroup;
 import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
-import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
-import net.fabricmc.fabric.api.resource.ResourcePackActivationType;
 import net.fabricmc.fabric.api.resource.v1.ResourceLoader;
+import net.fabricmc.fabric.api.resource.v1.pack.PackActivationType;
 import net.fabricmc.loader.api.FabricLoader;
 import net.hollowed.antique.config.AntiquitiesConfig;
 import net.hollowed.antique.index.*;
@@ -51,7 +50,6 @@ public class Antiquities implements ModInitializer {
 
 	public static final Logger LOGGER = LoggerFactory.getLogger(MOD_ID);
 
-	@SuppressWarnings("all")
 	@Override
 	public void onInitialize() {
 
@@ -78,13 +76,14 @@ public class Antiquities implements ModInitializer {
 		AntiquePlacedFeatures.initialize();
 		AntiqueFeatures.initialize();
 		AntiqueTrackedData.initialize();
+		AntiqueRegistries.initialize();
 
 		MidnightConfig.init(MOD_ID, AntiquitiesConfig.class);
 
 		ResourceLoader.get(PackType.CLIENT_RESOURCES).registerReloader(id("staff_transforms"), new MyriadStaffTransformResourceReloadListener());
 		ResourceLoader.get(PackType.CLIENT_RESOURCES).registerReloader(id("pedestal_transforms"), new PedestalDisplayListener());
-		ResourceLoader.get(PackType.SERVER_DATA).registerReloader(id("cloth_skins"), new ClothSkinListener());
-		ResourceLoader.get(PackType.SERVER_DATA).registerReloader(id("cloth_overlays"), new ClothOverlayListener());
+		ResourceLoader.get(PackType.CLIENT_RESOURCES).registerReloader(id("cloth_models"), new ClothModelListener());
+		ResourceLoader.get(PackType.CLIENT_RESOURCES).registerReloader(id("cloth_pattern_models"), new ClothPatternModelListener());
 
 		/*
 			Packets
@@ -97,8 +96,6 @@ public class Antiquities implements ModInitializer {
 		PayloadTypeRegistry.playC2S().register(CrawlPacketPayload.ID, CrawlPacketPayload.CODEC);
 		PayloadTypeRegistry.playC2S().register(DyePacketPayload.ID, DyePacketPayload.CODEC);
 		PayloadTypeRegistry.playS2C().register(IllusionerParticlePacketPayload.ID, IllusionerParticlePacketPayload.CODEC);
-		PayloadTypeRegistry.playS2C().register(ClothSkinPacketPayload.ID, ClothSkinPacketPayload.CODEC);
-		PayloadTypeRegistry.playS2C().register(ClothOverlayPacketPayload.ID, ClothOverlayPacketPayload.CODEC);
 		PayloadTypeRegistry.playS2C().register(AddClothItemsPayload.ID, AddClothItemsPayload.CODEC);
 		PayloadTypeRegistry.playS2C().register(ShockwaveParticlesPayload.ID, ShockwaveParticlesPayload.CODEC);
 
@@ -173,16 +170,30 @@ public class Antiquities implements ModInitializer {
 						Items.BUNDLE, Items.WHITE_BUNDLE, Items.LIGHT_GRAY_BUNDLE, Items.GRAY_BUNDLE, Items.BLACK_BUNDLE, Items.BROWN_BUNDLE, Items.RED_BUNDLE,
 						Items.ORANGE_BUNDLE, Items.YELLOW_BUNDLE, Items.LIME_BUNDLE, Items.GREEN_BUNDLE, Items.CYAN_BUNDLE, Items.LIGHT_BLUE_BUNDLE, Items.BLUE_BUNDLE,
 						Items.PURPLE_BUNDLE, Items.MAGENTA_BUNDLE, Items.PINK_BUNDLE
-						),
+				),
 				(builder, item) -> builder.set(DataComponents.ENCHANTABLE, new Enchantable(10))
+		));
+
+		DefaultItemComponentEvents.MODIFY.register(ctx -> ctx.modify(
+				List.of(
+						AntiqueItems.CLOTH
+				),
+				(builder, item) -> builder.set(AntiqueDataComponentTypes.CLOTH_TYPE, ResourceKey.create(AntiqueRegistries.CLOTHS, id("cloth")))
+		));
+		DefaultItemComponentEvents.MODIFY.register(ctx -> ctx.modify(
+				List.of(
+						AntiqueItems.MYRIAD_TOOL
+				),
+				(builder, item) -> builder.set(AntiqueDataComponentTypes.MYRIAD_TOOL, MyriadToolComponent.DEFAULT_NO_CLOTH)
 		));
 
 		/*
 			Resource Pack
 		 */
 
-		FabricLoader.getInstance().getModContainer(MOD_ID).ifPresent((container) ->
-				ResourceManagerHelper.registerBuiltinResourcePack(id("antique"), container, Component.translatable("resourcePack.hmi.name"), ResourcePackActivationType.NORMAL));
+		FabricLoader.getInstance().getModContainer(MOD_ID).ifPresent((container) -> {
+			ResourceLoader.registerBuiltinPack(id("antique"), container, Component.translatable("resourcePack.hmi.name"), PackActivationType.NORMAL);
+		});
 
 		/*
 			Item Group
@@ -193,8 +204,8 @@ public class Antiquities implements ModInitializer {
 		Registry.register(BuiltInRegistries.CREATIVE_MODE_TAB, ANTIQUITIES_CLOTHS_GROUP_KEY, ANTIQUITIES_CLOTHS_GROUP);
 		addItems();
 
-		ItemGroupEvents.modifyEntriesEvent(CreativeModeTabs.SPAWN_EGGS).register(itemGroup -> {
-			itemGroup.addAfter(Items.WITCH_SPAWN_EGG, AntiqueItems.ILLUSIONER_SPAWN_EGG);
+		ItemGroupEvents.modifyEntriesEvent(CreativeModeTabs.SPAWN_EGGS).register(group -> {
+			group.addAfter(Items.WITCH_SPAWN_EGG, AntiqueItems.ILLUSIONER_SPAWN_EGG);
 		});
 	}
 
@@ -268,19 +279,19 @@ public class Antiquities implements ModInitializer {
 
 			ItemStack myriadMattock = AntiqueItems.MYRIAD_TOOL.getDefaultInstance();
 			myriadMattock.set(AntiqueDataComponentTypes.MYRIAD_TOOL, MyriadToolComponent.DEFAULT_WITH_CLOTH);
-			MyriadToolItem.setStoredStack(myriadMattock, AntiqueItems.MYRIAD_PICK_HEAD.getDefaultInstance());
+			MyriadToolItem.setToolBit(myriadMattock, AntiqueItems.MYRIAD_PICK_HEAD.getDefaultInstance());
 			itemGroup.accept(myriadMattock);
 
 			ItemStack myriadAxe = AntiqueItems.MYRIAD_TOOL.getDefaultInstance();
 			myriadAxe.set(AntiqueDataComponentTypes.MYRIAD_TOOL, MyriadToolComponent.DEFAULT_WITH_CLOTH);
-			MyriadToolItem.setStoredStack(myriadAxe, AntiqueItems.MYRIAD_AXE_HEAD.getDefaultInstance());
+			MyriadToolItem.setToolBit(myriadAxe, AntiqueItems.MYRIAD_AXE_HEAD.getDefaultInstance());
 			itemGroup.accept(myriadAxe);
 
 			itemGroup.accept(getMyriadShovelStack());
 
 			ItemStack myriadCleaver = AntiqueItems.MYRIAD_TOOL.getDefaultInstance();
 			myriadCleaver.set(AntiqueDataComponentTypes.MYRIAD_TOOL, MyriadToolComponent.DEFAULT_WITH_CLOTH);
-			MyriadToolItem.setStoredStack(myriadCleaver, AntiqueItems.MYRIAD_CLEAVER_BLADE.getDefaultInstance());
+			MyriadToolItem.setToolBit(myriadCleaver, AntiqueItems.MYRIAD_CLEAVER_BLADE.getDefaultInstance());
 			itemGroup.accept(myriadCleaver);
 
 			itemGroup.accept(AntiqueItems.MYRIAD_PICK_HEAD);
@@ -302,31 +313,45 @@ public class Antiquities implements ModInitializer {
 	}
 
 	public static void addClothItems() {
-		ItemGroupEvents.modifyEntriesEvent(ANTIQUITIES_CLOTHS_GROUP_KEY).register(itemGroup -> {
-			for (ClothSkinData.ClothSubData data : ClientClothData.TRANSFORMS.values()) {
-				ItemStack stack = AntiqueItems.CLOTH.getDefaultInstance();
-				stack.set(DataComponents.ITEM_NAME, Component.translatable(data.model().orElseThrow().toLanguageKey("item")));
-				if (!data.dyeable()) stack.remove(DataComponents.DYED_COLOR);
-				if (!itemGroup.getDisplayStacks().contains(stack)) {
-					itemGroup.accept(stack);
-				}
-			}
+		ItemGroupEvents.modifyEntriesEvent(ANTIQUITIES_CLOTHS_GROUP_KEY).register(group -> {
+			group.getContext()
+					.holders()
+					.lookupOrThrow(AntiqueRegistries.CLOTHS)
+					.getOrThrow(AntiqueClothTags.CREATIVE_TAB_ORDER)
+					.forEach(skin -> {
+                        ItemStack stack = AntiqueItems.CLOTH.getDefaultInstance();
 
-			for (Identifier data : ClientClothData.OVERLAY_TRANSFORMS) {
-				ItemStack stack = AntiqueItems.CLOTH_PATTERN.getDefaultInstance();
-				stack.set(DataComponents.ITEM_NAME, Component.translatable(data.toLanguageKey("item") + "_cloth_pattern"));
-				stack.set(DataComponents.DYED_COLOR, new DyedItemColor(0xFFFFFF));
-				if (!itemGroup.getDisplayStacks().contains(stack)) {
-					itemGroup.accept(stack);
-				}
-			}
+						stack.set(AntiqueDataComponentTypes.CLOTH_TYPE, skin.unwrapKey().orElseThrow());
+
+						if (!skin.value().dyeable()) {
+							stack.remove(DataComponents.DYED_COLOR);
+						}
+
+						if (!group.getDisplayStacks().contains(stack)) {
+							group.accept(stack);
+						}
+					});
+			group.getContext()
+					.holders()
+					.lookupOrThrow(AntiqueRegistries.CLOTH_PATTERNS)
+					.getOrThrow(AntiqueClothPatternTags.CREATIVE_TAB_ORDER)
+					.forEach(pattern -> {
+                        ItemStack stack = AntiqueItems.CLOTH_PATTERN.getDefaultInstance();
+
+						stack.set(AntiqueDataComponentTypes.CLOTH_PATTERN_TYPE, pattern.unwrapKey().orElseThrow());
+						stack.set(DataComponents.DYED_COLOR, new DyedItemColor(0xFFFFFF));
+
+						if (!group.getDisplayStacks().contains(stack)) {
+							group.accept(stack);
+						}
+					});
 		});
 	}
 
 	public static ItemStack getMyriadShovelStack() {
 		ItemStack myriadShovel = AntiqueItems.MYRIAD_TOOL.getDefaultInstance();
 		myriadShovel.set(AntiqueDataComponentTypes.MYRIAD_TOOL, MyriadToolComponent.DEFAULT_WITH_CLOTH);
-		MyriadToolItem.setStoredStack(myriadShovel, AntiqueItems.MYRIAD_SHOVEL_HEAD.getDefaultInstance());
+		MyriadToolItem.setToolBit(myriadShovel, AntiqueItems.MYRIAD_SHOVEL_HEAD.getDefaultInstance());
 		return myriadShovel;
 	}
 }

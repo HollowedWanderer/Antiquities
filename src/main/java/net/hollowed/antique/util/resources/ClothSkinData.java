@@ -2,80 +2,146 @@ package net.hollowed.antique.util.resources;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import java.util.List;
+import net.hollowed.antique.Antiquities;
+import net.hollowed.antique.index.AntiqueRegistries;
+import net.minecraft.core.Holder;
+import net.minecraft.core.HolderGetter;
+import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.world.level.Level;
+import org.jetbrains.annotations.NotNull;
+
 import java.util.Optional;
 
-import net.hollowed.antique.items.components.ClothParticleData;
-import net.hollowed.antique.items.components.ColorProvider;
-import net.hollowed.antique.items.components.ColorProviders;
-import net.minecraft.network.RegistryFriendlyByteBuf;
-import net.minecraft.network.codec.ByteBufCodecs;
-import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.resources.Identifier;
-import org.jetbrains.annotations.Nullable;
-import org.jspecify.annotations.NonNull;
-
 public record ClothSkinData(
-        List<ClothSubData> list
+        Optional<Identifier> model,
+        Optional<String> shape,
+        ColorProvider color,
+        float length,
+        float width,
+        Optional<ClothParticleData> particleData,
+        Optional<ClothSoundData> ambientSound,
+        float gravity,
+        float waterGravity,
+        int bodyAmount,
+        int light,
+        boolean patternable,
+        boolean dyeable
 ) {
-    public static final ClothSubData DEFAULT = new ClothSubData(Optional.empty(), new ColorProvider.Constant("d13a68"), 1.4F, 0.1F, Optional.empty(), 1.0F, -0.5F, 8, 0, false, false, false, false);
+    public static final String DEFAULT_SHAPE = "default";
+    public static final String TATTERED_SHAPE = "tattered";
+    public static final String LONG_SHAPE = "long";
+    public static final String FORKED_SHAPE = "forked";
+
+    public static final ResourceKey<ClothSkinData> DEFAULT_KEY = ResourceKey.create(AntiqueRegistries.CLOTHS, Antiquities.id("cloth"));
+    public static final int DEFAULT_COLOR = 0xFFD13A68;
+    public static final ClothSkinData DEFAULT = new ClothSkinData(
+            Optional.empty(),
+            Optional.empty(),
+            new ColorProvider.Constant(DEFAULT_COLOR),
+            1.4F,
+            0.1F,
+            Optional.empty(),
+            Optional.empty(),
+            1.0F,
+            -0.5F,
+            8,
+            0,
+            false,
+            false
+    );
+
+    public ClothSkinData {
+        if (patternable && shape.isEmpty()) {
+            throw new IllegalStateException("Must specify a cloth shape to be dyeable");
+        }
+    }
+
     public static final Codec<ClothSkinData> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-            ClothSubData.CODEC.listOf().fieldOf("skins").orElseGet(() -> List.of(DEFAULT)).forGetter(ClothSkinData::list)
+            Identifier.CODEC.optionalFieldOf("model").forGetter(ClothSkinData::model),
+            Codec.STRING.optionalFieldOf("shape").forGetter(ClothSkinData::shape),
+            ColorProviders.CODEC.optionalFieldOf("color", new ColorProvider.Constant(DEFAULT_COLOR)).forGetter(ClothSkinData::color),
+            Codec.FLOAT.optionalFieldOf("length", 1.4F).forGetter(ClothSkinData::length),
+            Codec.FLOAT.optionalFieldOf("width", 0.1F).forGetter(ClothSkinData::width),
+            ClothParticleData.CODEC.optionalFieldOf("particleData").forGetter(ClothSkinData::particleData),
+            ClothSoundData.CODEC.optionalFieldOf("ambientSound").forGetter(ClothSkinData::ambientSound),
+            Codec.FLOAT.optionalFieldOf("gravity", 1.0F).forGetter(ClothSkinData::gravity),
+            Codec.FLOAT.optionalFieldOf("waterGravity", -0.5F).forGetter(ClothSkinData::waterGravity),
+            Codec.INT.optionalFieldOf("bodies", 8).forGetter(ClothSkinData::bodyAmount),
+            Codec.INT.optionalFieldOf("light", 0).forGetter(ClothSkinData::light),
+            Codec.BOOL.optionalFieldOf("patternable", false).forGetter(ClothSkinData::patternable),
+            Codec.BOOL.optionalFieldOf("dyeable", false).forGetter(ClothSkinData::dyeable)
     ).apply(instance, ClothSkinData::new));
 
-    public record ClothSubData(Optional<Identifier> model, ColorProvider color, float length, float width, Optional<ClothParticleData> particleData, float gravity, float waterGravity, int bodyAmount, int light, boolean emissiveItem, boolean emissiveLayer, boolean overlay, boolean dyeable) {
-        public static final Codec<ClothSubData> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-                Identifier.CODEC.optionalFieldOf("model").forGetter(ClothSubData::model),
-                ColorProviders.CODEC.optionalFieldOf("color", new ColorProvider.Constant("d13a68")).forGetter(ClothSubData::color),
-                Codec.FLOAT.optionalFieldOf("length", 1.4F).forGetter(ClothSubData::length),
-                Codec.FLOAT.optionalFieldOf("width", 0.1F).forGetter(ClothSubData::width),
-                ClothParticleData.CODEC.optionalFieldOf("particleData").forGetter(ClothSubData::particleData),
-                Codec.FLOAT.optionalFieldOf("gravity", 1.0F).forGetter(ClothSubData::gravity),
-                Codec.FLOAT.optionalFieldOf("waterGravity", -0.5F).forGetter(ClothSubData::waterGravity),
-                Codec.INT.optionalFieldOf("bodies", 8).forGetter(ClothSubData::bodyAmount),
-                Codec.INT.optionalFieldOf("light", 0).forGetter(ClothSubData::light),
-                Codec.BOOL.optionalFieldOf("emissiveItem", false).forGetter(ClothSubData::emissiveItem),
-                Codec.BOOL.optionalFieldOf("emissiveLayer", false).forGetter(ClothSubData::emissiveLayer),
-                Codec.BOOL.optionalFieldOf("overlay", false).forGetter(ClothSubData::overlay),
-                Codec.BOOL.optionalFieldOf("dyeable", false).forGetter(ClothSubData::dyeable)
-        ).apply(instance, ClothSubData::new));
+    public static String getTranslationKey(ResourceKey<ClothSkinData> key) {
+        return key.identifier().toLanguageKey("item");
+    }
 
-        public static final StreamCodec<RegistryFriendlyByteBuf, ClothSubData> STREAM_CODEC = new StreamCodec<>() {
-            @Override
-            public @NonNull ClothSubData decode(@NonNull RegistryFriendlyByteBuf buf) {
-                return new ClothSubData(
-                        ByteBufCodecs.optional(Identifier.STREAM_CODEC).decode(buf),
-                        ColorProviders.STREAM_CODEC.decode(buf),
-                        buf.readFloat(),
-                        buf.readFloat(),
-                        ByteBufCodecs.optional(ClothParticleData.STREAM_CODEC).decode(buf),
-                        buf.readFloat(),
-                        buf.readFloat(),
-                        buf.readInt(),
-                        buf.readInt(),
-                        buf.readBoolean(),
-                        buf.readBoolean(),
-                        buf.readBoolean(),
-                        buf.readBoolean()
-                );
-            }
+    public static ClothSkinData get(Optional<Identifier> id, @NotNull HolderGetter<ClothSkinData> lookup) {
+        return id.map(key ->
+                lookup.get(ResourceKey.create(AntiqueRegistries.CLOTHS, key))
+                        .map(Holder.Reference::value)
+                        .orElse(ClothSkinData.DEFAULT)
+        ).orElse(ClothSkinData.DEFAULT);
+    }
 
-            @Override
-            public void encode(@NonNull RegistryFriendlyByteBuf buf, @NonNull ClothSubData data) {
-                ByteBufCodecs.optional(Identifier.STREAM_CODEC).encode(buf, data.model);
-                ColorProviders.STREAM_CODEC.encode(buf, data.color);
-                buf.writeFloat(data.length);
-                buf.writeFloat(data.width);
-                ByteBufCodecs.optional(ClothParticleData.STREAM_CODEC).encode(buf, data.particleData);
-                buf.writeFloat(data.gravity);
-                buf.writeFloat(data.waterGravity);
-                buf.writeInt(data.bodyAmount);
-                buf.writeInt(data.light);
-                buf.writeBoolean(data.emissiveItem);
-                buf.writeBoolean(data.emissiveLayer);
-                buf.writeBoolean(data.overlay);
-                buf.writeBoolean(data.dyeable);
-            }
-        };
+    public static ClothSkinData get(Optional<Identifier> id, @NotNull HolderGetter.Provider lookup) {
+        return get(id, lookup.lookupOrThrow(AntiqueRegistries.CLOTHS));
+    }
+
+    public static ClothSkinData get(Optional<Identifier> id, @NotNull Level level) {
+        return get(id, level.registryAccess());
+    }
+
+    public static ClothSkinData get(ResourceKey<ClothSkinData> key, @NotNull HolderGetter<ClothSkinData> lookup) {
+        return lookup.get(key)
+                .map(Holder.Reference::value)
+                .orElseThrow();
+    }
+
+    public static ClothSkinData get(ResourceKey<ClothSkinData> key, @NotNull HolderGetter.Provider lookup) {
+        return get(key, lookup.lookupOrThrow(AntiqueRegistries.CLOTHS));
+    }
+
+    public static ClothSkinData get(ResourceKey<ClothSkinData> key, @NotNull Level level) {
+        return get(key, level.registryAccess());
+    }
+
+    public static Optional<Holder.Reference<ClothSkinData>> getHolder(Optional<Identifier> id, @NotNull HolderGetter<ClothSkinData> lookup) {
+        return id.flatMap(key ->
+                lookup.get(ResourceKey.create(AntiqueRegistries.CLOTHS, key))
+        );
+    }
+
+    public static Optional<Holder.Reference<ClothSkinData>> getHolder(Optional<Identifier> id, @NotNull HolderGetter.Provider lookup) {
+        return getHolder(id, lookup.lookupOrThrow(AntiqueRegistries.CLOTHS));
+    }
+
+    public static Optional<Holder.Reference<ClothSkinData>> getHolder(Optional<Identifier> id, @NotNull Level level) {
+        return getHolder(id, level.registryAccess());
+    }
+
+    public static Holder.Reference<ClothSkinData> getHolder(ResourceKey<ClothSkinData> key, @NotNull HolderGetter<ClothSkinData> lookup) {
+        return lookup.get(key).orElseThrow();
+    }
+
+    public static Holder.Reference<ClothSkinData> getHolder(ResourceKey<ClothSkinData> key, @NotNull HolderGetter.Provider lookup) {
+        return getHolder(key, lookup.lookupOrThrow(AntiqueRegistries.CLOTHS));
+    }
+
+    public static Holder.Reference<ClothSkinData> getHolder(ResourceKey<ClothSkinData> key, @NotNull Level level) {
+        return getHolder(key, level.registryAccess());
+    }
+
+    public static Optional<Holder.Reference<ClothSkinData>> getHolderFromKey(Optional<ResourceKey<ClothSkinData>> key, @NotNull HolderGetter<ClothSkinData> lookup) {
+        return key.flatMap(lookup::get);
+    }
+
+    public static Optional<Holder.Reference<ClothSkinData>> getHolderFromKey(Optional<ResourceKey<ClothSkinData>> key, @NotNull HolderGetter.Provider lookup) {
+        return getHolderFromKey(key, lookup.lookupOrThrow(AntiqueRegistries.CLOTHS));
+    }
+
+    public static Optional<Holder.Reference<ClothSkinData>> getHolderFromKey(Optional<ResourceKey<ClothSkinData>> key, @NotNull Level level) {
+        return getHolderFromKey(key, level.registryAccess());
     }
 }

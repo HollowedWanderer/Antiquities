@@ -4,65 +4,52 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 
 import java.util.Optional;
-import java.util.function.Consumer;
+import java.util.function.UnaryOperator;
 
-import net.hollowed.antique.Antiquities;
-import net.minecraft.core.component.DataComponentGetter;
+import net.hollowed.antique.index.AntiqueItems;
 import net.minecraft.network.RegistryFriendlyByteBuf;
-import net.minecraft.network.chat.Component;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.resources.Identifier;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
-import net.minecraft.world.item.TooltipFlag;
-import net.minecraft.world.item.component.TooltipProvider;
-import org.jetbrains.annotations.NotNull;
 
-public record MyriadToolComponent(ItemStack toolBit, Optional<Identifier> clothType, Optional<Identifier> clothPattern, ColorProvider clothColor, int patternColor, boolean emissiveItem) implements TooltipProvider {
+public record MyriadToolComponent(
+        ItemStack toolBit,
+        Optional<ItemStack> cloth
+) {
 
     public static final MyriadToolComponent DEFAULT_WITH_CLOTH = new MyriadToolComponent(
             ItemStack.EMPTY,
-            Optional.of(Antiquities.id("cloth")),
-            Optional.empty(),
-            new ColorProvider.Constant(0xD43B69),
-            0xFFFFFF,
-            false
+            Optional.of(new ItemStack(AntiqueItems.CLOTH))
     );
     public static final MyriadToolComponent DEFAULT_NO_CLOTH = new MyriadToolComponent(
             ItemStack.EMPTY,
-            Optional.empty(),
-            Optional.empty(),
-            new ColorProvider.Constant(0xFFFFFF),
-            0xFFFFFF,
-            false
+            Optional.empty()
     );
 
     public static final Codec<MyriadToolComponent> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-            ItemStack.OPTIONAL_CODEC.xmap(
-                    stack -> stack.getItem() == Items.BARRIER ? ItemStack.EMPTY : stack,
-                    stack -> stack.isEmpty() ? new ItemStack(Items.BARRIER) : stack
-            ).fieldOf("tool_bit").orElse(ItemStack.EMPTY).forGetter(MyriadToolComponent::toolBit),
-            Identifier.CODEC.optionalFieldOf("cloth_type").forGetter(MyriadToolComponent::clothType),
-            Identifier.CODEC.optionalFieldOf("cloth_pattern").forGetter(MyriadToolComponent::clothPattern),
-            ColorProviders.CODEC.fieldOf("cloth_color").forGetter(MyriadToolComponent::clothColor),
-            Codec.INT.fieldOf("pattern_color").forGetter(MyriadToolComponent::patternColor),
-            Codec.BOOL.fieldOf("emissive_item").forGetter(MyriadToolComponent::emissiveItem)
+            ItemStack.OPTIONAL_CODEC.fieldOf("tool_bit").orElse(ItemStack.EMPTY).forGetter(MyriadToolComponent::toolBit),
+            ItemStack.OPTIONAL_CODEC.optionalFieldOf("cloth").forGetter(MyriadToolComponent::cloth)
     ).apply(instance, MyriadToolComponent::new));
 
-    public static final StreamCodec<RegistryFriendlyByteBuf, MyriadToolComponent> PACKET_CODEC = StreamCodec.composite(
+    public static final StreamCodec<RegistryFriendlyByteBuf, MyriadToolComponent> STREAM_CODEC = StreamCodec.composite(
             ItemStack.OPTIONAL_STREAM_CODEC, MyriadToolComponent::toolBit,
-            ByteBufCodecs.optional(Identifier.STREAM_CODEC), MyriadToolComponent::clothType,
-            ByteBufCodecs.optional(Identifier.STREAM_CODEC), MyriadToolComponent::clothPattern,
-            ColorProviders.STREAM_CODEC, MyriadToolComponent::clothColor,
-            ByteBufCodecs.INT, MyriadToolComponent::patternColor,
-            ByteBufCodecs.BOOL, MyriadToolComponent::emissiveItem,
+            ByteBufCodecs.optional(ItemStack.OPTIONAL_STREAM_CODEC), MyriadToolComponent::cloth,
             MyriadToolComponent::new
     );
 
-    @Override
-    public void addToTooltip(Item.@NotNull TooltipContext context, @NotNull Consumer<Component> textConsumer, @NotNull TooltipFlag type, @NotNull DataComponentGetter components) {
-        // TODO: replace current tooltip handling with this
+    public MyriadToolComponent withToolBit(ItemStack toolBit) {
+        return new MyriadToolComponent(toolBit, cloth);
+    }
+
+    public MyriadToolComponent withCloth(ItemStack cloth) {
+        return withCloth(Optional.of(cloth));
+    }
+
+    public MyriadToolComponent withCloth(Optional<ItemStack> cloth) {
+        return new MyriadToolComponent(toolBit, cloth);
+    }
+
+    public MyriadToolComponent withCloth(UnaryOperator<ItemStack> cloth) {
+        return withCloth(this.cloth.map(cloth));
     }
 }

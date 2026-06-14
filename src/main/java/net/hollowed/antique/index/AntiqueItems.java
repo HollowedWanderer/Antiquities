@@ -29,7 +29,7 @@ public interface AntiqueItems {
 
     Item RAW_MYRIAD = register("raw_myriad", Item::new);
     Item MYRIAD_INGOT = register("myriad_ingot", Item::new);
-    Item CLOTH = register("cloth", settings -> new Item(settings
+    Item CLOTH = register("cloth", settings -> new ClothItem(settings.stacksTo(1)
             .component(DataComponents.DYED_COLOR, new DyedItemColor(0xD43B69))
             .component(AntiqueDataComponentTypes.STICKY_TOOLTIP, true)
     ));

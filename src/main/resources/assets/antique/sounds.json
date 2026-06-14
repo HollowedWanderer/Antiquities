@@ -18,5 +18,14 @@
       "antique:cake_splat1",
       "antique:cake_splat2"
     ]
+  },
+  "typho_cloth_underwater": {
+    "subtitle": "subtitles.antique.typho_cloth_underwater",
+    "sounds": [
+      {
+        "name": "antique:typho_cloth_underwater",
+        "volume": 0.15
+      }
+    ]
   }
 }

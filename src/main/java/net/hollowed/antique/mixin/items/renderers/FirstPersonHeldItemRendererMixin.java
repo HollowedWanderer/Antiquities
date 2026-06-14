@@ -6,7 +6,8 @@ import net.hollowed.antique.index.AntiqueDataComponentTypes;
 import net.hollowed.antique.index.AntiqueItems;
 import net.hollowed.antique.items.components.MyriadToolComponent;
 import net.hollowed.antique.mixin.accessors.RendererAccessor;
-import net.hollowed.antique.util.resources.ClientClothData;
+import net.hollowed.antique.util.ClothUtil;
+import net.hollowed.antique.util.resources.ClothPatternData;
 import net.hollowed.antique.util.resources.ClothSkinData;
 import net.hollowed.combatamenities.util.items.CAComponents;
 import net.minecraft.client.Camera;
@@ -14,6 +15,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.ItemInHandRenderer;
 import net.minecraft.client.renderer.SubmitNodeCollector;
+import net.minecraft.core.Holder;
 import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
@@ -29,6 +31,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import com.mojang.blaze3d.vertex.PoseStack;
 import java.awt.*;
+import java.util.Optional;
 
 @Mixin(ItemInHandRenderer.class)
 public abstract class FirstPersonHeldItemRendererMixin {
@@ -53,47 +56,58 @@ public abstract class FirstPersonHeldItemRendererMixin {
         if (entity instanceof Player player) {
             if (stack.is(AntiqueItems.MYRIAD_TOOL)) {
                 boolean reproject = true;
-                ClothSkinData.ClothSubData data = ClientClothData.getTransform(stack.getOrDefault(AntiqueDataComponentTypes.MYRIAD_TOOL, MyriadToolComponent.DEFAULT_NO_CLOTH).clothType());
-
                 MyriadToolComponent component = stack.getOrDefault(AntiqueDataComponentTypes.MYRIAD_TOOL, MyriadToolComponent.DEFAULT_NO_CLOTH);
 
                 if (renderMode != ItemDisplayContext.NONE) {
                     matrices.translate(0, -0.1, 0.1);
                 }
-                if (stack.getOrDefault(AntiqueDataComponentTypes.MYRIAD_TOOL, MyriadToolComponent.DEFAULT_NO_CLOTH).toolBit().is(AntiqueItems.MYRIAD_AXE_HEAD) && entity.isUsingItem()) {
+
+                if (component.toolBit().is(AntiqueItems.MYRIAD_AXE_HEAD) && entity.isUsingItem()) {
                     matrices.translate(renderMode == ItemDisplayContext.FIRST_PERSON_RIGHT_HAND ? -0.5 : 0.5, -0.1, 0);
                 }
-                if (stack.getOrDefault(AntiqueDataComponentTypes.MYRIAD_TOOL, MyriadToolComponent.DEFAULT_NO_CLOTH).toolBit().is(AntiqueItems.MYRIAD_SHOVEL_HEAD) && entity.isUsingItem()) {
+
+                if (component.toolBit().is(AntiqueItems.MYRIAD_SHOVEL_HEAD) && entity.isUsingItem()) {
                     matrices.translate(renderMode == ItemDisplayContext.FIRST_PERSON_RIGHT_HAND ? 0.1 : -0.1, 0, -0.2);
                 }
-                if (renderMode == ItemDisplayContext.NONE && stack.getOrDefault(AntiqueDataComponentTypes.MYRIAD_TOOL, MyriadToolComponent.DEFAULT_NO_CLOTH).toolBit().is(AntiqueItems.MYRIAD_CLEAVER_BLADE)) {
+
+                if (renderMode == ItemDisplayContext.NONE && component.toolBit().is(AntiqueItems.MYRIAD_CLEAVER_BLADE)) {
                     matrices.translate(-0.15, -0.15, 0);
                 }
-                manager = renderMode == ItemDisplayContext.FIRST_PERSON_RIGHT_HAND ? ClothManager.getOrCreate(entity, Antiquities.id(entity.getId() + "_first_person_right_arm"), data) : ClothManager.getOrCreate(entity, Antiquities.id(entity.getId() + "_first_person_left_arm"), data);
-                switch (renderMode) {
-                    case ItemDisplayContext.NONE -> {
-                        manager = ClothManager.getOrCreate(entity, Antiquities.id(entity.getId() + "_back"), data);
-                        reproject = false;
+
+                if (component.cloth().isPresent()) {
+                    Optional<Holder.Reference<ClothSkinData>> data = ClothUtil.getClothData(component.cloth().get(), player.registryAccess());
+
+                    if (data.isPresent()) {
+                        manager = renderMode == ItemDisplayContext.FIRST_PERSON_RIGHT_HAND ? ClothManager.getOrCreate(entity, Antiquities.id("right_arm"), data.get().value()) : ClothManager.getOrCreate(entity, Antiquities.id("left_arm"), data.get().value());
+
+                        switch (renderMode) {
+                            case ItemDisplayContext.NONE -> {
+                                manager = ClothManager.getOrCreate(entity, Antiquities.id("back"), data.get().value());
+                                reproject = false;
+                            }
+                            case ItemDisplayContext.GUI -> manager = null;
+                        }
+
+                        if (player.getInventory().getItem(42).equals(stack)) {
+                            manager = ClothManager.getOrCreate(entity, Antiquities.id("belt"), data.get().value());
+                            reproject = false;
+                        }
+
+                        if (manager != null) {
+                            Matrix4f reprojectMatrix = this.getReprojectMatrix();
+                            manager.renderCloth(
+                                    data.get(),
+                                    matrices,
+                                    orderedRenderCommandQueue,
+                                    light,
+                                    stack.getOrDefault(CAComponents.BOOLEAN_PROPERTY, false),
+                                    new Color(ClothUtil.getDynamicClothColor(component.cloth().get(), player.registryAccess()).orElse(0xFFFFFFFF)),
+                                    new Color(ClothUtil.getClothPatternColor(component.cloth().get()).orElse(0xFFFFFFFF)),
+                                    ClothUtil.getClothPatternData(component.cloth().get(), player.registryAccess()),
+                                    reproject ? reprojectMatrix : new Matrix4f()
+                            );
+                        }
                     }
-                    case ItemDisplayContext.GUI -> manager = null;
-                }
-                if (player.getInventory().getItem(42).equals(stack)) {
-                    manager = ClothManager.getOrCreate(entity, Antiquities.id(entity.getId() + "_belt"), data);
-                    reproject = false;
-                }
-                if (manager != null) {
-                    Matrix4f reprojectMatrix = this.getReprojectMatrix();
-                    manager.renderCloth(
-                            data,
-                            matrices,
-                            orderedRenderCommandQueue,
-                            light,
-                            stack.getOrDefault(CAComponents.BOOLEAN_PROPERTY, false),
-                            new Color(component.clothColor().getColorClient()),
-                            new Color(component.patternColor()),
-                            component.clothPattern(),
-                            reproject ? reprojectMatrix : new Matrix4f()
-                    );
                 }
             }
         }

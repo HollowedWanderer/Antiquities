@@ -5,34 +5,35 @@ import net.hollowed.antique.util.interfaces.duck.ClothAccess;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.resources.Identifier;
+import net.minecraft.world.entity.Entity;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
-import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.function.BooleanSupplier;
 
 @Mixin(ClientLevel.class)
 public abstract class ClothAdderMixin implements ClothAccess {
 
     @Unique
-    private Map<Identifier, ClothManager> map = new HashMap<>();
+    private final Map<Entity, Map<Identifier, ClothManager>> antique$cloths = new HashMap<>();
 
     @Override
-    public Map<Identifier, ClothManager> antique$getManagers() {
-        return this.map;
+    public Map<Entity, Map<Identifier, ClothManager>> antique$getManagers() {
+        return antique$cloths;
     }
 
     @Override
     public void antique$tickManagers() {
         if (!Minecraft.getInstance().isPaused()) {
-            for (ClothManager manager : map.values()) {
-                if (manager.render) {
-                    manager.tick();
-                    manager.render = false;
+            for (Map<Identifier, ClothManager> managers : antique$cloths.values()) {
+                for (ClothManager manager : managers.values()) {
+                    manager.tickSound();
+
+                    if (manager.render) {
+                        manager.tick();
+                        manager.render = false;
+                    }
                 }
             }
         }
@@ -40,10 +41,12 @@ public abstract class ClothAdderMixin implements ClothAccess {
 
     @Override
     public void antique$tickParticles() {
-        for (ClothManager manager : map.values()) {
-            if (manager.particles) {
-                manager.tickParticles((ClientLevel) (Object) this);
-                manager.particles = false;
+        for (Map<Identifier, ClothManager> managers : antique$cloths.values()) {
+            for (ClothManager manager : managers.values()) {
+                if (manager.particles) {
+                    manager.tickParticles((ClientLevel) (Object) this);
+                    manager.particles = false;
+                }
             }
         }
     }

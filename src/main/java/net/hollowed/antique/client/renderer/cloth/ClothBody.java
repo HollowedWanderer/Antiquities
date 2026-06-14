@@ -10,16 +10,17 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import org.joml.Vector3d;
 
+import java.text.NumberFormat;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 public class ClothBody {
 
-    Vector3d pos;
-    Vector3d prevPos;
-    Vector3d posCache;
-    Vector3d accel = new Vector3d();
+    public Vector3d pos;
+    public Vector3d prevPos;
+    public Vector3d posCache;
+    public Vector3d accel = new Vector3d();
 
     public ClothBody(Vector3d worldPos) {
         pos = prevPos = new Vector3d(worldPos);
@@ -42,8 +43,8 @@ public class ClothBody {
 
         double delta = restLength - dist;
 
-        // Normalize the axis and scale by delta * 0.5 for even correction
-        Vector3d correction = axis.normalize().mul(delta * 0.25);
+        // Normalize the axis and scale by delta for even correction
+        Vector3d correction = axis.normalize().mul(delta);
 
         // Apply the correction
 //        if (!isPinned) pos.add(correction);
@@ -154,5 +155,10 @@ public class ClothBody {
         double push1 = maxB - minA;
         double push2 = minB - maxA;
         return Math.abs(push1) < Math.abs(push2) ? push1 : push2;
+    }
+
+    @Override
+    public String toString() {
+        return pos.toString(NumberFormat.getInstance());
     }
 }

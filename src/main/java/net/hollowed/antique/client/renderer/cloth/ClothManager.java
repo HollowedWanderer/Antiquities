@@ -2,20 +2,31 @@ package net.hollowed.antique.client.renderer.cloth;
 
 import java.awt.Color;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 
 import net.hollowed.antique.Antiquities;
 import net.hollowed.antique.AntiquitiesClient;
+import net.hollowed.antique.client.sound.cloth.AmbientClothSoundInstance;
 import net.hollowed.antique.entities.parts.MyriadShovelPart;
 import net.hollowed.antique.index.AntiqueParticles;
-import net.hollowed.antique.items.components.ColorProvider;
+import net.hollowed.antique.util.resources.*;
 import net.hollowed.antique.mixin.accessors.SpriteContentsAnimationStateAccessor;
 import net.hollowed.antique.particles.TyphoSparkParticle;
+import net.hollowed.antique.util.resources.client.ClothModelData;
+import net.hollowed.antique.util.resources.client.ClothPatternModelData;
+import net.hollowed.antique.util.resources.client.ClothSprite;
+import net.minecraft.client.renderer.LightTexture;
+import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import net.minecraft.core.Holder;
 import net.minecraft.core.particles.ParticleOptions;
+import net.minecraft.sounds.SoundEvent;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.phys.AABB;
+import org.jetbrains.annotations.Nullable;
 import org.joml.Matrix4f;
 import org.joml.Vector3d;
 import org.joml.Vector3f;
@@ -24,7 +35,6 @@ import org.joml.Vector4f;
 import com.mojang.blaze3d.vertex.PoseStack;
 
 import net.hollowed.antique.util.interfaces.duck.ClothAccess;
-import net.hollowed.antique.util.resources.ClothSkinData;
 import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
@@ -45,25 +55,27 @@ public class ClothManager {
 
     public static final RenderType CLOTH_RENDER_LAYER = RenderTypes.itemEntityTranslucentCull(AntiquitiesClient.CLOTHS_ATLAS_TEXTURE);
 
+    public @Nullable AmbientClothSoundInstance ambientSound;
+
     public Vector3d pos = new Vector3d();
-    public ArrayList<ClothBody> bodies = new ArrayList<>();
+    public List<ClothBody> bodies = new ArrayList<>();
     private int bodyCountCooldown = 0;
     public Entity entity;
-    public ClothSkinData.ClothSubData data;
+    public ClothSkinData data;
     public boolean render = false;
     public boolean particles = false;
 
     private List<Entity> collisionEntities = List.of();
     private long prevTime;
 
-    public ClothManager(Vector3d pos, int BodyCount, ClothSkinData.ClothSubData data) {
-        reset(pos, BodyCount, data);
+    public ClothManager(Vector3d pos, int bodyCount, ClothSkinData data) {
+        reset(pos, bodyCount, data);
     }
 
-    public void reset(Vector3d pos, int BodyCount, ClothSkinData.ClothSubData data) {
+    public void reset(Vector3d pos, int bodyCount, ClothSkinData data) {
         bodies.clear();
         this.data = data;
-        for (int i = 0; i < Math.abs(BodyCount+1); i++) {
+        for (int i = 0; i < Math.abs(bodyCount + 1); i++) {
             ClothBody body = new ClothBody(pos);
             bodies.add(body);
         }
@@ -75,12 +87,58 @@ public class ClothManager {
         }
     }
 
+    public boolean isWater(Level level, BlockPos pos) {
+        return level.getFluidState(pos).is(FluidTags.WATER) || level.getBlockState(pos).is(Blocks.WATER_CAULDRON);
+    }
+
+    public void tickSound() {
+        ClientLevel level = Minecraft.getInstance().level;
+
+        if (level != null) {
+            data.ambientSound().ifPresent(soundData -> {
+                Optional<Identifier> sound = soundData.sound();
+
+                if (bodies.stream().anyMatch(body -> isWater(level, BlockPos.containing(body.pos.x, body.pos.y, body.pos.z)))) {
+                    sound = soundData.waterSound().or(soundData::sound);
+                }
+
+                if (!render) {
+                    sound = Optional.empty();
+                }
+
+                sound.ifPresentOrElse(id -> {
+                    if (ambientSound == null) {
+                        ambientSound = new AmbientClothSoundInstance(
+                                new SoundEvent(id, Optional.of(8f)),
+                                entity.getSoundSource(),
+                                entity
+                        );
+                        Minecraft.getInstance().getSoundManager().play(ambientSound);
+                    } else if (!ambientSound.getIdentifier().equals(id)) {
+                        ambientSound.publicStop();
+                        ambientSound = new AmbientClothSoundInstance(
+                                new SoundEvent(id, Optional.of(8f)),
+                                entity.getSoundSource(),
+                                entity
+                        );
+                        Minecraft.getInstance().getSoundManager().play(ambientSound);
+                    }
+                }, () -> {
+                    if (ambientSound != null) {
+                        ambientSound.publicStop();
+                        ambientSound = null;
+                    }
+                });
+            });
+        }
+    }
+
     public void tick() {
         float gravityMultiplier = data.gravity();
         float waterGravityMultiplier = data.waterGravity();
         double length = data.length();
         float delta = Minecraft.getInstance().getDeltaTracker().getGameTimeDeltaTicks();
-        ClientLevel world = Minecraft.getInstance().level;
+        ClientLevel level = Minecraft.getInstance().level;
 
         ClothBody root = bodies.getFirst();
         root.pos = new Vector3d(root.prevPos).lerp(pos, delta * 2);
@@ -95,14 +153,13 @@ public class ClothManager {
             }
         }
 
-        if (world != null) {
+        if (level != null) {
 
             double previousDrag = 0.0;
 
             // Update pass
             for (ClothBody body : bodies) {
-                Vec3 startPos = new Vec3(body.pos.x, body.pos.y, body.pos.z);
-                boolean isWater = world.getFluidState(BlockPos.containing(startPos)).is(FluidTags.WATER);
+                boolean isWater = isWater(level, BlockPos.containing(body.pos.x, body.pos.y, body.pos.z));
                 Vector3d vel = new Vector3d(body.pos).sub(body.posCache);
                 double maxVel = 0.05;
                 if (vel.length() > maxVel) {
@@ -144,17 +201,17 @@ public class ClothManager {
         }
 
         // Collision pass
-        if (world != null) {
+        if (level != null) {
             List<Vector3d> accels = new ArrayList<>();
 
-            if (world.getGameTime() > (prevTime + 10)) {
-                prevTime = world.getGameTime();
+            if (level.getGameTime() > (prevTime + 10)) {
+                prevTime = level.getGameTime();
                 Vec3 pos = new Vec3(new Vector3f(bodies.getFirst().pos));
-                collisionEntities = world.getEntities(entity, new AABB(pos.subtract(5), pos.add(5)), entity -> !(entity instanceof MyriadShovelPart));
+                collisionEntities = level.getEntities(entity, new AABB(pos.subtract(5), pos.add(5)), entity -> !(entity instanceof MyriadShovelPart));
             }
 
             for (ClothBody body : bodies) {
-                body.slideOutOfBlocks(world);
+                body.slideOutOfBlocks(level);
                 accels.add(body.entityCollisionPerchance(collisionEntities, entity));
                 body.pos.x = Mth.lerp(0.125, body.pos.x, body.posCache.x);
                 body.pos.y = Mth.lerp(0.125, body.pos.y, body.posCache.y);
@@ -182,7 +239,7 @@ public class ClothManager {
         data.particleData().ifPresent(data -> {
             for (int i = 0; i < bodies.size(); i++) {
                 ClothBody body = bodies.get(i);
-                boolean water = level.getFluidState(BlockPos.containing(body.pos.x, body.pos.y, body.pos.z)).is(FluidTags.WATER);
+                boolean water = isWater(level, BlockPos.containing(body.pos.x, body.pos.y, body.pos.z));
                 ParticleOptions particle = data.particle();
                 float chance = data.chance();
                 float distance = data.distance();
@@ -243,40 +300,34 @@ public class ClothManager {
         return new Vec3(cameraPos.x + localPos.x(), cameraPos.y + localPos.y(), cameraPos.z + localPos.z());
     }
 
-    @SuppressWarnings("unused")
-    public int rgbToDecimal(int red, int green, int blue) {
-        return (red << 16) | (green << 8) | blue;
-    }
-
-    public static ClothManager getOrCreate(Entity entity, Identifier id, ClothSkinData.ClothSubData data) {
+    public static ClothManager getOrCreate(Entity entity, Identifier id, ClothSkinData data) {
         if (Minecraft.getInstance().level instanceof ClothAccess clothAccess) {
-            clothAccess.antique$getManagers().computeIfAbsent(id, k -> {
+            return clothAccess.antique$getManagers().computeIfAbsent(entity, k -> new HashMap<>()).computeIfAbsent(id, k -> {
                 ClothManager manager = new ClothManager(new Vector3d(entity.getX(), entity.getY(), entity.getZ()), 8, data);
                 manager.entity = entity;
                 return manager;
             });
-            return clothAccess.antique$getManagers().get(id);
         }
+
         return null;
     }
 
-    @SuppressWarnings("all")
-    public void renderCloth(ClothSkinData.ClothSubData data, PoseStack matrices, SubmitNodeCollector queue, int light, boolean glow, Color color, Color overlayColor, Optional<Identifier> overlay) {
-        this.renderCloth(data, matrices, queue, light, glow, color, overlayColor, overlay, new Matrix4f());
+    public void renderCloth(Holder<ClothSkinData> data, PoseStack matrices, SubmitNodeCollector queue, int light, boolean glow, Color color, Color patternColor, Optional<? extends Holder<ClothPatternData>> pattern) {
+        this.renderCloth(data, matrices, queue, light, glow, color, patternColor, pattern, new Matrix4f());
     }
 
-    @SuppressWarnings("all")
-    public void renderCloth(ClothSkinData.ClothSubData data, PoseStack matrices, SubmitNodeCollector queue, int light, boolean glow, Color color, Color overlayColor, Optional<Identifier> overlay, Matrix4f reprojectionMatrix) {
+    public void renderCloth(Holder<ClothSkinData> skin, PoseStack matrices, SubmitNodeCollector queue, int light, boolean glow, Color color, Color patternColor, Optional<? extends Holder<ClothPatternData>> pattern, Matrix4f reprojectionMatrix) {
         this.render = true;
         this.particles = true;
-        this.data = data;
-        Optional<Identifier> cloth = data.model();
-        int bodyCount = data.bodyAmount();
-        float width = data.width();
-        if (data.light() != 0) light = data.light();
-        if (!data.dyeable()) color = Color.WHITE;
-
-        if (cloth.isEmpty()) return;
+        this.data = skin.value();
+        ClothModelData model = ClothModelListener.MODELS.computeIfAbsent(skin.value().model().orElse(skin.unwrapKey().orElseThrow().identifier()), key -> {
+            Antiquities.LOGGER.error("Nonexistent cloth model {}", key);
+            return ClothModelData.EMPTY;
+        });
+        int bodyCount = skin.value().bodyAmount();
+        float width = skin.value().width();
+        if (skin.value().light() != 0) light = skin.value().light();
+        if (!skin.value().dyeable()) color = Color.WHITE;
 
         Vec3 position = matrixToVec(matrices);
 
@@ -337,21 +388,20 @@ public class ClothManager {
             lastA = negEnd;
             lastB = posEnd;
 
-            String clothType = cloth.map(id -> id.getPath().equals("cloth") ? "default" : id.getPath().substring(0, id.getPath().indexOf('_'))).orElse("default");
             int finalLight = light;
-            Color finalColor = color;
+            int[] layer = { 1 };
 
-            cloth.ifPresent(id -> {
-                var sprite = Minecraft.getInstance()
+            for (ClothSprite spriteData : model.worldSprites()) {
+                TextureAtlasSprite sprite = Minecraft.getInstance()
                         .getAtlasManager()
                         .getAtlasOrThrow(AntiquitiesClient.CLOTHS_ATLAS)
-                        .getSprite(id.withPrefix("cloth/"));
+                        .getSprite(spriteData.texture());
                 drawQuad(
                         matrices,
                         new Matrix4f(),
                         CLOTH_RENDER_LAYER,
                         queue,
-                        1,
+                        layer[0]++,
                         a,
                         b,
                         posEnd,
@@ -360,57 +410,41 @@ public class ClothManager {
                         new Vec2(sprite.getU1(), sprite.getV(uvTop)),
                         new Vec2(sprite.getU1(), sprite.getV(uvBot)),
                         new Vec2(sprite.getU0(), sprite.getV(uvBot)),
-                        finalLight,
-                        finalColor
+                        spriteData.light().map(l -> LightTexture.pack(l, l)).orElse(finalLight),
+                        color
                 );
+            }
 
-                if (data.emissiveLayer()) {
-                    sprite = Minecraft.getInstance()
-                            .getAtlasManager()
-                            .getAtlasOrThrow(AntiquitiesClient.CLOTHS_ATLAS)
-                            .getSprite(id.withPrefix("cloth/").withSuffix("_emissive"));
-                    drawQuad(
-                            matrices,
-                            new Matrix4f(),
-                            CLOTH_RENDER_LAYER,
-                            queue,
-                            2,
-                            a,
-                            b,
-                            posEnd,
-                            negEnd,
-                            new Vec2(sprite.getU0(), sprite.getV(uvTop)),
-                            new Vec2(sprite.getU1(), sprite.getV(uvTop)),
-                            new Vec2(sprite.getU1(), sprite.getV(uvBot)),
-                            new Vec2(sprite.getU0(), sprite.getV(uvBot)),
-                            255,
-                            finalColor
-                    );
-                }
-            });
+            pattern.ifPresent(holder -> {
+                skin.value().shape().ifPresent(shape -> {
+                    ClothPatternModelData patternModel = ClothPatternModelListener.MODELS.get(holder.value().model().orElseGet(() -> holder.unwrapKey().orElseThrow().identifier()));
 
-            overlay.ifPresent(id -> {
-                var sprite = Minecraft.getInstance()
-                        .getAtlasManager()
-                        .getAtlasOrThrow(AntiquitiesClient.CLOTHS_ATLAS)
-                        .getSprite(id.withPrefix("cloth/overlay/").withSuffix("_" + clothType));
-                drawQuad(
-                        matrices,
-                        new Matrix4f(),
-                        CLOTH_RENDER_LAYER,
-                        queue,
-                        3,
-                        a,
-                        b,
-                        posEnd,
-                        negEnd,
-                        new Vec2(sprite.getU0(), sprite.getV(uvTop)),
-                        new Vec2(sprite.getU1(), sprite.getV(uvTop)),
-                        new Vec2(sprite.getU1(), sprite.getV(uvBot)),
-                        new Vec2(sprite.getU0(), sprite.getV(uvBot)),
-                        glow ? 255 : finalLight,
-                        overlayColor
-                );
+                    if (patternModel != null) {
+                        for (ClothSprite spriteData : patternModel.worldSprites()) {
+                            TextureAtlasSprite sprite = Minecraft.getInstance()
+                                    .getAtlasManager()
+                                    .getAtlasOrThrow(AntiquitiesClient.CLOTHS_ATLAS)
+                                    .getSprite(spriteData.texture().withSuffix("_" + shape));
+                            drawQuad(
+                                    matrices,
+                                    new Matrix4f(),
+                                    CLOTH_RENDER_LAYER,
+                                    queue,
+                                    layer[0]++,
+                                    a,
+                                    b,
+                                    posEnd,
+                                    negEnd,
+                                    new Vec2(sprite.getU0(), sprite.getV(uvTop)),
+                                    new Vec2(sprite.getU1(), sprite.getV(uvTop)),
+                                    new Vec2(sprite.getU1(), sprite.getV(uvBot)),
+                                    new Vec2(sprite.getU0(), sprite.getV(uvBot)),
+                                    glow ? 255 : finalLight,
+                                    patternColor
+                            );
+                        }
+                    }
+                });
             });
         }
 
@@ -439,5 +473,10 @@ public class ClothManager {
             vertexConsumer.addVertex(matrix, posC.x, posC.y, posC.z).setOverlay(OverlayTexture.NO_OVERLAY).setNormal(0, 1, 0).setLight(light).setUv(uvD.x, uvD.y).setColor(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha());
             vertexConsumer.addVertex(matrix, posD.x, posD.y, posD.z).setOverlay(OverlayTexture.NO_OVERLAY).setNormal(0, 1, 0).setLight(light).setUv(uvC.x, uvC.y).setColor(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha());
         });
+    }
+
+    @Override
+    public String toString() {
+        return "ClothManager{pos=" + pos + ", entity=" + entity + ", model=" + data.model() + "}";
     }
 }

@@ -3,11 +3,16 @@ package net.hollowed.antique.index;
 import com.mojang.serialization.Codec;
 import net.hollowed.antique.Antiquities;
 import net.hollowed.antique.items.components.MyriadToolComponent;
+import net.hollowed.antique.util.resources.ClothPatternData;
+import net.hollowed.antique.util.resources.ClothSkinData;
 import net.minecraft.core.Registry;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.resources.Identifier;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.component.DyedItemColor;
+
 import java.util.List;
 
 public interface AntiqueDataComponentTypes {
@@ -23,6 +28,39 @@ public interface AntiqueDataComponentTypes {
             Antiquities.id("myriad_tool"),
             DataComponentType.<MyriadToolComponent>builder()
                     .persistent(MyriadToolComponent.CODEC)
+                    .networkSynchronized(MyriadToolComponent.STREAM_CODEC)
+                    .build()
+    );
+    DataComponentType<ResourceKey<ClothSkinData>> CLOTH_TYPE = Registry.register(
+            BuiltInRegistries.DATA_COMPONENT_TYPE,
+            Antiquities.id("cloth_type"),
+            DataComponentType.<ResourceKey<ClothSkinData>>builder()
+                    .persistent(ResourceKey.codec(AntiqueRegistries.CLOTHS))
+                    .networkSynchronized(ResourceKey.streamCodec(AntiqueRegistries.CLOTHS))
+                    .build()
+    );
+    DataComponentType<ResourceKey<ClothPatternData>> CLOTH_PATTERN_TYPE = Registry.register(
+            BuiltInRegistries.DATA_COMPONENT_TYPE,
+            Antiquities.id("cloth_pattern_type"),
+            DataComponentType.<ResourceKey<ClothPatternData>>builder()
+                    .persistent(ResourceKey.codec(AntiqueRegistries.CLOTH_PATTERNS))
+                    .networkSynchronized(ResourceKey.streamCodec(AntiqueRegistries.CLOTH_PATTERNS))
+                    .build()
+    );
+    DataComponentType<DyedItemColor> CLOTH_PATTERN_COLOR = Registry.register(
+            BuiltInRegistries.DATA_COMPONENT_TYPE,
+            Antiquities.id("cloth_pattern_color"),
+            DataComponentType.<DyedItemColor>builder()
+                    .persistent(DyedItemColor.CODEC)
+                    .networkSynchronized(DyedItemColor.STREAM_CODEC)
+                    .build()
+    );
+    DataComponentType<Boolean> CLOTH_PATTERN_GLOWING = Registry.register(
+            BuiltInRegistries.DATA_COMPONENT_TYPE,
+            Antiquities.id("cloth_pattern_glowing"),
+            DataComponentType.<Boolean>builder()
+                    .persistent(Codec.BOOL)
+                    .networkSynchronized(ByteBufCodecs.BOOL)
                     .build()
     );
     DataComponentType<Integer> COUNTER = Registry.register(

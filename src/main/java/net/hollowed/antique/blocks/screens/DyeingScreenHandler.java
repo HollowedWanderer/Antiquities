@@ -1,13 +1,12 @@
 package net.hollowed.antique.blocks.screens;
 
+import net.hollowed.antique.Antiquities;
 import net.hollowed.antique.index.AntiqueDataComponentTypes;
 import net.hollowed.antique.index.AntiqueItems;
 import net.hollowed.antique.index.AntiqueScreenHandlerType;
-import net.hollowed.antique.items.MyriadToolItem;
-import net.hollowed.antique.items.components.ColorProvider;
 import net.hollowed.antique.items.components.MyriadToolComponent;
+import net.hollowed.antique.util.ClothUtil;
 import net.hollowed.antique.util.resources.ClothSkinData;
-import net.hollowed.antique.util.resources.ClothSkinListener;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.world.Container;
@@ -22,6 +21,8 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.DyedItemColor;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.Optional;
 
 public class DyeingScreenHandler extends AbstractContainerMenu {
 	private final ContainerLevelAccess context;
@@ -64,8 +65,15 @@ public class DyeingScreenHandler extends AbstractContainerMenu {
 			@Override
 			public boolean mayPlace(@NotNull ItemStack stack) {
 				if (stack.is(AntiqueItems.MYRIAD_TOOL)) {
-					ClothSkinData.ClothSubData data = ClothSkinListener.getTransform(stack.getOrDefault(AntiqueDataComponentTypes.MYRIAD_TOOL, MyriadToolComponent.DEFAULT_NO_CLOTH).clothType());
-					return data.dyeable();
+					return stack.getOrDefault(AntiqueDataComponentTypes.MYRIAD_TOOL, MyriadToolComponent.DEFAULT_NO_CLOTH)
+							.cloth()
+							.map(key ->
+									context.evaluate((level, pos) -> ClothUtil.getClothData(stack, level.registryAccess()))
+											.flatMap(it -> it)
+											.map(skin -> skin.value().dyeable())
+											.orElse(false)
+							)
+							.orElse(false);
 				}
 				return stack.is(ItemTags.DYEABLE);
 			}
@@ -162,32 +170,25 @@ public class DyeingScreenHandler extends AbstractContainerMenu {
 	}
 
 	public void updateResult() {
-		ItemStack originalStack = this.inventory.getItem(0);
-		ItemStack resultStack = originalStack.copy();
+		ItemStack original = this.inventory.getItem(0);
+		ItemStack result = original.copy();
+
 		if (this.hexCode != null && this.hexCode.length() == 6) {
-			int intValue = 0;
 			try {
-				intValue = Integer.parseInt(this.hexCode, 16);
-			} catch (NumberFormatException e) {
-				System.err.println("Invalid hexadecimal string format: " + e.getMessage());
-			}
-			if (resultStack.getItem() instanceof MyriadToolItem) {
-				MyriadToolComponent component = resultStack.get(AntiqueDataComponentTypes.MYRIAD_TOOL);
+				DyedItemColor dyeColor = new DyedItemColor(Integer.parseInt(this.hexCode, 16));
+				MyriadToolComponent component = result.get(AntiqueDataComponentTypes.MYRIAD_TOOL);
+
 				if (component != null) {
-					resultStack.set(AntiqueDataComponentTypes.MYRIAD_TOOL, new MyriadToolComponent(
-							component.toolBit(),
-							component.clothType(),
-							component.clothPattern(),
-							new ColorProvider.Constant(intValue),
-							component.patternColor(),
-							component.emissiveItem()
-					));
+					result.set(AntiqueDataComponentTypes.MYRIAD_TOOL, component.withCloth(cloth -> ClothUtil.setClothPatternColor(cloth, Optional.of(dyeColor))));
+				} else {
+					result.set(DataComponents.DYED_COLOR, dyeColor);
 				}
-			} else {
-				resultStack.set(DataComponents.DYED_COLOR, new DyedItemColor(intValue));
+			} catch (NumberFormatException e) {
+                Antiquities.LOGGER.error("Invalid hexadecimal string format: {}", e.getMessage());
 			}
 		}
-		this.resultInventory.setItem(0, resultStack);
+
+		this.resultInventory.setItem(0, result);
 	}
 
 	public boolean setHexCode(String string) {

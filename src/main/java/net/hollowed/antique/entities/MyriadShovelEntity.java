@@ -8,15 +8,17 @@ import net.hollowed.antique.index.AntiqueDamageTypes;
 import net.hollowed.antique.index.AntiqueEntities;
 import net.hollowed.antique.entities.parts.MyriadShovelPart;
 import net.hollowed.antique.index.AntiqueTrackedData;
-import net.hollowed.antique.items.components.ColorProvider;
+import net.hollowed.antique.util.resources.ClothPatternData;
+import net.hollowed.antique.util.resources.ClothSkinData;
 import net.hollowed.antique.items.components.MyriadToolComponent;
 import net.hollowed.antique.util.interfaces.duck.ClothAccess;
 import net.hollowed.combatamenities.index.CAParticles;
 import net.hollowed.combatamenities.util.items.CAComponents;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
-import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
@@ -31,6 +33,7 @@ import net.minecraft.world.entity.projectile.ProjectileDeflection;
 import net.minecraft.world.entity.projectile.arrow.AbstractArrow;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.component.DyedItemColor;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.storage.ValueInput;
@@ -77,12 +80,12 @@ public class MyriadShovelEntity extends AbstractArrow {
 		this.setPierceLevel((byte) 5);
 	}
 
-	public ColorProvider getDyeColor() {
-		return this.entityData.get(ATTRIBUTES).clothColor();
+	public Optional<Integer> getClothColor() {
+		return this.entityData.get(ATTRIBUTES).cloth().flatMap(cloth -> Optional.ofNullable(cloth.get(DataComponents.DYED_COLOR)).map(DyedItemColor::rgb));
 	}
 
-	public int getOverlayColor() {
-		return this.entityData.get(ATTRIBUTES).patternColor();
+	public Optional<Integer> getPatternColor() {
+		return this.entityData.get(ATTRIBUTES).cloth().flatMap(cloth -> Optional.ofNullable(cloth.get(AntiqueDataComponentTypes.CLOTH_PATTERN_COLOR)).map(DyedItemColor::rgb));
 	}
 
 	public boolean getGlow() {
@@ -103,16 +106,12 @@ public class MyriadShovelEntity extends AbstractArrow {
 		return this.entityData.get(ENCHANTED);
 	}
 
-	public Optional<Identifier> getCloth() {
-		return this.entityData.get(ATTRIBUTES).clothType();
+	public Optional<ResourceKey<ClothSkinData>> getCloth() {
+		return getAttributes().cloth().flatMap(cloth -> Optional.ofNullable(cloth.get(AntiqueDataComponentTypes.CLOTH_TYPE)));
 	}
 
-	public Optional<Identifier> getPattern() {
-		return this.entityData.get(ATTRIBUTES).clothPattern();
-	}
-
-	public boolean getEmissiveItem() {
-		return this.entityData.get(ATTRIBUTES).emissiveItem();
+	public Optional<ResourceKey<ClothPatternData>> getPattern() {
+		return getAttributes().cloth().flatMap(cloth -> Optional.ofNullable(cloth.get(AntiqueDataComponentTypes.CLOTH_PATTERN_TYPE)));
 	}
 
 	public MyriadToolComponent getAttributes() {

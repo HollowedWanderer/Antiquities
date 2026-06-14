@@ -1,0 +1,50 @@
+{
+  "world": [
+    "antique:cloth/typho_cloth",
+    {
+      "texture": "antique:cloth/typho_cloth_emissive",
+      "light": 15
+    }
+  ],
+  "item": [
+    "antique:item/typho_cloth",
+    {
+      "texture": "antique:item/typho_cloth_emissive",
+      "light": 15
+    }
+  ],
+  "tied": {
+    "normal": {
+      "inventory": [
+        "antique:item/typho_cloth_item",
+        {
+          "texture": "antique:item/typho_cloth_item_emissive",
+          "light": 15
+        }
+      ],
+      "world": [
+        "antique:item/typho_cloth_hand",
+        {
+          "texture": "antique:item/typho_cloth_hand_emissive",
+          "light": 15
+        }
+      ]
+    },
+    "large": {
+      "inventory": [
+        "antique:item/typho_cloth_item_large",
+        {
+          "texture": "antique:item/typho_cloth_item_large_emissive",
+          "light": 15
+        }
+      ],
+      "world": [
+        "antique:item/typho_cloth_hand_large",
+        {
+          "texture": "antique:item/typho_cloth_hand_large_emissive",
+          "light": 15
+        }
+      ]
+    }
+  }
+}

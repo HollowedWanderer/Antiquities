@@ -5,8 +5,9 @@ import net.hollowed.antique.client.renderer.cloth.ClothManager;
 import net.hollowed.antique.index.AntiqueDataComponentTypes;
 import net.hollowed.antique.index.AntiqueItems;
 import net.hollowed.antique.items.components.MyriadToolComponent;
+import net.hollowed.antique.util.ClothUtil;
 import net.hollowed.antique.util.interfaces.duck.ArmedRenderStateAccess;
-import net.hollowed.antique.util.resources.ClientClothData;
+import net.hollowed.antique.util.resources.ClothPatternData;
 import net.hollowed.antique.util.resources.ClothSkinData;
 import net.hollowed.combatamenities.util.items.CAComponents;
 import net.minecraft.client.model.ArmedModel;
@@ -17,6 +18,7 @@ import net.minecraft.client.renderer.entity.layers.ItemInHandLayer;
 import net.minecraft.client.renderer.entity.layers.RenderLayer;
 import net.minecraft.client.renderer.entity.state.ArmedEntityRenderState;
 import net.minecraft.client.renderer.item.ItemStackRenderState;
+import net.minecraft.core.Holder;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.Entity;
@@ -31,6 +33,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 import java.awt.*;
+import java.util.Optional;
 
 @Mixin(ItemInHandLayer.class)
 public abstract class HeldItemRendererMixin<S extends ArmedEntityRenderState, M extends EntityModel<S> & ArmedModel<S>> extends RenderLayer<S, @NotNull M> {
@@ -62,30 +65,34 @@ public abstract class HeldItemRendererMixin<S extends ArmedEntityRenderState, M 
                 }
             }
 
-            ClothManager manager;
-
             if (entity instanceof LivingEntity living) {
                 ItemStack stack = living.getItemHeldByArm(arm);
+                MyriadToolComponent component = stack.getOrDefault(AntiqueDataComponentTypes.MYRIAD_TOOL, MyriadToolComponent.DEFAULT_NO_CLOTH);
 
-                ClothSkinData.ClothSubData data = ClientClothData.getTransform(stack.getOrDefault(AntiqueDataComponentTypes.MYRIAD_TOOL, MyriadToolComponent.DEFAULT_NO_CLOTH).clothType());
-                Object name = stack.getOrDefault(DataComponents.CUSTOM_NAME, "");
-                if (stack.is(AntiqueItems.MYRIAD_TOOL) && !(name.equals(Component.literal("Perfected Staff")) || name.equals(Component.literal("Orb Staff")) || name.equals(Component.literal("Lapis Staff")))) {
-                    manager = arm == HumanoidArm.RIGHT ? ClothManager.getOrCreate(entity, Antiquities.id(entity.getId() + "_right_arm"), data) : ClothManager.getOrCreate(entity, Antiquities.id(entity.getId() + "_left_arm"), data);
-                    if (manager != null) {
-                        MyriadToolComponent component = stack.getOrDefault(AntiqueDataComponentTypes.MYRIAD_TOOL, MyriadToolComponent.DEFAULT_NO_CLOTH);
+                component.cloth().ifPresent(cloth -> {
+                    Optional<Holder.Reference<ClothSkinData>> data = ClothUtil.getClothData(component.cloth().get(), living.registryAccess());
 
-                        manager.renderCloth(
-                                data,
-                                matrices,
-                                submitNodeCollector,
-                                i,
-                                stack.getOrDefault(CAComponents.BOOLEAN_PROPERTY, false),
-                                new Color(component.clothColor().getColorClient()),
-                                new Color(component.patternColor()),
-                                component.clothPattern()
-                        );
+                    if (data.isPresent()) {
+                        Object name = stack.getOrDefault(DataComponents.CUSTOM_NAME, "");
+
+                        if (stack.is(AntiqueItems.MYRIAD_TOOL) && !(name.equals(Component.literal("Perfected Staff")) || name.equals(Component.literal("Orb Staff")) || name.equals(Component.literal("Lapis Staff")))) {
+                            ClothManager manager = arm == HumanoidArm.RIGHT ? ClothManager.getOrCreate(entity, Antiquities.id("right_arm"), data.get().value()) : ClothManager.getOrCreate(entity, Antiquities.id("left_arm"), data.get().value());
+
+                            if (manager != null) {
+                                manager.renderCloth(
+                                        data.get(),
+                                        matrices,
+                                        submitNodeCollector,
+                                        i,
+                                        stack.getOrDefault(CAComponents.BOOLEAN_PROPERTY, false),
+                                        new Color(ClothUtil.getDynamicClothColor(component.cloth().get(), living.registryAccess()).orElse(0xFFFFFFFF)),
+                                        new Color(ClothUtil.getClothPatternColor(component.cloth().get()).orElse(0xFFFFFFFF)),
+                                        ClothUtil.getClothPatternData(component.cloth().get(), living.registryAccess())
+                                );
+                            }
+                        }
                     }
-                }
+                });
             }
 
             matrices.popPose();
