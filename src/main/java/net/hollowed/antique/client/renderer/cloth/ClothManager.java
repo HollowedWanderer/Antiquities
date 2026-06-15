@@ -1,6 +1,7 @@
 package net.hollowed.antique.client.renderer.cloth;
 
 import java.awt.Color;
+import java.lang.Math;
 import java.util.*;
 
 import net.hollowed.antique.Antiquities;
@@ -34,10 +35,7 @@ import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.Nullable;
-import org.joml.Matrix4f;
-import org.joml.Vector3d;
-import org.joml.Vector3f;
-import org.joml.Vector4f;
+import org.joml.*;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 
@@ -58,29 +56,12 @@ public class ClothManager {
     public static final FastNoiseLite WIND_DIR_NOISE = new FastNoiseLite();
     public static final FastNoiseLite WIND_NOISE = new FastNoiseLite();
 
-    public static final FastNoiseLite GUST_DIR_X_NOISE = new FastNoiseLite();
-    public static final FastNoiseLite GUST_DIR_Y_NOISE = new FastNoiseLite();
-    public static final FastNoiseLite GUST_SMALL_NOISE = new FastNoiseLite();
-    public static final FastNoiseLite GUST_LARGE_NOISE = new FastNoiseLite();
-
     static {
         WIND_DIR_NOISE.SetNoiseType(FastNoiseLite.NoiseType.Perlin);
         WIND_DIR_NOISE.SetFrequency(0.005f);
 
         WIND_NOISE.SetNoiseType(FastNoiseLite.NoiseType.Perlin);
         WIND_NOISE.SetFrequency(0.05f);
-
-        GUST_DIR_X_NOISE.SetNoiseType(FastNoiseLite.NoiseType.Perlin);
-        GUST_DIR_X_NOISE.SetFrequency(5f);
-
-        GUST_DIR_Y_NOISE.SetNoiseType(FastNoiseLite.NoiseType.Perlin);
-        GUST_DIR_Y_NOISE.SetFrequency(5f);
-
-        GUST_SMALL_NOISE.SetNoiseType(FastNoiseLite.NoiseType.Cellular);
-        GUST_SMALL_NOISE.SetFrequency(5f);
-
-        GUST_LARGE_NOISE.SetNoiseType(FastNoiseLite.NoiseType.Perlin);
-        GUST_LARGE_NOISE.SetFrequency(2f);
     }
 
     public @Nullable AmbientClothSoundInstance ambientSound;
@@ -208,51 +189,43 @@ public class ClothManager {
         float waterGravityMultiplier = data.waterGravity();
         double length = data.length();
 
-        ClothBody root = bodies.getFirst();
-
         for (ClothBody body : bodies) {
             body.prevPos = new Vector3d(body.pos);
         }
 
         // Update pass
-        for (int i = 0; i < bodies.size(); i++) {
-            ClothBody body = bodies.get(i);
-
+        for (ClothBody body : bodies) {
             boolean isWater = isWater(level, body.pos);
 
-            /*
-            Vector3d vel = new Vector3d(body.pos).sub(i == 0 ? this.pos : bodies.get(i - 1).pos);
-            double maxVel = (double) bodies.size() / data.length();// 0.2;
-            double velLen = vel.length();
-            if (velLen > maxVel) {
-                vel.normalize((velLen - maxVel) / 3);
-            }
-            body.pos.sub(vel);
-             */
-
             // Apply gravity
-            double gravity = 0.05 * gravityMultiplier;
+            double gravity = 0.1 * gravityMultiplier;
             if (isWater) {
                 gravity *= waterGravityMultiplier;
             }
 
             body.velocity.add(0, -gravity, 0);
 
-            double dir = (WIND_DIR_NOISE.GetNoise(currentTime, 0) + 1) * Math.PI;
+            double dir = WIND_DIR_NOISE.GetNoise(currentTime, 0) * 45; // 90 degree slice going negative Z
 
-            float wind = Math.max(0, WIND_NOISE.GetNoise((float) body.pos.x / 100, currentTime, (float) body.pos.z / 100) / 2 + 0.25f) + level.getThunderLevel(0) / 2;
-            float gust = GUST_SMALL_NOISE.GetNoise((float) body.pos.x, currentTime, (float) body.pos.z) * (GUST_LARGE_NOISE.GetNoise((float) body.pos.x, currentTime, (float) body.pos.z) / 2 + 0.5f);
-            float gustX = GUST_DIR_X_NOISE.GetNoise((float) body.pos.x, currentTime, (float) body.pos.z) * 0.5f;
-            float gustY = GUST_DIR_Y_NOISE.GetNoise((float) body.pos.x, currentTime, (float) body.pos.z) * 0.5f;
+            float thunder = level.getThunderLevel(0);
+            float wind = Math.max(0, WIND_NOISE.GetNoise((float) body.pos.x, (float) body.pos.z - currentTime) / 2 + 0.25f) + thunder * 0.75f;
+
+            int worldHeight = level.getHeight(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, (int) body.pos.x, (int) body.pos.z);
+            float mountainScale = Mth.clamp((float) (worldHeight - 80) / 400, 0, 0.1f);
 
             Vector3f totalWind = getViewVector((float) dir)
-                    .add(getViewVector((float) dir + gustX, gustY).mul(gust * gust * (2f + level.getThunderLevel(0) * 4)))
-                    .mul(wind)
-                    .mul(0.1f)
-                    .mul(Mth.clamp(((float) body.pos.y - level.getHeight(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, (int) body.pos.x, (int) body.pos.z) + 10) / 10, 0, 2.5f));
+                    .mul(wind * 0.2f + mountainScale)
+                    .mul(Mth.clamp(((float) body.pos.y - (worldHeight - 10)) / 10, 0, 2.5f));
 
-            double[] offsets = { 0, Math.toRadians(15), Math.toRadians(-15) };
+            Vector2d[] offsets = {
+                    new Vector2d(),
+                    new Vector2d(-15, 0),
+                    new Vector2d(15, 0),
+                    new Vector2d(0, -15),
+                    new Vector2d(0, 15)
+            };
             float average = 0;
+            float maximum = 0;
 
             BlockPos excludePos;
 
@@ -262,10 +235,10 @@ public class ClothManager {
                 excludePos = null;
             }
 
-            for (double offset : offsets) {
+            for (Vector2d offset : offsets) {
                 BlockHitResult ray = level.clip(new ClipContext(
                         new Vec3(new Vector3f(body.pos)),
-                        new Vec3(new Vector3f(body.pos).add(getViewVector((float) (dir + offset)).mul(-32))),
+                        new Vec3(new Vector3f(body.pos).add(getViewVector((float) (dir + offset.x), (float) offset.y).mul(-32))),
                         ClipContext.Block.VISUAL,
                         ClipContext.Fluid.SOURCE_ONLY,
                         CollisionContext.emptyWithFluidCollisions()
@@ -282,13 +255,22 @@ public class ClothManager {
 
                 if (ray.getType() == HitResult.Type.BLOCK) {
                     float distance = Mth.clamp(1 - (float) ray.getLocation().distanceTo(new Vec3(new Vector3f(body.pos))) / 32, 0, 1);
-                    average += 1 - distance * distance;
+                    float v = 1 - distance * distance;
+                    average += v;
+
+                    if (maximum < v) {
+                        maximum = v;
+                    }
                 } else {
                     average += 1;
+
+                    if (maximum < 1) {
+                        maximum = 1;
+                    }
                 }
             }
 
-            body.velocity.add(totalWind.mul(average / offsets.length));
+            body.velocity.add(totalWind.mul((average / offsets.length + maximum) / 2));
 
             body.update();
         }

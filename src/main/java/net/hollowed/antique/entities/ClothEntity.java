@@ -10,6 +10,7 @@ import net.minecraft.tags.BlockTags;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.decoration.BlockAttachedEntity;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.storage.ValueInput;
@@ -56,8 +57,10 @@ public class ClothEntity extends BlockAttachedEntity {
 
 	@Override
 	public void dropItem(@NonNull ServerLevel level, @Nullable Entity entity) {
-		playSound(SoundEvents.LEAD_UNTIED, 1, 1);
-		spawnAtLocation(level, getCloth());
+		if (!(entity instanceof Player player) || !player.hasInfiniteMaterials()) {
+			playSound(SoundEvents.LEAD_UNTIED, 1, 1);
+			spawnAtLocation(level, getCloth());
+		}
 	}
 
 	public ItemStack getCloth() {
