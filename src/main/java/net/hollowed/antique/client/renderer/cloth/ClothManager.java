@@ -8,6 +8,7 @@ import net.hollowed.antique.AntiquitiesClient;
 import net.hollowed.antique.client.cloth.ClothOwner;
 import net.hollowed.antique.client.sound.cloth.AmbientClothSoundInstance;
 import net.hollowed.antique.entities.parts.MyriadShovelPart;
+import net.hollowed.antique.index.AntiqueBlockTags;
 import net.hollowed.antique.index.AntiqueParticles;
 import net.hollowed.antique.util.FastNoiseLite;
 import net.hollowed.antique.util.resources.*;
@@ -282,7 +283,7 @@ public class ClothManager {
                 ) {
                     @Override
                     public @NonNull VoxelShape getBlockShape(@NonNull BlockState blockState, @NonNull BlockGetter blockGetter, @NonNull BlockPos blockPos) {
-                        if (Objects.equals(blockPos, excludePos)) {
+                        if (Objects.equals(blockPos, excludePos) || blockState.is(AntiqueBlockTags.WIND_PASSABLE)) {
                             return Shapes.empty();
                         }
 

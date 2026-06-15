@@ -9,6 +9,7 @@ public class AntiqueBlockTags {
 
     public static final TagKey<Block> WATER_OR_AIR = of("water_or_air");
     public static final TagKey<Block> SHOCKWAVE_PASSABLE = of("shockwave_passable");
+    public static final TagKey<Block> WIND_PASSABLE = of("wind_passable");
 
     private AntiqueBlockTags() {
 
