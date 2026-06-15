@@ -1,10 +1,10 @@
 package net.hollowed.antique.client.renderer.cloth;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.BlockBox;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
@@ -105,7 +105,7 @@ public class ClothBody {
         return new Vector3d(accel).add(collisionAccel);
     }
 
-    public void slideOutOfBlocks(ClientLevel world) {
+    public void slideOutOfBlocks(Level level) {
         double padding = 1.0 / 16;
 
         Vec3 startPos = new Vec3(pos.x, pos.y, pos.z);
@@ -119,11 +119,11 @@ public class ClothBody {
         AABB pointBox = new AABB(x - padding, y - padding, z - padding, x + padding, y + padding, z + padding);
 
         for (BlockPos blockPos : BlockBox.of(BlockPos.containing(pointBox.minX, pointBox.minY, pointBox.minZ), BlockPos.containing(pointBox.maxX, pointBox.maxY, pointBox.maxZ))) {
-            BlockState state = world.getBlockState(blockPos);
+            BlockState state = level.getBlockState(blockPos);
 
             // If there's no collision shape, just return the original point
             if (state.isAir()) continue;
-            VoxelShape shape = state.getCollisionShape(world, blockPos);
+            VoxelShape shape = state.getCollisionShape(level, blockPos);
             if (shape.isEmpty()) continue;
 
             // Convert the shape to world space

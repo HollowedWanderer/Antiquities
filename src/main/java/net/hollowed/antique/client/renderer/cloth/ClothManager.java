@@ -11,6 +11,7 @@ import net.hollowed.antique.AntiquitiesClient;
 import net.hollowed.antique.client.sound.cloth.AmbientClothSoundInstance;
 import net.hollowed.antique.entities.parts.MyriadShovelPart;
 import net.hollowed.antique.index.AntiqueParticles;
+import net.hollowed.antique.util.FastNoiseLite;
 import net.hollowed.antique.util.resources.*;
 import net.hollowed.antique.mixin.accessors.SpriteContentsAnimationStateAccessor;
 import net.hollowed.antique.particles.TyphoSparkParticle;
@@ -19,11 +20,16 @@ import net.minecraft.core.Holder;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.tags.FluidTags;
+import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.LayeredCauldronBlock;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.HitResult;
+import net.minecraft.world.phys.shapes.CollisionContext;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Matrix4f;
 import org.joml.Vector3d;
@@ -45,6 +51,30 @@ import net.minecraft.world.phys.Vec3;
 
 public class ClothManager {
 
+    public static final FastNoiseLite WIND_DIR_NOISE = new FastNoiseLite();
+    public static final FastNoiseLite WIND_NOISE = new FastNoiseLite();
+
+    public static final FastNoiseLite GUST_DIR_X_NOISE = new FastNoiseLite();
+    public static final FastNoiseLite GUST_DIR_Y_NOISE = new FastNoiseLite();
+    public static final FastNoiseLite GUST_NOISE = new FastNoiseLite();
+
+    static {
+        WIND_DIR_NOISE.SetNoiseType(FastNoiseLite.NoiseType.Perlin);
+        WIND_DIR_NOISE.SetFrequency(0.005f);
+
+        WIND_NOISE.SetNoiseType(FastNoiseLite.NoiseType.Perlin);
+        WIND_NOISE.SetFrequency(0.05f);
+
+        GUST_DIR_X_NOISE.SetNoiseType(FastNoiseLite.NoiseType.Perlin);
+        GUST_DIR_X_NOISE.SetFrequency(5f);
+
+        GUST_DIR_Y_NOISE.SetNoiseType(FastNoiseLite.NoiseType.Perlin);
+        GUST_DIR_Y_NOISE.SetFrequency(5f);
+
+        GUST_NOISE.SetNoiseType(FastNoiseLite.NoiseType.Cellular);
+        GUST_NOISE.SetFrequency(5f);
+    }
+
     public @Nullable AmbientClothSoundInstance ambientSound;
 
     public Vector3d pos = new Vector3d();
@@ -54,6 +84,7 @@ public class ClothManager {
     public ClothSkinData data;
     public boolean render = false;
     public boolean particles = false;
+    public float lastUpdate = -1;
 
     private List<Entity> collisionEntities = List.of();
     private long prevTime;
@@ -146,12 +177,30 @@ public class ClothManager {
         }
     }
 
+    public static Vector3f getViewVector(float x) {
+        return new Vector3f(
+                (float) -Math.sin(Math.toRadians(x)),
+                0,
+                (float) -Math.cos(Math.toRadians(x))
+        );
+    }
+
+    public static Vector3f getViewVector(float x, float y) {
+        return new Vector3f(
+                (float) (-Math.sin(Math.toRadians(x)) * Math.cos(Math.toRadians(y))),
+                (float) -Math.sin(Math.toRadians(y)),
+                (float) (-Math.cos(Math.toRadians(x)) * Math.cos(Math.toRadians(y)))
+        );
+    }
+
     public void tick() {
+        float delta = Minecraft.getInstance().getDeltaTracker().getGameTimeDeltaTicks();
+        Level level = entity.level();
+        float currentTime = level.getGameTime() + delta;
+
         float gravityMultiplier = data.gravity();
         float waterGravityMultiplier = data.waterGravity();
         double length = data.length();
-        float delta = Minecraft.getInstance().getDeltaTracker().getGameTimeDeltaTicks();
-        ClientLevel level = Minecraft.getInstance().level;
 
         ClothBody root = bodies.getFirst();
         root.pos = new Vector3d(root.prevPos).lerp(pos, delta * 2);
@@ -189,12 +238,46 @@ public class ClothManager {
 
                 // Apply gravity
                 double gravity = 0.05 * gravityMultiplier;
-                if(isWater) {
+                if (isWater) {
                     gravity *= waterGravityMultiplier;
                 }
-                gravity /= 1;
 
                 body.accel.add(0, -gravity, 0);
+
+                double dir = (WIND_DIR_NOISE.GetNoise(currentTime, 0) + 1) * Math.PI;
+
+                float wind = Math.max(0, WIND_NOISE.GetNoise((float) body.pos.x / 100, currentTime, (float) body.pos.z / 100) / 2 + 0.25f) + level.getThunderLevel(delta);
+                float gust = GUST_NOISE.GetNoise((float) body.pos.x, currentTime, (float) body.pos.z);
+                float gustX = GUST_DIR_X_NOISE.GetNoise((float) body.pos.x, currentTime, (float) body.pos.z);
+                float gustY = GUST_DIR_Y_NOISE.GetNoise((float) body.pos.x, currentTime, (float) body.pos.z);
+
+                Vector3f totalWind = getViewVector((float) dir)
+                        .add(getViewVector((float) dir + gustX, gustY).mul(gust * gust * 0.5f))
+                        .mul(wind)
+                        .mul(0.1f)
+                        .mul(Mth.clamp(((float) body.pos.y - Math.min(level.getHeight(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, (int) body.pos.x, (int) body.pos.z), 80) + 10) / 10, 0, 2.5f));
+
+                double[] offsets = { 0, Math.toRadians(15), Math.toRadians(-15) };
+                float average = 0;
+
+                for (double offset : offsets) {
+                    BlockHitResult ray = level.clip(new ClipContext(
+                            new Vec3(new Vector3f(body.pos)),
+                            new Vec3(new Vector3f(body.pos).add(getViewVector((float) (dir + offset)).mul(-32))),
+                            ClipContext.Block.VISUAL,
+                            ClipContext.Fluid.SOURCE_ONLY,
+                            CollisionContext.emptyWithFluidCollisions()
+                    ));
+
+                    if (ray.getType() == HitResult.Type.BLOCK) {
+                        float distance = Mth.clamp(1 - (float) ray.getLocation().distanceTo(new Vec3(new Vector3f(body.pos))) / 32, 0, 1);
+                        average += 1 - distance * distance;
+                    } else {
+                        average += 1;
+                    }
+                }
+
+                body.accel.add(totalWind.mul(average / offsets.length));
 
                 previousDrag = smoothDrag;
                 body.update(delta);
