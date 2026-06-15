@@ -11,6 +11,7 @@ import net.hollowed.antique.AntiquitiesClient;
 import net.hollowed.antique.client.sound.cloth.AmbientClothSoundInstance;
 import net.hollowed.antique.entities.parts.MyriadShovelPart;
 import net.hollowed.antique.index.AntiqueParticles;
+import net.hollowed.antique.util.FastNoiseLite;
 import net.hollowed.antique.util.resources.*;
 import net.hollowed.antique.mixin.accessors.SpriteContentsAnimationStateAccessor;
 import net.hollowed.antique.particles.TyphoSparkParticle;
@@ -19,9 +20,16 @@ import net.minecraft.core.Holder;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.tags.FluidTags;
+import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.LayeredCauldronBlock;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.HitResult;
+import net.minecraft.world.phys.shapes.CollisionContext;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Matrix4f;
 import org.joml.Vector3d;
@@ -43,6 +51,34 @@ import net.minecraft.world.phys.Vec3;
 
 public class ClothManager {
 
+    public static final FastNoiseLite WIND_DIR_NOISE = new FastNoiseLite();
+    public static final FastNoiseLite WIND_NOISE = new FastNoiseLite();
+
+    public static final FastNoiseLite GUST_DIR_X_NOISE = new FastNoiseLite();
+    public static final FastNoiseLite GUST_DIR_Y_NOISE = new FastNoiseLite();
+    public static final FastNoiseLite GUST_SMALL_NOISE = new FastNoiseLite();
+    public static final FastNoiseLite GUST_LARGE_NOISE = new FastNoiseLite();
+
+    static {
+        WIND_DIR_NOISE.SetNoiseType(FastNoiseLite.NoiseType.Perlin);
+        WIND_DIR_NOISE.SetFrequency(0.005f);
+
+        WIND_NOISE.SetNoiseType(FastNoiseLite.NoiseType.Perlin);
+        WIND_NOISE.SetFrequency(0.05f);
+
+        GUST_DIR_X_NOISE.SetNoiseType(FastNoiseLite.NoiseType.Perlin);
+        GUST_DIR_X_NOISE.SetFrequency(5f);
+
+        GUST_DIR_Y_NOISE.SetNoiseType(FastNoiseLite.NoiseType.Perlin);
+        GUST_DIR_Y_NOISE.SetFrequency(5f);
+
+        GUST_SMALL_NOISE.SetNoiseType(FastNoiseLite.NoiseType.Cellular);
+        GUST_SMALL_NOISE.SetFrequency(5f);
+
+        GUST_LARGE_NOISE.SetNoiseType(FastNoiseLite.NoiseType.Perlin);
+        GUST_LARGE_NOISE.SetFrequency(0.5f);
+    }
+
     public @Nullable AmbientClothSoundInstance ambientSound;
 
     public Vector3d pos = new Vector3d();
@@ -52,6 +88,7 @@ public class ClothManager {
     public ClothSkinData data;
     public boolean render = false;
     public boolean particles = false;
+    public float lastUpdate = -1;
 
     private List<Entity> collisionEntities = List.of();
     private long prevTime;
@@ -75,8 +112,31 @@ public class ClothManager {
         }
     }
 
-    public boolean isWater(Level level, BlockPos pos) {
-        return level.getFluidState(pos).is(FluidTags.WATER) || level.getBlockState(pos).is(Blocks.WATER_CAULDRON);
+    public static boolean isWater(Level level, Vector3d pos) {
+        BlockPos blockPos = BlockPos.containing(pos.x, pos.y, pos.z);
+        double fract = pos.y - blockPos.getY();
+
+        if (level.getFluidState(blockPos).is(FluidTags.WATER)) {
+            return true;
+        }
+
+        BlockState block = level.getBlockState(blockPos);
+
+        if (block.is(Blocks.WATER_CAULDRON)) {
+            switch (block.getValue(LayeredCauldronBlock.LEVEL)) {
+                case 1 -> {
+                    return fract <= 10f / 16f;
+                }
+                case 2 -> {
+                    return fract <= 13f / 16f;
+                }
+                case 3 -> {
+                    return true;
+                }
+            }
+        }
+
+        return false;
     }
 
     public void tickSound() {
@@ -86,7 +146,7 @@ public class ClothManager {
             data.ambientSound().ifPresent(soundData -> {
                 Optional<Identifier> sound = soundData.sound();
 
-                if (bodies.stream().anyMatch(body -> isWater(level, BlockPos.containing(body.pos.x, body.pos.y, body.pos.z)))) {
+                if (bodies.stream().anyMatch(body -> isWater(level, body.pos))) {
                     sound = soundData.waterSound().or(soundData::sound);
                 }
 
@@ -121,12 +181,30 @@ public class ClothManager {
         }
     }
 
+    public static Vector3f getViewVector(float x) {
+        return new Vector3f(
+                (float) -Math.sin(Math.toRadians(x)),
+                0,
+                (float) -Math.cos(Math.toRadians(x))
+        );
+    }
+
+    public static Vector3f getViewVector(float x, float y) {
+        return new Vector3f(
+                (float) (-Math.sin(Math.toRadians(x)) * Math.cos(Math.toRadians(y))),
+                (float) -Math.sin(Math.toRadians(y)),
+                (float) (-Math.cos(Math.toRadians(x)) * Math.cos(Math.toRadians(y)))
+        );
+    }
+
     public void tick() {
+        float delta = Minecraft.getInstance().getDeltaTracker().getGameTimeDeltaTicks();
+        Level level = entity.level();
+        float currentTime = level.getGameTime() + delta;
+
         float gravityMultiplier = data.gravity();
         float waterGravityMultiplier = data.waterGravity();
         double length = data.length();
-        float delta = Minecraft.getInstance().getDeltaTracker().getGameTimeDeltaTicks();
-        ClientLevel level = Minecraft.getInstance().level;
 
         ClothBody root = bodies.getFirst();
         root.pos = new Vector3d(root.prevPos).lerp(pos, delta * 2);
@@ -141,39 +219,67 @@ public class ClothManager {
             }
         }
 
-        if (level != null) {
+        double previousDrag = 0.0;
 
-            double previousDrag = 0.0;
-
-            // Update pass
-            for (ClothBody body : bodies) {
-                boolean isWater = isWater(level, BlockPos.containing(body.pos.x, body.pos.y, body.pos.z));
-                Vector3d vel = new Vector3d(body.pos).sub(body.posCache);
-                double maxVel = 0.05;
-                if (vel.length() > maxVel) {
-                    vel.normalize().mul(maxVel);
-                }
-                double velLength = vel.length();
-                double dynamicDrag = Mth.clamp(1.0 - velLength * 0.05, 0.85, 0.98);
-                vel.mul(dynamicDrag);
-                body.posCache.set(new Vector3d(body.pos).sub(vel));
-
-                // Compute new drag value smoothly
-                double newDrag = Math.random() * (isWater ? 0.25 : 1.25);
-                double smoothDrag = Mth.lerp(delta * 0.1, previousDrag, newDrag);
-
-                // Apply gravity
-                double gravity = 0.05 * gravityMultiplier;
-                if(isWater) {
-                    gravity *= waterGravityMultiplier;
-                }
-                gravity /= 1;
-
-                body.accel.add(0, -gravity, 0);
-
-                previousDrag = smoothDrag;
-                body.update(delta);
+        // Update pass
+        for (ClothBody body : bodies) {
+            boolean isWater = isWater(level, body.pos);
+            Vector3d vel = new Vector3d(body.pos).sub(body.posCache);
+            double maxVel = 0.05;
+            if (vel.length() > maxVel) {
+                vel.normalize().mul(maxVel);
             }
+            body.posCache.set(new Vector3d(body.pos).sub(vel));
+
+            // Compute new drag value smoothly
+            double newDrag = Math.random() * (isWater ? 0.25 : 1.25);
+            double smoothDrag = Mth.lerp(delta * 0.1, previousDrag, newDrag);
+
+            // Apply gravity
+            double gravity = 0.05 * gravityMultiplier;
+            if (isWater) {
+                gravity *= waterGravityMultiplier;
+            }
+
+            body.accel.add(0, -gravity, 0);
+
+            double dir = (WIND_DIR_NOISE.GetNoise(currentTime, 0) + 1) * Math.PI;
+
+            float wind = Math.max(0, WIND_NOISE.GetNoise((float) body.pos.x / 100, currentTime, (float) body.pos.z / 100) / 2 + 0.25f) + level.getThunderLevel(delta);
+            float gust = GUST_SMALL_NOISE.GetNoise((float) body.pos.x, currentTime, (float) body.pos.z) * (GUST_LARGE_NOISE.GetNoise((float) body.pos.x, currentTime, (float) body.pos.z) / 2 + 0.5f);
+            float gustX = GUST_DIR_X_NOISE.GetNoise((float) body.pos.x, currentTime, (float) body.pos.z);
+            float gustY = GUST_DIR_Y_NOISE.GetNoise((float) body.pos.x, currentTime, (float) body.pos.z);
+
+            Vector3f totalWind = getViewVector((float) dir)
+                    .add(getViewVector((float) dir + gustX, gustY).mul(gust * gust * 0.5f))
+                    .mul(wind)
+                    .mul(0.1f)
+                    .mul(Mth.clamp(((float) body.pos.y - Math.min(level.getHeight(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, (int) body.pos.x, (int) body.pos.z), 80) + 10) / 10, 0, 2.5f));
+
+            double[] offsets = { 0, Math.toRadians(15), Math.toRadians(-15) };
+            float average = 0;
+
+            for (double offset : offsets) {
+                BlockHitResult ray = level.clip(new ClipContext(
+                        new Vec3(new Vector3f(body.pos)),
+                        new Vec3(new Vector3f(body.pos).add(getViewVector((float) (dir + offset)).mul(-32))),
+                        ClipContext.Block.VISUAL,
+                        ClipContext.Fluid.SOURCE_ONLY,
+                        CollisionContext.emptyWithFluidCollisions()
+                ));
+
+                if (ray.getType() == HitResult.Type.BLOCK) {
+                    float distance = Mth.clamp(1 - (float) ray.getLocation().distanceTo(new Vec3(new Vector3f(body.pos))) / 32, 0, 1);
+                    average += 1 - distance * distance;
+                } else {
+                    average += 1;
+                }
+            }
+
+            body.accel.add(totalWind.mul(average / offsets.length));
+
+            previousDrag = smoothDrag;
+            body.update(delta);
         }
 
         for (int k = 0; k < 32; k++) {
@@ -189,32 +295,30 @@ public class ClothManager {
         }
 
         // Collision pass
-        if (level != null) {
-            List<Vector3d> accels = new ArrayList<>();
+        List<Vector3d> accels = new ArrayList<>();
 
-            if (level.getGameTime() > (prevTime + 10)) {
-                prevTime = level.getGameTime();
-                Vec3 pos = new Vec3(new Vector3f(bodies.getFirst().pos));
-                collisionEntities = level.getEntities(entity, new AABB(pos.subtract(5), pos.add(5)), entity -> !(entity instanceof MyriadShovelPart));
-            }
+        if (level.getGameTime() > (prevTime + 10)) {
+            prevTime = level.getGameTime();
+            Vec3 pos = new Vec3(new Vector3f(bodies.getFirst().pos));
+            collisionEntities = level.getEntities(entity, new AABB(pos.subtract(5), pos.add(5)), entity -> !(entity instanceof MyriadShovelPart));
+        }
 
-            for (ClothBody body : bodies) {
-                body.slideOutOfBlocks(level);
-                accels.add(body.entityCollisionPerchance(collisionEntities, entity));
-                body.pos.x = Mth.lerp(0.125, body.pos.x, body.posCache.x);
-                body.pos.y = Mth.lerp(0.125, body.pos.y, body.posCache.y);
-                body.pos.z = Mth.lerp(0.125, body.pos.z, body.posCache.z);
-            }
+        for (ClothBody body : bodies) {
+            body.slideOutOfBlocks(level);
+            accels.add(body.entityCollisionPerchance(collisionEntities, entity));
+            body.pos.x = Mth.lerp(0.125, body.pos.x, body.posCache.x);
+            body.pos.y = Mth.lerp(0.125, body.pos.y, body.posCache.y);
+            body.pos.z = Mth.lerp(0.125, body.pos.z, body.posCache.z);
+        }
 
-            Vector3d average = new Vector3d();
-            for (Vector3d accel : accels) {
-                average.add(accel);
-            }
+        Vector3d average = new Vector3d();
+        for (Vector3d accel : accels) {
+            average.add(accel);
+        }
 
-            average.div(accels.size());
-            for (ClothBody body : bodies) {
-                body.accel.add(average);
-            }
+        average.div(accels.size());
+        for (ClothBody body : bodies) {
+            body.accel.add(average);
         }
 
         double maxDistance = 1.0;
@@ -227,7 +331,7 @@ public class ClothManager {
         data.particleData().ifPresent(data -> {
             for (int i = 0; i < bodies.size(); i++) {
                 ClothBody body = bodies.get(i);
-                boolean water = isWater(level, BlockPos.containing(body.pos.x, body.pos.y, body.pos.z));
+                boolean water = isWater(level, body.pos);
                 ParticleOptions particle = data.particle();
                 float chance = data.chance();
                 float distance = data.distance();

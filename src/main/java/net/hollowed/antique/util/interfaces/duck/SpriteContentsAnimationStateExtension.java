@@ -1,4 +1,4 @@
-package net.hollowed.antique.client.ext;
+package net.hollowed.antique.util.interfaces.duck;
 
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 

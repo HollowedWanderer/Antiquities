@@ -91,6 +91,7 @@
     "entities.states.BipedEntityRenderStateMixin",
     "entities.states.SkeletonRenderStateWitherAdder",
     "entities.states.ZombieRenderStateHuskAdder",
+    "ext.InventoryScreenMixin",
     "ext.SpriteContentsAnimationStateMixin",
     "ext.TextureAtlasSpriteMixin",
     "items.BundleScrollHandler",

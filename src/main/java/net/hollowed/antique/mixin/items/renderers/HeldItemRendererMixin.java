@@ -19,6 +19,7 @@ import net.minecraft.client.renderer.item.ItemStackRenderState;
 import net.minecraft.core.Holder;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.entity.LivingEntity;
@@ -41,10 +42,10 @@ public abstract class HeldItemRendererMixin<S extends ArmedEntityRenderState, M 
     }
 
     @Inject(method = "submitArmWithItem", at = @At("HEAD"))
-    public void renderItem(S entityState, ItemStackRenderState itemStackRenderState, ItemStack itemStack, HumanoidArm arm, PoseStack matrices, SubmitNodeCollector submitNodeCollector, int i, CallbackInfo ci) {
-        if (entityState instanceof ArmedRenderStateAccess access) {
+    public void renderItem(S armedEntityRenderState, ItemStackRenderState itemStackRenderState, ItemStack itemStack, HumanoidArm arm, PoseStack matrices, SubmitNodeCollector submitNodeCollector, int i, CallbackInfo ci) {
+        if (armedEntityRenderState instanceof ArmedRenderStateAccess access) {
             matrices.pushPose();
-            this.getParentModel().translateToHand(entityState, arm, matrices);
+            this.getParentModel().translateToHand(armedEntityRenderState, arm, matrices);
             matrices.mulPose(Axis.XP.rotationDegrees(-90.0F));
             matrices.mulPose(Axis.YP.rotationDegrees(180.0F));
             boolean bl = arm == HumanoidArm.LEFT;
@@ -53,17 +54,18 @@ public abstract class HeldItemRendererMixin<S extends ArmedEntityRenderState, M 
 
             Entity entity = access.antique$getEntity();
 
-            if (entity instanceof LivingEntity living && living.getUseItem().is(AntiqueItems.MYRIAD_TOOL) && living.getItemHeldByArm(arm).getOrDefault(AntiqueDataComponentTypes.MYRIAD_TOOL, MyriadToolComponent.DEFAULT_NO_CLOTH).toolBit().is(AntiqueItems.MYRIAD_SHOVEL_HEAD)) {
-                matrices.translate(0, -1.2, 0.2);
-            }
-            if (entity instanceof LivingEntity living && living.getItemHeldByArm(arm).is(AntiqueItems.MYRIAD_TOOL) && living.getItemHeldByArm(arm).getOrDefault(AntiqueDataComponentTypes.MYRIAD_TOOL, MyriadToolComponent.DEFAULT_NO_CLOTH).toolBit().is(AntiqueItems.MYRIAD_AXE_HEAD)) {
-                matrices.translate(0, -0.3, 0);
-                if (living.isUsingItem()) {
-                    matrices.translate(arm == HumanoidArm.RIGHT ? -0.45 : 0.45, -0.5, 0);
-                }
-            }
-
             if (entity instanceof LivingEntity living) {
+                if (living.getUseItem().is(AntiqueItems.MYRIAD_TOOL) && living.getItemHeldByArm(arm).getOrDefault(AntiqueDataComponentTypes.MYRIAD_TOOL, MyriadToolComponent.DEFAULT_NO_CLOTH).toolBit().is(AntiqueItems.MYRIAD_SHOVEL_HEAD)) {
+                    matrices.translate(0, -1.2, 0.2);
+                }
+
+                if (living.getItemHeldByArm(arm).is(AntiqueItems.MYRIAD_TOOL) && living.getItemHeldByArm(arm).getOrDefault(AntiqueDataComponentTypes.MYRIAD_TOOL, MyriadToolComponent.DEFAULT_NO_CLOTH).toolBit().is(AntiqueItems.MYRIAD_AXE_HEAD)) {
+                    matrices.translate(0, -0.3, 0);
+                    if (living.isUsingItem()) {
+                        matrices.translate(arm == HumanoidArm.RIGHT ? -0.45 : 0.45, -0.5, 0);
+                    }
+                }
+
                 ItemStack stack = living.getItemHeldByArm(arm);
                 MyriadToolComponent component = stack.getOrDefault(AntiqueDataComponentTypes.MYRIAD_TOOL, MyriadToolComponent.DEFAULT_NO_CLOTH);
 
@@ -74,7 +76,8 @@ public abstract class HeldItemRendererMixin<S extends ArmedEntityRenderState, M 
                         Object name = stack.getOrDefault(DataComponents.CUSTOM_NAME, "");
 
                         if (stack.is(AntiqueItems.MYRIAD_TOOL) && !(name.equals(Component.literal("Perfected Staff")) || name.equals(Component.literal("Orb Staff")) || name.equals(Component.literal("Lapis Staff")))) {
-                            ClothManager manager = arm == HumanoidArm.RIGHT ? ClothManager.getOrCreate(entity, Antiquities.id("right_arm"), data.get().value()) : ClothManager.getOrCreate(entity, Antiquities.id("left_arm"), data.get().value());
+                            Identifier clothId = access.antique$getClothId() == null ? (arm == HumanoidArm.RIGHT ? Antiquities.id("right_arm") : Antiquities.id("left_arm")) : access.antique$getClothId();
+                            ClothManager manager = ClothManager.getOrCreate(entity, clothId, data.get().value());
 
                             if (manager != null) {
                                 manager.renderCloth(
