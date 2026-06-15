@@ -3,6 +3,7 @@ package net.hollowed.antique.entities.renderer;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.hollowed.antique.Antiquities;
+import net.hollowed.antique.client.cloth.ClothOwner;
 import net.hollowed.antique.client.renderer.cloth.ClothManager;
 import net.hollowed.antique.entities.MyriadShovelEntity;
 import net.hollowed.antique.index.AntiqueDataComponentTypes;
@@ -58,7 +59,7 @@ public class MyriadShovelEntityRenderer extends EntityRenderer<@NotNull MyriadSh
 			stackRenderState.submit(matrixStack, queue, state.lightCoords, OverlayTexture.NO_OVERLAY, 0);
 
 			state.cloth.ifPresent(cloth -> {
-				ClothManager manager = ClothManager.getOrCreate(entity, Antiquities.id("spade"), cloth.value());
+				ClothManager manager = ClothManager.getOrCreate(new ClothOwner.OfEntity(entity), Antiquities.id("spade"), cloth.value());
 
 				if (manager != null) {
 					matrixStack.translate(0.05, 0.3, 0.1);

@@ -1,6 +1,7 @@
 package net.hollowed.antique.mixin.items.renderers;
 
 import net.hollowed.antique.Antiquities;
+import net.hollowed.antique.client.cloth.ClothOwner;
 import net.hollowed.antique.client.renderer.cloth.ClothManager;
 import net.hollowed.antique.index.AntiqueDataComponentTypes;
 import net.hollowed.antique.index.AntiqueItems;
@@ -76,18 +77,18 @@ public abstract class FirstPersonHeldItemRendererMixin {
                     Optional<Holder.Reference<ClothSkinData>> data = ClothUtil.getClothData(component.cloth().get(), player.registryAccess());
 
                     if (data.isPresent()) {
-                        manager = renderMode == ItemDisplayContext.FIRST_PERSON_RIGHT_HAND ? ClothManager.getOrCreate(entity, Antiquities.id("right_arm"), data.get().value()) : ClothManager.getOrCreate(entity, Antiquities.id("left_arm"), data.get().value());
+                        manager = renderMode == ItemDisplayContext.FIRST_PERSON_RIGHT_HAND ? ClothManager.getOrCreate(new ClothOwner.OfEntity(entity), Antiquities.id("right_arm"), data.get().value()) : ClothManager.getOrCreate(new ClothOwner.OfEntity(entity), Antiquities.id("left_arm"), data.get().value());
 
                         switch (renderMode) {
                             case ItemDisplayContext.NONE -> {
-                                manager = ClothManager.getOrCreate(entity, Antiquities.id("back"), data.get().value());
+                                manager = ClothManager.getOrCreate(new ClothOwner.OfEntity(entity), Antiquities.id("back"), data.get().value());
                                 reproject = false;
                             }
                             case ItemDisplayContext.GUI -> manager = null;
                         }
 
                         if (player.getInventory().getItem(42).equals(stack)) {
-                            manager = ClothManager.getOrCreate(entity, Antiquities.id("belt"), data.get().value());
+                            manager = ClothManager.getOrCreate(new ClothOwner.OfEntity(entity), Antiquities.id("belt"), data.get().value());
                             reproject = false;
                         }
 

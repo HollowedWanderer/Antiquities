@@ -15,6 +15,7 @@ import java.text.NumberFormat;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 public class ClothBody {
 
@@ -63,7 +64,7 @@ public class ClothBody {
 
         Map<AABB, Entity> collBoxes = new HashMap<>();
         for (Entity entity : collisionEntities) {
-            if (Minecraft.getInstance().player != null && !except.equals(Minecraft.getInstance().player)) {
+            if (!Objects.equals(Minecraft.getInstance().player, except)) {
                 collBoxes.put(entity.getBoundingBox(), entity);
             }
         }

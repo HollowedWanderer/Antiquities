@@ -1,5 +1,6 @@
 package net.hollowed.antique.mixin.entities.features;
 
+import net.hollowed.antique.client.cloth.ClothOwner;
 import net.hollowed.antique.client.renderer.cloth.ClothManager;
 import net.hollowed.antique.util.interfaces.duck.ClothAccess;
 import net.minecraft.client.Minecraft;
@@ -16,10 +17,10 @@ import java.util.Map;
 public abstract class ClothAdderMixin implements ClothAccess {
 
     @Unique
-    private final Map<Entity, Map<Identifier, ClothManager>> antique$cloths = new HashMap<>();
+    private final Map<ClothOwner, Map<Identifier, ClothManager>> antique$cloths = new HashMap<>();
 
     @Override
-    public Map<Entity, Map<Identifier, ClothManager>> antique$getManagers() {
+    public Map<ClothOwner, Map<Identifier, ClothManager>> antique$getManagers() {
         return antique$cloths;
     }
 
