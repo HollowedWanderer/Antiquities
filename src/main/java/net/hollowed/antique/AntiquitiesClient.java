@@ -59,7 +59,7 @@ public class AntiquitiesClient implements ClientModInitializer {
     @Override
     public void onInitializeClient() {
 
-        ClientTickEvents.START_WORLD_TICK.register(level -> ((ClothAccess) level).antique$tickParticles());
+        ClientTickEvents.START_WORLD_TICK.register(level -> ((ClothAccess) level).antique$tick());
 
         AntiqueKeyBindings.initialize();
 

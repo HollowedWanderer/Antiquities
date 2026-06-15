@@ -76,7 +76,8 @@ public class BasicClothRenderer implements ClothRenderer {
             Color color,
             Color patternColor,
             Optional<? extends Holder<ClothPatternData>> pattern,
-            Matrix4f reprojectionMatrix
+            Matrix4f reprojectionMatrix,
+            float tickDelta
     ) {
         float width = skin.value().width();
         if (skin.value().light() != 0) light = skin.value().light();
@@ -101,8 +102,8 @@ public class BasicClothRenderer implements ClothRenderer {
             ClothBody body = cloth.bodies.get(i);
             ClothBody nextBody = cloth.bodies.get(i + 1);
 
-            Vector3f pos = new Vector3f(body.getPos()).sub(new Vector3f(cameraPos));
-            Vector3f nextPos = new Vector3f(nextBody.getPos()).sub(new Vector3f(cameraPos));
+            Vector3f pos = new Vector3f(body.getPos(tickDelta)).sub(new Vector3f(cameraPos));
+            Vector3f nextPos = new Vector3f(nextBody.getPos(tickDelta)).sub(new Vector3f(cameraPos));
 
             if (i == 0) pos = new Vector3f(cloth.pos).sub(new Vector3f(cameraPos));
 

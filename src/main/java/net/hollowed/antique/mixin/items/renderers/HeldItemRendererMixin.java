@@ -9,6 +9,7 @@ import net.hollowed.antique.items.components.MyriadToolComponent;
 import net.hollowed.antique.util.ClothUtil;
 import net.hollowed.antique.util.interfaces.duck.ArmedRenderStateAccess;
 import net.hollowed.antique.util.resources.ClothSkinData;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.ArmedModel;
 import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.renderer.SubmitNodeCollector;
@@ -89,7 +90,8 @@ public abstract class HeldItemRendererMixin<S extends ArmedEntityRenderState, M 
                                         ClothUtil.getClothPatternGlowing(component.cloth().get()),
                                         new Color(ClothUtil.getDynamicClothColor(component.cloth().get(), living.registryAccess()).orElse(0xFFFFFFFF)),
                                         new Color(ClothUtil.getClothPatternColor(component.cloth().get()).orElse(0xFFFFFFFF)),
-                                        ClothUtil.getClothPatternData(component.cloth().get(), living.registryAccess())
+                                        ClothUtil.getClothPatternData(component.cloth().get(), living.registryAccess()),
+                                        Minecraft.getInstance().getDeltaTracker().getGameTimeDeltaPartialTick(false)
                                 );
                             }
                         }

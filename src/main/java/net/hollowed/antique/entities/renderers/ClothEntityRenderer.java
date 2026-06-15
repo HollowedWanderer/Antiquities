@@ -80,7 +80,8 @@ public class ClothEntityRenderer extends EntityRenderer<@NotNull ClothEntity, @N
 						ClothUtil.getClothPatternGlowing(state.cloth),
 						new Color(ClothUtil.getDynamicClothColor(state.cloth, state.entity.registryAccess()).orElse(0xFFFFFFFF)),
 						new Color(ClothUtil.getClothPatternColor(state.cloth).orElse(0xFFFFFFFF)),
-						ClothUtil.getClothPatternData(state.cloth, state.entity.registryAccess())
+						ClothUtil.getClothPatternData(state.cloth, state.entity.registryAccess()),
+						state.tickDelta
 				);
 				poseStack.popPose();
 			}
@@ -98,9 +99,10 @@ public class ClothEntityRenderer extends EntityRenderer<@NotNull ClothEntity, @N
 		return new ClothRenderState();
 	}
 
-	public void extractRenderState(@NonNull ClothEntity entity, @NonNull ClothRenderState state, float f) {
-		super.extractRenderState(entity, state, f);
+	public void extractRenderState(@NonNull ClothEntity entity, @NonNull ClothRenderState state, float tickDelta) {
+		super.extractRenderState(entity, state, tickDelta);
 		state.cloth = entity.getCloth();
 		state.entity = entity;
+		state.tickDelta = tickDelta;
 	}
 }

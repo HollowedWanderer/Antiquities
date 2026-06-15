@@ -103,7 +103,8 @@ public abstract class FirstPersonHeldItemRendererMixin {
                                     new Color(ClothUtil.getDynamicClothColor(component.cloth().get(), player.registryAccess()).orElse(0xFFFFFFFF)),
                                     new Color(ClothUtil.getClothPatternColor(component.cloth().get()).orElse(0xFFFFFFFF)),
                                     ClothUtil.getClothPatternData(component.cloth().get(), player.registryAccess()),
-                                    reproject ? reprojectMatrix : new Matrix4f()
+                                    reproject ? reprojectMatrix : new Matrix4f(),
+                                    Minecraft.getInstance().getDeltaTracker().getGameTimeDeltaPartialTick(false)
                             );
                         }
                     }

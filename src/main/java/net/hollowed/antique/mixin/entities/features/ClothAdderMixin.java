@@ -25,30 +25,12 @@ public abstract class ClothAdderMixin implements ClothAccess {
     }
 
     @Override
-    public void antique$tickManagers() {
-        if (!Minecraft.getInstance().isPaused()) {
-            for (Map<Identifier, ClothManager> managers : antique$cloths.values()) {
-                for (ClothManager manager : managers.values()) {
-                    manager.tickSound();
-
-                    if (manager.render) {
-                        manager.tick();
-                        manager.render = false;
-                    }
-                }
-            }
-        }
-    }
-
-    @Override
-    public void antique$tickParticles() {
+    public void antique$tick() {
         for (Map<Identifier, ClothManager> managers : antique$cloths.values()) {
-            for (ClothManager manager : managers.values()) {
-                if (manager.particles) {
-                    manager.tickParticles((ClientLevel) (Object) this);
-                    manager.particles = false;
-                }
-            }
+            managers.values().removeIf(manager -> {
+                manager.tick();
+                return manager.owner.isRemoved();
+            });
         }
     }
 }

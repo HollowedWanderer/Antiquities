@@ -27,6 +27,7 @@ public interface ClothRenderer {
             Color color,
             Color patternColor,
             Optional<? extends Holder<ClothPatternData>> pattern,
-            Matrix4f reprojectionMatrix
+            Matrix4f reprojectionMatrix,
+            float tickDelta
     );
 }

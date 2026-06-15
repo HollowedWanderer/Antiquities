@@ -20,10 +20,8 @@ import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.world.entity.decoration.BlockAttachedEntity;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.ClipContext;
-import net.minecraft.world.level.CollisionGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.LayeredCauldronBlock;
@@ -33,7 +31,6 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
-import net.minecraft.world.phys.shapes.EntityCollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.Nullable;
@@ -88,7 +85,7 @@ public class ClothManager {
 
     public @Nullable AmbientClothSoundInstance ambientSound;
 
-    public Vector3d pos = new Vector3d();
+    public final Vector3d pos = new Vector3d();
     public List<ClothBody> bodies = new ArrayList<>();
     private int bodyCountCooldown = 0;
     public ClothOwner owner;
@@ -100,21 +97,21 @@ public class ClothManager {
     private long prevTime;
 
     public ClothManager(Vector3d pos, int bodyCount, ClothSkinData data) {
-        reset(pos, bodyCount, data);
+        this.pos.set(pos);
+        reset(bodyCount, data);
     }
 
-    public void reset(Vector3d pos, int bodyCount, ClothSkinData data) {
+    public void reset(int bodyCount, ClothSkinData data) {
         bodies.clear();
         this.data = data;
         for (int i = 0; i < Math.abs(bodyCount + 1); i++) {
-            ClothBody body = new ClothBody(pos);
-            bodies.add(body);
+            bodies.add(new ClothBody(pos));
         }
     }
 
     public void setBodyCount(int count) {
         if (count != bodies.size()) {
-            reset(this.pos, count, this.data);
+            reset(count, this.data);
         }
     }
 
@@ -204,42 +201,34 @@ public class ClothManager {
     }
 
     public void tick() {
-        float delta = Minecraft.getInstance().getDeltaTracker().getGameTimeDeltaTicks();
         Level level = owner.getLevel();
-        float currentTime = level.getGameTime() + delta;
+        float currentTime = level.getGameTime();
 
         float gravityMultiplier = data.gravity();
         float waterGravityMultiplier = data.waterGravity();
         double length = data.length();
 
         ClothBody root = bodies.getFirst();
-        root.pos = new Vector3d(root.prevPos).lerp(pos, delta * 2);
 
         for (ClothBody body : bodies) {
             body.prevPos = new Vector3d(body.pos);
         }
 
-        if (delta == 0) {
-            for (ClothBody body : bodies) {
-                body.posCache.set(body.pos);
-            }
-        }
-
-        double previousDrag = 0.0;
-
         // Update pass
-        for (ClothBody body : bodies) {
-            boolean isWater = isWater(level, body.pos);
-            Vector3d vel = new Vector3d(body.pos).sub(body.posCache);
-            double maxVel = 0.05;
-            if (vel.length() > maxVel) {
-                vel.normalize().mul(maxVel);
-            }
-            body.posCache.set(new Vector3d(body.pos).sub(vel));
+        for (int i = 0; i < bodies.size(); i++) {
+            ClothBody body = bodies.get(i);
 
-            // Compute new drag value smoothly
-            double newDrag = Math.random() * (isWater ? 0.25 : 1.25);
-            double smoothDrag = Mth.lerp(delta * 0.1, previousDrag, newDrag);
+            boolean isWater = isWater(level, body.pos);
+
+            /*
+            Vector3d vel = new Vector3d(body.pos).sub(i == 0 ? this.pos : bodies.get(i - 1).pos);
+            double maxVel = (double) bodies.size() / data.length();// 0.2;
+            double velLen = vel.length();
+            if (velLen > maxVel) {
+                vel.normalize((velLen - maxVel) / 3);
+            }
+            body.pos.sub(vel);
+             */
 
             // Apply gravity
             double gravity = 0.05 * gravityMultiplier;
@@ -247,17 +236,17 @@ public class ClothManager {
                 gravity *= waterGravityMultiplier;
             }
 
-            body.accel.add(0, -gravity, 0);
+            body.velocity.add(0, -gravity, 0);
 
             double dir = (WIND_DIR_NOISE.GetNoise(currentTime, 0) + 1) * Math.PI;
 
-            float wind = Math.max(0, WIND_NOISE.GetNoise((float) body.pos.x / 100, currentTime, (float) body.pos.z / 100) / 2 + 0.25f) + level.getThunderLevel(delta) / 2;
+            float wind = Math.max(0, WIND_NOISE.GetNoise((float) body.pos.x / 100, currentTime, (float) body.pos.z / 100) / 2 + 0.25f) + level.getThunderLevel(0) / 2;
             float gust = GUST_SMALL_NOISE.GetNoise((float) body.pos.x, currentTime, (float) body.pos.z) * (GUST_LARGE_NOISE.GetNoise((float) body.pos.x, currentTime, (float) body.pos.z) / 2 + 0.5f);
-            float gustX = GUST_DIR_X_NOISE.GetNoise((float) body.pos.x, currentTime, (float) body.pos.z);
-            float gustY = GUST_DIR_Y_NOISE.GetNoise((float) body.pos.x, currentTime, (float) body.pos.z);
+            float gustX = GUST_DIR_X_NOISE.GetNoise((float) body.pos.x, currentTime, (float) body.pos.z) * 0.5f;
+            float gustY = GUST_DIR_Y_NOISE.GetNoise((float) body.pos.x, currentTime, (float) body.pos.z) * 0.5f;
 
             Vector3f totalWind = getViewVector((float) dir)
-                    .add(getViewVector((float) dir + gustX, gustY).mul(gust * gust * (0.25f + level.getThunderLevel(delta) / 2)))
+                    .add(getViewVector((float) dir + gustX, gustY).mul(gust * gust * (2f + level.getThunderLevel(0) * 4)))
                     .mul(wind)
                     .mul(0.1f)
                     .mul(Mth.clamp(((float) body.pos.y - level.getHeight(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, (int) body.pos.x, (int) body.pos.z) + 10) / 10, 0, 2.5f));
@@ -299,20 +288,19 @@ public class ClothManager {
                 }
             }
 
-            body.accel.add(totalWind.mul(average / offsets.length));
+            body.velocity.add(totalWind.mul(average / offsets.length));
 
-            previousDrag = smoothDrag;
-            body.update(delta);
+            body.update();
         }
 
         for (int k = 0; k < 32; k++) {
             if (k % 2 == 0) {
-                for (int i = 0; i < bodies.size() - 1; i++) {
-                    bodies.get(i).containDistance(bodies.get(i + 1), length / bodies.size());
+                for (int i = 0; i < bodies.size(); i++) {
+                    bodies.get(i).containDistance(i == 0 ? pos : bodies.get(i - 1).pos, length / bodies.size());
                 }
             } else {
-                for (int i = bodies.size() - 2; i >= 0; i--) {
-                    bodies.get(i).containDistance(bodies.get(i + 1), length / bodies.size());
+                for (int i = bodies.size() - 1; i >= 0; i--) {
+                    bodies.get(i).containDistance(i == 0 ? pos : bodies.get(i - 1).pos, length / bodies.size());
                 }
             }
         }
@@ -329,9 +317,6 @@ public class ClothManager {
         for (ClothBody body : bodies) {
             body.slideOutOfBlocks(level, owner);
             accels.add(body.entityCollisionPerchance(collisionEntities, owner.asEntity()));
-            body.pos.x = Mth.lerp(0.125, body.pos.x, body.posCache.x);
-            body.pos.y = Mth.lerp(0.125, body.pos.y, body.posCache.y);
-            body.pos.z = Mth.lerp(0.125, body.pos.z, body.posCache.z);
         }
 
         Vector3d average = new Vector3d();
@@ -341,13 +326,11 @@ public class ClothManager {
 
         average.div(accels.size());
         for (ClothBody body : bodies) {
-            body.accel.add(average);
+            body.velocity.add(average);
         }
 
-        double maxDistance = 1.0;
-        if (root.pos.distance(root.posCache) > maxDistance) {
-            resetCloth();
-        }
+        tickSound();
+        tickParticles(level);
     }
 
     public void tickParticles(Level level) {
@@ -398,14 +381,6 @@ public class ClothManager {
         });
     }
 
-    private void resetCloth() {
-        Vector3d offset = new Vector3d(0, -0.2, 0);
-        for (int i = 0; i < bodies.size(); i++) {
-            bodies.get(i).pos.set(pos.add(offset.mul(i)));
-            bodies.get(i).posCache.set(bodies.get(i).pos);
-        }
-    }
-
     public static ClothManager getOrCreate(ClothOwner owner, Identifier id, ClothSkinData data) {
         if (Minecraft.getInstance().level instanceof ClothAccess clothAccess) {
             return clothAccess.antique$getManagers().computeIfAbsent(owner, k -> new HashMap<>()).computeIfAbsent(id, k -> {
@@ -418,11 +393,11 @@ public class ClothManager {
         return null;
     }
 
-    public void renderCloth(Holder<ClothSkinData> data, PoseStack matrices, SubmitNodeCollector queue, int light, boolean patternGlow, Color color, Color patternColor, Optional<? extends Holder<ClothPatternData>> pattern) {
-        this.renderCloth(data, matrices, queue, light, patternGlow, color, patternColor, pattern, new Matrix4f());
+    public void renderCloth(Holder<ClothSkinData> data, PoseStack matrices, SubmitNodeCollector queue, int light, boolean patternGlow, Color color, Color patternColor, Optional<? extends Holder<ClothPatternData>> pattern, float tickDelta) {
+        this.renderCloth(data, matrices, queue, light, patternGlow, color, patternColor, pattern, new Matrix4f(), tickDelta);
     }
 
-    public void renderCloth(Holder<ClothSkinData> skin, PoseStack matrices, SubmitNodeCollector queue, int light, boolean patternGlow, Color color, Color patternColor, Optional<? extends Holder<ClothPatternData>> pattern, Matrix4f reprojectionMatrix) {
+    public void renderCloth(Holder<ClothSkinData> skin, PoseStack matrices, SubmitNodeCollector queue, int light, boolean patternGlow, Color color, Color patternColor, Optional<? extends Holder<ClothPatternData>> pattern, Matrix4f reprojectionMatrix, float tickDelta) {
         this.render = true;
         this.particles = true;
         this.data = skin.value();
@@ -444,8 +419,7 @@ public class ClothManager {
 
         Vec3 position = matrixToVec(matrices);
 
-        Vector3d danglePos = new Vector3d(position.x, position.y, position.z);
-        pos = new Vector3d(danglePos);
+        pos.set(position.x, position.y, position.z);
 
         model.worldRenderer().render(
                 this,
@@ -457,7 +431,8 @@ public class ClothManager {
                 color,
                 patternColor,
                 pattern,
-                reprojectionMatrix
+                reprojectionMatrix,
+                tickDelta
         );
     }
 

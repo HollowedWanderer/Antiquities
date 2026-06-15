@@ -71,7 +71,8 @@ public class MyriadShovelEntityRenderer extends EntityRenderer<@NotNull MyriadSh
 							state.patternGlow,
 							new Color(state.color),
 							new Color(state.patternColor.orElse(0xFFFFFFFF)),
-							state.pattern
+							state.pattern,
+							state.tickDelta
 					);
 				}
 			});
@@ -88,8 +89,8 @@ public class MyriadShovelEntityRenderer extends EntityRenderer<@NotNull MyriadSh
 		return new MyriadShovelRenderState();
 	}
 
-	public void extractRenderState(@NonNull MyriadShovelEntity entity, @NonNull MyriadShovelRenderState state, float f) {
-		super.extractRenderState(entity, state, f);
+	public void extractRenderState(@NonNull MyriadShovelEntity entity, @NonNull MyriadShovelRenderState state, float tickDelta) {
+		super.extractRenderState(entity, state, tickDelta);
 		Optional<Holder.Reference<ClothSkinData>> cloth = ClothSkinData.getHolderFromKey(entity.getCloth(), entity.level());
 		state.entity = entity;
 		ItemStack stack = entity.getPickupItemStackOrigin().copy();
@@ -101,5 +102,6 @@ public class MyriadShovelEntityRenderer extends EntityRenderer<@NotNull MyriadSh
 		state.isEnchanted = entity.isEnchanted();
 		state.cloth = cloth;
 		state.pattern = ClothPatternData.getHolderFromKey(entity.getPattern(), entity.level());
+		state.tickDelta = tickDelta;
 	}
 }

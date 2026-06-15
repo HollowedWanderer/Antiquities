@@ -1,7 +1,6 @@
 package net.hollowed.antique.client.renderer.cloth;
 
 import net.hollowed.antique.client.cloth.ClothOwner;
-import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockBox;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.Entity;
@@ -11,6 +10,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.VoxelShape;
+import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3d;
 
 import java.text.NumberFormat;
@@ -22,29 +22,30 @@ import java.util.Objects;
 public class ClothBody {
 
     public Vector3d pos;
-    public Vector3d prevPos;
-    public Vector3d posCache;
-    public Vector3d accel = new Vector3d();
+    public @Nullable Vector3d prevPos;
+    public final Vector3d velocity = new Vector3d();
 
     public ClothBody(Vector3d worldPos) {
-        pos = prevPos = new Vector3d(worldPos);
-        posCache = new Vector3d(worldPos);
+        pos = new Vector3d(worldPos);
     }
 
     public BlockPos blockPos() {
         return BlockPos.containing(pos.x, pos.y, pos.z);
     }
 
-    public void update(double delta) {
-        Vector3d velocity = new Vector3d(pos).sub(posCache).mul(0.96); // Apply drag here
-        posCache.set(pos);
-        Vector3d accelerationTerm = new Vector3d(accel).mul(delta * 0.4);
-        pos.add(velocity).add(accelerationTerm);
-        accel.zero();
+    public void update() {
+        pos.add(new Vector3d(velocity).mul(0.96)); // TODO drag
+        velocity.zero();
     }
 
-    public void containDistance(ClothBody other, double restLength) {
-        Vector3d axis = new Vector3d(pos).sub(other.pos);
+    public void reset(Vector3d pos) {
+        prevPos = null;
+        this.pos = pos;
+        velocity.zero();
+    }
+
+    public void containDistance(Vector3d prev, double restLength) {
+        Vector3d axis = new Vector3d(pos).sub(prev);
         double dist = axis.length();
 
         if (dist == 0.0) return;
@@ -56,11 +57,11 @@ public class ClothBody {
 
         // Apply the correction
 //        if (!isPinned) pos.add(correction);
-        other.pos.sub(correction);
+        pos.add(correction);
     }
 
-    public Vector3d getPos() {
-        return new Vector3d(pos);
+    public Vector3d getPos(float tickDelta) {
+        return prevPos == null ? new Vector3d(pos) : new Vector3d(prevPos).lerp(pos, tickDelta);
     }
 
     public Vector3d entityCollisionPerchance(List<Entity> collisionEntities, Entity except) {
@@ -109,7 +110,7 @@ public class ClothBody {
         if (collisionAccel.length() < 0.15) {
             pos = new Vector3d(x + dx, y + dy, z + dz);
         }
-        return new Vector3d(accel).add(collisionAccel);
+        return new Vector3d(velocity).add(collisionAccel);
     }
 
     public void slideOutOfBlocks(Level level, ClothOwner owner) {

@@ -19,4 +19,5 @@ public class MyriadShovelRenderState extends EntityRenderState {
     public boolean isEnchanted;
     public Optional<? extends Holder<ClothSkinData>> cloth;
     public Optional<? extends Holder<ClothPatternData>> pattern;
+    public float tickDelta;
 }

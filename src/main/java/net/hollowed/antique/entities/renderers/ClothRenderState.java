@@ -7,4 +7,5 @@ import net.minecraft.world.item.ItemStack;
 public class ClothRenderState extends EntityRenderState {
     public ItemStack cloth;
     public ClothEntity entity;
+    public float tickDelta;
 }
