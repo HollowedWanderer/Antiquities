@@ -114,6 +114,7 @@ public class AntiquitiesClient implements ClientModInitializer {
 
         EntityModelLayerRegistry.registerModelLayer(AntiqueEntityLayers.ADVENTURE_ARMOR, AdventureArmor::getTexturedModelData);
 
+        EntityRenderers.register(AntiqueEntities.CLOTH, ClothEntityRenderer::new);
         EntityRenderers.register(AntiqueEntities.MYRIAD_SHOVEL, MyriadShovelEntityRenderer::new);
         EntityRenderers.register(AntiqueEntities.MYRIAD_SHOVEL_PART, MyriadShovelPartRenderer::new);
 

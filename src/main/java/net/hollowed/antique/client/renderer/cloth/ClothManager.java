@@ -1,10 +1,7 @@
 package net.hollowed.antique.client.renderer.cloth;
 
 import java.awt.Color;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 import net.hollowed.antique.Antiquities;
 import net.hollowed.antique.AntiquitiesClient;
@@ -21,7 +18,11 @@ import net.minecraft.core.Holder;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.tags.FluidTags;
+import net.minecraft.world.entity.decoration.BlockAttachedEntity;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.ClipContext;
+import net.minecraft.world.level.CollisionGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.LayeredCauldronBlock;
@@ -31,6 +32,9 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
+import net.minecraft.world.phys.shapes.EntityCollisionContext;
+import net.minecraft.world.phys.shapes.Shapes;
+import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Matrix4f;
 import org.joml.Vector3d;
@@ -49,6 +53,7 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.Vec3;
+import org.jspecify.annotations.NonNull;
 
 public class ClothManager {
 
@@ -254,10 +259,18 @@ public class ClothManager {
                     .add(getViewVector((float) dir + gustX, gustY).mul(gust * gust * (0.25f + level.getThunderLevel(delta) / 2)))
                     .mul(wind)
                     .mul(0.1f)
-                    .mul(Mth.clamp(((float) body.pos.y - Math.min(level.getHeight(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, (int) body.pos.x, (int) body.pos.z), 80) + 10) / 10, 0, 2.5f));
+                    .mul(Mth.clamp(((float) body.pos.y - level.getHeight(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, (int) body.pos.x, (int) body.pos.z) + 10) / 10, 0, 2.5f));
 
             double[] offsets = { 0, Math.toRadians(15), Math.toRadians(-15) };
             float average = 0;
+
+            BlockPos excludePos;
+
+            if (owner.asEntity() instanceof BlockAttachedEntity block) {
+                excludePos = block.getPos();
+            } else {
+                excludePos = null;
+            }
 
             for (double offset : offsets) {
                 BlockHitResult ray = level.clip(new ClipContext(
@@ -266,7 +279,16 @@ public class ClothManager {
                         ClipContext.Block.VISUAL,
                         ClipContext.Fluid.SOURCE_ONLY,
                         CollisionContext.emptyWithFluidCollisions()
-                ));
+                ) {
+                    @Override
+                    public @NonNull VoxelShape getBlockShape(@NonNull BlockState blockState, @NonNull BlockGetter blockGetter, @NonNull BlockPos blockPos) {
+                        if (Objects.equals(blockPos, excludePos)) {
+                            return Shapes.empty();
+                        }
+
+                        return super.getBlockShape(blockState, blockGetter, blockPos);
+                    }
+                });
 
                 if (ray.getType() == HitResult.Type.BLOCK) {
                     float distance = Mth.clamp(1 - (float) ray.getLocation().distanceTo(new Vec3(new Vector3f(body.pos))) / 32, 0, 1);
@@ -300,11 +322,11 @@ public class ClothManager {
         if (level.getGameTime() > (prevTime + 10)) {
             prevTime = level.getGameTime();
             Vec3 pos = new Vec3(new Vector3f(bodies.getFirst().pos));
-            collisionEntities = level.getEntities(owner.asEntity(), new AABB(pos.subtract(5), pos.add(5)), entity -> !(entity instanceof MyriadShovelPart));
+            collisionEntities = level.getEntities(owner.asEntity(), new AABB(pos.subtract(5), pos.add(5)), entity -> !(entity instanceof MyriadShovelPart) && !entity.isSpectator());
         }
 
         for (ClothBody body : bodies) {
-            body.slideOutOfBlocks(level);
+            body.slideOutOfBlocks(level, owner);
             accels.add(body.entityCollisionPerchance(collisionEntities, owner.asEntity()));
             body.pos.x = Mth.lerp(0.125, body.pos.x, body.posCache.x);
             body.pos.y = Mth.lerp(0.125, body.pos.y, body.posCache.y);

@@ -1,9 +1,11 @@
 package net.hollowed.antique.client.renderer.cloth;
 
+import net.hollowed.antique.client.cloth.ClothOwner;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockBox;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.decoration.BlockAttachedEntity;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
@@ -64,7 +66,7 @@ public class ClothBody {
 
         Map<AABB, Entity> collBoxes = new HashMap<>();
         for (Entity entity : collisionEntities) {
-            if (!Objects.equals(Minecraft.getInstance().player, except)) {
+            if (!Objects.equals(entity, except)) {
                 collBoxes.put(entity.getBoundingBox(), entity);
             }
         }
@@ -106,8 +108,14 @@ public class ClothBody {
         return new Vector3d(accel).add(collisionAccel);
     }
 
-    public void slideOutOfBlocks(Level level) {
+    public void slideOutOfBlocks(Level level, ClothOwner owner) {
         double padding = 1.0 / 16;
+
+        BlockPos exceptPos = null;
+
+        if (owner.asEntity() instanceof BlockAttachedEntity block) {
+            exceptPos = block.getPos();
+        }
 
         Vec3 startPos = new Vec3(pos.x, pos.y, pos.z);
 
@@ -120,9 +128,12 @@ public class ClothBody {
         AABB pointBox = new AABB(x - padding, y - padding, z - padding, x + padding, y + padding, z + padding);
 
         for (BlockPos blockPos : BlockBox.of(BlockPos.containing(pointBox.minX, pointBox.minY, pointBox.minZ), BlockPos.containing(pointBox.maxX, pointBox.maxY, pointBox.maxZ))) {
+            if (Objects.equals(blockPos, exceptPos)) {
+                continue;
+            }
+
             BlockState state = level.getBlockState(blockPos);
 
-            // If there's no collision shape, just return the original point
             if (state.isAir()) continue;
             VoxelShape shape = state.getCollisionShape(level, blockPos);
             if (shape.isEmpty()) continue;
