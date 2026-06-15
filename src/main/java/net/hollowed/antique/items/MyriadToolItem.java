@@ -3,7 +3,10 @@ package net.hollowed.antique.items;
 import net.hollowed.antique.Antiquities;
 import net.hollowed.antique.index.AntiqueDataComponentTypes;
 import net.hollowed.antique.items.components.MyriadToolComponent;
+import net.hollowed.antique.util.ClothUtil;
 import net.hollowed.combatamenities.util.items.CAComponents;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.Identifier;
@@ -21,9 +24,15 @@ import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.ItemUseAnimation;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.item.component.DyedItemColor;
 import net.minecraft.world.item.component.ItemAttributeModifiers;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.LayeredCauldronBlock;
+import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Optional;
@@ -121,6 +130,42 @@ public class MyriadToolItem extends Item {
                 }
             }
         } else {
+            if (otherStack.is(Items.INK_SAC) || otherStack.is(Items.GLOW_INK_SAC)) {
+                MyriadToolComponent component = stack.getOrDefault(AntiqueDataComponentTypes.MYRIAD_TOOL, MyriadToolComponent.DEFAULT_NO_CLOTH);
+                Optional<ItemStack> optionalStack = component.cloth();
+                if (optionalStack.isPresent()) {
+                    ItemStack itemStack = optionalStack.get().copy();
+                    if (itemStack.get(AntiqueDataComponentTypes.CLOTH_PATTERN_TYPE) != null) {
+                        addInk(player, itemStack, otherStack);
+                        stack.set(AntiqueDataComponentTypes.MYRIAD_TOOL, component.withCloth(itemStack));
+                    }
+                }
+                return true;
+            }
+            if (otherStack.getItem() instanceof ClothPatternItem) {
+                Optional<ItemStack> optional = stack.getOrDefault(AntiqueDataComponentTypes.MYRIAD_TOOL, MyriadToolComponent.DEFAULT_NO_CLOTH).cloth();
+                optional.ifPresent(
+                        itemStack -> {
+                            if (
+                                    optional.map(key ->
+                                                    ClothUtil.getClothData(key, player.level().registryAccess())
+                                                            .map(skin -> skin.value().patternable())
+                                                            .orElse(false)
+                                            )
+                                            .orElse(false)
+                            ) {
+                                ItemStack newStack = itemStack.copy();
+                                ClothUtil.setClothPattern(newStack, ClothUtil.getClothPattern(otherStack));
+                                ClothUtil.setClothPatternGlowing(newStack, ClothUtil.getClothPatternGlowing(otherStack));
+                                ClothUtil.setClothPatternColor(newStack, ClothUtil.getClothPatternColor(otherStack));
+                                player.playSound(SoundEvents.BOOK_PAGE_TURN, 1.0F, 1.0F); // TODO better sound
+                                stack.set(AntiqueDataComponentTypes.MYRIAD_TOOL, stack.getOrDefault(AntiqueDataComponentTypes.MYRIAD_TOOL, MyriadToolComponent.DEFAULT_NO_CLOTH).withCloth(newStack));
+                            }
+                        }
+                );
+                if (optional.isPresent()) return true;
+            }
+
             if (otherStack.get(AntiqueDataComponentTypes.CLOTH_TYPE) != null) {
                 MyriadToolComponent component = stack.getOrDefault(AntiqueDataComponentTypes.MYRIAD_TOOL, MyriadToolComponent.DEFAULT_NO_CLOTH);
 
@@ -191,6 +236,52 @@ public class MyriadToolItem extends Item {
 
     @Override
     public @NotNull InteractionResult useOn(UseOnContext context) {
+        Player player = context.getPlayer();
+        ItemStack toolStack = context.getItemInHand();
+        Optional<ItemStack> optionalStack = context.getItemInHand().getOrDefault(AntiqueDataComponentTypes.MYRIAD_TOOL, MyriadToolComponent.DEFAULT_NO_CLOTH).cloth();
+        Level level = context.getLevel();
+
+        if (optionalStack.isPresent()) {
+            ItemStack stack = optionalStack.get().copy();
+
+            if (
+                    player != null && !stack.isEmpty()
+                    && (stack.getOrDefault(DataComponents.DYED_COLOR, new DyedItemColor(0xFFFFFF)).rgb() != 0xFFFFFF
+                            || stack.get(AntiqueDataComponentTypes.CLOTH_PATTERN_TYPE) != null
+                            || stack.get(AntiqueDataComponentTypes.CLOTH_PATTERN_COLOR) != null)
+            ) {
+
+                BlockPos pos = context.getClickedPos();
+                Direction dir = context.getClickedFace();
+                BlockPos sidePos = pos.relative(dir);
+
+                if (!level.mayInteract(player, pos) || !player.mayUseItemAt(sidePos, dir, stack)) {
+                    return InteractionResult.FAIL;
+                }
+
+                BlockState state = level.getBlockState(pos);
+
+                if (state.is(Blocks.WATER_CAULDRON)) {
+                    int waterLevel = state.getValue(LayeredCauldronBlock.LEVEL);
+
+                    if (waterLevel > 0) {
+                        if (waterLevel == 1) {
+                            level.setBlock(pos, Blocks.CAULDRON.defaultBlockState(), Block.UPDATE_ALL);
+                        } else {
+                            level.setBlock(pos, state.setValue(LayeredCauldronBlock.LEVEL, waterLevel - 1), Block.UPDATE_ALL);
+                        }
+
+                        stack.set(DataComponents.DYED_COLOR, new DyedItemColor(0xFFFFFF));
+                        stack.remove(AntiqueDataComponentTypes.CLOTH_PATTERN_TYPE);
+                        stack.remove(AntiqueDataComponentTypes.CLOTH_PATTERN_COLOR);
+                        toolStack.set(AntiqueDataComponentTypes.MYRIAD_TOOL, toolStack.getOrDefault(AntiqueDataComponentTypes.MYRIAD_TOOL, MyriadToolComponent.DEFAULT_NO_CLOTH).withCloth(stack));
+
+                        return InteractionResult.SUCCESS;
+                    }
+                }
+            }
+        }
+
         if (context.getItemInHand().getOrDefault(AntiqueDataComponentTypes.MYRIAD_TOOL, MyriadToolComponent.DEFAULT_NO_CLOTH).toolBit().getItem() instanceof MyriadToolBitItem item) {
             return item.toolUseOnBlock(context);
         }
@@ -218,11 +309,20 @@ public class MyriadToolItem extends Item {
         if (user.getItemInHand(hand).getOrDefault(AntiqueDataComponentTypes.MYRIAD_TOOL, MyriadToolComponent.DEFAULT_NO_CLOTH).toolBit().getItem() instanceof MyriadToolBitItem item) {
             return item.toolUse(world, user, hand);
         }
-        return InteractionResult.PASS;
+        return InteractionResult.FAIL;
     }
 
     @Override
     public int getUseDuration(@NotNull ItemStack stack, @NotNull LivingEntity user) {
         return 72000;
+    }
+
+    private void addInk(Player player, ItemStack clothStack, ItemStack inkStack) {
+        boolean glow = inkStack.is(Items.GLOW_INK_SAC);
+        if (glow != ClothUtil.getClothPatternGlowing(clothStack)) {
+            ClothUtil.setClothPatternGlowing(clothStack, glow);
+            player.playSound(inkStack.is(Items.GLOW_INK_SAC) ? SoundEvents.GLOW_INK_SAC_USE : SoundEvents.INK_SAC_USE, 1.0F, 1.0F);
+            inkStack.consume(1, player);
+        }
     }
 }

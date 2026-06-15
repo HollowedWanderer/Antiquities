@@ -68,9 +68,9 @@ public class ClothUtil {
                 );
     }
 
-    public static ItemStack setClothColor(ItemStack stack, Optional<DyedItemColor> color) {
+    public static ItemStack setClothColor(ItemStack stack, Optional<Integer> color) {
         color.ifPresentOrElse(
-                key -> stack.set(DataComponents.DYED_COLOR, key),
+                key -> stack.set(DataComponents.DYED_COLOR, new DyedItemColor(key)),
                 () -> stack.remove(DataComponents.DYED_COLOR)
         );
         return stack;

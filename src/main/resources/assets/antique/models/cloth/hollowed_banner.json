@@ -1,0 +1,12 @@
+{
+  "tied": {
+    "normal": {
+      "inventory": "antique:item/hollowed_banner_item",
+      "hand": "antique:item/hollowed_banner_hand"
+    },
+    "large": {
+      "inventory": "antique:item/hollowed_banner_item_large",
+      "hand": "antique:item/hollowed_banner_hand_large"
+    }
+  }
+}
