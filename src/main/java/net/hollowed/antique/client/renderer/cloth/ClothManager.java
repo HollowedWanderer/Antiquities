@@ -56,7 +56,8 @@ public class ClothManager {
 
     public static final FastNoiseLite GUST_DIR_X_NOISE = new FastNoiseLite();
     public static final FastNoiseLite GUST_DIR_Y_NOISE = new FastNoiseLite();
-    public static final FastNoiseLite GUST_NOISE = new FastNoiseLite();
+    public static final FastNoiseLite GUST_SMALL_NOISE = new FastNoiseLite();
+    public static final FastNoiseLite GUST_LARGE_NOISE = new FastNoiseLite();
 
     static {
         WIND_DIR_NOISE.SetNoiseType(FastNoiseLite.NoiseType.Perlin);
@@ -71,8 +72,11 @@ public class ClothManager {
         GUST_DIR_Y_NOISE.SetNoiseType(FastNoiseLite.NoiseType.Perlin);
         GUST_DIR_Y_NOISE.SetFrequency(5f);
 
-        GUST_NOISE.SetNoiseType(FastNoiseLite.NoiseType.Cellular);
-        GUST_NOISE.SetFrequency(5f);
+        GUST_SMALL_NOISE.SetNoiseType(FastNoiseLite.NoiseType.Cellular);
+        GUST_SMALL_NOISE.SetFrequency(5f);
+
+        GUST_LARGE_NOISE.SetNoiseType(FastNoiseLite.NoiseType.Perlin);
+        GUST_LARGE_NOISE.SetFrequency(0.5f);
     }
 
     public @Nullable AmbientClothSoundInstance ambientSound;
@@ -215,73 +219,67 @@ public class ClothManager {
             }
         }
 
-        if (level != null) {
+        double previousDrag = 0.0;
 
-            double previousDrag = 0.0;
-
-            // Update pass
-            for (ClothBody body : bodies) {
-                boolean isWater = isWater(level, body.pos);
-                Vector3d vel = new Vector3d(body.pos).sub(body.posCache);
-                double maxVel = 0.05;
-                if (vel.length() > maxVel) {
-                    vel.normalize().mul(maxVel);
-                }
-                double velLength = vel.length();
-                double dynamicDrag = Mth.clamp(1.0 - velLength * 0.05, 0.85, 0.98);
-                vel.mul(dynamicDrag);
-                body.posCache.set(new Vector3d(body.pos).sub(vel));
-
-                // Compute new drag value smoothly
-                double newDrag = Math.random() * (isWater ? 0.25 : 1.25);
-                double smoothDrag = Mth.lerp(delta * 0.1, previousDrag, newDrag);
-
-                // Apply gravity
-                double gravity = 0.05 * gravityMultiplier;
-                if (isWater) {
-                    gravity *= waterGravityMultiplier;
-                }
-
-                body.accel.add(0, -gravity, 0);
-
-                double dir = (WIND_DIR_NOISE.GetNoise(currentTime, 0) + 1) * Math.PI;
-
-                float wind = Math.max(0, WIND_NOISE.GetNoise((float) body.pos.x / 100, currentTime, (float) body.pos.z / 100) / 2 + 0.25f) + level.getThunderLevel(delta);
-                float gust = GUST_NOISE.GetNoise((float) body.pos.x, currentTime, (float) body.pos.z);
-                float gustX = GUST_DIR_X_NOISE.GetNoise((float) body.pos.x, currentTime, (float) body.pos.z);
-                float gustY = GUST_DIR_Y_NOISE.GetNoise((float) body.pos.x, currentTime, (float) body.pos.z);
-
-                Vector3f totalWind = getViewVector((float) dir)
-                        .add(getViewVector((float) dir + gustX, gustY).mul(gust * gust * 0.5f))
-                        .mul(wind)
-                        .mul(0.1f)
-                        .mul(Mth.clamp(((float) body.pos.y - Math.min(level.getHeight(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, (int) body.pos.x, (int) body.pos.z), 80) + 10) / 10, 0, 2.5f));
-
-                double[] offsets = { 0, Math.toRadians(15), Math.toRadians(-15) };
-                float average = 0;
-
-                for (double offset : offsets) {
-                    BlockHitResult ray = level.clip(new ClipContext(
-                            new Vec3(new Vector3f(body.pos)),
-                            new Vec3(new Vector3f(body.pos).add(getViewVector((float) (dir + offset)).mul(-32))),
-                            ClipContext.Block.VISUAL,
-                            ClipContext.Fluid.SOURCE_ONLY,
-                            CollisionContext.emptyWithFluidCollisions()
-                    ));
-
-                    if (ray.getType() == HitResult.Type.BLOCK) {
-                        float distance = Mth.clamp(1 - (float) ray.getLocation().distanceTo(new Vec3(new Vector3f(body.pos))) / 32, 0, 1);
-                        average += 1 - distance * distance;
-                    } else {
-                        average += 1;
-                    }
-                }
-
-                body.accel.add(totalWind.mul(average / offsets.length));
-
-                previousDrag = smoothDrag;
-                body.update(delta);
+        // Update pass
+        for (ClothBody body : bodies) {
+            boolean isWater = isWater(level, body.pos);
+            Vector3d vel = new Vector3d(body.pos).sub(body.posCache);
+            double maxVel = 0.05;
+            if (vel.length() > maxVel) {
+                vel.normalize().mul(maxVel);
             }
+            body.posCache.set(new Vector3d(body.pos).sub(vel));
+
+            // Compute new drag value smoothly
+            double newDrag = Math.random() * (isWater ? 0.25 : 1.25);
+            double smoothDrag = Mth.lerp(delta * 0.1, previousDrag, newDrag);
+
+            // Apply gravity
+            double gravity = 0.05 * gravityMultiplier;
+            if (isWater) {
+                gravity *= waterGravityMultiplier;
+            }
+
+            body.accel.add(0, -gravity, 0);
+
+            double dir = (WIND_DIR_NOISE.GetNoise(currentTime, 0) + 1) * Math.PI;
+
+            float wind = Math.max(0, WIND_NOISE.GetNoise((float) body.pos.x / 100, currentTime, (float) body.pos.z / 100) / 2 + 0.25f) + level.getThunderLevel(delta);
+            float gust = GUST_SMALL_NOISE.GetNoise((float) body.pos.x, currentTime, (float) body.pos.z) * (GUST_LARGE_NOISE.GetNoise((float) body.pos.x, currentTime, (float) body.pos.z) / 2 + 0.5f);
+            float gustX = GUST_DIR_X_NOISE.GetNoise((float) body.pos.x, currentTime, (float) body.pos.z);
+            float gustY = GUST_DIR_Y_NOISE.GetNoise((float) body.pos.x, currentTime, (float) body.pos.z);
+
+            Vector3f totalWind = getViewVector((float) dir)
+                    .add(getViewVector((float) dir + gustX, gustY).mul(gust * gust * 0.5f))
+                    .mul(wind)
+                    .mul(0.1f)
+                    .mul(Mth.clamp(((float) body.pos.y - Math.min(level.getHeight(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, (int) body.pos.x, (int) body.pos.z), 80) + 10) / 10, 0, 2.5f));
+
+            double[] offsets = { 0, Math.toRadians(15), Math.toRadians(-15) };
+            float average = 0;
+
+            for (double offset : offsets) {
+                BlockHitResult ray = level.clip(new ClipContext(
+                        new Vec3(new Vector3f(body.pos)),
+                        new Vec3(new Vector3f(body.pos).add(getViewVector((float) (dir + offset)).mul(-32))),
+                        ClipContext.Block.VISUAL,
+                        ClipContext.Fluid.SOURCE_ONLY,
+                        CollisionContext.emptyWithFluidCollisions()
+                ));
+
+                if (ray.getType() == HitResult.Type.BLOCK) {
+                    float distance = Mth.clamp(1 - (float) ray.getLocation().distanceTo(new Vec3(new Vector3f(body.pos))) / 32, 0, 1);
+                    average += 1 - distance * distance;
+                } else {
+                    average += 1;
+                }
+            }
+
+            body.accel.add(totalWind.mul(average / offsets.length));
+
+            previousDrag = smoothDrag;
+            body.update(delta);
         }
 
         for (int k = 0; k < 32; k++) {
@@ -297,32 +295,30 @@ public class ClothManager {
         }
 
         // Collision pass
-        if (level != null) {
-            List<Vector3d> accels = new ArrayList<>();
+        List<Vector3d> accels = new ArrayList<>();
 
-            if (level.getGameTime() > (prevTime + 10)) {
-                prevTime = level.getGameTime();
-                Vec3 pos = new Vec3(new Vector3f(bodies.getFirst().pos));
-                collisionEntities = level.getEntities(entity, new AABB(pos.subtract(5), pos.add(5)), entity -> !(entity instanceof MyriadShovelPart));
-            }
+        if (level.getGameTime() > (prevTime + 10)) {
+            prevTime = level.getGameTime();
+            Vec3 pos = new Vec3(new Vector3f(bodies.getFirst().pos));
+            collisionEntities = level.getEntities(entity, new AABB(pos.subtract(5), pos.add(5)), entity -> !(entity instanceof MyriadShovelPart));
+        }
 
-            for (ClothBody body : bodies) {
-                body.slideOutOfBlocks(level);
-                accels.add(body.entityCollisionPerchance(collisionEntities, entity));
-                body.pos.x = Mth.lerp(0.125, body.pos.x, body.posCache.x);
-                body.pos.y = Mth.lerp(0.125, body.pos.y, body.posCache.y);
-                body.pos.z = Mth.lerp(0.125, body.pos.z, body.posCache.z);
-            }
+        for (ClothBody body : bodies) {
+            body.slideOutOfBlocks(level);
+            accels.add(body.entityCollisionPerchance(collisionEntities, entity));
+            body.pos.x = Mth.lerp(0.125, body.pos.x, body.posCache.x);
+            body.pos.y = Mth.lerp(0.125, body.pos.y, body.posCache.y);
+            body.pos.z = Mth.lerp(0.125, body.pos.z, body.posCache.z);
+        }
 
-            Vector3d average = new Vector3d();
-            for (Vector3d accel : accels) {
-                average.add(accel);
-            }
+        Vector3d average = new Vector3d();
+        for (Vector3d accel : accels) {
+            average.add(accel);
+        }
 
-            average.div(accels.size());
-            for (ClothBody body : bodies) {
-                body.accel.add(average);
-            }
+        average.div(accels.size());
+        for (ClothBody body : bodies) {
+            body.accel.add(average);
         }
 
         double maxDistance = 1.0;
