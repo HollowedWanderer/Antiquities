@@ -1,4 +1,5 @@
 {
+  "fence": "antique:entity/cloth/hollowed_banner_fence",
   "tied": {
     "normal": {
       "inventory": "antique:item/hollowed_banner_item",

@@ -83,7 +83,7 @@ public class ClothManager {
         GUST_SMALL_NOISE.SetFrequency(5f);
 
         GUST_LARGE_NOISE.SetNoiseType(FastNoiseLite.NoiseType.Perlin);
-        GUST_LARGE_NOISE.SetFrequency(0.5f);
+        GUST_LARGE_NOISE.SetFrequency(2f);
     }
 
     public @Nullable AmbientClothSoundInstance ambientSound;

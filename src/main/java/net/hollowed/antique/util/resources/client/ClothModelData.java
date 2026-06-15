@@ -4,6 +4,7 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.hollowed.antique.Antiquities;
 import net.hollowed.antique.client.cloth.ClothRenderer;
 import net.hollowed.antique.client.cloth.ClothRenderers;
 import net.hollowed.antique.util.CodecUtil;
@@ -39,7 +40,7 @@ public record ClothModelData(
         }
 
         if (fenceTiedSprites.isEmpty()) {
-            fenceTiedSprites = List.of(new ClothSprite(id.withPrefix("item/").withSuffix("_fence"), Optional.empty(), false));
+            fenceTiedSprites = List.of(new ClothSprite(Antiquities.id("entity/cloth/cloth_fence"), Optional.empty(), true));
         }
 
         return new ClothModelData(worldRenderer.fillDefaults(id), itemSprites, fenceTiedSprites, tiedSprites);

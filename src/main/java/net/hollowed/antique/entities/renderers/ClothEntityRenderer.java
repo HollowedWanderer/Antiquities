@@ -1,5 +1,6 @@
 package net.hollowed.antique.entities.renderers;
 
+import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -24,6 +25,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jspecify.annotations.NonNull;
 
 import java.awt.*;
+import java.util.Optional;
 
 @Environment(EnvType.CLIENT)
 public class ClothEntityRenderer extends EntityRenderer<@NotNull ClothEntity, @NotNull ClothRenderState> {
@@ -55,6 +57,8 @@ public class ClothEntityRenderer extends EntityRenderer<@NotNull ClothEntity, @N
 							this.model.renderType(sprite.texture().withPrefix("textures/").withSuffix(".png")),
 							sprite.light().map(l -> LightTexture.pack(l, l)).orElse(state.lightCoords),
 							OverlayTexture.NO_OVERLAY,
+							sprite.tint() ? ClothUtil.getDynamicClothColor(state.cloth, state.entity.registryAccess()).orElse(0xFFFFFFFF) : 0xFFFFFFFF,
+							null,
 							state.outlineColor,
 							null
 					);

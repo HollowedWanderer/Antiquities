@@ -1,4 +1,5 @@
 {
+  "fence": "antique:entity/cloth/elegant_cloth_fence",
   "tied": {
     "normal": {
       "inventory": "antique:item/elegant_cloth_item",
