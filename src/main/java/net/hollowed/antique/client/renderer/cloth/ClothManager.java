@@ -8,6 +8,7 @@ import java.util.Optional;
 
 import net.hollowed.antique.Antiquities;
 import net.hollowed.antique.AntiquitiesClient;
+import net.hollowed.antique.client.cloth.ClothOwner;
 import net.hollowed.antique.client.sound.cloth.AmbientClothSoundInstance;
 import net.hollowed.antique.entities.parts.MyriadShovelPart;
 import net.hollowed.antique.index.AntiqueParticles;
@@ -84,11 +85,10 @@ public class ClothManager {
     public Vector3d pos = new Vector3d();
     public List<ClothBody> bodies = new ArrayList<>();
     private int bodyCountCooldown = 0;
-    public Entity entity;
+    public ClothOwner owner;
     public ClothSkinData data;
     public boolean render = false;
     public boolean particles = false;
-    public float lastUpdate = -1;
 
     private List<Entity> collisionEntities = List.of();
     private long prevTime;
@@ -158,16 +158,16 @@ public class ClothManager {
                     if (ambientSound == null) {
                         ambientSound = new AmbientClothSoundInstance(
                                 new SoundEvent(id, Optional.of(8f)),
-                                entity.getSoundSource(),
-                                entity
+                                owner.getSoundSource(),
+                                owner
                         );
                         Minecraft.getInstance().getSoundManager().play(ambientSound);
                     } else if (!ambientSound.getIdentifier().equals(id)) {
                         ambientSound.publicStop();
                         ambientSound = new AmbientClothSoundInstance(
                                 new SoundEvent(id, Optional.of(8f)),
-                                entity.getSoundSource(),
-                                entity
+                                owner.getSoundSource(),
+                                owner
                         );
                         Minecraft.getInstance().getSoundManager().play(ambientSound);
                     }
@@ -199,7 +199,7 @@ public class ClothManager {
 
     public void tick() {
         float delta = Minecraft.getInstance().getDeltaTracker().getGameTimeDeltaTicks();
-        Level level = entity.level();
+        Level level = owner.getLevel();
         float currentTime = level.getGameTime() + delta;
 
         float gravityMultiplier = data.gravity();
@@ -245,13 +245,13 @@ public class ClothManager {
 
             double dir = (WIND_DIR_NOISE.GetNoise(currentTime, 0) + 1) * Math.PI;
 
-            float wind = Math.max(0, WIND_NOISE.GetNoise((float) body.pos.x / 100, currentTime, (float) body.pos.z / 100) / 2 + 0.25f) + level.getThunderLevel(delta);
+            float wind = Math.max(0, WIND_NOISE.GetNoise((float) body.pos.x / 100, currentTime, (float) body.pos.z / 100) / 2 + 0.25f) + level.getThunderLevel(delta) / 2;
             float gust = GUST_SMALL_NOISE.GetNoise((float) body.pos.x, currentTime, (float) body.pos.z) * (GUST_LARGE_NOISE.GetNoise((float) body.pos.x, currentTime, (float) body.pos.z) / 2 + 0.5f);
             float gustX = GUST_DIR_X_NOISE.GetNoise((float) body.pos.x, currentTime, (float) body.pos.z);
             float gustY = GUST_DIR_Y_NOISE.GetNoise((float) body.pos.x, currentTime, (float) body.pos.z);
 
             Vector3f totalWind = getViewVector((float) dir)
-                    .add(getViewVector((float) dir + gustX, gustY).mul(gust * gust * 0.5f))
+                    .add(getViewVector((float) dir + gustX, gustY).mul(gust * gust * (0.25f + level.getThunderLevel(delta) / 2)))
                     .mul(wind)
                     .mul(0.1f)
                     .mul(Mth.clamp(((float) body.pos.y - Math.min(level.getHeight(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, (int) body.pos.x, (int) body.pos.z), 80) + 10) / 10, 0, 2.5f));
@@ -300,12 +300,12 @@ public class ClothManager {
         if (level.getGameTime() > (prevTime + 10)) {
             prevTime = level.getGameTime();
             Vec3 pos = new Vec3(new Vector3f(bodies.getFirst().pos));
-            collisionEntities = level.getEntities(entity, new AABB(pos.subtract(5), pos.add(5)), entity -> !(entity instanceof MyriadShovelPart));
+            collisionEntities = level.getEntities(owner.asEntity(), new AABB(pos.subtract(5), pos.add(5)), entity -> !(entity instanceof MyriadShovelPart));
         }
 
         for (ClothBody body : bodies) {
             body.slideOutOfBlocks(level);
-            accels.add(body.entityCollisionPerchance(collisionEntities, entity));
+            accels.add(body.entityCollisionPerchance(collisionEntities, owner.asEntity()));
             body.pos.x = Mth.lerp(0.125, body.pos.x, body.posCache.x);
             body.pos.y = Mth.lerp(0.125, body.pos.y, body.posCache.y);
             body.pos.z = Mth.lerp(0.125, body.pos.z, body.posCache.z);
@@ -383,11 +383,11 @@ public class ClothManager {
         }
     }
 
-    public static ClothManager getOrCreate(Entity entity, Identifier id, ClothSkinData data) {
+    public static ClothManager getOrCreate(ClothOwner owner, Identifier id, ClothSkinData data) {
         if (Minecraft.getInstance().level instanceof ClothAccess clothAccess) {
-            return clothAccess.antique$getManagers().computeIfAbsent(entity, k -> new HashMap<>()).computeIfAbsent(id, k -> {
-                ClothManager manager = new ClothManager(new Vector3d(entity.getX(), entity.getY(), entity.getZ()), 8, data);
-                manager.entity = entity;
+            return clothAccess.antique$getManagers().computeIfAbsent(owner, k -> new HashMap<>()).computeIfAbsent(id, k -> {
+                ClothManager manager = new ClothManager(new Vector3d(owner.getPosition().toVector3f()), 8, data);
+                manager.owner = owner;
                 return manager;
             });
         }
@@ -449,6 +449,6 @@ public class ClothManager {
 
     @Override
     public String toString() {
-        return "ClothManager{pos=" + pos + ", entity=" + entity + ", model=" + data.model() + "}";
+        return "ClothManager{pos=" + pos + ", owner=" + owner + ", model=" + data.model() + "}";
     }
 }

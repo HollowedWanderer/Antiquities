@@ -1,6 +1,7 @@
 package net.hollowed.antique.mixin.items.renderers;
 
 import net.hollowed.antique.Antiquities;
+import net.hollowed.antique.client.cloth.ClothOwner;
 import net.hollowed.antique.client.renderer.cloth.ClothManager;
 import net.hollowed.antique.index.AntiqueDataComponentTypes;
 import net.hollowed.antique.index.AntiqueItems;
@@ -77,7 +78,7 @@ public abstract class HeldItemRendererMixin<S extends ArmedEntityRenderState, M 
 
                         if (stack.is(AntiqueItems.MYRIAD_TOOL) && !(name.equals(Component.literal("Perfected Staff")) || name.equals(Component.literal("Orb Staff")) || name.equals(Component.literal("Lapis Staff")))) {
                             Identifier clothId = access.antique$getClothId() == null ? (arm == HumanoidArm.RIGHT ? Antiquities.id("right_arm") : Antiquities.id("left_arm")) : access.antique$getClothId();
-                            ClothManager manager = ClothManager.getOrCreate(entity, clothId, data.get().value());
+                            ClothManager manager = ClothManager.getOrCreate(new ClothOwner.OfEntity(entity), clothId, data.get().value());
 
                             if (manager != null) {
                                 manager.renderCloth(
