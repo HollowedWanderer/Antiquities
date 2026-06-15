@@ -16,7 +16,7 @@ import java.util.Optional;
 public record ClothSkinData(
         Optional<Identifier> model,
         Optional<String> shape,
-        ColorProvider color,
+        Optional<ColorProvider> color,
         float length,
         float width,
         Optional<ClothParticleData> particleData,
@@ -28,17 +28,11 @@ public record ClothSkinData(
         boolean patternable,
         boolean dyeable
 ) {
-    public static final String DEFAULT_SHAPE = "default";
-    public static final String TATTERED_SHAPE = "tattered";
-    public static final String LONG_SHAPE = "long";
-    public static final String FORKED_SHAPE = "forked";
-
     public static final ResourceKey<ClothSkinData> DEFAULT_KEY = ResourceKey.create(AntiqueRegistries.CLOTHS, Antiquities.id("cloth"));
-    public static final int DEFAULT_COLOR = 0xFFD13A68;
     public static final ClothSkinData DEFAULT = new ClothSkinData(
             Optional.empty(),
             Optional.empty(),
-            new ColorProvider.Constant(DEFAULT_COLOR),
+            Optional.empty(),
             1.4F,
             0.1F,
             Optional.empty(),
@@ -60,7 +54,7 @@ public record ClothSkinData(
     public static final Codec<ClothSkinData> CODEC = RecordCodecBuilder.create(instance -> instance.group(
             Identifier.CODEC.optionalFieldOf("model").forGetter(ClothSkinData::model),
             Codec.STRING.optionalFieldOf("shape").forGetter(ClothSkinData::shape),
-            ColorProviders.CODEC.optionalFieldOf("color", new ColorProvider.Constant(DEFAULT_COLOR)).forGetter(ClothSkinData::color),
+            ColorProviders.CODEC.optionalFieldOf("color").forGetter(ClothSkinData::color),
             Codec.FLOAT.optionalFieldOf("length", 1.4F).forGetter(ClothSkinData::length),
             Codec.FLOAT.optionalFieldOf("width", 0.1F).forGetter(ClothSkinData::width),
             ClothParticleData.CODEC.optionalFieldOf("particleData").forGetter(ClothSkinData::particleData),

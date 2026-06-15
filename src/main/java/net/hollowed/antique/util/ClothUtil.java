@@ -4,6 +4,7 @@ import net.hollowed.antique.index.AntiqueDataComponentTypes;
 import net.hollowed.antique.items.ClothPatternItem;
 import net.hollowed.antique.util.resources.ClothPatternData;
 import net.hollowed.antique.util.resources.ClothSkinData;
+import net.hollowed.antique.util.resources.ColorProvider;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.component.DataComponents;
@@ -48,7 +49,7 @@ public class ClothUtil {
                                 Optional.ofNullable(registries).flatMap(r ->
                                         ClothSkinData.get(cloth, r)
                                                 .color()
-                                                .getConstantColor()
+                                                .flatMap(ColorProvider::getConstantColor)
                                 )
                         )
                 );
@@ -59,10 +60,10 @@ public class ClothUtil {
                 .map(DyedItemColor::rgb)
                 .or(() ->
                         getCloth(stack).flatMap(cloth ->
-                                Optional.ofNullable(registries).map(r ->
+                                Optional.ofNullable(registries).flatMap(r ->
                                         ClothSkinData.get(cloth, r)
                                                 .color()
-                                                .getColorClient()
+                                                .map(ColorProvider::getColorClient)
                                 )
                         )
                 );

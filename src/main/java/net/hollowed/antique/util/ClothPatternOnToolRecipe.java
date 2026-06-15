@@ -86,7 +86,7 @@ public class ClothPatternOnToolRecipe implements CraftingRecipe {
 		return defaultedList;
 	}
 
-	@SuppressWarnings("all")
+	@SuppressWarnings({"all", "deprecation"})
 	public boolean matches(CraftingInput craftingRecipeInput, @NotNull Level world) {
 		if (craftingRecipeInput.ingredientCount() != this.ingredients.size()) {
 			return false;

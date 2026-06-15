@@ -11,6 +11,7 @@ import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.SlotAccess;
@@ -102,15 +103,19 @@ public class ClothItem extends Item {
                 int waterLevel = state.getValue(LayeredCauldronBlock.LEVEL);
 
                 if (waterLevel > 0) {
-                    if (waterLevel == 1) {
-                        level.setBlock(pos, Blocks.CAULDRON.defaultBlockState(), Block.UPDATE_ALL);
-                    } else {
-                        level.setBlock(pos, state.setValue(LayeredCauldronBlock.LEVEL, waterLevel - 1), Block.UPDATE_ALL);
+                    if (!player.hasInfiniteMaterials()) {
+                        if (waterLevel == 1) {
+                            level.setBlock(pos, Blocks.CAULDRON.defaultBlockState(), Block.UPDATE_ALL);
+                        } else {
+                            level.setBlock(pos, state.setValue(LayeredCauldronBlock.LEVEL, waterLevel - 1), Block.UPDATE_ALL);
+                        }
                     }
 
-                    stack.set(DataComponents.DYED_COLOR, new DyedItemColor(0xFFFFFF));
+                    stack.remove(DataComponents.DYED_COLOR);
                     stack.remove(AntiqueDataComponentTypes.CLOTH_PATTERN_TYPE);
                     stack.remove(AntiqueDataComponentTypes.CLOTH_PATTERN_COLOR);
+
+                    level.playSound(player, pos, SoundEvents.VILLAGER_WORK_LEATHERWORKER, SoundSource.BLOCKS, 1, 1);
 
                     return InteractionResult.SUCCESS;
                 }
