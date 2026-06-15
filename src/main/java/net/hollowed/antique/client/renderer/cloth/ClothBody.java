@@ -1,6 +1,7 @@
 package net.hollowed.antique.client.renderer.cloth;
 
 import net.hollowed.antique.client.cloth.ClothOwner;
+import net.hollowed.antique.util.resources.ClothSkinData;
 import net.minecraft.core.BlockBox;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.Entity;
@@ -64,11 +65,7 @@ public class ClothBody {
         return prevPos == null ? new Vector3d(pos) : new Vector3d(prevPos).lerp(pos, tickDelta);
     }
 
-    public Vector3d entityCollisionPerchance(List<Entity> collisionEntities, Entity except) {
-        double padding = 0.075;
-
-        Vec3 startPos = new Vec3(pos.x, pos.y, pos.z);
-
+    public void slideOutOfEntities(List<Entity> collisionEntities, Entity except, ClothSkinData skin) {
         Map<AABB, Entity> collBoxes = new HashMap<>();
         for (Entity entity : collisionEntities) {
             if (!Objects.equals(entity, except)) {
@@ -76,46 +73,31 @@ public class ClothBody {
             }
         }
 
-        // We'll treat the point as an itty-bitty bounding box
-        double x = startPos.x;
-        double y = startPos.y;
-        double z = startPos.z;
-
         // Build a small bounding box around the point
-        AABB pointBox = new AABB(x - padding, y - padding, z - padding, x + padding, y + padding, z + padding);
+        AABB pointBox = new AABB(pos.x - (double) skin.width(), pos.y - (double) skin.width(), pos.z - (double) skin.width(), pos.x + (double) skin.width(), pos.y + (double) skin.width(), pos.z + (double) skin.width());
 
-        // Try sliding out by checking overlaps
-        double dx = 0, dy = 0, dz = 0;
-        Vector3d collisionAccel = new Vector3d();
         for (AABB box : collBoxes.keySet()) {
             if (box.intersects(pointBox)) {
-                Vec3 vel = collBoxes.get(box).getDeltaMovement();
-                collisionAccel = new Vector3d(vel.x, vel.y, vel.z).mul(1.75);
-
                 double xOverlap = getOverlap(pointBox.minX, pointBox.maxX, box.minX, box.maxX);
                 double yOverlap = getOverlap(pointBox.minY, pointBox.maxY, box.minY, box.maxY);
                 double zOverlap = getOverlap(pointBox.minZ, pointBox.maxZ, box.minZ, box.maxZ);
 
                 // Pick the smallest overlap to push out
                 if (Math.abs(xOverlap) < Math.abs(yOverlap) && Math.abs(xOverlap) < Math.abs(zOverlap)) {
-                    dx += xOverlap;
+                    pos.add(xOverlap, 0, 0);
+                    pointBox = pointBox.move(xOverlap, 0, 0);
                 } else if (Math.abs(yOverlap) < Math.abs(zOverlap)) {
-                    dy += yOverlap;
+                    pos.add(0, yOverlap, 0);
+                    pointBox = pointBox.move(0, yOverlap, 0);
                 } else {
-                    dz += zOverlap;
+                    pos.add(0, 0, zOverlap);
+                    pointBox = pointBox.move(0, 0, zOverlap);
                 }
             }
         }
-
-        if (collisionAccel.length() < 0.15) {
-            pos = new Vector3d(x + dx, y + dy, z + dz);
-        }
-        return new Vector3d(velocity).add(collisionAccel);
     }
 
-    public void slideOutOfBlocks(Level level, ClothOwner owner) {
-        double padding = 1.0 / 16;
-
+    public void slideOutOfBlocks(Level level, ClothOwner owner, ClothSkinData skin) {
         BlockPos exceptPos = null;
 
         if (owner.asEntity() instanceof BlockAttachedEntity block) {
@@ -124,13 +106,8 @@ public class ClothBody {
 
         Vec3 startPos = new Vec3(pos.x, pos.y, pos.z);
 
-        // Itty-bitty bounding box
-        double x = startPos.x;
-        double y = startPos.y;
-        double z = startPos.z;
-
         // Build a small bounding box around the point
-        AABB pointBox = new AABB(x - padding, y - padding, z - padding, x + padding, y + padding, z + padding);
+        AABB pointBox = new AABB(startPos.x - (double) skin.width(), startPos.y - (double) skin.width(), startPos.z - (double) skin.width(), startPos.x + (double) skin.width(), startPos.y + (double) skin.width(), startPos.z + (double) skin.width());
 
         for (BlockPos blockPos : BlockBox.of(BlockPos.containing(pointBox.minX, pointBox.minY, pointBox.minZ), BlockPos.containing(pointBox.maxX, pointBox.maxY, pointBox.maxZ))) {
             if (Objects.equals(blockPos, exceptPos)) {
@@ -154,22 +131,19 @@ public class ClothBody {
                     double yOverlap = getOverlap(pointBox.minY, pointBox.maxY, box.minY, box.maxY);
                     double zOverlap = getOverlap(pointBox.minZ, pointBox.maxZ, box.minZ, box.maxZ);
 
-                    // Pick the smallest overlap to push out
                     if (Math.abs(xOverlap) < Math.abs(yOverlap) && Math.abs(xOverlap) < Math.abs(zOverlap)) {
-                        x += xOverlap;
+                        pos.add(xOverlap, 0, 0);
                         pointBox = pointBox.move(xOverlap, 0, 0);
                     } else if (Math.abs(yOverlap) < Math.abs(zOverlap)) {
-                        y += yOverlap;
+                        pos.add(0, yOverlap, 0);
                         pointBox = pointBox.move(0, yOverlap, 0);
                     } else {
-                        z += zOverlap;
+                        pos.add(0, 0, zOverlap);
                         pointBox = pointBox.move(0, 0, zOverlap);
                     }
                 }
             }
         }
-
-        pos.set(x, y, z);
     }
 
     private double getOverlap(double minA, double maxA, double minB, double maxB) {

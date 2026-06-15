@@ -28,6 +28,7 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.LayeredCauldronBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.Heightmap;
+import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
@@ -50,6 +51,8 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.Vec3;
 import org.jspecify.annotations.NonNull;
+
+import static org.lwjgl.glfw.GLFW.glfwGetTime;
 
 public class ClothManager {
 
@@ -99,9 +102,10 @@ public class ClothManager {
     public static boolean isWater(Level level, Vector3d pos) {
         BlockPos blockPos = BlockPos.containing(pos.x, pos.y, pos.z);
         double fract = pos.y - blockPos.getY();
+        FluidState fluid = level.getFluidState(blockPos);
 
-        if (level.getFluidState(blockPos).is(FluidTags.WATER)) {
-            return true;
+        if (fluid.is(FluidTags.WATER)) {
+            return fract <= fluid.getHeight(level, blockPos);
         }
 
         BlockState block = level.getBlockState(blockPos);
@@ -183,7 +187,6 @@ public class ClothManager {
 
     public void tick() {
         Level level = owner.getLevel();
-        float currentTime = level.getGameTime();
 
         float gravityMultiplier = data.gravity();
         float waterGravityMultiplier = data.waterGravity();
@@ -205,10 +208,10 @@ public class ClothManager {
 
             body.velocity.add(0, -gravity, 0);
 
-            double dir = WIND_DIR_NOISE.GetNoise(currentTime, 0) * 45; // 90 degree slice going negative Z
+            double dir = WIND_DIR_NOISE.GetNoise((float) glfwGetTime() * 20, 0) * 45; // 90 degree slice going negative Z
 
             float thunder = level.getThunderLevel(0);
-            float wind = Math.max(0, WIND_NOISE.GetNoise((float) body.pos.x, (float) body.pos.z - currentTime) / 2 + 0.25f) + thunder * 0.75f;
+            float wind = Math.max(0, WIND_NOISE.GetNoise((float) body.pos.x, (float) body.pos.z - (float) glfwGetTime() * 20) / 2 + 0.25f) + thunder * 0.75f;
 
             int worldHeight = level.getHeight(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, (int) body.pos.x, (int) body.pos.z);
             float mountainScale = Mth.clamp((float) (worldHeight - 80) / 400, 0, 0.1f);
@@ -288,7 +291,6 @@ public class ClothManager {
         }
 
         // Collision pass
-        List<Vector3d> accels = new ArrayList<>();
 
         if (level.getGameTime() > (prevTime + 10)) {
             prevTime = level.getGameTime();
@@ -297,18 +299,8 @@ public class ClothManager {
         }
 
         for (ClothBody body : bodies) {
-            body.slideOutOfBlocks(level, owner);
-            accels.add(body.entityCollisionPerchance(collisionEntities, owner.asEntity()));
-        }
-
-        Vector3d average = new Vector3d();
-        for (Vector3d accel : accels) {
-            average.add(accel);
-        }
-
-        average.div(accels.size());
-        for (ClothBody body : bodies) {
-            body.velocity.add(average);
+            body.slideOutOfBlocks(level, owner, data);
+            body.slideOutOfEntities(collisionEntities, owner.asEntity(), data);
         }
 
         tickSound();
