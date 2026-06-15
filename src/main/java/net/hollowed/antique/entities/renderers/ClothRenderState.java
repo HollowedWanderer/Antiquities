@@ -1,4 +1,4 @@
-package net.hollowed.antique.entities.renderer;
+package net.hollowed.antique.entities.renderers;
 
 import net.hollowed.antique.entities.ClothEntity;
 import net.minecraft.client.renderer.entity.state.EntityRenderState;

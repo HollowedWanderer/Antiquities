@@ -1,4 +1,4 @@
-package net.hollowed.antique.entities.renderer;
+package net.hollowed.antique.entities.renderers;
 
 import net.hollowed.antique.util.resources.ClothPatternData;
 import net.hollowed.antique.util.resources.ClothSkinData;

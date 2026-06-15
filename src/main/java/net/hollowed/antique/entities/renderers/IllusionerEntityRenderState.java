@@ -1,4 +1,4 @@
-package net.hollowed.antique.entities.renderer;
+package net.hollowed.antique.entities.renderers;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;

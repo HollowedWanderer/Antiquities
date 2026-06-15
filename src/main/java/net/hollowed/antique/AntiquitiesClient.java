@@ -8,11 +8,12 @@ import net.fabricmc.fabric.api.client.rendering.v1.ArmorRenderer;
 import net.fabricmc.fabric.api.client.rendering.v1.BlockRenderLayerMap;
 import net.fabricmc.fabric.api.client.rendering.v1.EntityModelLayerRegistry;
 import net.hollowed.antique.client.armor.renderers.AdventureArmorFeatureRenderer;
+import net.hollowed.antique.entities.models.ClothKnotModel;
 import net.hollowed.antique.index.*;
 import net.hollowed.antique.blocks.screens.DyeingScreen;
 import net.hollowed.antique.blocks.entities.renderer.PedestalRenderer;
 import net.hollowed.antique.client.armor.models.AdventureArmor;
-import net.hollowed.antique.entities.renderer.*;
+import net.hollowed.antique.entities.renderers.*;
 import net.hollowed.antique.items.components.MyriadToolComponent;
 import net.hollowed.antique.networking.*;
 import net.hollowed.antique.util.ClothUtil;
@@ -113,6 +114,7 @@ public class AntiquitiesClient implements ClientModInitializer {
          */
 
         EntityModelLayerRegistry.registerModelLayer(AntiqueEntityLayers.ADVENTURE_ARMOR, AdventureArmor::getTexturedModelData);
+        EntityModelLayerRegistry.registerModelLayer(AntiqueEntityLayers.CLOTH_KNOT, ClothKnotModel::createBodyLayer);
 
         EntityRenderers.register(AntiqueEntities.CLOTH, ClothEntityRenderer::new);
         EntityRenderers.register(AntiqueEntities.MYRIAD_SHOVEL, MyriadShovelEntityRenderer::new);

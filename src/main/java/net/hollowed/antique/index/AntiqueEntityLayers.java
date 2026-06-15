@@ -11,6 +11,7 @@ public class AntiqueEntityLayers extends ModelLayers {
     private static final Set<ModelLayerLocation> LAYERS = Sets.newHashSet();
 
     public static final ModelLayerLocation ADVENTURE_ARMOR = register("adventure_armor");
+    public static final ModelLayerLocation CLOTH_KNOT = register("cloth_knot");
 
     @SuppressWarnings("SameParameterValue")
     private static ModelLayerLocation register(String id) {

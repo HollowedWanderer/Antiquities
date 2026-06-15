@@ -1,4 +1,4 @@
-package net.hollowed.antique.entities.renderer;
+package net.hollowed.antique.entities.renderers;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.fabricmc.api.EnvType;
@@ -7,12 +7,12 @@ import net.hollowed.antique.Antiquities;
 import net.hollowed.antique.client.cloth.ClothOwner;
 import net.hollowed.antique.client.renderer.cloth.ClothManager;
 import net.hollowed.antique.entities.ClothEntity;
+import net.hollowed.antique.entities.models.ClothKnotModel;
+import net.hollowed.antique.index.AntiqueEntityLayers;
 import net.hollowed.antique.util.ClothUtil;
 import net.hollowed.antique.util.resources.ClothModelListener;
 import net.hollowed.antique.util.resources.client.ClothModelData;
 import net.hollowed.antique.util.resources.client.ClothSprite;
-import net.minecraft.client.model.geom.ModelLayers;
-import net.minecraft.client.model.object.leash.LeashKnotModel;
 import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.entity.EntityRenderer;
@@ -27,13 +27,14 @@ import java.awt.*;
 
 @Environment(EnvType.CLIENT)
 public class ClothEntityRenderer extends EntityRenderer<@NotNull ClothEntity, @NotNull ClothRenderState> {
-	private final LeashKnotModel model;
+	private final ClothKnotModel model;
 
 	public ClothEntityRenderer(EntityRendererProvider.Context context) {
 		super(context);
-		model = new LeashKnotModel(context.bakeLayer(ModelLayers.LEASH_KNOT));
+		model = new ClothKnotModel(context.bakeLayer(AntiqueEntityLayers.CLOTH_KNOT));
 	}
 
+	@SuppressWarnings("all")
 	@Override
 	public void submit(@NonNull ClothRenderState state, @NonNull PoseStack poseStack, @NotNull SubmitNodeCollector queue, @NotNull CameraRenderState cameraState) {
 		ClothUtil.getClothData(state.cloth, state.entity.registryAccess()).ifPresent(cloth -> {
@@ -51,7 +52,7 @@ public class ClothEntityRenderer extends EntityRenderer<@NotNull ClothEntity, @N
 							this.model,
 							state,
 							poseStack,
-							this.model.renderType(sprite.texture()),
+							this.model.renderType(sprite.texture().withPrefix("textures/").withSuffix(".png")),
 							sprite.light().map(l -> LightTexture.pack(l, l)).orElse(state.lightCoords),
 							OverlayTexture.NO_OVERLAY,
 							state.outlineColor,
@@ -66,7 +67,7 @@ public class ClothEntityRenderer extends EntityRenderer<@NotNull ClothEntity, @N
 
 			if (manager != null) {
 				poseStack.pushPose();
-				poseStack.translate(0, 0.125, 0);
+				poseStack.translate(0, 0.425, 0);
 				manager.renderCloth(
 						cloth,
 						poseStack,
