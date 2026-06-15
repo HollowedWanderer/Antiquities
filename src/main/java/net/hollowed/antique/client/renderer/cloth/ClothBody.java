@@ -31,6 +31,10 @@ public class ClothBody {
         posCache = new Vector3d(worldPos);
     }
 
+    public BlockPos blockPos() {
+        return BlockPos.containing(pos.x, pos.y, pos.z);
+    }
+
     public void update(double delta) {
         Vector3d velocity = new Vector3d(pos).sub(posCache).mul(0.96); // Apply drag here
         posCache.set(pos);

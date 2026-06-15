@@ -152,7 +152,7 @@ public class ClothManager {
             data.ambientSound().ifPresent(soundData -> {
                 Optional<Identifier> sound = soundData.sound();
 
-                if (bodies.stream().anyMatch(body -> isWater(level, body.pos))) {
+                if (bodies.stream().anyMatch(body -> level.isRainingAt(body.blockPos()) || isWater(level, body.pos))) {
                     sound = soundData.waterSound().or(soundData::sound);
                 }
 
@@ -354,7 +354,7 @@ public class ClothManager {
         data.particleData().ifPresent(data -> {
             for (int i = 0; i < bodies.size(); i++) {
                 ClothBody body = bodies.get(i);
-                boolean water = isWater(level, body.pos);
+                boolean water = level.isRainingAt(body.blockPos()) || isWater(level, body.pos);
                 ParticleOptions particle = data.particle();
                 float chance = data.chance();
                 float distance = data.distance();
