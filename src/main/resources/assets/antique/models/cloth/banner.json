@@ -1,0 +1,14 @@
+{
+  "item": [
+    "antique:item/banner",
+    "antique:item/banner_overlay"
+  ],
+  "tied": {
+    "normal": {
+      "inventory": "antique:item/banner_item"
+    },
+    "large": {
+      "inventory": "antique:item/banner_item_large"
+    }
+  }
+}
