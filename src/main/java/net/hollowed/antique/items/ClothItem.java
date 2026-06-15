@@ -9,7 +9,6 @@ import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.sounds.SoundEvents;
-import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.SlotAccess;
 import net.minecraft.world.entity.player.Player;
@@ -17,15 +16,14 @@ import net.minecraft.world.inventory.ClickAction;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.item.component.DyedItemColor;
-import net.minecraft.world.level.ClipContext;
+import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.LayeredCauldronBlock;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.phys.BlockHitResult;
-import net.minecraft.world.phys.HitResult;
 import org.jspecify.annotations.NonNull;
 
 public class ClothItem extends Item {
@@ -35,12 +33,20 @@ public class ClothItem extends Item {
 
     @Override
     public boolean overrideOtherStackedOnMe(@NonNull ItemStack itemStack, @NonNull ItemStack otherStack, @NonNull Slot slot, @NonNull ClickAction clickAction, @NonNull Player player, @NonNull SlotAccess slotAccess) {
-        if (clickAction == ClickAction.SECONDARY) {
+        if (clickAction == ClickAction.PRIMARY) {
             if (otherStack.getItem() instanceof ClothPatternItem) {
-                ClothUtil.setClothPattern(itemStack, ClothUtil.getClothPattern(otherStack));
-                ClothUtil.setClothPatternGlowing(itemStack, ClothUtil.getClothPatternGlowing(otherStack));
-                ClothUtil.setClothPatternColor(itemStack, ClothUtil.getClothPatternColor(otherStack));
-                player.playSound(SoundEvents.BOOK_PAGE_TURN, 1.0F, 1.0F); // TODO better sound
+                if (ClothUtil.getClothData(itemStack, player.level().registryAccess()).map(skin -> skin.value().patternable()).orElse(false)) {
+                    ClothUtil.setClothPattern(itemStack, ClothUtil.getClothPattern(otherStack));
+                    ClothUtil.setClothPatternGlowing(itemStack, ClothUtil.getClothPatternGlowing(otherStack));
+                    ClothUtil.setClothPatternColor(itemStack, ClothUtil.getClothPatternColor(otherStack));
+                    player.playSound(SoundEvents.BOOK_PAGE_TURN, 1.0F, 1.0F); // TODO better sound
+                }
+                return true;
+            }
+            if (otherStack.is(Items.INK_SAC) || otherStack.is(Items.GLOW_INK_SAC)) {
+                if (itemStack.get(AntiqueDataComponentTypes.CLOTH_PATTERN_TYPE) != null) {
+                    addInk(player, itemStack, otherStack);
+                }
                 return true;
             }
         }
@@ -49,44 +55,48 @@ public class ClothItem extends Item {
     }
 
     @Override
-    public @NonNull InteractionResult use(@NonNull Level level, @NonNull Player player, @NonNull InteractionHand hand) {
-        ItemStack stack = player.getItemInHand(hand);
+    public @NonNull InteractionResult useOn(@NonNull UseOnContext context) {
+        Player player = context.getPlayer();
+        ItemStack stack = context.getItemInHand();
+        Level level = context.getLevel();
 
-        if (stack.getOrDefault(DataComponents.DYED_COLOR, new DyedItemColor(0xFFFFFF)).rgb() != 0xFFFFFF || stack.get(AntiqueDataComponentTypes.CLOTH_PATTERN_TYPE) != null || stack.get(AntiqueDataComponentTypes.CLOTH_PATTERN_COLOR) != null) {
-            BlockHitResult hit = getPlayerPOVHitResult(level, player, ClipContext.Fluid.NONE);
+        if (
+                player != null
+                && (stack.getOrDefault(DataComponents.DYED_COLOR, new DyedItemColor(0xFFFFFF)).rgb() != 0xFFFFFF
+                        || stack.get(AntiqueDataComponentTypes.CLOTH_PATTERN_TYPE) != null
+                        || stack.get(AntiqueDataComponentTypes.CLOTH_PATTERN_COLOR) != null)
+        ) {
 
-            if (hit.getType() == HitResult.Type.BLOCK) {
-                BlockPos pos = hit.getBlockPos();
-                Direction dir = hit.getDirection();
-                BlockPos sidePos = pos.relative(dir);
+            BlockPos pos = context.getClickedPos();
+            Direction dir = context.getClickedFace();
+            BlockPos sidePos = pos.relative(dir);
 
-                if (!level.mayInteract(player, pos) || !player.mayUseItemAt(sidePos, dir, stack)) {
-                    return InteractionResult.FAIL;
-                }
+            if (!level.mayInteract(player, pos) || !player.mayUseItemAt(sidePos, dir, stack)) {
+                return InteractionResult.FAIL;
+            }
 
-                BlockState state = level.getBlockState(pos);
+            BlockState state = level.getBlockState(pos);
 
-                if (state.is(Blocks.WATER_CAULDRON)) {
-                    int waterLevel = state.getValue(LayeredCauldronBlock.LEVEL);
+            if (state.is(Blocks.WATER_CAULDRON)) {
+                int waterLevel = state.getValue(LayeredCauldronBlock.LEVEL);
 
-                    if (waterLevel > 0) {
-                        if (waterLevel == 1) {
-                            level.setBlock(pos, Blocks.CAULDRON.defaultBlockState(), Block.UPDATE_ALL);
-                        } else {
-                            level.setBlock(pos, state.setValue(LayeredCauldronBlock.LEVEL, waterLevel - 1), Block.UPDATE_ALL);
-                        }
-
-                        stack.set(DataComponents.DYED_COLOR, new DyedItemColor(0xFFFFFF));
-                        stack.remove(AntiqueDataComponentTypes.CLOTH_PATTERN_TYPE);
-                        stack.remove(AntiqueDataComponentTypes.CLOTH_PATTERN_COLOR);
-
-                        return InteractionResult.SUCCESS;
+                if (waterLevel > 0) {
+                    if (waterLevel == 1) {
+                        level.setBlock(pos, Blocks.CAULDRON.defaultBlockState(), Block.UPDATE_ALL);
+                    } else {
+                        level.setBlock(pos, state.setValue(LayeredCauldronBlock.LEVEL, waterLevel - 1), Block.UPDATE_ALL);
                     }
+
+                    stack.set(DataComponents.DYED_COLOR, new DyedItemColor(0xFFFFFF));
+                    stack.remove(AntiqueDataComponentTypes.CLOTH_PATTERN_TYPE);
+                    stack.remove(AntiqueDataComponentTypes.CLOTH_PATTERN_COLOR);
+
+                    return InteractionResult.SUCCESS;
                 }
             }
         }
 
-        return super.use(level, player, hand);
+        return super.useOn(context);
     }
 
     @Override
@@ -98,5 +108,14 @@ public class ClothItem extends Item {
         }
 
         return Component.translatable(ClothSkinData.getTranslationKey(cloth));
+    }
+
+    private void addInk(Player player, ItemStack clothStack, ItemStack inkStack) {
+        boolean glow = inkStack.is(Items.GLOW_INK_SAC);
+        if (glow != ClothUtil.getClothPatternGlowing(clothStack)) {
+            ClothUtil.setClothPatternGlowing(clothStack, glow);
+            player.playSound(inkStack.is(Items.GLOW_INK_SAC) ? SoundEvents.GLOW_INK_SAC_USE : SoundEvents.INK_SAC_USE, 1.0F, 1.0F);
+            inkStack.consume(1, player);
+        }
     }
 }

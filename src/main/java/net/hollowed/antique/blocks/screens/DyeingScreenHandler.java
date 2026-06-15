@@ -67,7 +67,7 @@ public class DyeingScreenHandler extends AbstractContainerMenu {
 					return stack.getOrDefault(AntiqueDataComponentTypes.MYRIAD_TOOL, MyriadToolComponent.DEFAULT_NO_CLOTH)
 							.cloth()
 							.map(key ->
-									context.evaluate((level, pos) -> ClothUtil.getClothData(stack, level.registryAccess()))
+									context.evaluate((level, pos) -> ClothUtil.getClothData(key, level.registryAccess()))
 											.flatMap(it -> it)
 											.map(skin -> skin.value().dyeable())
 											.orElse(false)
@@ -178,7 +178,8 @@ public class DyeingScreenHandler extends AbstractContainerMenu {
 				MyriadToolComponent component = result.get(AntiqueDataComponentTypes.MYRIAD_TOOL);
 
 				if (component != null) {
-					result.set(AntiqueDataComponentTypes.MYRIAD_TOOL, component.withCloth(cloth -> ClothUtil.setClothPatternColor(cloth, Optional.of(dyeColor.rgb()))));
+					component = component.withCloth(component.cloth().orElse(ItemStack.EMPTY).copy());
+					result.set(AntiqueDataComponentTypes.MYRIAD_TOOL, component.withCloth(cloth -> ClothUtil.setClothColor(cloth, Optional.of(dyeColor.rgb()))));
 				} else {
 					result.set(DataComponents.DYED_COLOR, dyeColor);
 				}
