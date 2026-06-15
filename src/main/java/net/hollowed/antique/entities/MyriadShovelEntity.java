@@ -121,11 +121,6 @@ public class MyriadShovelEntity extends AbstractArrow {
 
 	@Override
 	public void tick() {
-		if (this instanceof ClothAccess clothAccess) {
-			if (this.level().isClientSide()) {
-				clothAccess.antique$tickManagers();
-			}
-		}
 		if (this.inGroundTime > 4) {
 			this.dealtDamage = true;
 		}

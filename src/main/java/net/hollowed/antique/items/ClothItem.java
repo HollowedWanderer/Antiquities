@@ -1,6 +1,8 @@
 package net.hollowed.antique.items;
 
+import net.hollowed.antique.entities.ClothEntity;
 import net.hollowed.antique.index.AntiqueDataComponentTypes;
+import net.hollowed.antique.index.AntiqueEntities;
 import net.hollowed.antique.util.ClothUtil;
 import net.hollowed.antique.util.resources.ClothSkinData;
 import net.minecraft.core.BlockPos;
@@ -9,6 +11,7 @@ import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.sounds.SoundEvents;
+import net.minecraft.tags.BlockTags;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.SlotAccess;
 import net.minecraft.world.entity.player.Player;
@@ -24,6 +27,7 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.LayeredCauldronBlock;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.gameevent.GameEvent;
 import org.jspecify.annotations.NonNull;
 
 public class ClothItem extends Item {
@@ -60,23 +64,40 @@ public class ClothItem extends Item {
         ItemStack stack = context.getItemInHand();
         Level level = context.getLevel();
 
-        if (
-                player != null
-                && (stack.getOrDefault(DataComponents.DYED_COLOR, new DyedItemColor(0xFFFFFF)).rgb() != 0xFFFFFF
-                        || stack.get(AntiqueDataComponentTypes.CLOTH_PATTERN_TYPE) != null
-                        || stack.get(AntiqueDataComponentTypes.CLOTH_PATTERN_COLOR) != null)
-        ) {
+        BlockPos pos = context.getClickedPos();
+        Direction dir = context.getClickedFace();
+        BlockPos sidePos = pos.relative(dir);
 
-            BlockPos pos = context.getClickedPos();
-            Direction dir = context.getClickedFace();
-            BlockPos sidePos = pos.relative(dir);
+        if (player == null) {
+            return InteractionResult.FAIL;
+        }
 
-            if (!level.mayInteract(player, pos) || !player.mayUseItemAt(sidePos, dir, stack)) {
-                return InteractionResult.FAIL;
+        if (!level.mayInteract(player, pos) || !player.mayUseItemAt(sidePos, dir, stack)) {
+            return InteractionResult.FAIL;
+        }
+
+        BlockState state = level.getBlockState(pos);
+
+        if (state.is(BlockTags.FENCES)) {
+            ClothEntity entity = new ClothEntity(AntiqueEntities.CLOTH, level, pos.immutable(), stack.copyWithCount(1));
+            entity.setPos(pos.getX(), pos.getY(), pos.getZ());
+            level.addFreshEntity(entity);
+
+            if (!player.hasInfiniteMaterials()) {
+                stack.shrink(1);
             }
 
-            BlockState state = level.getBlockState(pos);
+            entity.playSound(SoundEvents.LEAD_TIED, 1, 1);
+            level.gameEvent(GameEvent.BLOCK_ATTACH, pos, GameEvent.Context.of(player));
 
+            return InteractionResult.SUCCESS;
+        }
+
+        if (
+                stack.getOrDefault(DataComponents.DYED_COLOR, new DyedItemColor(0xFFFFFF)).rgb() != 0xFFFFFF
+                        || stack.get(AntiqueDataComponentTypes.CLOTH_PATTERN_TYPE) != null
+                        || stack.get(AntiqueDataComponentTypes.CLOTH_PATTERN_COLOR) != null
+        ) {
             if (state.is(Blocks.WATER_CAULDRON)) {
                 int waterLevel = state.getValue(LayeredCauldronBlock.LEVEL);
 

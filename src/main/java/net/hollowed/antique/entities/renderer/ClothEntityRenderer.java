@@ -1,0 +1,101 @@
+package net.hollowed.antique.entities.renderer;
+
+import com.mojang.blaze3d.vertex.PoseStack;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
+import net.hollowed.antique.Antiquities;
+import net.hollowed.antique.client.cloth.ClothOwner;
+import net.hollowed.antique.client.renderer.cloth.ClothManager;
+import net.hollowed.antique.entities.ClothEntity;
+import net.hollowed.antique.util.ClothUtil;
+import net.hollowed.antique.util.resources.ClothModelListener;
+import net.hollowed.antique.util.resources.client.ClothModelData;
+import net.hollowed.antique.util.resources.client.ClothSprite;
+import net.minecraft.client.model.geom.ModelLayers;
+import net.minecraft.client.model.object.leash.LeashKnotModel;
+import net.minecraft.client.renderer.LightTexture;
+import net.minecraft.client.renderer.SubmitNodeCollector;
+import net.minecraft.client.renderer.entity.EntityRenderer;
+import net.minecraft.client.renderer.entity.EntityRendererProvider;
+import net.minecraft.client.renderer.state.CameraRenderState;
+import net.minecraft.client.renderer.texture.OverlayTexture;
+import net.minecraft.resources.Identifier;
+import org.jetbrains.annotations.NotNull;
+import org.jspecify.annotations.NonNull;
+
+import java.awt.*;
+
+@Environment(EnvType.CLIENT)
+public class ClothEntityRenderer extends EntityRenderer<@NotNull ClothEntity, @NotNull ClothRenderState> {
+	private final LeashKnotModel model;
+
+	public ClothEntityRenderer(EntityRendererProvider.Context context) {
+		super(context);
+		model = new LeashKnotModel(context.bakeLayer(ModelLayers.LEASH_KNOT));
+	}
+
+	@Override
+	public void submit(@NonNull ClothRenderState state, @NonNull PoseStack poseStack, @NotNull SubmitNodeCollector queue, @NotNull CameraRenderState cameraState) {
+		ClothUtil.getClothData(state.cloth, state.entity.registryAccess()).ifPresent(cloth -> {
+			poseStack.pushPose();
+
+			Identifier modelId = cloth.value().model().orElseGet(() -> cloth.unwrapKey().orElseThrow().identifier());
+			ClothModelData model = ClothModelListener.MODELS.get(modelId);
+
+			if (model != null) {
+				poseStack.pushPose();
+				poseStack.scale(-1, -1, 1);
+
+				for (ClothSprite sprite : model.fenceTiedSprites()) {
+					queue.submitModel(
+							this.model,
+							state,
+							poseStack,
+							this.model.renderType(sprite.texture()),
+							sprite.light().map(l -> LightTexture.pack(l, l)).orElse(state.lightCoords),
+							OverlayTexture.NO_OVERLAY,
+							state.outlineColor,
+							null
+					);
+				}
+
+				poseStack.popPose();
+			}
+
+			ClothManager manager = ClothManager.getOrCreate(new ClothOwner.OfEntity(state.entity), Antiquities.id("spade"), cloth.value());
+
+			if (manager != null) {
+				poseStack.pushPose();
+				poseStack.translate(0, 0.125, 0);
+				manager.renderCloth(
+						cloth,
+						poseStack,
+						queue,
+						state.lightCoords,
+						ClothUtil.getClothPatternGlowing(state.cloth),
+						new Color(ClothUtil.getDynamicClothColor(state.cloth, state.entity.registryAccess()).orElse(0xFFFFFFFF)),
+						new Color(ClothUtil.getClothPatternColor(state.cloth).orElse(0xFFFFFFFF)),
+						ClothUtil.getClothPatternData(state.cloth, state.entity.registryAccess())
+				);
+				poseStack.popPose();
+			}
+
+			poseStack.popPose();
+		});
+	}
+
+	@Override
+	protected boolean affectedByCulling(@NonNull ClothEntity entity) {
+		return false;
+	}
+
+	public @NonNull ClothRenderState createRenderState() {
+		return new ClothRenderState();
+	}
+
+	public void extractRenderState(@NonNull ClothEntity entity, @NonNull ClothRenderState state, float f) {
+		super.extractRenderState(entity, state, f);
+		state.cloth = entity.getCloth();
+		state.entity = entity;
+	}
+}

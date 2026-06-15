@@ -46,6 +46,16 @@ public interface AntiqueEntities {
                     .clientTrackingRange(8)
     );
 
+    EntityType<@NotNull ClothEntity> CLOTH = register(
+            "cloth",
+            EntityType.Builder.<ClothEntity>of(ClothEntity::new, MobCategory.MISC)
+                    .noLootTable()
+                    .sized(0.375F, 0.5F)
+                    .eyeHeight(0.0625F)
+                    .clientTrackingRange(10)
+                    .updateInterval(Integer.MAX_VALUE)
+    );
+
     EntityType<@NotNull MyriadShovelEntity> MYRIAD_SHOVEL = register(
             "myriad_shovel",
             EntityType.Builder.<MyriadShovelEntity>of(MyriadShovelEntity::new, MobCategory.MISC)
