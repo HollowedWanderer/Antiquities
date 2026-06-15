@@ -57,8 +57,7 @@ public class ClothEntity extends BlockAttachedEntity {
 
 	@Override
 	public boolean survives() {
-		// TODO
-		return !getCloth().isEmpty();// && level().getBlockState(pos).is(BlockTags.FENCES);
+		return !getCloth().isEmpty() && level().getBlockState(pos).is(BlockTags.FENCES);
 	}
 
 	@Override
