@@ -4,6 +4,7 @@ import net.hollowed.antique.Antiquities;
 import net.hollowed.antique.index.AntiqueDataComponentTypes;
 import net.hollowed.antique.items.components.MyriadToolComponent;
 import net.hollowed.antique.util.ClothUtil;
+import net.hollowed.antique.util.resources.SewnClothPattern;
 import net.hollowed.combatamenities.util.items.CAComponents;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -107,19 +108,19 @@ public class MyriadToolItem extends Item {
 
     @Override
     public boolean overrideOtherStackedOnMe(@NotNull ItemStack stack, @NotNull ItemStack otherStack, @NotNull Slot slot, @NotNull ClickAction clickType, @NotNull Player player, @NotNull SlotAccess cursorStackReference) {
-        ItemStack storedStack = getStoredStack(stack);
+        ItemStack toolBit = getStoredStack(stack);
+        MyriadToolComponent component = stack.getOrDefault(AntiqueDataComponentTypes.MYRIAD_TOOL, MyriadToolComponent.DEFAULT_NO_CLOTH);
+
         if (clickType == ClickAction.SECONDARY) {
             if (otherStack.isEmpty()) {
                 // :3
-                if (!storedStack.isEmpty()) {
-                    cursorStackReference.set(storedStack.copy());
-                    storedStack = ItemStack.EMPTY;
+                if (!toolBit.isEmpty()) {
+                    cursorStackReference.set(toolBit.copy());
+                    toolBit = ItemStack.EMPTY;
                     player.playSound(SoundEvents.BUNDLE_REMOVE_ONE, 1.0F, 1.0F);
-                    setToolBit(stack, storedStack);
+                    setToolBit(stack, toolBit);
                     return true;
                 } else {
-                    MyriadToolComponent component = stack.getOrDefault(AntiqueDataComponentTypes.MYRIAD_TOOL, MyriadToolComponent.DEFAULT_NO_CLOTH);
-
                     if (component.cloth().isPresent()) {
                         stack.set(AntiqueDataComponentTypes.MYRIAD_TOOL, component.withCloth(Optional.empty()));
 
@@ -130,45 +131,27 @@ public class MyriadToolItem extends Item {
                 }
             }
         } else {
-            if (otherStack.is(Items.INK_SAC) || otherStack.is(Items.GLOW_INK_SAC)) {
-                MyriadToolComponent component = stack.getOrDefault(AntiqueDataComponentTypes.MYRIAD_TOOL, MyriadToolComponent.DEFAULT_NO_CLOTH);
-                Optional<ItemStack> optionalStack = component.cloth();
-                if (optionalStack.isPresent()) {
-                    ItemStack itemStack = optionalStack.get().copy();
-                    if (itemStack.get(AntiqueDataComponentTypes.CLOTH_PATTERN_TYPE) != null) {
-                        addInk(player, itemStack, otherStack);
-                        stack.set(AntiqueDataComponentTypes.MYRIAD_TOOL, component.withCloth(itemStack));
+            Optional<SewnClothPattern> attachPattern = ClothUtil.extractClothPattern(otherStack);
+
+            if (attachPattern.isPresent()) {
+                SewnClothPattern pattern = attachPattern.get();
+
+                if (component.cloth().isPresent()) {
+                    if (
+                            ClothUtil.getClothData(component.cloth().get(), player.level().registryAccess())
+                                    .map(skin -> skin.value().patternable())
+                                    .orElse(false)
+                    ) {
+                        ItemStack newStack = component.cloth().get().copy();
+                        ClothUtil.addClothPattern(newStack, pattern);
+                        player.playSound(SoundEvents.BOOK_PAGE_TURN, 1.0F, 1.0F); // TODO better sound
+                        stack.set(AntiqueDataComponentTypes.MYRIAD_TOOL, component.withCloth(newStack));
                     }
+                    return true;
                 }
-                return true;
-            }
-            if (otherStack.getItem() instanceof ClothPatternItem) {
-                Optional<ItemStack> optional = stack.getOrDefault(AntiqueDataComponentTypes.MYRIAD_TOOL, MyriadToolComponent.DEFAULT_NO_CLOTH).cloth();
-                optional.ifPresent(
-                        itemStack -> {
-                            if (
-                                    optional.map(key ->
-                                                    ClothUtil.getClothData(key, player.level().registryAccess())
-                                                            .map(skin -> skin.value().patternable())
-                                                            .orElse(false)
-                                            )
-                                            .orElse(false)
-                            ) {
-                                ItemStack newStack = itemStack.copy();
-                                ClothUtil.setClothPatterns(newStack, ClothUtil.getClothPatterns(otherStack));
-                                ClothUtil.setClothPatternGlowing(newStack, ClothUtil.getClothPatternGlowing(otherStack));
-                                ClothUtil.setClothPatternColor(newStack, ClothUtil.getClothPatternColor(otherStack));
-                                player.playSound(SoundEvents.BOOK_PAGE_TURN, 1.0F, 1.0F); // TODO better sound
-                                stack.set(AntiqueDataComponentTypes.MYRIAD_TOOL, stack.getOrDefault(AntiqueDataComponentTypes.MYRIAD_TOOL, MyriadToolComponent.DEFAULT_NO_CLOTH).withCloth(newStack));
-                            }
-                        }
-                );
-                if (optional.isPresent()) return true;
             }
 
             if (otherStack.get(AntiqueDataComponentTypes.CLOTH_TYPE) != null) {
-                MyriadToolComponent component = stack.getOrDefault(AntiqueDataComponentTypes.MYRIAD_TOOL, MyriadToolComponent.DEFAULT_NO_CLOTH);
-
                 Optional<ItemStack> oldCloth = component.cloth();
                 stack.set(AntiqueDataComponentTypes.MYRIAD_TOOL, component.withCloth(otherStack));
 
@@ -186,12 +169,13 @@ public class MyriadToolItem extends Item {
             }
 
             ItemStack temp = getStoredStack(stack);
-            storedStack = otherStack.split(otherStack.getCount());
+            toolBit = otherStack.split(otherStack.getCount());
             player.playSound(SoundEvents.BUNDLE_INSERT, 1.0F, 1.0F);
-            setToolBit(stack, storedStack);
+            setToolBit(stack, toolBit);
             cursorStackReference.set(temp);
             return true;
         }
+
         return super.overrideOtherStackedOnMe(stack, otherStack, slot, clickType, player, cursorStackReference);
     }
 

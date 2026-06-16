@@ -52,12 +52,6 @@ import org.joml.Vector3fc;
 @Environment(EnvType.CLIENT)
 public class TiedClothItemModel implements ItemModel {
 
-	public static final FileToIdConverter ITEM_MODEL_LISTER = FileToIdConverter.json("models/tied_cloth");
-	public static final Codec<Map<String, Identifier>> MODEL_CODEC = Codec.unboundedMap(
-			Codec.STRING,
-			Identifier.CODEC
-	);
-
 	public record ClothKey(
 			Identifier cloth,
 			TiedClothSize size,
