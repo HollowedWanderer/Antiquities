@@ -90,7 +90,7 @@ public record ClothSkinData(
     public static ClothSkinData get(ResourceKey<ClothSkinData> key, @NotNull HolderGetter<ClothSkinData> lookup) {
         return lookup.get(key)
                 .map(Holder.Reference::value)
-                .orElseThrow();
+                .orElseGet(() -> lookup.get(ClothSkinData.DEFAULT_KEY).orElseThrow().value());
     }
 
     public static ClothSkinData get(ResourceKey<ClothSkinData> key, @NotNull HolderGetter.Provider lookup) {
@@ -116,7 +116,7 @@ public record ClothSkinData(
     }
 
     public static Holder.Reference<ClothSkinData> getHolder(ResourceKey<ClothSkinData> key, @NotNull HolderGetter<ClothSkinData> lookup) {
-        return lookup.get(key).orElseThrow();
+        return lookup.get(key).orElseGet(() -> lookup.get(ClothSkinData.DEFAULT_KEY).orElseThrow());
     }
 
     public static Holder.Reference<ClothSkinData> getHolder(ResourceKey<ClothSkinData> key, @NotNull HolderGetter.Provider lookup) {

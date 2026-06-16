@@ -1,6 +1,5 @@
 package net.hollowed.antique.client.renderer.cloth;
 
-import java.awt.Color;
 import java.lang.Math;
 import java.util.*;
 
@@ -75,8 +74,7 @@ public class ClothManager {
     private int bodyCountCooldown = 0;
     public ClothOwner owner;
     public ClothSkinData data;
-    public boolean render = false;
-    public boolean particles = false;
+    public boolean rendered = false;
 
     private List<Entity> collisionEntities = List.of();
     private long prevTime;
@@ -137,10 +135,6 @@ public class ClothManager {
 
                 if (bodies.stream().anyMatch(body -> level.isRainingAt(body.blockPos()) || isWater(level, body.pos))) {
                     sound = soundData.waterSound().or(soundData::sound);
-                }
-
-                if (!render) {
-                    sound = Optional.empty();
                 }
 
                 sound.ifPresentOrElse(id -> {
@@ -304,8 +298,10 @@ public class ClothManager {
             body.slideOutOfEntities(collisionEntities, owner.asEntity(), data);
         }
 
-        tickSound();
-        tickParticles(level);
+        if (rendered) {
+            tickSound();
+            tickParticles(level);
+        }
     }
 
     public void tickParticles(Level level) {
@@ -373,8 +369,7 @@ public class ClothManager {
     }
 
     public void renderCloth(Holder<ClothSkinData> skin, PoseStack matrices, SubmitNodeCollector queue, int light, int color, List<SewnClothPattern> patterns, HolderLookup.Provider registryAccess, Matrix4f reprojectionMatrix, float tickDelta) {
-        this.render = true;
-        this.particles = true;
+        this.rendered = true;
         this.data = skin.value();
         ClothModelData model = ClothModelListener.MODELS.computeIfAbsent(skin.value().model().orElse(skin.unwrapKey().orElseThrow().identifier()), key -> {
             Antiquities.LOGGER.error("Nonexistent cloth model {}", key);

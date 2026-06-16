@@ -103,6 +103,7 @@
     "items.renderers.EntityMixin",
     "items.renderers.FirstPersonHeldItemRendererMixin",
     "items.renderers.FirstPersonItemMixin",
+    "items.renderers.GameRendererMixin",
     "items.renderers.HeldItemRendererMixin",
     "items.renderers.ThirdPersonItemMixin",
     "screens.HandledScreenMixin",

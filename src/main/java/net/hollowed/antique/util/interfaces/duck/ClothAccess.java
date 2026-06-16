@@ -10,4 +10,6 @@ public interface ClothAccess {
     Map<ClothOwner, Map<Identifier, ClothManager>> antique$getManagers();
 
     void antique$tick();
+
+    void antique$startFrames();
 }
