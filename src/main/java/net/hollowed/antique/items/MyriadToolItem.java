@@ -1,6 +1,7 @@
 package net.hollowed.antique.items;
 
 import net.hollowed.antique.Antiquities;
+import net.hollowed.antique.config.AntiquitiesConfig;
 import net.hollowed.antique.index.AntiqueDataComponentTypes;
 import net.hollowed.antique.items.components.MyriadToolComponent;
 import net.hollowed.antique.util.ClothUtil;
@@ -140,14 +141,14 @@ public class MyriadToolItem extends Item {
                     if (
                             ClothUtil.getClothData(component.cloth().get(), player.level().registryAccess())
                                     .map(skin -> skin.value().patternable())
-                                    .orElse(false)
+                                    .orElse(false) && ClothUtil.getClothPatterns(component.cloth().get()).size() < AntiquitiesConfig.MAX_CLOTH_PATTERNS
                     ) {
                         ItemStack newStack = component.cloth().get().copy();
                         ClothUtil.addClothPattern(newStack, pattern);
                         player.playSound(SoundEvents.BOOK_PAGE_TURN, 1.0F, 1.0F); // TODO better sound
                         stack.set(AntiqueDataComponentTypes.MYRIAD_TOOL, component.withCloth(newStack));
+                        return true;
                     }
-                    return true;
                 }
             }
 

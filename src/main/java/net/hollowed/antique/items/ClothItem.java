@@ -1,5 +1,7 @@
 package net.hollowed.antique.items;
 
+import net.hollowed.antique.Antiquities;
+import net.hollowed.antique.config.AntiquitiesConfig;
 import net.hollowed.antique.entities.ClothEntity;
 import net.hollowed.antique.index.AntiqueDataComponentTypes;
 import net.hollowed.antique.index.AntiqueEntities;
@@ -44,7 +46,7 @@ public class ClothItem extends Item {
     @Override
     public boolean overrideOtherStackedOnMe(@NonNull ItemStack itemStack, @NonNull ItemStack otherStack, @NonNull Slot slot, @NonNull ClickAction clickAction, @NonNull Player player, @NonNull SlotAccess slotAccess) {
         if (clickAction == ClickAction.PRIMARY) {
-            if (otherStack.getItem() instanceof ClothPatternItem) {
+            if (otherStack.getItem() instanceof ClothPatternItem && ClothUtil.getClothPatterns(itemStack).size() < AntiquitiesConfig.MAX_CLOTH_PATTERNS) {
                 if (ClothUtil.getClothData(itemStack, player.level().registryAccess()).map(skin -> skin.value().patternable()).orElse(false)) {
                     ClothUtil.addClothPattern(itemStack, new SewnClothPattern(
                             ClothUtil.getClothPattern(otherStack).orElseThrow(),

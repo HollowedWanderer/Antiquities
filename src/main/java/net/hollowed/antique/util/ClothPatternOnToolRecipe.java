@@ -7,6 +7,7 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import java.util.List;
 import java.util.Optional;
 
+import net.hollowed.antique.config.AntiquitiesConfig;
 import net.hollowed.antique.index.AntiqueDataComponentTypes;
 import net.hollowed.antique.index.AntiqueItems;
 import net.hollowed.antique.index.AntiqueRecipeSerializer;
@@ -98,7 +99,7 @@ public class ClothPatternOnToolRecipe implements CraftingRecipe {
 							.cloth()
 							.flatMap(cloth ->
 									ClothUtil.getClothData(stack, world.registryAccess())
-											.map(skin -> skin.value().patternable())
+											.map(skin -> skin.value().patternable() && ClothUtil.getClothPatterns(cloth).size() < AntiquitiesConfig.MAX_CLOTH_PATTERNS)
 							)
 							.orElse(false);
 
