@@ -9,6 +9,7 @@ import net.hollowed.antique.networking.TuneAmethystForkPayload;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.MouseHandler;
 import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import org.spongepowered.asm.mixin.Mixin;
@@ -42,6 +43,7 @@ public class MouseHandlerMixin {
                         component = component.withNote(component.note() == 0 ? 24 : (component.note() - 1));
                     }
 
+                    player.playSound(SoundEvents.UI_BUTTON_CLICK.value(), 0.1F, 2.0F);
                     stack.set(AntiqueDataComponentTypes.AMETHYST_FORK, component);
                     ClientPlayNetworking.send(new TuneAmethystForkPayload(slot.getContainerSlot(), component.note()));
                     ci.cancel();
