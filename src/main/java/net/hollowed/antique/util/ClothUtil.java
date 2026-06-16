@@ -146,4 +146,12 @@ public class ClothUtil {
 
         return stack;
     }
+
+    public static Optional<SewnClothPattern> extractClothPattern(ItemStack patternStack) {
+        return getClothPattern(patternStack).map(pattern -> new SewnClothPattern(
+                pattern,
+                getClothPatternColor(patternStack),
+                getClothPatternGlowing(patternStack)
+        ));
+    }
 }
