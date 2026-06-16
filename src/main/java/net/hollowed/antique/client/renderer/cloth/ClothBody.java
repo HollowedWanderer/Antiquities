@@ -51,14 +51,18 @@ public class ClothBody {
 
         if (dist == 0.0) return;
 
-        double delta = restLength - dist;
+        double delta = dist - restLength;
+
+        if (delta < 0) {
+            return;
+        }
 
         // Normalize the axis and scale by delta for even correction
-        Vector3d correction = axis.normalize().mul(delta);
+        Vector3d correction = axis.normalize(restLength);
 
         // Apply the correction
 //        if (!isPinned) pos.add(correction);
-        pos.add(correction);
+        pos.set(prev).add(correction);
     }
 
     public Vector3d getPos(float tickDelta) {

@@ -17,6 +17,7 @@ import net.hollowed.antique.mixin.accessors.SpriteContentsAnimationStateAccessor
 import net.hollowed.antique.particles.TyphoSparkParticle;
 import net.hollowed.antique.util.resources.client.ClothModelData;
 import net.minecraft.core.Holder;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.tags.FluidTags;
@@ -367,11 +368,11 @@ public class ClothManager {
         return null;
     }
 
-    public void renderCloth(Holder<ClothSkinData> data, PoseStack matrices, SubmitNodeCollector queue, int light, boolean patternGlow, Color color, Color patternColor, Optional<? extends Holder<ClothPatternData>> pattern, float tickDelta) {
-        this.renderCloth(data, matrices, queue, light, patternGlow, color, patternColor, pattern, new Matrix4f(), tickDelta);
+    public void renderCloth(Holder<ClothSkinData> data, PoseStack matrices, SubmitNodeCollector queue, int light, int color, List<SewnClothPattern> patterns, HolderLookup.Provider registryAccess, float tickDelta) {
+        this.renderCloth(data, matrices, queue, light, color, patterns, registryAccess, new Matrix4f(), tickDelta);
     }
 
-    public void renderCloth(Holder<ClothSkinData> skin, PoseStack matrices, SubmitNodeCollector queue, int light, boolean patternGlow, Color color, Color patternColor, Optional<? extends Holder<ClothPatternData>> pattern, Matrix4f reprojectionMatrix, float tickDelta) {
+    public void renderCloth(Holder<ClothSkinData> skin, PoseStack matrices, SubmitNodeCollector queue, int light, int color, List<SewnClothPattern> patterns, HolderLookup.Provider registryAccess, Matrix4f reprojectionMatrix, float tickDelta) {
         this.render = true;
         this.particles = true;
         this.data = skin.value();
@@ -401,10 +402,9 @@ public class ClothManager {
                 matrices,
                 queue,
                 light,
-                patternGlow,
                 color,
-                patternColor,
-                pattern,
+                patterns,
+                registryAccess,
                 reprojectionMatrix,
                 tickDelta
         );

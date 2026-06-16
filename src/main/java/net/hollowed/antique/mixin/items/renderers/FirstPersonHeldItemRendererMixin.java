@@ -93,17 +93,15 @@ public abstract class FirstPersonHeldItemRendererMixin {
                         }
 
                         if (manager != null) {
-                            Matrix4f reprojectMatrix = this.getReprojectMatrix();
                             manager.renderCloth(
                                     data.get(),
                                     matrices,
                                     orderedRenderCommandQueue,
                                     light,
-                                    ClothUtil.getClothPatternGlowing(component.cloth().get()),
-                                    new Color(ClothUtil.getDynamicClothColor(component.cloth().get(), player.registryAccess()).orElse(0xFFFFFFFF)),
-                                    new Color(ClothUtil.getClothPatternColor(component.cloth().get()).orElse(0xFFFFFFFF)),
-                                    ClothUtil.getClothPatternData(component.cloth().get(), player.registryAccess()),
-                                    reproject ? reprojectMatrix : new Matrix4f(),
+                                    ClothUtil.getDynamicClothColor(component.cloth().get(), player.registryAccess()).orElse(0xFFFFFFFF),
+                                    ClothUtil.getClothPatterns(component.cloth().get()),
+                                    player.registryAccess(),
+                                    reproject ? getReprojectMatrix() : new Matrix4f(),
                                     Minecraft.getInstance().getDeltaTracker().getGameTimeDeltaPartialTick(false)
                             );
                         }

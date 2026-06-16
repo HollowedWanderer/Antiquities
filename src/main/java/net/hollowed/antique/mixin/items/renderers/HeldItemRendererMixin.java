@@ -54,25 +54,23 @@ public abstract class HeldItemRendererMixin<S extends ArmedEntityRenderState, M 
             matrices.translate((float)(bl ? -1 : 1) / 16.0F, 0.125F, -0.625F);
             matrices.translate(0, 0.6, 0);
 
-            Entity entity = access.antique$getEntity();
-
-            if (entity instanceof LivingEntity living) {
-                if (living.getUseItem().is(AntiqueItems.MYRIAD_TOOL) && living.getItemHeldByArm(arm).getOrDefault(AntiqueDataComponentTypes.MYRIAD_TOOL, MyriadToolComponent.DEFAULT_NO_CLOTH).toolBit().is(AntiqueItems.MYRIAD_SHOVEL_HEAD)) {
+            if (access.antique$getEntity() instanceof LivingEntity entity) {
+                if (entity.getUseItem().is(AntiqueItems.MYRIAD_TOOL) && entity.getItemHeldByArm(arm).getOrDefault(AntiqueDataComponentTypes.MYRIAD_TOOL, MyriadToolComponent.DEFAULT_NO_CLOTH).toolBit().is(AntiqueItems.MYRIAD_SHOVEL_HEAD)) {
                     matrices.translate(0, -1.2, 0.2);
                 }
 
-                if (living.getItemHeldByArm(arm).is(AntiqueItems.MYRIAD_TOOL) && living.getItemHeldByArm(arm).getOrDefault(AntiqueDataComponentTypes.MYRIAD_TOOL, MyriadToolComponent.DEFAULT_NO_CLOTH).toolBit().is(AntiqueItems.MYRIAD_AXE_HEAD)) {
+                if (entity.getItemHeldByArm(arm).is(AntiqueItems.MYRIAD_TOOL) && entity.getItemHeldByArm(arm).getOrDefault(AntiqueDataComponentTypes.MYRIAD_TOOL, MyriadToolComponent.DEFAULT_NO_CLOTH).toolBit().is(AntiqueItems.MYRIAD_AXE_HEAD)) {
                     matrices.translate(0, -0.3, 0);
-                    if (living.isUsingItem()) {
+                    if (entity.isUsingItem()) {
                         matrices.translate(arm == HumanoidArm.RIGHT ? -0.45 : 0.45, -0.5, 0);
                     }
                 }
 
-                ItemStack stack = living.getItemHeldByArm(arm);
+                ItemStack stack = entity.getItemHeldByArm(arm);
                 MyriadToolComponent component = stack.getOrDefault(AntiqueDataComponentTypes.MYRIAD_TOOL, MyriadToolComponent.DEFAULT_NO_CLOTH);
 
                 component.cloth().ifPresent(cloth -> {
-                    Optional<Holder.Reference<ClothSkinData>> data = ClothUtil.getClothData(component.cloth().get(), living.registryAccess());
+                    Optional<Holder.Reference<ClothSkinData>> data = ClothUtil.getClothData(component.cloth().get(), entity.registryAccess());
 
                     if (data.isPresent()) {
                         Object name = stack.getOrDefault(DataComponents.CUSTOM_NAME, "");
@@ -87,10 +85,9 @@ public abstract class HeldItemRendererMixin<S extends ArmedEntityRenderState, M 
                                         matrices,
                                         submitNodeCollector,
                                         i,
-                                        ClothUtil.getClothPatternGlowing(component.cloth().get()),
-                                        new Color(ClothUtil.getDynamicClothColor(component.cloth().get(), living.registryAccess()).orElse(0xFFFFFFFF)),
-                                        new Color(ClothUtil.getClothPatternColor(component.cloth().get()).orElse(0xFFFFFFFF)),
-                                        ClothUtil.getClothPatternData(component.cloth().get(), living.registryAccess()),
+                                        ClothUtil.getDynamicClothColor(component.cloth().get(), entity.registryAccess()).orElse(0xFFFFFFFF),
+                                        ClothUtil.getClothPatterns(component.cloth().get()),
+                                        entity.registryAccess(),
                                         Minecraft.getInstance().getDeltaTracker().getGameTimeDeltaPartialTick(false)
                                 );
                             }

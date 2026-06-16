@@ -12,6 +12,7 @@ import net.hollowed.antique.index.AntiqueItems;
 import net.hollowed.antique.index.AntiqueRecipeSerializer;
 import net.hollowed.antique.items.components.MyriadToolComponent;
 import net.hollowed.antique.util.resources.ClothPatternData;
+import net.hollowed.antique.util.resources.SewnClothPattern;
 import net.hollowed.combatamenities.util.items.CAComponents;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.NonNullList;
@@ -128,9 +129,13 @@ public class ClothPatternOnToolRecipe implements CraftingRecipe {
 			ItemStack result = myriadTool.copy();
 
 			MyriadToolComponent component = result.getOrDefault(AntiqueDataComponentTypes.MYRIAD_TOOL, MyriadToolComponent.DEFAULT_NO_CLOTH);
-			Optional<ResourceKey<ClothPatternData>> pattern = ClothUtil.getClothPattern(clothPattern);
+			ItemStack finalClothPattern = clothPattern;
 
-			result.set(AntiqueDataComponentTypes.MYRIAD_TOOL, component.withCloth(cloth -> ClothUtil.setClothPattern(cloth.copy(), pattern)));
+			result.set(AntiqueDataComponentTypes.MYRIAD_TOOL, component.withCloth(cloth -> ClothUtil.addClothPattern(cloth.copy(), new SewnClothPattern(
+					ClothUtil.getClothPattern(finalClothPattern).orElseThrow(),
+					ClothUtil.getClothPatternColor(finalClothPattern),
+					ClothUtil.getClothPatternGlowing(finalClothPattern)
+			))));
 			result.set(CAComponents.BOOLEAN_PROPERTY, clothPattern.getOrDefault(CAComponents.BOOLEAN_PROPERTY, false));
 
 			return result;

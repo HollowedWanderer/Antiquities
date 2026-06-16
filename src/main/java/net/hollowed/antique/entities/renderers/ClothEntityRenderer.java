@@ -77,10 +77,9 @@ public class ClothEntityRenderer extends EntityRenderer<@NotNull ClothEntity, @N
 						poseStack,
 						queue,
 						state.lightCoords,
-						ClothUtil.getClothPatternGlowing(state.cloth),
-						new Color(ClothUtil.getDynamicClothColor(state.cloth, state.entity.registryAccess()).orElse(0xFFFFFFFF)),
-						new Color(ClothUtil.getClothPatternColor(state.cloth).orElse(0xFFFFFFFF)),
-						ClothUtil.getClothPatternData(state.cloth, state.entity.registryAccess()),
+						ClothUtil.getDynamicClothColor(state.cloth, state.entity.registryAccess()).orElse(0xFFFFFFFF),
+						ClothUtil.getClothPatterns(state.cloth),
+						state.entity.registryAccess(),
 						state.tickDelta
 				);
 				poseStack.popPose();

@@ -7,6 +7,7 @@ import net.hollowed.antique.items.components.MyriadToolComponent;
 import net.hollowed.antique.items.components.AmethystForkComponent;
 import net.hollowed.antique.util.resources.ClothPatternData;
 import net.hollowed.antique.util.resources.ClothSkinData;
+import net.hollowed.antique.util.resources.SewnClothPattern;
 import net.minecraft.core.Registry;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -55,6 +56,13 @@ public interface AntiqueDataComponentTypes {
             DataComponentType.<ResourceKey<ClothPatternData>>builder()
                     .persistent(ResourceKey.codec(AntiqueRegistries.CLOTH_PATTERNS))
                     .networkSynchronized(ResourceKey.streamCodec(AntiqueRegistries.CLOTH_PATTERNS))
+                    .build()
+    );
+    DataComponentType<List<SewnClothPattern>> SEWN_CLOTHS = Registry.register(
+            BuiltInRegistries.DATA_COMPONENT_TYPE,
+            Antiquities.id("sewn_cloths"),
+            DataComponentType.<List<SewnClothPattern>>builder()
+                    .persistent(SewnClothPattern.CODEC.listOf())
                     .build()
     );
     DataComponentType<DyedItemColor> CLOTH_PATTERN_COLOR = Registry.register(
