@@ -29,8 +29,18 @@ public abstract class ClothAdderMixin implements ClothAccess {
         for (Map<Identifier, ClothManager> managers : antique$cloths.values()) {
             managers.values().removeIf(manager -> {
                 manager.tick();
+
                 return manager.owner.isRemoved();
             });
+        }
+    }
+
+    @Override
+    public void antique$startFrames() {
+        for (Map<Identifier, ClothManager> managers : antique$cloths.values()) {
+            for (ClothManager manager : managers.values()) {
+                manager.rendered = false;
+            }
         }
     }
 }
