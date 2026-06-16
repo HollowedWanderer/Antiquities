@@ -91,8 +91,6 @@ public class BasicClothRenderer implements ClothRenderer {
 
         matrices.pushPose();
 
-        int count = cloth.bodies.size() - 1;
-
         // Get camera position, only once, no more is needed.
         final Vec3 cameraPosVec3d = Minecraft.getInstance().gameRenderer.getMainCamera().position();
         final Vector3f cameraPos = new Vector3f(new Vector3d(cameraPosVec3d.x, cameraPosVec3d.y, cameraPosVec3d.z));
@@ -100,21 +98,19 @@ public class BasicClothRenderer implements ClothRenderer {
         Vector3f toCam = new Vector3f();
         Vector3f thicknessVec = new Vector3f();
 
-        for (int i = 0; i < count; i++) {
+        for (int i = 0; i < cloth.bodies.size() - 1; i++) {
             float worldPositionWeight = 1f - ((float)Math.exp(-i * CAMERA_FOV_DECAY));
             ClothBody body = cloth.bodies.get(i);
             ClothBody nextBody = cloth.bodies.get(i + 1);
 
-            Vector3f pos = new Vector3f(body.getPos(tickDelta)).sub(cameraPos);
-            Vector3f nextPos = new Vector3f(nextBody.getPos(tickDelta)).sub(cameraPos);
-
-            if (i == 0) pos = new Vector3f(cloth.pos).sub(cameraPos);
+            Vector3f pos = new Vector3f(body.renderPos).sub(cameraPos);
+            Vector3f nextPos = new Vector3f(nextBody.renderPos).sub(cameraPos);
 
             applyReprojection(reprojectionMatrix, pos, worldPositionWeight);
             applyReprojection(reprojectionMatrix, nextPos, worldPositionWeight);
 
-            float uvTop = (1f / count) * i;
-            float uvBot = uvTop + (1f / count);
+            float uvTop = (1f / (cloth.bodies.size() - 1)) * i;
+            float uvBot = uvTop + (1f / (cloth.bodies.size() - 1));
 
             // Compute thickness vector from segment midpoint
             pos.add(nextPos, toCam).normalize();

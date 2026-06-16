@@ -12,7 +12,7 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.Nullable;
-import org.joml.Vector3d;
+import org.joml.Vector3f;
 
 import java.text.NumberFormat;
 import java.util.HashMap;
@@ -22,12 +22,14 @@ import java.util.Objects;
 
 public class ClothBody {
 
-    public Vector3d pos;
-    public @Nullable Vector3d prevPos;
-    public final Vector3d velocity = new Vector3d();
+    public Vector3f pos;
+    public @Nullable Vector3f prevPos;
+    public Vector3f renderPos;
+    public final Vector3f velocity = new Vector3f();
 
-    public ClothBody(Vector3d worldPos) {
-        pos = new Vector3d(worldPos);
+    public ClothBody(Vector3f worldPos) {
+        pos = new Vector3f(worldPos);
+        renderPos = new Vector3f(worldPos);
     }
 
     public BlockPos blockPos() {
@@ -35,38 +37,38 @@ public class ClothBody {
     }
 
     public void update() {
-        pos.add(new Vector3d(velocity).mul(0.96)); // TODO drag
+        pos.add(new Vector3f(velocity).mul(0.96f)); // TODO drag
         velocity.zero();
     }
 
-    public void reset(Vector3d pos) {
+    public void reset(Vector3f pos) {
         prevPos = null;
         this.pos = pos;
         velocity.zero();
     }
 
-    public void containDistance(Vector3d prev, double restLength) {
-        Vector3d axis = new Vector3d(pos).sub(prev);
-        double dist = axis.length();
+    public void containDistance(Vector3f prev, float tickDelta, float restLength) {
+        Vector3f dir = new Vector3f(getPos(tickDelta)).sub(prev);
 
-        if (dist == 0.0) return;
-
-        double delta = dist - restLength;
-
-        if (delta < 0) {
+        if (dir.equals(0, 0, 0)) {
             return;
         }
 
-        // Normalize the axis and scale by delta for even correction
-        Vector3d correction = axis.normalize(restLength);
-
-        // Apply the correction
-//        if (!isPinned) pos.add(correction);
-        pos.set(prev).add(correction);
+        renderPos = new Vector3f(prev).add(dir.normalize(restLength));
     }
 
-    public Vector3d getPos(float tickDelta) {
-        return prevPos == null ? new Vector3d(pos) : new Vector3d(prevPos).lerp(pos, tickDelta);
+    public void containDistance(Vector3f prev, float restLength) {
+        Vector3f dir = new Vector3f(pos).sub(prev);
+
+        if (dir.equals(0, 0, 0)) {
+            return;
+        }
+
+        pos.set(prev).add(dir.normalize(restLength));
+    }
+
+    public Vector3f getPos(float tickDelta) {
+        return prevPos == null ? new Vector3f(pos) : new Vector3f(prevPos).lerp(pos, tickDelta);
     }
 
     public void slideOutOfEntities(List<Entity> collisionEntities, Entity except, ClothSkinData skin) {
@@ -78,13 +80,13 @@ public class ClothBody {
         }
 
         // Build a small bounding box around the point
-        AABB pointBox = new AABB(pos.x - (double) skin.width(), pos.y - (double) skin.width(), pos.z - (double) skin.width(), pos.x + (double) skin.width(), pos.y + (double) skin.width(), pos.z + (double) skin.width());
+        AABB pointBox = new AABB(pos.x - skin.width(), pos.y - skin.width(), pos.z - skin.width(), pos.x + skin.width(), pos.y + skin.width(), pos.z + skin.width());
 
         for (AABB box : collBoxes.keySet()) {
             if (box.intersects(pointBox)) {
-                double xOverlap = getOverlap(pointBox.minX, pointBox.maxX, box.minX, box.maxX);
-                double yOverlap = getOverlap(pointBox.minY, pointBox.maxY, box.minY, box.maxY);
-                double zOverlap = getOverlap(pointBox.minZ, pointBox.maxZ, box.minZ, box.maxZ);
+                float xOverlap = getOverlap(pointBox.minX, pointBox.maxX, box.minX, box.maxX);
+                float yOverlap = getOverlap(pointBox.minY, pointBox.maxY, box.minY, box.maxY);
+                float zOverlap = getOverlap(pointBox.minZ, pointBox.maxZ, box.minZ, box.maxZ);
 
                 // Pick the smallest overlap to push out
                 if (Math.abs(xOverlap) < Math.abs(yOverlap) && Math.abs(xOverlap) < Math.abs(zOverlap)) {
@@ -111,7 +113,7 @@ public class ClothBody {
         Vec3 startPos = new Vec3(pos.x, pos.y, pos.z);
 
         // Build a small bounding box around the point
-        AABB pointBox = new AABB(startPos.x - (double) skin.width(), startPos.y - (double) skin.width(), startPos.z - (double) skin.width(), startPos.x + (double) skin.width(), startPos.y + (double) skin.width(), startPos.z + (double) skin.width());
+        AABB pointBox = new AABB(startPos.x - skin.width(), startPos.y - skin.width(), startPos.z - skin.width(), startPos.x + skin.width(), startPos.y + skin.width(), startPos.z + skin.width());
 
         for (BlockPos blockPos : BlockBox.of(BlockPos.containing(pointBox.minX, pointBox.minY, pointBox.minZ), BlockPos.containing(pointBox.maxX, pointBox.maxY, pointBox.maxZ))) {
             if (Objects.equals(blockPos, exceptPos)) {
@@ -131,9 +133,9 @@ public class ClothBody {
             // Try sliding out by checking overlaps
             for (AABB box : collBoxes) {
                 if (box.intersects(pointBox)) {
-                    double xOverlap = getOverlap(pointBox.minX, pointBox.maxX, box.minX, box.maxX);
-                    double yOverlap = getOverlap(pointBox.minY, pointBox.maxY, box.minY, box.maxY);
-                    double zOverlap = getOverlap(pointBox.minZ, pointBox.maxZ, box.minZ, box.maxZ);
+                    float xOverlap = getOverlap(pointBox.minX, pointBox.maxX, box.minX, box.maxX);
+                    float yOverlap = getOverlap(pointBox.minY, pointBox.maxY, box.minY, box.maxY);
+                    float zOverlap = getOverlap(pointBox.minZ, pointBox.maxZ, box.minZ, box.maxZ);
 
                     if (Math.abs(xOverlap) < Math.abs(yOverlap) && Math.abs(xOverlap) < Math.abs(zOverlap)) {
                         pos.add(xOverlap, 0, 0);
@@ -150,11 +152,11 @@ public class ClothBody {
         }
     }
 
-    private double getOverlap(double minA, double maxA, double minB, double maxB) {
-        if (maxA <= minB || minA >= maxB) return 0.0;
+    private float getOverlap(double minA, double maxA, double minB, double maxB) {
+        if (maxA <= minB || minA >= maxB) return 0f;
         double push1 = maxB - minA;
         double push2 = minB - maxA;
-        return Math.abs(push1) < Math.abs(push2) ? push1 : push2;
+        return (float) (Math.abs(push1) < Math.abs(push2) ? push1 : push2);
     }
 
     @Override

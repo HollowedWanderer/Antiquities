@@ -69,7 +69,7 @@ public class ClothManager {
 
     public @Nullable AmbientClothSoundInstance ambientSound;
 
-    public final Vector3d pos = new Vector3d();
+    public final Vector3f pos = new Vector3f();
     public List<ClothBody> bodies = new ArrayList<>();
     private int bodyCountCooldown = 0;
     public ClothOwner owner;
@@ -79,7 +79,7 @@ public class ClothManager {
     private List<Entity> collisionEntities = List.of();
     private long prevTime;
 
-    public ClothManager(Vector3d pos, int bodyCount, ClothSkinData data) {
+    public ClothManager(Vector3f pos, int bodyCount, ClothSkinData data) {
         this.pos.set(pos);
         reset(bodyCount, data);
     }
@@ -87,20 +87,20 @@ public class ClothManager {
     public void reset(int bodyCount, ClothSkinData data) {
         bodies.clear();
         this.data = data;
-        for (int i = 0; i < Math.abs(bodyCount + 1); i++) {
+        for (int i = 0; i < bodyCount + 1; i++) {
             bodies.add(new ClothBody(pos));
         }
     }
 
     public void setBodyCount(int count) {
-        if (count != bodies.size()) {
+        if (count != bodies.size() + 1) {
             reset(count, this.data);
         }
     }
 
-    public static boolean isWater(Level level, Vector3d pos) {
+    public static boolean isWater(Level level, Vector3f pos) {
         BlockPos blockPos = BlockPos.containing(pos.x, pos.y, pos.z);
-        double fract = pos.y - blockPos.getY();
+        float fract = pos.y - blockPos.getY();
         FluidState fluid = level.getFluidState(blockPos);
 
         if (fluid.is(FluidTags.WATER)) {
@@ -183,37 +183,35 @@ public class ClothManager {
     public void tick() {
         Level level = owner.getLevel();
 
-        float gravityMultiplier = data.gravity();
-        float waterGravityMultiplier = data.waterGravity();
-        double length = data.length();
-
         for (ClothBody body : bodies) {
-            body.prevPos = new Vector3d(body.pos);
+            body.prevPos = new Vector3f(body.pos);
         }
+
+        bodies.getFirst().pos.set(pos);
 
         // Update pass
         for (ClothBody body : bodies) {
             boolean isWater = isWater(level, body.pos);
 
             // Apply gravity
-            double gravity = 0.1 * gravityMultiplier;
+            float gravity = 0.1f * data.gravity();
             if (isWater) {
-                gravity *= waterGravityMultiplier;
+                gravity *= data.waterGravity();
             }
 
             body.velocity.add(0, -gravity, 0);
 
-            double dir = WIND_DIR_NOISE.GetNoise((float) glfwGetTime() * 20, 0) * 45; // 90 degree slice going negative Z
+            float dir = WIND_DIR_NOISE.GetNoise((float) glfwGetTime() * 20, 0) * 45; // 90 degree slice going negative Z
 
             float thunder = level.getThunderLevel(0);
-            float wind = Math.max(0, WIND_NOISE.GetNoise((float) body.pos.x, (float) body.pos.z - (float) glfwGetTime() * 20) / 2 + 0.25f) + thunder * 0.75f;
+            float wind = Math.max(0, WIND_NOISE.GetNoise(body.pos.x, body.pos.z - (float) glfwGetTime() * 20) / 2 + 0.25f) + thunder * 0.75f;
 
             int worldHeight = level.getHeight(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, (int) body.pos.x, (int) body.pos.z);
             float mountainScale = Mth.clamp((float) (worldHeight - 80) / 400, 0, 0.1f);
 
-            Vector3f totalWind = getViewVector((float) dir)
+            Vector3f totalWind = getViewVector(dir)
                     .mul(wind * 0.2f + mountainScale)
-                    .mul(Mth.clamp(((float) body.pos.y - (worldHeight - 10)) / 10, 0, 2.5f));
+                    .mul(Mth.clamp((body.pos.y - (worldHeight - 10)) / 10, 0, 2.5f));
 
             Vector2d[] offsets = {
                     new Vector2d(),
@@ -273,18 +271,6 @@ public class ClothManager {
             body.update();
         }
 
-        for (int k = 0; k < 32; k++) {
-            if (k % 2 == 0) {
-                for (int i = 0; i < bodies.size(); i++) {
-                    bodies.get(i).containDistance(i == 0 ? pos : bodies.get(i - 1).pos, length / bodies.size());
-                }
-            } else {
-                for (int i = bodies.size() - 1; i >= 0; i--) {
-                    bodies.get(i).containDistance(i == 0 ? pos : bodies.get(i - 1).pos, length / bodies.size());
-                }
-            }
-        }
-
         // Collision pass
 
         if (level.getGameTime() > (prevTime + 10)) {
@@ -296,6 +282,10 @@ public class ClothManager {
         for (ClothBody body : bodies) {
             body.slideOutOfBlocks(level, owner, data);
             body.slideOutOfEntities(collisionEntities, owner.asEntity(), data);
+        }
+
+        for (int i = 1; i < bodies.size(); i++) {
+            bodies.get(i).containDistance(bodies.get(i - 1).pos, data.length() / (bodies.size() - 1));
         }
 
         if (rendered) {
@@ -355,7 +345,7 @@ public class ClothManager {
     public static ClothManager getOrCreate(ClothOwner owner, Identifier id, ClothSkinData data) {
         if (Minecraft.getInstance().level instanceof ClothAccess clothAccess) {
             return clothAccess.antique$getManagers().computeIfAbsent(owner, k -> new HashMap<>()).computeIfAbsent(id, k -> {
-                ClothManager manager = new ClothManager(new Vector3d(owner.getPosition().toVector3f()), 8, data);
+                ClothManager manager = new ClothManager(new Vector3f(owner.getPosition().toVector3f()), 8, data);
                 manager.owner = owner;
                 return manager;
             });
@@ -390,6 +380,11 @@ public class ClothManager {
         Vec3 position = matrixToVec(matrices);
 
         pos.set(position.x, position.y, position.z);
+        bodies.getFirst().renderPos = pos;
+
+        for (int i = 1; i < bodies.size(); i++) {
+            bodies.get(i).containDistance(bodies.get(i - 1).renderPos, tickDelta, data.length() / (bodies.size() - 1));
+        }
 
         model.worldRenderer().render(
                 this,
