@@ -4,7 +4,9 @@ import net.hollowed.antique.entities.ClothEntity;
 import net.hollowed.antique.index.AntiqueDataComponentTypes;
 import net.hollowed.antique.index.AntiqueEntities;
 import net.hollowed.antique.util.ClothUtil;
+import net.hollowed.antique.util.resources.ClothPatternData;
 import net.hollowed.antique.util.resources.ClothSkinData;
+import net.hollowed.antique.util.resources.SewnClothPattern;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.component.DataComponents;
@@ -31,6 +33,9 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.gameevent.GameEvent;
 import org.jspecify.annotations.NonNull;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class ClothItem extends Item {
     public ClothItem(Properties properties) {
         super(properties);
@@ -41,9 +46,11 @@ public class ClothItem extends Item {
         if (clickAction == ClickAction.PRIMARY) {
             if (otherStack.getItem() instanceof ClothPatternItem) {
                 if (ClothUtil.getClothData(itemStack, player.level().registryAccess()).map(skin -> skin.value().patternable()).orElse(false)) {
-                    ClothUtil.setClothPattern(itemStack, ClothUtil.getClothPattern(otherStack));
-                    ClothUtil.setClothPatternGlowing(itemStack, ClothUtil.getClothPatternGlowing(otherStack));
-                    ClothUtil.setClothPatternColor(itemStack, ClothUtil.getClothPatternColor(otherStack));
+                    ClothUtil.addClothPattern(itemStack, new SewnClothPattern(
+                            ClothUtil.getClothPattern(otherStack).orElseThrow(),
+                            ClothUtil.getClothPatternColor(otherStack),
+                            ClothUtil.getClothPatternGlowing(otherStack)
+                    ));
                     player.playSound(SoundEvents.BOOK_PAGE_TURN, 1.0F, 1.0F); // TODO better sound
                 }
                 return true;
@@ -96,7 +103,7 @@ public class ClothItem extends Item {
 
         if (
                 stack.getOrDefault(DataComponents.DYED_COLOR, new DyedItemColor(0xFFFFFF)).rgb() != 0xFFFFFF
-                        || stack.get(AntiqueDataComponentTypes.CLOTH_PATTERN_TYPE) != null
+                        || stack.get(AntiqueDataComponentTypes.SEWN_CLOTHS) != null
                         || stack.get(AntiqueDataComponentTypes.CLOTH_PATTERN_COLOR) != null
         ) {
             if (state.is(Blocks.WATER_CAULDRON)) {
@@ -112,7 +119,7 @@ public class ClothItem extends Item {
                     }
 
                     stack.remove(DataComponents.DYED_COLOR);
-                    stack.remove(AntiqueDataComponentTypes.CLOTH_PATTERN_TYPE);
+                    stack.remove(AntiqueDataComponentTypes.SEWN_CLOTHS);
                     stack.remove(AntiqueDataComponentTypes.CLOTH_PATTERN_COLOR);
 
                     level.playSound(player, pos, SoundEvents.VILLAGER_WORK_LEATHERWORKER, SoundSource.BLOCKS, 1, 1);

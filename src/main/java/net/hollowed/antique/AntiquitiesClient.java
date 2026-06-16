@@ -21,6 +21,7 @@ import net.hollowed.antique.util.interfaces.duck.ClothAccess;
 import net.hollowed.antique.util.models.*;
 import net.hollowed.antique.util.properties.*;
 import net.hollowed.antique.util.resources.ClothPatternData;
+import net.hollowed.antique.util.resources.SewnClothPattern;
 import net.minecraft.client.color.item.ItemTintSources;
 import net.minecraft.client.gui.screens.MenuScreens;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderers;
@@ -35,6 +36,7 @@ import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.contents.TranslatableContents;
 import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.entity.projectile.throwableitemprojectile.Snowball;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -198,31 +200,37 @@ public class AntiquitiesClient implements ClientModInitializer {
                 list.add(1, line);
 
                 component.cloth().ifPresent(cloth -> ClothUtil.getCloth(cloth).ifPresent(clothKey -> {
+                    int index = 2;
+
                     String clothName = clothKey.identifier().toLanguageKey();
-                    list.add(2, Component.literal(" - ").append(Component.translatable("item." + clothName)).withColor(new Color(ClothUtil.getDynamicClothColor(cloth, context.registries()).orElse(0xFFFFFFFF)).brighter().getRGB()));
+                    list.add(index++, Component.literal(" - ").append(Component.translatable("item." + clothName)).withColor(new Color(ClothUtil.getDynamicClothColor(cloth, context.registries()).orElse(0xFFFFFFFF)).brighter().getRGB()));
 
-                    Optional.ofNullable(cloth.get(AntiqueDataComponentTypes.CLOTH_PATTERN_TYPE)).ifPresent(pattern -> {
-                        String patternName = pattern.identifier().toLanguageKey();
-                        Component text = Component.literal(" - ").append(Component.translatable("item." + patternName)).withColor(new Color(ClothUtil.getClothPatternColor(cloth).orElse(0xFFFFFFFF)).brighter().getRGB());
+                    for (SewnClothPattern pattern : ClothUtil.getClothPatterns(itemStack)) {
+                        String patternName = pattern.key().identifier().toLanguageKey();
+                        Component text = Component.literal(" - ").append(Component.translatable("item." + patternName)).withColor(new Color(pattern.color().orElse(0xFFFFFFFF)).brighter().getRGB());
 
-                        if (cloth.getOrDefault(AntiqueDataComponentTypes.CLOTH_PATTERN_GLOWING, false)) {
-                            text = text.copy().append(Component.literal(" - ").withColor(0xff4adbb8)).append(Component.translatable("item.antique.glowing").withColor(0xFF4ADBB8));
+                        if (pattern.glowing()) {
+                            text = text.copy().append(Component.literal(" - ").withColor(0xFF4ADBB8)).append(Component.translatable("item.antique.glowing").withColor(0xFF4ADBB8));
                         }
 
-                        list.add(3, text);
-                    });
+                        list.add(index++, text);
+                    }
                 }));
             }
 
             if (itemStack.is(AntiqueItems.CLOTH)) {
-                ClothUtil.getClothPattern(itemStack).ifPresent(pattern -> {
-                    Component text = Component.literal(" - ").append(Component.translatable(ClothPatternData.getTranslationKey(pattern))).withColor(new Color(ClothUtil.getClothPatternColor(itemStack).orElse(0xFFFFFFFF)).brighter().getRGB());
-                    if (itemStack.getOrDefault(AntiqueDataComponentTypes.CLOTH_PATTERN_GLOWING, false)) {
-                        text = text.copy().append(Component.literal(" - ").withColor(0xff4adbb8)).append(Component.translatable("item.antique.glowing").withColor(0xFF4ADBB8));
+                int index = 2;
+
+                for (SewnClothPattern pattern : ClothUtil.getClothPatterns(itemStack)) {
+                    String patternName = pattern.key().identifier().toLanguageKey();
+                    Component text = Component.literal(" - ").append(Component.translatable("item." + patternName)).withColor(new Color(pattern.color().orElse(0xFFFFFFFF)).brighter().getRGB());
+
+                    if (pattern.glowing()) {
+                        text = text.copy().append(Component.literal(" - ").withColor(0xFF4ADBB8)).append(Component.translatable("item.antique.glowing").withColor(0xFF4ADBB8));
                     }
 
-                    list.add(2, text);
-                });
+                    list.add(index++, text);
+                }
             }
 
             if (itemStack.is(AntiqueItems.CLOTH_PATTERN)) {

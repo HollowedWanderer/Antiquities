@@ -155,7 +155,7 @@ public class MyriadToolItem extends Item {
                                             .orElse(false)
                             ) {
                                 ItemStack newStack = itemStack.copy();
-                                ClothUtil.setClothPattern(newStack, ClothUtil.getClothPattern(otherStack));
+                                ClothUtil.setClothPatterns(newStack, ClothUtil.getClothPatterns(otherStack));
                                 ClothUtil.setClothPatternGlowing(newStack, ClothUtil.getClothPatternGlowing(otherStack));
                                 ClothUtil.setClothPatternColor(newStack, ClothUtil.getClothPatternColor(otherStack));
                                 player.playSound(SoundEvents.BOOK_PAGE_TURN, 1.0F, 1.0F); // TODO better sound

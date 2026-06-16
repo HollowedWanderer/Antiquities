@@ -5,6 +5,7 @@ import net.hollowed.antique.items.ClothPatternItem;
 import net.hollowed.antique.util.resources.ClothPatternData;
 import net.hollowed.antique.util.resources.ClothSkinData;
 import net.hollowed.antique.util.resources.ColorProvider;
+import net.hollowed.antique.util.resources.SewnClothPattern;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.component.DataComponents;
@@ -14,6 +15,8 @@ import net.minecraft.world.item.component.DyedItemColor;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 public class ClothUtil {
@@ -81,6 +84,10 @@ public class ClothUtil {
         return Optional.ofNullable(stack.get(AntiqueDataComponentTypes.CLOTH_PATTERN_TYPE));
     }
 
+    public static List<SewnClothPattern> getClothPatterns(ItemStack stack) {
+        return stack.getOrDefault(AntiqueDataComponentTypes.SEWN_CLOTHS, List.of());
+    }
+
     public static boolean getClothPatternGlowing(ItemStack stack) {
         return stack.getOrDefault(AntiqueDataComponentTypes.CLOTH_PATTERN_GLOWING, false);
     }
@@ -104,6 +111,18 @@ public class ClothUtil {
                 key -> stack.set(AntiqueDataComponentTypes.CLOTH_PATTERN_TYPE, key),
                 () -> stack.remove(AntiqueDataComponentTypes.CLOTH_PATTERN_TYPE)
         );
+        return stack;
+    }
+
+    public static ItemStack addClothPattern(ItemStack stack, SewnClothPattern pattern) {
+        List<SewnClothPattern> patterns = new ArrayList<>(getClothPatterns(stack));
+        patterns.add(pattern);
+        setClothPatterns(stack, patterns);
+        return stack;
+    }
+
+    public static ItemStack setClothPatterns(ItemStack stack, List<SewnClothPattern> patterns) {
+        stack.set(AntiqueDataComponentTypes.SEWN_CLOTHS, patterns);
         return stack;
     }
 

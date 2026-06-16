@@ -10,6 +10,7 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.List;
 import java.util.Optional;
 
 public record ClothPatternData(
@@ -93,5 +94,9 @@ public record ClothPatternData(
 
     public static Optional<Holder.Reference<ClothPatternData>> getHolderFromKey(Optional<ResourceKey<ClothPatternData>> key, @NotNull Level level) {
         return getHolderFromKey(key, level.registryAccess());
+    }
+
+    public static List<Holder.Reference<ClothPatternData>> getHoldersFromKeys(List<ResourceKey<ClothPatternData>> keys, @NotNull Level level) {
+        return keys.stream().map(key -> getHolder(key, level)).toList();
     }
 }

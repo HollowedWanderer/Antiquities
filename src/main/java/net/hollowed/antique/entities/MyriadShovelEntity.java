@@ -11,7 +11,7 @@ import net.hollowed.antique.index.AntiqueTrackedData;
 import net.hollowed.antique.util.resources.ClothPatternData;
 import net.hollowed.antique.util.resources.ClothSkinData;
 import net.hollowed.antique.items.components.MyriadToolComponent;
-import net.hollowed.antique.util.interfaces.duck.ClothAccess;
+import net.hollowed.antique.util.resources.SewnClothPattern;
 import net.hollowed.combatamenities.index.CAParticles;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.syncher.EntityDataAccessor;
@@ -44,6 +44,7 @@ import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.List;
 import java.util.Optional;
 
 public class MyriadShovelEntity extends AbstractArrow {
@@ -80,10 +81,6 @@ public class MyriadShovelEntity extends AbstractArrow {
 		return this.entityData.get(ATTRIBUTES).cloth().flatMap(cloth -> Optional.ofNullable(cloth.get(DataComponents.DYED_COLOR)).map(DyedItemColor::rgb));
 	}
 
-	public Optional<Integer> getPatternColor() {
-		return this.entityData.get(ATTRIBUTES).cloth().flatMap(cloth -> Optional.ofNullable(cloth.get(AntiqueDataComponentTypes.CLOTH_PATTERN_COLOR)).map(DyedItemColor::rgb));
-	}
-
 	public void summonPart() {
 		for (int i = 1; i < 8; i++) {
 			MyriadShovelPart entity = new MyriadShovelPart(AntiqueEntities.MYRIAD_SHOVEL_PART, this.level());
@@ -102,8 +99,8 @@ public class MyriadShovelEntity extends AbstractArrow {
 		return getAttributes().cloth().flatMap(cloth -> Optional.ofNullable(cloth.get(AntiqueDataComponentTypes.CLOTH_TYPE)));
 	}
 
-	public Optional<ResourceKey<ClothPatternData>> getPattern() {
-		return getAttributes().cloth().flatMap(cloth -> Optional.ofNullable(cloth.get(AntiqueDataComponentTypes.CLOTH_PATTERN_TYPE)));
+	public List<SewnClothPattern> getPatterns() {
+		return getAttributes().cloth().flatMap(cloth -> Optional.ofNullable(cloth.get(AntiqueDataComponentTypes.SEWN_CLOTHS))).orElse(List.of());
 	}
 
 	public MyriadToolComponent getAttributes() {
