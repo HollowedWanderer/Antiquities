@@ -1,8 +1,10 @@
 package net.hollowed.antique.index;
 
 import com.mojang.serialization.Codec;
+import net.fabricmc.fabric.api.item.v1.ComponentTooltipAppenderRegistry;
 import net.hollowed.antique.Antiquities;
 import net.hollowed.antique.items.components.MyriadToolComponent;
+import net.hollowed.antique.items.components.AmethystForkComponent;
 import net.hollowed.antique.util.resources.ClothPatternData;
 import net.hollowed.antique.util.resources.ClothSkinData;
 import net.minecraft.core.Registry;
@@ -21,6 +23,14 @@ public interface AntiqueDataComponentTypes {
             Antiquities.id("satchel_stacks"),
             DataComponentType.<List<ItemStack>>builder()
                     .persistent(ItemStack.CODEC.listOf().fieldOf("satchel_stacks").codec())
+                    .build()
+    );
+    DataComponentType<AmethystForkComponent> AMETHYST_FORK = Registry.register(
+            BuiltInRegistries.DATA_COMPONENT_TYPE,
+            Antiquities.id("amethyst_fork"),
+            DataComponentType.<AmethystForkComponent>builder()
+                    .persistent(AmethystForkComponent.CODEC)
+                    .networkSynchronized(AmethystForkComponent.STREAM_CODEC)
                     .build()
     );
     DataComponentType<MyriadToolComponent> MYRIAD_TOOL = Registry.register(
@@ -78,5 +88,7 @@ public interface AntiqueDataComponentTypes {
                     .build()
     );
 
-    static void initialize() {}
+    static void initialize() {
+        ComponentTooltipAppenderRegistry.addFirst(AMETHYST_FORK);
+    }
 }

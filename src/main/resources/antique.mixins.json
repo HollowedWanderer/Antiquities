@@ -59,6 +59,7 @@
     "items.CrossbowItemMixin",
     "items.DyedItemColorMixin",
     "items.MyriadAxeBlockMixin",
+    "items.NoteBlockMixin",
     "items.SlotMixin",
     "world.ChunkNoiseSamplerMixin",
     "world.NoiseChunkGeneratorMixin"
@@ -67,6 +68,7 @@
     "defaultRequire": 1
   },
   "client": [
+    "accessors.AbstractContainerScreenAccessor",
     "accessors.GetSlotAtAccessor",
     "accessors.RendererAccessor",
     "accessors.SpriteContentsAnimationStateAccessor",
@@ -95,6 +97,7 @@
     "ext.TextureAtlasSpriteMixin",
     "items.BundleScrollHandler",
     "items.BundleTooltipShowsAll",
+    "items.MouseHandlerMixin",
     "items.PreventItemActionsMixin",
     "items.TooltipComponentMixin",
     "items.renderers.EntityMixin",

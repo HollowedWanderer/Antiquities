@@ -177,5 +177,34 @@
   "item.antique.berry_cloth_pattern": "Berry Cloth Pattern",
   "item.antique.deer_cloth_pattern": "Deer Cloth Pattern",
   "item.antique.scavenger_cloth_pattern": "Scavenger Cloth Pattern",
-  "item.antique.flake_cloth_pattern": "Flake Cloth Pattern"
+  "item.antique.flake_cloth_pattern": "Flake Cloth Pattern",
+
+  "antique.note": "Selected note (%s): %s",
+  "antique.note0": "F#",
+  "antique.note1": "G",
+  "antique.note2": "G#",
+  "antique.note3": "A",
+  "antique.note4": "A#",
+  "antique.note5": "B",
+  "antique.note6": "C",
+  "antique.note7": "C#",
+  "antique.note8": "D",
+  "antique.note9": "D#",
+  "antique.note10": "E",
+  "antique.note11": "F",
+
+  "antique.note12": "F#",
+  "antique.note13": "G",
+  "antique.note14": "G#",
+  "antique.note15": "A",
+  "antique.note16": "A#",
+  "antique.note17": "B",
+  "antique.note18": "C",
+  "antique.note19": "C#",
+  "antique.note20": "D",
+  "antique.note21": "D#",
+  "antique.note22": "E",
+  "antique.note23": "F",
+
+  "antique.note24": "F#"
 }

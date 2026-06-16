@@ -7,7 +7,6 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.component.ItemAttributeModifiers;
 
 public class AmethystForkItem extends Item {
-
     public AmethystForkItem(Properties settings) {
         super(settings);
     }

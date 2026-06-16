@@ -98,11 +98,13 @@ public class Antiquities implements ModInitializer {
 		PayloadTypeRegistry.playS2C().register(IllusionerParticlePacketPayload.ID, IllusionerParticlePacketPayload.CODEC);
 		PayloadTypeRegistry.playS2C().register(AddClothItemsPayload.ID, AddClothItemsPayload.CODEC);
 		PayloadTypeRegistry.playS2C().register(ShockwaveParticlesPayload.ID, ShockwaveParticlesPayload.CODEC);
+		PayloadTypeRegistry.playC2S().register(TuneAmethystForkPayload.ID, TuneAmethystForkPayload.CODEC);
 
 		SatchelPacketReceiver.registerServerPacket();
 		WallJumpPacketReceiver.registerServerPacket();
 		CrawlPacketReceiver.registerServerPacket();
 		DyePacketReceiver.registerServerPacket();
+		TuneAmethystForkReceiver.registerServerPacket();
 
 		/*
 			Tick Events

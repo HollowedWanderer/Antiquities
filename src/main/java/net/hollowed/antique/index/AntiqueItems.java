@@ -2,6 +2,7 @@ package net.hollowed.antique.index;
 
 import net.hollowed.antique.Antiquities;
 import net.hollowed.antique.items.*;
+import net.hollowed.antique.items.components.AmethystForkComponent;
 import net.hollowed.antique.items.components.MyriadToolComponent;
 import net.hollowed.combatamenities.util.items.CAComponents;
 import net.minecraft.core.HolderGetter;
@@ -30,10 +31,12 @@ public interface AntiqueItems {
     Item RAW_MYRIAD = register("raw_myriad", Item::new);
     Item MYRIAD_INGOT = register("myriad_ingot", Item::new);
     Item CLOTH = register("cloth", settings -> new ClothItem(settings.stacksTo(1)
+            .component(AntiqueDataComponentTypes.CLOTH_TYPE, ResourceKey.create(AntiqueRegistries.CLOTHS, Antiquities.id("cloth")))
             .component(DataComponents.DYED_COLOR, new DyedItemColor(0xD43B69))
             .component(AntiqueDataComponentTypes.STICKY_TOOLTIP, true)
     ));
     Item CLOTH_PATTERN = register("cloth_pattern", settings -> new ClothPatternItem(settings.stacksTo(1)
+            .component(AntiqueDataComponentTypes.CLOTH_PATTERN_TYPE, ResourceKey.create(AntiqueRegistries.CLOTH_PATTERNS, Antiquities.id("creeper_cloth_pattern")))
             .component(AntiqueDataComponentTypes.STICKY_TOOLTIP, true)
     ));
     Item MIRAGE_SILK = register("mirage_silk", settings -> new Item(settings.rarity(Rarity.RARE)));
@@ -60,6 +63,7 @@ public interface AntiqueItems {
             .fireResistant()
     ));
     Item AMETHYST_FORK = register("amethyst_fork", settings -> new AmethystForkItem(settings.stacksTo(1)
+            .component(AntiqueDataComponentTypes.AMETHYST_FORK, AmethystForkComponent.DEFAULT)
             .attributes(AmethystForkItem.createAttributeModifiers())
     ));
     Item SCEPTER = register("scepter", settings -> new ScepterItem(settings.stacksTo(1)
