@@ -243,7 +243,7 @@ public class ClothManager {
                 BlockHitResult ray = level.clip(new ClipContext(
                         new Vec3(new Vector3f(body.pos)),
                         new Vec3(new Vector3f(body.pos).add(getViewVector((float) (dir + offset.x), (float) offset.y).mul(-32))),
-                        ClipContext.Block.VISUAL,
+                        ClipContext.Block.COLLIDER,
                         ClipContext.Fluid.SOURCE_ONLY,
                         CollisionContext.emptyWithFluidCollisions()
                 ) {
