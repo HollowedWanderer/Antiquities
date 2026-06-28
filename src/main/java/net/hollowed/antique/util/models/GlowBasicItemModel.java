@@ -10,42 +10,43 @@ import java.util.List;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.function.Supplier;
+
+import it.unimi.dsi.fastutil.ints.IntList;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.color.item.ItemTintSource;
 import net.minecraft.client.color.item.ItemTintSources;
 import net.minecraft.client.multiplayer.ClientLevel;
-import net.minecraft.client.renderer.ItemBlockRenderTypes;
 import net.minecraft.client.renderer.Sheets;
-import net.minecraft.client.renderer.block.model.BakedQuad;
-import net.minecraft.client.renderer.block.model.TextureSlots;
+import net.minecraft.client.renderer.block.dispatch.BlockModelRotation;
 import net.minecraft.client.renderer.chunk.ChunkSectionLayer;
 import net.minecraft.client.renderer.item.*;
 import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.client.renderer.texture.TextureAtlas;
-import net.minecraft.client.resources.model.BlockModelRotation;
+import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.resources.model.ModelBaker;
 import net.minecraft.client.resources.model.ResolvableModel;
 import net.minecraft.client.resources.model.ResolvedModel;
+import net.minecraft.client.resources.model.geometry.BakedQuad;
+import net.minecraft.client.resources.model.sprite.TextureSlots;
 import net.minecraft.resources.Identifier;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.world.entity.ItemOwner;
 import net.minecraft.world.item.*;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.joml.Matrix4fc;
 import org.joml.Vector3fc;
+import org.jspecify.annotations.NonNull;
 
 @Environment(EnvType.CLIENT)
 public class GlowBasicItemModel implements ItemModel {
 
-	private static final Function<ItemStack, RenderType> ITEM_RENDER_TYPE_GETTER = (itemStack) -> Sheets.translucentItemSheet();
-	private static final Function<ItemStack, RenderType> BLOCK_RENDER_TYPE_GETTER = (itemStack) -> {
-		Item item = itemStack.getItem();
-		if (item instanceof BlockItem blockItem) {
-			ChunkSectionLayer chunkSectionLayer = ItemBlockRenderTypes.getChunkRenderType(blockItem.getBlock().defaultBlockState());
-			if (chunkSectionLayer != ChunkSectionLayer.TRANSLUCENT) {
-				return Sheets.cutoutBlockSheet();
-			}
+	private static final Function<TextureAtlasSprite, RenderType> ITEM_RENDER_TYPE_GETTER = (_) -> Sheets.translucentItemSheet();
+	private static final Function<TextureAtlasSprite, RenderType> BLOCK_RENDER_TYPE_GETTER = (sprite) -> {
+		ChunkSectionLayer chunkSectionLayer = ChunkSectionLayer.byTransparency(sprite.transparency());
+		if (chunkSectionLayer != ChunkSectionLayer.TRANSLUCENT) {
+			return Sheets.cutoutBlockItemSheet();
 		}
 
 		return Sheets.translucentBlockItemSheet();
@@ -57,9 +58,9 @@ public class GlowBasicItemModel implements ItemModel {
 	private final Supplier<Vector3fc[]> vector;
 	private final ModelRenderProperties settings;
 	private final boolean animated;
-	private final Function<ItemStack, RenderType> renderType;
+	private final Function<TextureAtlasSprite, RenderType> renderType;
 
-	public GlowBasicItemModel(List<ItemTintSource> tints, List<Integer> emissions, List<BakedQuad> quads, ModelRenderProperties settings, Function<ItemStack, RenderType> function) {
+	public GlowBasicItemModel(List<ItemTintSource> tints, List<Integer> emissions, List<BakedQuad> quads, ModelRenderProperties settings, Function<TextureAtlasSprite, RenderType> function) {
 		this.tints = tints;
 		this.emissions = emissions;
 		this.quads = quads;
@@ -69,7 +70,7 @@ public class GlowBasicItemModel implements ItemModel {
 		boolean bl = false;
 
 		for (BakedQuad bakedQuad : quads) {
-			if (bakedQuad.sprite().contents().isAnimated()) {
+			if (bakedQuad.materialInfo().sprite().contents().isAnimated()) {
 				bl = true;
 				break;
 			}
@@ -96,8 +97,8 @@ public class GlowBasicItemModel implements ItemModel {
 			ItemStack stack,
 			@NotNull ItemModelResolver resolver,
 			@NotNull ItemDisplayContext displayContext,
-			@Nullable ClientLevel world,
-			@Nullable ItemOwner heldItemContext,
+			@Nullable ClientLevel level,
+			@Nullable ItemOwner owner,
 			int seed
 	) {
 		state.appendModelIdentityElement(this);
@@ -109,19 +110,17 @@ public class GlowBasicItemModel implements ItemModel {
 			state.appendModelIdentityElement(glint);
 		}
 
-		int i = this.tints.size();
-		int[] is = layerRenderState.prepareTintLayers(i);
+		IntList tintLayers = layerRenderState.tintLayers();
 
-		for (int j = 0; j < i; j++) {
-			int k = this.tints.get(j).calculate(stack, world, heldItemContext == null ? null : heldItemContext.asLivingEntity());
-			is[j] = k;
-			state.appendModelIdentityElement(k);
+		for (ItemTintSource tintSource : this.tints) {
+			int tint = tintSource.calculate(stack, level, owner == null ? null : owner.asLivingEntity());
+			tintLayers.add(tint);
+			state.appendModelIdentityElement(tint);
 		}
 
 		List<BakedQuad> newQuads = getNewQuads();
 
 		layerRenderState.setExtents(this.vector);
-		layerRenderState.setRenderType(this.renderType.apply(stack));
 		this.settings.applyToLayer(layerRenderState, displayContext);
 		layerRenderState.prepareQuadList().addAll(newQuads);
 		if (this.animated) {
@@ -131,29 +130,48 @@ public class GlowBasicItemModel implements ItemModel {
 
 	private @NotNull List<BakedQuad> getNewQuads() {
 		List<BakedQuad> newQuads = new java.util.ArrayList<>(List.of());
-		String spriteId = this.quads.getFirst().sprite().contents().name().getPath();
+		String spriteId = this.quads.getFirst().materialInfo().sprite().contents().name().getPath();
 		int glowIndex = 0;
 		for (BakedQuad quad : this.quads) {
-			if (!(quad.sprite().contents().name().getPath().equals(spriteId))) {
+			if (!(quad.materialInfo().sprite().contents().name().getPath().equals(spriteId))) {
 				glowIndex++;
-				spriteId = quad.sprite().contents().name().getPath();
+				spriteId = quad.materialInfo().sprite().contents().name().getPath();
 			}
-			newQuads.add(new BakedQuad(quad.position0(), quad.position1(), quad.position2(), quad.position3(), quad.packedUV0(), quad.packedUV1(), quad.packedUV2(), quad.packedUV3(), quad.tintIndex(), quad.direction(), quad.sprite(), quad.shade(), glowIndex >= this.emissions.size() ? quad.lightEmission() : this.emissions.get(glowIndex)));
+			newQuads.add(
+					new BakedQuad(
+							quad.position0(),
+							quad.position1(),
+							quad.position2(),
+							quad.position3(),
+							quad.packedUV0(),
+							quad.packedUV1(),
+							quad.packedUV2(),
+							quad.packedUV3(),
+							quad.direction(),
+							new BakedQuad.MaterialInfo(
+									quad.materialInfo().sprite(),
+									quad.materialInfo().layer(),
+									quad.materialInfo().itemRenderType(),
+									quad.materialInfo().tintIndex(),
+									quad.materialInfo().shade(),
+									glowIndex >= this.emissions.size() ? quad.materialInfo().lightEmission() : this.emissions.get(glowIndex)
+							)
+					));
 		}
 		return newQuads;
 	}
 
 	@SuppressWarnings("all")
-	static Function<ItemStack, RenderType> detectRenderType(List<BakedQuad> list) {
+	static Function<TextureAtlasSprite, RenderType> detectRenderType(List<BakedQuad> list) {
 		Iterator<BakedQuad> iterator = list.iterator();
 		if (!iterator.hasNext()) {
 			return ITEM_RENDER_TYPE_GETTER;
 		} else {
-			Identifier identifier = ((BakedQuad)iterator.next()).sprite().atlasLocation();
+			Identifier identifier = ((BakedQuad)iterator.next()).materialInfo().sprite().atlasLocation();
 
 			while(iterator.hasNext()) {
 				BakedQuad bakedQuad = (BakedQuad)iterator.next();
-				Identifier identifier2 = bakedQuad.sprite().atlasLocation();
+				Identifier identifier2 = bakedQuad.materialInfo().sprite().atlasLocation();
 				if (!identifier2.equals(identifier)) {
 					String var10002 = String.valueOf(identifier);
 					throw new IllegalStateException("Multiple atlases used in model, expected " + var10002 + ", but also got " + String.valueOf(identifier2));
@@ -191,13 +209,13 @@ public class GlowBasicItemModel implements ItemModel {
 		}
 
 		@Override
-		public @NotNull ItemModel bake(ItemModel.BakingContext context) {
+		public @NonNull ItemModel bake(BakingContext context, @NonNull Matrix4fc transformation) {
 			ModelBaker baker = context.blockModelBaker();
 			ResolvedModel bakedSimpleModel = baker.getModel(this.model);
 			TextureSlots modelTextures = bakedSimpleModel.getTopTextureSlots();
 			List<BakedQuad> list = bakedSimpleModel.bakeTopGeometry(modelTextures, baker, BlockModelRotation.IDENTITY).getAll();
 			ModelRenderProperties modelSettings = ModelRenderProperties.fromResolvedModel(baker, bakedSimpleModel, modelTextures);
-			Function<ItemStack, RenderType> function = detectRenderType(list);
+			Function<TextureAtlasSprite, RenderType> function = detectRenderType(list);
 			return new GlowBasicItemModel(this.tints, this.emissions, list, modelSettings, function);
 		}
 
