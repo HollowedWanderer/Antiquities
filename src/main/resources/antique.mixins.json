@@ -9,6 +9,7 @@
     "blocks.BlockNoCollisionMixin",
     "blocks.NoCropTramplingMixin",
     "blocks.PowderSnowWalkableMixin",
+    "cloth.PotentSulfurBlockEntityMixin",
     "entities.features.ClothAdderMixin",
     "entities.living.AirAccelerationTweaker",
     "entities.living.AnimeEffectMixin",
