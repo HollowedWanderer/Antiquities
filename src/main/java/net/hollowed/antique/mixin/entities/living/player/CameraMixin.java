@@ -2,9 +2,8 @@ package net.hollowed.antique.mixin.entities.living.player;
 
 import net.hollowed.antique.index.AntiqueItems;
 import net.minecraft.client.Camera;
-import net.minecraft.client.DeltaTracker;
+import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 import org.joml.Quaternionf;
@@ -33,16 +32,18 @@ public abstract class CameraMixin {
     @Shadow @Final private Vector3f left;
 
     @Shadow
-    private @Nullable Entity entity;
-    @Shadow
     private boolean detached;
+
+    @Shadow
+    private @Nullable Entity entity;
+
     @Unique
     private float roll = 0.0F;
 
-    @Inject(method = "update", at = @At("TAIL"))
-    public void update(DeltaTracker deltaTracker, CallbackInfo ci) {
-        Entity focusedEntity = this.entity;
-        if (focusedEntity instanceof Player player) {
+    @Inject(method = "alignWithEntity", at = @At("TAIL"))
+    public void update(float partialTicks, CallbackInfo ci) {
+        Entity entity = this.entity;
+        if (entity instanceof AbstractClientPlayer player) {
             AABB box = player.getBoundingBox();
             double offset = 0.1;
 
