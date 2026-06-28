@@ -59,8 +59,8 @@ public abstract class ClimbableShovelMixin extends LivingEntity {
     }
 
     @Inject(method = "defineSynchedData", at = @At("HEAD"))
-    protected void initDataTracker(SynchedEntityData.Builder builder, CallbackInfo ci) {
-        builder.define(SPIDER_FLAGS, (byte) 0);
+    protected void initDataTracker(SynchedEntityData.Builder entityData, CallbackInfo ci) {
+        entityData.define(SPIDER_FLAGS, (byte) 0);
     }
 
     @Inject(method = "tick", at = @At("HEAD"))

@@ -12,8 +12,8 @@ import net.minecraft.world.item.ProjectileWeaponItem;
 @Mixin(Player.class)
 public class ProjectileFixMixin {
 
-    @ModifyVariable(method = "getProjectile", at = @At(value = "INVOKE_ASSIGN", target = "Lnet/minecraft/world/item/ProjectileWeaponItem;getAllSupportedProjectiles()Ljava/util/function/Predicate;"))
-    private Predicate<ItemStack> fixTheDamnCrossbowsPlease(Predicate<ItemStack> value, ItemStack stack) {
-        return ((ProjectileWeaponItem)stack.getItem()).getSupportedHeldProjectiles();
+    @ModifyVariable(method = "getProjectile", at = @At(value = "INVOKE_ASSIGN", target = "Lnet/minecraft/world/item/ProjectileWeaponItem;getAllSupportedProjectiles()Ljava/util/function/Predicate;"), name = "supportedProjectiles")
+    private Predicate<ItemStack> fixTheDamnCrossbowsPlease(Predicate<ItemStack> supportedProjectiles, ItemStack heldWeapon) {
+        return ((ProjectileWeaponItem) heldWeapon.getItem()).getSupportedHeldProjectiles();
     }
 }

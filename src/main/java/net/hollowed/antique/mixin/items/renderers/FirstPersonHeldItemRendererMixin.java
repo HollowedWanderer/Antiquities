@@ -6,7 +6,6 @@ import net.hollowed.antique.client.renderer.cloth.ClothManager;
 import net.hollowed.antique.index.AntiqueDataComponentTypes;
 import net.hollowed.antique.index.AntiqueItems;
 import net.hollowed.antique.items.components.MyriadToolComponent;
-import net.hollowed.antique.mixin.accessors.RendererAccessor;
 import net.hollowed.antique.util.ClothUtil;
 import net.hollowed.antique.util.resources.ClothSkinData;
 import net.minecraft.client.Camera;
@@ -29,75 +28,75 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import com.mojang.blaze3d.vertex.PoseStack;
-import java.awt.*;
+
 import java.util.Optional;
 
 @Mixin(ItemInHandRenderer.class)
 public abstract class FirstPersonHeldItemRendererMixin {
 
     @Inject(method = "renderItem(Lnet/minecraft/world/entity/LivingEntity;Lnet/minecraft/world/item/ItemStack;Lnet/minecraft/world/item/ItemDisplayContext;Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/SubmitNodeCollector;I)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/item/ItemStack;isEmpty()Z"))
-    public void renderItem(LivingEntity entity, ItemStack stack, ItemDisplayContext renderMode, PoseStack matrices, SubmitNodeCollector orderedRenderCommandQueue, int light, CallbackInfo ci) {
-        matrices.pushPose();
-        boolean leftHanded = entity.getMainArm() == HumanoidArm.LEFT;
-        matrices.translate((float)(leftHanded ? -1 : 1) / 16.0F, 0.125F, -0.625F);
-        switch (renderMode) {
-            case ItemDisplayContext.FIRST_PERSON_RIGHT_HAND -> matrices.translate(leftHanded ? 0.1 : 0, 0, 0);
-            case ItemDisplayContext.FIRST_PERSON_LEFT_HAND -> matrices.translate(!leftHanded ? -0.1 : 0, 0, 0);
+    public void renderItem(LivingEntity mob, ItemStack itemStack, ItemDisplayContext type, PoseStack poseStack, SubmitNodeCollector submitNodeCollector, int lightCoords, CallbackInfo ci) {
+        poseStack.pushPose();
+        boolean leftHanded = mob.getMainArm() == HumanoidArm.LEFT;
+        poseStack.translate((float)(leftHanded ? -1 : 1) / 16.0F, 0.125F, -0.625F);
+        switch (type) {
+            case ItemDisplayContext.FIRST_PERSON_RIGHT_HAND -> poseStack.translate(leftHanded ? 0.1 : 0, 0, 0);
+            case ItemDisplayContext.FIRST_PERSON_LEFT_HAND -> poseStack.translate(!leftHanded ? -0.1 : 0, 0, 0);
         }
 
-        matrices.translate(0, 0.4, 0.7);
-        if (renderMode == ItemDisplayContext.NONE) {
-            matrices.translate(0, -0.5, -0.1);
+        poseStack.translate(0, 0.4, 0.7);
+        if (type == ItemDisplayContext.NONE) {
+            poseStack.translate(0, -0.5, -0.1);
         }
 
         ClothManager manager;
 
-        if (entity instanceof Player player) {
-            if (stack.is(AntiqueItems.MYRIAD_TOOL)) {
+        if (mob instanceof Player player) {
+            if (itemStack.is(AntiqueItems.MYRIAD_TOOL)) {
                 boolean reproject = true;
-                MyriadToolComponent component = stack.getOrDefault(AntiqueDataComponentTypes.MYRIAD_TOOL, MyriadToolComponent.DEFAULT_NO_CLOTH);
+                MyriadToolComponent component = itemStack.getOrDefault(AntiqueDataComponentTypes.MYRIAD_TOOL, MyriadToolComponent.DEFAULT_NO_CLOTH);
 
-                if (renderMode != ItemDisplayContext.NONE) {
-                    matrices.translate(0, -0.1, 0.1);
+                if (type != ItemDisplayContext.NONE) {
+                    poseStack.translate(0, -0.1, 0.1);
                 }
 
-                if (component.toolBit().is(AntiqueItems.MYRIAD_AXE_HEAD) && entity.isUsingItem()) {
-                    matrices.translate(renderMode == ItemDisplayContext.FIRST_PERSON_RIGHT_HAND ? -0.5 : 0.5, -0.1, 0);
+                if (component.toolBit().is(AntiqueItems.MYRIAD_AXE_HEAD) && mob.isUsingItem()) {
+                    poseStack.translate(type == ItemDisplayContext.FIRST_PERSON_RIGHT_HAND ? -0.5 : 0.5, -0.1, 0);
                 }
 
-                if (component.toolBit().is(AntiqueItems.MYRIAD_SHOVEL_HEAD) && entity.isUsingItem()) {
-                    matrices.translate(renderMode == ItemDisplayContext.FIRST_PERSON_RIGHT_HAND ? 0.1 : -0.1, 0, -0.2);
+                if (component.toolBit().is(AntiqueItems.MYRIAD_SHOVEL_HEAD) && mob.isUsingItem()) {
+                    poseStack.translate(type == ItemDisplayContext.FIRST_PERSON_RIGHT_HAND ? 0.1 : -0.1, 0, -0.2);
                 }
 
-                if (renderMode == ItemDisplayContext.NONE && component.toolBit().is(AntiqueItems.MYRIAD_CLEAVER_BLADE)) {
-                    matrices.translate(-0.15, -0.15, 0);
+                if (type == ItemDisplayContext.NONE && component.toolBit().is(AntiqueItems.MYRIAD_CLEAVER_BLADE)) {
+                    poseStack.translate(-0.15, -0.15, 0);
                 }
 
                 if (component.cloth().isPresent()) {
                     Optional<Holder.Reference<ClothSkinData>> data = ClothUtil.getClothData(component.cloth().get(), player.registryAccess());
 
                     if (data.isPresent()) {
-                        manager = renderMode == ItemDisplayContext.FIRST_PERSON_RIGHT_HAND ? ClothManager.getOrCreate(new ClothOwner.OfEntity(entity), Antiquities.id("right_arm"), data.get().value()) : ClothManager.getOrCreate(new ClothOwner.OfEntity(entity), Antiquities.id("left_arm"), data.get().value());
+                        manager = type == ItemDisplayContext.FIRST_PERSON_RIGHT_HAND ? ClothManager.getOrCreate(new ClothOwner.OfEntity(mob), Antiquities.id("right_arm"), data.get().value()) : ClothManager.getOrCreate(new ClothOwner.OfEntity(mob), Antiquities.id("left_arm"), data.get().value());
 
-                        switch (renderMode) {
+                        switch (type) {
                             case ItemDisplayContext.NONE -> {
-                                manager = ClothManager.getOrCreate(new ClothOwner.OfEntity(entity), Antiquities.id("back"), data.get().value());
+                                manager = ClothManager.getOrCreate(new ClothOwner.OfEntity(mob), Antiquities.id("back"), data.get().value());
                                 reproject = false;
                             }
                             case ItemDisplayContext.GUI -> manager = null;
                         }
 
-                        if (player.getInventory().getItem(42).equals(stack)) {
-                            manager = ClothManager.getOrCreate(new ClothOwner.OfEntity(entity), Antiquities.id("belt"), data.get().value());
+                        if (player.getInventory().getItem(42).equals(itemStack)) {
+                            manager = ClothManager.getOrCreate(new ClothOwner.OfEntity(mob), Antiquities.id("belt"), data.get().value());
                             reproject = false;
                         }
 
                         if (manager != null) {
                             manager.renderCloth(
                                     data.get(),
-                                    matrices,
-                                    orderedRenderCommandQueue,
-                                    light,
+                                    poseStack,
+                                    submitNodeCollector,
+                                    lightCoords,
                                     ClothUtil.getDynamicClothColor(component.cloth().get(), player.registryAccess()).orElse(0xFFFFFFFF),
                                     ClothUtil.getClothPatterns(component.cloth().get()),
                                     player.registryAccess(),
@@ -110,25 +109,22 @@ public abstract class FirstPersonHeldItemRendererMixin {
             }
         }
 
-        matrices.popPose();
+        poseStack.popPose();
     }
 
     @Unique
     private Matrix4f getReprojectMatrix() {
         GameRenderer renderer = Minecraft.getInstance().gameRenderer;
-        RendererAccessor accessor = (RendererAccessor) renderer;
-        Camera mainCamera = renderer.getMainCamera();
-        float cameraFov = accessor.getCameraFov(mainCamera, 0.0f, true);
-        Matrix4f projectionA = this.getProjection(renderer, cameraFov);
-        Matrix4f projectionO = this.getProjection(renderer, 70);
+        Camera mainCamera = renderer.mainCamera();
+        Matrix4f projectionA = this.getProjection(mainCamera, renderer.gameRenderState().levelRenderState.cameraRenderState.projectionMatrix);
+        Matrix4f projectionO = this.getProjection(mainCamera, new Matrix4f());
         return projectionO.invert().mul(projectionA);
     }
     
     @Unique
-    private Matrix4f getProjection(GameRenderer renderer, float fov) {
-        Camera mainCamera = renderer.getMainCamera();
-        Matrix4f projection = renderer.getProjectionMatrix(fov);
-        Quaternionf quaternionf = mainCamera.rotation();
+    private Matrix4f getProjection(Camera camera, Matrix4f matrix4f) {
+        Matrix4f projection = new Matrix4f(matrix4f);
+        Quaternionf quaternionf = camera.rotation();
         Matrix4f rotation = (new Matrix4f()).rotation(quaternionf).invert();
         return projection.mul(rotation);
     }

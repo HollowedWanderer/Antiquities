@@ -18,23 +18,23 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(LivingEntity.class)
 public abstract class ShieldPierceMixin {
-    @Shadow public abstract boolean hurtServer(ServerLevel world, DamageSource source, float amount);
+    @Shadow public abstract boolean hurtServer(ServerLevel level, DamageSource source, float damage);
 
-    @Shadow public abstract float applyItemBlocking(ServerLevel world, DamageSource source, float amount);
+    @Shadow public abstract float applyItemBlocking(ServerLevel level, DamageSource source, float damage);
 
     @Unique
     private boolean ran = false;
 
     @Inject(method = "hurtServer", at = @At("HEAD"), cancellable = true)
-    public void pierceShield(ServerLevel world, DamageSource source, float amount, CallbackInfoReturnable<Boolean> cir) {
+    public void pierceShield(ServerLevel level, DamageSource source, float damage, CallbackInfoReturnable<Boolean> cir) {
         Entity entity = source.getEntity();
         if (!this.ran) {
             this.ran = true;
-            if (entity instanceof LivingEntity attacker && this.applyItemBlocking(world, source, amount) > 0) {
+            if (entity instanceof LivingEntity attacker && this.applyItemBlocking(level, source, damage) > 0) {
                 Item stack = attacker.getMainHandItem().getItem();
                 if (stack instanceof ShieldPiercer access) {
                     float percent = access.shieldPierce();
-                    this.hurtServer(world, ModDamageTypes.of(world, ModDamageTypes.CLEAVED, attacker), amount * percent);
+                    this.hurtServer(level, ModDamageTypes.of(level, ModDamageTypes.CLEAVED, attacker), damage * percent);
                     attacker.level().playSound(null, attacker.blockPosition(), SoundEvents.ZOMBIE_ATTACK_WOODEN_DOOR, SoundSource.PLAYERS);
                     cir.setReturnValue(false);
                 }

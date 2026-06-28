@@ -18,7 +18,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public abstract class FurBootsMagmaMixin {
 
     @Inject(method = "stepOn", at = @At("HEAD"), cancellable = true)
-    private void preventMagmaDamage(Level world, BlockPos pos, BlockState state, Entity entity, CallbackInfo ci) {
+    private void preventMagmaDamage(Level level, BlockPos pos, BlockState onState, Entity entity, CallbackInfo ci) {
         if (entity instanceof LivingEntity livingEntity) {
             ItemStack boots = livingEntity.getItemBySlot(EquipmentSlot.FEET);
             if (boots.is(AntiqueItems.FUR_BOOTS)) {

@@ -16,19 +16,15 @@ import net.minecraft.client.renderer.entity.state.LlamaRenderState;
 import net.minecraft.client.renderer.entity.state.PhantomRenderState;
 import net.minecraft.client.renderer.entity.state.PigRenderState;
 import net.minecraft.client.renderer.entity.state.PiglinRenderState;
-import net.minecraft.client.renderer.entity.state.SnowGolemRenderState;
 import net.minecraft.client.renderer.entity.state.VillagerRenderState;
 import net.minecraft.client.renderer.entity.state.ZombieVillagerRenderState;
 import net.minecraft.client.renderer.feature.ModelFeatureRenderer;
 import net.minecraft.client.renderer.item.ItemStackRenderState;
-import net.minecraft.client.renderer.state.CameraRenderState;
+import net.minecraft.client.renderer.state.level.CameraRenderState;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EntitySpawnReason;
-import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.animal.chicken.Chicken;
 import net.minecraft.world.entity.animal.cow.Cow;
 import net.minecraft.world.entity.animal.equine.TraderLlama;
@@ -48,6 +44,8 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
+import org.jspecify.annotations.NonNull;
+
 import java.util.List;
 
 public class PedestalRenderer implements BlockEntityRenderer<@NotNull PedestalBlockEntity, @NotNull PedestalRenderState> {
@@ -57,7 +55,7 @@ public class PedestalRenderer implements BlockEntityRenderer<@NotNull PedestalBl
     public PedestalRenderer() {}
 
     @Override
-    public void submit(PedestalRenderState state, @NotNull PoseStack matrices, @NotNull SubmitNodeCollector queue, @NotNull CameraRenderState cameraState) {
+    public void submit(@NotNull PedestalRenderState state, @NonNull PoseStack poseStack, @NonNull SubmitNodeCollector submitNodeCollector, @NonNull CameraRenderState camera) {
         ItemStack heldItem = state.storedStack;
         if (!heldItem.isEmpty()) {
             float tickDelta = Minecraft.getInstance().getDeltaTracker().getGameTimeDeltaPartialTick(false);
@@ -67,11 +65,11 @@ public class PedestalRenderer implements BlockEntityRenderer<@NotNull PedestalBl
             float bob = (float) Math.sin((Math.toRadians(rotation))) * 0.075f;
 
             if (heldItem.getItem() instanceof EndCrystalItem) {
-                renderEndCrystalEntity(cameraState, queue, matrices, state.world, tickDelta, state.lightCoords);
-            } else if (heldItem.getItem() instanceof SpawnEggItem spawnEggItem) {
-                renderEntityFromSpawnEgg(spawnEggItem, heldItem, ITEM_POS.add(0, bob, 0), cameraState, queue, matrices, state.world, rotation, tickDelta, state.lightCoords);
+                renderEndCrystalEntity(camera, submitNodeCollector, poseStack, state.world, tickDelta, state.lightCoords);
+            } else if (heldItem.getItem() instanceof SpawnEggItem) {
+                renderEntityFromSpawnEgg(heldItem, ITEM_POS.add(0, bob, 0), camera, submitNodeCollector, poseStack, state.world, rotation, tickDelta, state.lightCoords);
             } else {
-                renderItem(heldItem, ITEM_POS.add(0, bob, 0), rotation, matrices, queue, state.lightCoords);
+                renderItem(heldItem, ITEM_POS.add(0, bob, 0), rotation, poseStack, submitNodeCollector, state.lightCoords);
             }
         }
     }
@@ -109,7 +107,7 @@ public class PedestalRenderer implements BlockEntityRenderer<@NotNull PedestalBl
             matrices.scale(scale, scale, scale);
             matrices.translate(0.5 * (1 - scale), 0.5 * (1 - scale), 0.5 * (1 - scale));
             entityState.ageInTicks = world.getGameTime() % 24000 + tickDelta;
-            entityState.entityType = EntityType.END_CRYSTAL;
+            entityState.entityType = EntityTypes.END_CRYSTAL;
             entityState.lightCoords = light;
             EntityRenderDispatcher dispatcher = Minecraft.getInstance().getEntityRenderDispatcher();
             dispatcher.submit(entityState, cameraState, 0, 0, 0, matrices, queue);
@@ -117,9 +115,9 @@ public class PedestalRenderer implements BlockEntityRenderer<@NotNull PedestalBl
         matrices.popPose();
     }
 
-    private void renderEntityFromSpawnEgg(SpawnEggItem spawnEggItem, ItemStack stack, Vec3 offset, CameraRenderState cameraState, SubmitNodeCollector queue, PoseStack matrices, Level world, float yRot, float tickDelta, int light) {
+    private void renderEntityFromSpawnEgg(ItemStack stack, Vec3 offset, CameraRenderState cameraState, SubmitNodeCollector queue, PoseStack matrices, Level world, float yRot, float tickDelta, int light) {
         matrices.pushPose();
-        EntityType<?> entityType = spawnEggItem.getType(stack);
+        EntityType<?> entityType = SpawnEggItem.getType(stack);
         if (entityType == null) return;
         Entity entity = entityType.create(world, EntitySpawnReason.MOB_SUMMONED);
         if (entity instanceof LivingEntity livingEntity) {
@@ -148,7 +146,7 @@ public class PedestalRenderer implements BlockEntityRenderer<@NotNull PedestalBl
                 chickenEntityRenderState.variant = chickenEntity.getVariant().value();
             }
             if (entityState instanceof CatRenderState catEntityRenderState && livingEntity instanceof Cat catEntity) {
-                catEntityRenderState.texture = catEntity.getVariant().value().assetInfo().texturePath();
+                catEntityRenderState.texture = catEntity.getVariant().value().assetInfo(false).texturePath();
             }
             if (entityState instanceof PigRenderState pigEntityRenderState && livingEntity instanceof Pig pigEntity) {
                 pigEntityRenderState.variant = pigEntity.getVariant().value();
@@ -158,9 +156,6 @@ public class PedestalRenderer implements BlockEntityRenderer<@NotNull PedestalBl
             }
             if (entityState instanceof PiglinRenderState piglinEntityRenderState && livingEntity instanceof PiglinBrute) {
                 piglinEntityRenderState.isBrute = true;
-            }
-            if (entityState instanceof SnowGolemRenderState snowGolemEntityRenderState) {
-                snowGolemEntityRenderState.hasPumpkin = true;
             }
             if (entityState instanceof LlamaRenderState llamaEntityRenderState && entity instanceof TraderLlama) {
                 llamaEntityRenderState.isTraderLlama = true;
@@ -178,12 +173,12 @@ public class PedestalRenderer implements BlockEntityRenderer<@NotNull PedestalBl
     }
 
     @Override
-    public PedestalRenderState createRenderState() {
+    public @NonNull PedestalRenderState createRenderState() {
         return new PedestalRenderState();
     }
 
     @Override
-    public void extractRenderState(PedestalBlockEntity blockEntity, PedestalRenderState state, float f, @NotNull Vec3 vec3, ModelFeatureRenderer.@Nullable CrumblingOverlay crumblingOverlay) {
+    public void extractRenderState(@NonNull PedestalBlockEntity blockEntity, @NonNull PedestalRenderState state, float f, @NotNull Vec3 vec3, ModelFeatureRenderer.@Nullable CrumblingOverlay crumblingOverlay) {
         BlockEntityRenderer.super.extractRenderState(blockEntity, state, f, vec3, crumblingOverlay);
         state.storedStack = blockEntity.getItem(0);
         state.world = blockEntity.getLevel();

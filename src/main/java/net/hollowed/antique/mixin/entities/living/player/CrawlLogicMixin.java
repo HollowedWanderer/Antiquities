@@ -40,10 +40,10 @@ public abstract class CrawlLogicMixin extends LivingEntity implements Crawl {
             SynchedEntityData.defineId(CrawlLogicMixin.class, EntityDataSerializers.INT);
 
     @Inject(method = "defineSynchedData", at = @At("HEAD"))
-    protected void initDataTracker(SynchedEntityData.Builder builder, CallbackInfo ci) {
-        builder.define(CRAWLING, false);
-        builder.define(SLIDE_TIMER, 0);
-        builder.define(SLIDE_COOLDOWN, 0);
+    protected void initDataTracker(SynchedEntityData.Builder entityData, CallbackInfo ci) {
+        entityData.define(CRAWLING, false);
+        entityData.define(SLIDE_TIMER, 0);
+        entityData.define(SLIDE_COOLDOWN, 0);
     }
 
     @Override

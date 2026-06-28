@@ -38,7 +38,7 @@ public abstract class EntityBounceMixin implements FastAir {
     public abstract Vec3 getDeltaMovement();
 
     @Shadow
-    public abstract void setDeltaMovement(double x, double y, double z);
+    public abstract void setDeltaMovement(double xd, double yd, double zd);
 
     @Shadow
     public abstract void setOnGround(boolean onGround);

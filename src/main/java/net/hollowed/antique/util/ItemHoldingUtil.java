@@ -16,6 +16,6 @@ public class ItemHoldingUtil {
 
     @SuppressWarnings("unused")
     public static boolean isHoldingItem(LivingEntity entity, Identifier tagKey) {
-        return entity.getItemInHand(InteractionHand.MAIN_HAND).getTags().toList().contains(TagKey.create(Registries.ITEM, tagKey)) || entity.getItemInHand(InteractionHand.OFF_HAND).getTags().toList().contains(TagKey.create(Registries.ITEM, tagKey));
+        return entity.getItemInHand(InteractionHand.MAIN_HAND).tags().toList().contains(TagKey.create(Registries.ITEM, tagKey)) || entity.getItemInHand(InteractionHand.OFF_HAND).tags().toList().contains(TagKey.create(Registries.ITEM, tagKey));
     }
 }

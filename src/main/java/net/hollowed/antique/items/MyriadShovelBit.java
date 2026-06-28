@@ -3,7 +3,7 @@ package net.hollowed.antique.items;
 import com.google.common.collect.ImmutableMap;
 import net.hollowed.antique.entities.MyriadShovelEntity;
 import net.hollowed.antique.index.AntiqueItems;
-import net.minecraft.advancements.CriteriaTriggers;
+import net.minecraft.advancements.triggers.CriteriaTriggers;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
@@ -81,22 +81,22 @@ public class MyriadShovelBit extends MyriadToolBitItem{
             .put(Blocks.BLACKSTONE, Blocks.POLISHED_BLACKSTONE)
             .put(Blocks.POLISHED_BLACKSTONE, Blocks.CHISELED_POLISHED_BLACKSTONE)
             .put(Blocks.QUARTZ_PILLAR, Blocks.CHISELED_QUARTZ_BLOCK)
-            .put(Blocks.COPPER_BLOCK, Blocks.CUT_COPPER)
-            .put(Blocks.CUT_COPPER, Blocks.CHISELED_COPPER)
-            .put(Blocks.EXPOSED_COPPER, Blocks.EXPOSED_CUT_COPPER)
-            .put(Blocks.EXPOSED_CUT_COPPER, Blocks.EXPOSED_CHISELED_COPPER)
-            .put(Blocks.WEATHERED_COPPER, Blocks.WEATHERED_CUT_COPPER)
-            .put(Blocks.WEATHERED_CUT_COPPER, Blocks.WEATHERED_CHISELED_COPPER)
-            .put(Blocks.OXIDIZED_COPPER, Blocks.OXIDIZED_CUT_COPPER)
-            .put(Blocks.OXIDIZED_CUT_COPPER, Blocks.OXIDIZED_CHISELED_COPPER)
-            .put(Blocks.WAXED_COPPER_BLOCK, Blocks.WAXED_CUT_COPPER)
-            .put(Blocks.WAXED_CUT_COPPER, Blocks.WAXED_CHISELED_COPPER)
-            .put(Blocks.WAXED_EXPOSED_COPPER, Blocks.WAXED_EXPOSED_CUT_COPPER)
-            .put(Blocks.WAXED_EXPOSED_CUT_COPPER, Blocks.WAXED_EXPOSED_CHISELED_COPPER)
-            .put(Blocks.WAXED_WEATHERED_COPPER, Blocks.WAXED_WEATHERED_CUT_COPPER)
-            .put(Blocks.WAXED_WEATHERED_CUT_COPPER, Blocks.WAXED_WEATHERED_CHISELED_COPPER)
-            .put(Blocks.WAXED_OXIDIZED_COPPER, Blocks.WAXED_OXIDIZED_CUT_COPPER)
-            .put(Blocks.WAXED_OXIDIZED_CUT_COPPER, Blocks.WAXED_OXIDIZED_CHISELED_COPPER)
+            .put(Blocks.COPPER_BLOCK.weathering().unaffected(), Blocks.CUT_COPPER.weathering().unaffected())
+            .put(Blocks.CUT_COPPER.weathering().unaffected(), Blocks.CHISELED_COPPER.weathering().unaffected())
+            .put(Blocks.COPPER_BLOCK.weathering().exposed(), Blocks.CUT_COPPER.weathering().exposed())
+            .put(Blocks.CUT_COPPER.weathering().exposed(), Blocks.CHISELED_COPPER.weathering().exposed())
+            .put(Blocks.COPPER_BLOCK.weathering().weathered(), Blocks.CUT_COPPER.weathering().weathered())
+            .put(Blocks.CUT_COPPER.weathering().weathered(), Blocks.CHISELED_COPPER.weathering().weathered())
+            .put(Blocks.COPPER_BLOCK.weathering().oxidized(), Blocks.CUT_COPPER.weathering().oxidized())
+            .put(Blocks.CUT_COPPER.weathering().oxidized(), Blocks.CHISELED_COPPER.weathering().oxidized())
+            .put(Blocks.COPPER_BLOCK.waxed().unaffected(), Blocks.CUT_COPPER.waxed().unaffected())
+            .put(Blocks.CUT_COPPER.waxed().unaffected(), Blocks.CHISELED_COPPER.waxed().unaffected())
+            .put(Blocks.COPPER_BLOCK.waxed().exposed(), Blocks.CUT_COPPER.waxed().exposed())
+            .put(Blocks.CUT_COPPER.waxed().exposed(), Blocks.CHISELED_COPPER.waxed().exposed())
+            .put(Blocks.COPPER_BLOCK.waxed().weathered(), Blocks.CUT_COPPER.waxed().weathered())
+            .put(Blocks.CUT_COPPER.waxed().weathered(), Blocks.CHISELED_COPPER.waxed().weathered())
+            .put(Blocks.COPPER_BLOCK.waxed().oxidized(), Blocks.CUT_COPPER.waxed().oxidized())
+            .put(Blocks.CUT_COPPER.waxed().oxidized(), Blocks.CHISELED_COPPER.waxed().oxidized())
             .put(Blocks.PACKED_MUD, Blocks.MUD_BRICKS)
             .put(Blocks.PRISMARINE, Blocks.PRISMARINE_BRICKS)
             .put(Blocks.PURPUR_BLOCK, Blocks.PURPUR_PILLAR)

@@ -1,25 +1,21 @@
 package net.hollowed.antique.mixin.blocks;
 
+import com.llamalad7.mixinextras.injector.ModifyReturnValue;
+import com.llamalad7.mixinextras.sugar.Local;
 import net.hollowed.antique.index.AntiqueItems;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.block.PowderSnowBlock;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Redirect;
 
 @Mixin(PowderSnowBlock.class)
 public abstract class PowderSnowWalkableMixin {
 
-    @Redirect(
-            method = "canEntityWalkOnPowderSnow",
-            at = @At(
-                    value = "INVOKE",
-                    target = "Lnet/minecraft/world/item/ItemStack;is(Lnet/minecraft/world/item/Item;)Z"
-            )
-    )
-    private static boolean modifyBootCheck(ItemStack stack, net.minecraft.world.item.Item item) {
-        return stack.is(Items.LEATHER_BOOTS) || stack.is(AntiqueItems.FUR_BOOTS);
+    @ModifyReturnValue(method = "canEntityWalkOnPowderSnow", at = @At("RETURN"))
+    private static boolean addFurBoots(boolean original, @Local(argsOnly = true, name = "entity") Entity entity) {
+        return original || entity instanceof LivingEntity livingEntity && livingEntity.getItemBySlot(EquipmentSlot.FEET).is(AntiqueItems.FUR_BOOTS);
     }
 }
 

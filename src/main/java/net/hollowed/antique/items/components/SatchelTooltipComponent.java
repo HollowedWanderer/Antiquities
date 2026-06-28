@@ -6,7 +6,7 @@ import net.fabricmc.api.Environment;
 import net.hollowed.antique.index.AntiqueDataComponentTypes;
 import net.hollowed.antique.items.SatchelItem;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipComponent;
 import net.minecraft.client.gui.screens.inventory.tooltip.DefaultTooltipPositioner;
 import net.minecraft.client.renderer.RenderPipelines;
@@ -18,6 +18,7 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.NonNull;
 
 @Environment(EnvType.CLIENT)
 public class SatchelTooltipComponent implements ClientTooltipComponent {
@@ -74,7 +75,7 @@ public class SatchelTooltipComponent implements ClientTooltipComponent {
 	}
 
 	@Override
-	public void renderImage(@NotNull Font textRenderer, int x, int y, int width, int height, @NotNull GuiGraphics context) {
+	public void extractImage(@NonNull Font font, int x, int y, int w, int h, @NonNull GuiGraphicsExtractor graphics) {
 		x -= 22;
 		if (this.satchelContents != SatchelItem.lastContents) {
 			SatchelItem.lastContents = this.satchelContents;
@@ -82,18 +83,18 @@ public class SatchelTooltipComponent implements ClientTooltipComponent {
 		}
 		this.stack.set(AntiqueDataComponentTypes.COUNTER, 0);
 		if (this.satchelContents.isEmpty()) {
-			this.drawEmptyTooltip(textRenderer, x, y, width, context);
+			this.drawEmptyTooltip(font, x, y, w, graphics);
 		} else {
-			this.drawNonEmptyTooltip(textRenderer, x, y, width, context);
+			this.drawNonEmptyTooltip(font, x, y, w, graphics);
 		}
 	}
 
-	private void drawEmptyTooltip(Font textRenderer, int x, int y, int width, GuiGraphics context) {
+	private void drawEmptyTooltip(Font textRenderer, int x, int y, int width, GuiGraphicsExtractor context) {
 		drawEmptyDescription(x + this.getXMargin(width), y, textRenderer, context);
 		this.drawProgressBar(x + this.getXMargin(width), y + getDescriptionHeight(textRenderer) + 4, textRenderer, context);
 	}
 
-	private void drawNonEmptyTooltip(Font textRenderer, int x, int y, int width, GuiGraphics context) {
+	private void drawNonEmptyTooltip(Font textRenderer, int x, int y, int width, GuiGraphicsExtractor context) {
 		List<ItemStack> list = this.firstStacksInContents();
 		int i = x + this.getXMargin(width);
 		int k = 0;
@@ -122,7 +123,7 @@ public class SatchelTooltipComponent implements ClientTooltipComponent {
 		return items.size() > itemIndex;
 	}
 
-	private void drawItem(int index, int x, int y, List<ItemStack> stacks, int seed, Font textRenderer, GuiGraphics drawContext) {
+	private void drawItem(int index, int x, int y, List<ItemStack> stacks, int seed, Font textRenderer, GuiGraphicsExtractor drawContext) {
 		boolean bl = index == this.selectedIndex();
 		ItemStack itemStack = stacks.get(index);
 		if (bl) {
@@ -131,37 +132,37 @@ public class SatchelTooltipComponent implements ClientTooltipComponent {
 			drawContext.blitSprite(RenderPipelines.GUI_TEXTURED, BUNDLE_SLOT_BACKGROUND_TEXTURE, x, y, 24, 24);
 		}
 
-		drawContext.renderItem(itemStack, x + 4, y + 4, seed);
-		drawContext.renderItemDecorations(textRenderer, itemStack, x + 4, y + 4);
+		drawContext.item(itemStack, x + 4, y + 4, seed);
+		drawContext.itemDecorations(textRenderer, itemStack, x + 4, y + 4);
 		if (bl) {
 			drawContext.blitSprite(RenderPipelines.GUI_TEXTURED, BUNDLE_SLOT_HIGHLIGHT_FRONT_TEXTURE, x, y, 24, 24);
 		}
 	}
 
-	private void drawSelectedItemTooltip(Font textRenderer, GuiGraphics drawContext, int x, int y, int width) {
+	private void drawSelectedItemTooltip(Font textRenderer, GuiGraphicsExtractor drawContext, int x, int y, int width) {
 		if (!this.satchelContents.isEmpty() && this.selectedIndex() < this.satchelContents.size() && this.selectedIndex() != -1) {
 			ItemStack itemStack = this.satchelContents.get(this.selectedIndex());
 			Component text = itemStack.getStyledHoverName();
 			int i = textRenderer.width(text.getVisualOrderText());
 			int j = x + width / 2 - 12;
 			ClientTooltipComponent tooltipComponent = ClientTooltipComponent.create(text.getVisualOrderText());
-			drawContext.renderTooltip(
+			drawContext.tooltip(
 				textRenderer, List.of(tooltipComponent), j - i / 2, y - 15, DefaultTooltipPositioner.INSTANCE, itemStack.get(DataComponents.TOOLTIP_STYLE)
 			);
 		}
 	}
 
-	private void drawProgressBar(int x, int y, Font textRenderer, GuiGraphics drawContext) {
+	private void drawProgressBar(int x, int y, Font textRenderer, GuiGraphicsExtractor drawContext) {
 		drawContext.blitSprite(RenderPipelines.GUI_TEXTURED, this.getProgressBarFillTexture(), x + 1, y, this.getProgressBarFill(), 13);
 		drawContext.blitSprite(RenderPipelines.GUI_TEXTURED, BUNDLE_PROGRESS_BAR_BORDER_TEXTURE, x, y, 128, 13);
 		Component text = this.getProgressBarLabel();
 		if (text != null) {
-			drawContext.drawCenteredString(textRenderer, text, x + 64, y + 3, CommonColors.WHITE);
+			drawContext.centeredText(textRenderer, text, x + 64, y + 3, CommonColors.WHITE);
 		}
 	}
 
-	private static void drawEmptyDescription(int x, int y, Font textRenderer, GuiGraphics drawContext) {
-		drawContext.drawWordWrap(textRenderer, BUNDLE_EMPTY_DESCRIPTION, x, y, 128, -5592406);
+	private static void drawEmptyDescription(int x, int y, Font textRenderer, GuiGraphicsExtractor drawContext) {
+		drawContext.textWithWordWrap(textRenderer, BUNDLE_EMPTY_DESCRIPTION, x, y, 128, -5592406);
 	}
 
 	private static int getDescriptionHeight(Font textRenderer) {

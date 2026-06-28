@@ -17,21 +17,21 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(CapeLayer.class)
 public abstract class CapeMixin {
 
-    @Shadow public abstract void submit(PoseStack matrixStack, SubmitNodeCollector orderedRenderCommandQueue, int i, AvatarRenderState playerEntityRenderState, float f, float g);
+    @Shadow public abstract void submit(PoseStack poseStack, SubmitNodeCollector submitNodeCollector, int lightCoords, AvatarRenderState state, float yRot, float xRot);
 
     @Unique
     private boolean ran;
 
     @Inject(method = "submit(Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/SubmitNodeCollector;ILnet/minecraft/client/renderer/entity/state/AvatarRenderState;FF)V", at = @At("HEAD"), cancellable = true)
-    public void render(PoseStack matrixStack, SubmitNodeCollector orderedRenderCommandQueue, int i, AvatarRenderState playerEntityRenderState, float f, float g, CallbackInfo ci) {
+    public void render(PoseStack poseStack, SubmitNodeCollector submitNodeCollector, int lightCoords, AvatarRenderState state, float yRot, float xRot, CallbackInfo ci) {
         if (!ran) {
             ran = true;
-            matrixStack.pushPose();
-            if (playerEntityRenderState.chestEquipment.getTags().toList().contains(TagKey.create(Registries.ITEM, Antiquities.id("chest_armor")))) {
-                matrixStack.translate(0.0F, -0.053125F, 0.06875F);
+            poseStack.pushPose();
+            if (state.chestEquipment.tags().toList().contains(TagKey.create(Registries.ITEM, Antiquities.id("chest_armor")))) {
+                poseStack.translate(0.0F, -0.053125F, 0.06875F);
             }
-            this.submit(matrixStack, orderedRenderCommandQueue, i, playerEntityRenderState, f, g);
-            matrixStack.popPose();
+            this.submit(poseStack, submitNodeCollector, lightCoords, state, yRot, xRot);
+            poseStack.popPose();
             ci.cancel();
         } else {
             ran = false;

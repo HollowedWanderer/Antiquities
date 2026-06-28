@@ -25,23 +25,23 @@ public class FirstPersonItemMixin {
 
     @Inject(method = "renderItem(Lnet/minecraft/world/entity/LivingEntity;Lnet/minecraft/world/item/ItemStack;Lnet/minecraft/world/item/ItemDisplayContext;Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/SubmitNodeCollector;I)V",
             at = @At("HEAD"))
-    private void itemTransforms(LivingEntity entity, ItemStack stack, ItemDisplayContext renderMode, PoseStack matrices, SubmitNodeCollector orderedRenderCommandQueue, int light, CallbackInfo ci) {
-        if (entity instanceof Player player) {
+    private void itemTransforms(LivingEntity mob, ItemStack itemStack, ItemDisplayContext type, PoseStack poseStack, SubmitNodeCollector submitNodeCollector, int lightCoords, CallbackInfo ci) {
+        if (mob instanceof Player player) {
             ItemStack activeStack = player.getUseItem();
             int useTime = player.getTicksUsingItem();
             float tickDelta = Minecraft.getInstance().getDeltaTracker().getGameTimeDeltaPartialTick(true);
-            boolean right = !renderMode.leftHand();
+            boolean right = !type.leftHand();
             if (activeStack.getItem() instanceof ScepterItem) {
-                if (EnchantmentListener.hasEnchantment(stack, "antique:kinematic") && activeStack.equals(stack)) {
+                if (EnchantmentListener.hasEnchantment(itemStack, "antique:kinematic") && activeStack.equals(itemStack)) {
                     final float totalRotation = getTotalRotation(useTime, tickDelta);
-                    matrices.translate(0, 0, -0.2);
-                    matrices.mulPose(Axis.XP.rotationDegrees(-totalRotation));
-                    matrices.translate(0, 0, 0.1);
+                    poseStack.translate(0, 0, -0.2);
+                    poseStack.mulPose(Axis.XP.rotationDegrees(-totalRotation));
+                    poseStack.translate(0, 0, 0.1);
                 }
             } else {
                 if (activeStack.is(AntiqueItems.MYRIAD_TOOL) && activeStack.getOrDefault(AntiqueDataComponentTypes.MYRIAD_TOOL, MyriadToolComponent.DEFAULT_NO_CLOTH).toolBit().is(AntiqueItems.MYRIAD_CLEAVER_BLADE)) {
-                    matrices.translate(right ? 0.2 : -0.2, 0.15, 0);
-                    matrices.mulPose(Axis.XP.rotationDegrees(45));
+                    poseStack.translate(right ? 0.2 : -0.2, 0.15, 0);
+                    poseStack.mulPose(Axis.XP.rotationDegrees(45));
                 }
             }
         }

@@ -36,12 +36,12 @@ public abstract class ChunkNoiseSamplerMixin {
     }
 
     @Inject(method = "<init>", at = @At(value = "INVOKE", target = "Ljava/util/List;add(Ljava/lang/Object;)Z", ordinal = 1))
-    private void addToList(int horizontalCellCount, RandomState noiseConfig, int startBlockX, int startBlockZ, NoiseSettings generationShapeConfig, DensityFunctions.BeardifierOrMarker beardifying, NoiseGeneratorSettings chunkGeneratorSettings, Aquifer.FluidPicker fluidLevelSampler, Blender blender, CallbackInfo ci) {
-        NoiseRouter noiseRouter = noiseConfig.router();
+    private void addToList(int cellCountXZ, RandomState randomState, int chunkMinBlockX, int chunkMinBlockZ, NoiseSettings noiseSettings, DensityFunctions.BeardifierOrMarker beardifier, NoiseGeneratorSettings settings, Aquifer.FluidPicker globalFluidPicker, Blender blender, CallbackInfo ci) {
+        NoiseRouter noiseRouter = randomState.router();
         NoiseRouter noiseRouter2 = noiseRouter.mapAll(this::wrap);
 
-        if (chunkGeneratorSettings.oreVeinsEnabled()) {
-            list.add(AntiqueOreVeinSampler.create(noiseRouter2.veinToggle(), noiseRouter2.veinRidged(), noiseRouter2.veinGap(), noiseConfig.oreRandom()));
+        if (settings.oreVeinsEnabled()) {
+            list.add(AntiqueOreVeinSampler.create(noiseRouter2.veinToggle(), noiseRouter2.veinRidged(), noiseRouter2.veinGap(), randomState.oreRandom()));
         }
     }
 }

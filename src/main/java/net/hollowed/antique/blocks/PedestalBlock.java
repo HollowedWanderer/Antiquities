@@ -72,7 +72,7 @@ public class PedestalBlock extends BaseEntityBlock implements EntityBlock, Simpl
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level world, @NotNull BlockState state, @NotNull BlockEntityType<T> type) {
         if (!world.isClientSide()) {
             return type == AntiqueBlockEntities.PEDESTAL_BLOCK_ENTITY
-                    ? (world1, pos, state1, blockEntity) ->
+                    ? (world1, _, _, blockEntity) ->
                     PedestalBlockEntity.tick(world1, (PedestalBlockEntity) blockEntity)
                     : null;
         }
@@ -248,8 +248,8 @@ public class PedestalBlock extends BaseEntityBlock implements EntityBlock, Simpl
                 handItem.shrink(1);
                 itemChanged = true;
 
-                if (newItem.getItem() instanceof SpawnEggItem spawnEggItem) {
-                    EntityType<?> entityType = spawnEggItem.getType(newItem);
+                if (newItem.getItem() instanceof SpawnEggItem) {
+                    EntityType<?> entityType = SpawnEggItem.getType(newItem);
                     if (entityType != null && !level.isClientSide()) {
                         Entity entity1 = entityType.create(level, EntitySpawnReason.MOB_SUMMONED);
                         if (entity1 instanceof Mob mobEntity) {

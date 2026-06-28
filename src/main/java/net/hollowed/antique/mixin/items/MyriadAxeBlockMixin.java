@@ -47,7 +47,7 @@ public abstract class MyriadAxeBlockMixin extends Entity implements Attackable {
     }
 
     @Inject(method = "hurtServer", at = @At("HEAD"), cancellable = true)
-    public void blockWithMyriadAxe(ServerLevel world, DamageSource source, float amount, CallbackInfoReturnable<Boolean> cir) {
+    public void blockWithMyriadAxe(ServerLevel level, DamageSource source, float damage, CallbackInfoReturnable<Boolean> cir) {
         LivingEntity self = (LivingEntity) (Object) this;
         Vec3 attackDirection = source.getSourcePosition() != null ? source.getSourcePosition().subtract(self.position()).normalize() : Vec3.ZERO;
         if (attackDirection.equals(Vec3.ZERO)) {
@@ -60,21 +60,21 @@ public abstract class MyriadAxeBlockMixin extends Entity implements Attackable {
         if (this.getAxeBlockingItem() != null && (angle > 0.0F) && !ran
             && !(source.is(DamageTypeTags.IS_PROJECTILE)) && (!source.is(DamageTypeTags.BYPASSES_SHIELD) || source.is(DamageTypes.FALL)) && !source.is(DamageTypeTags.IS_FIRE)) {
 
-            float reducedDamage = amount * 0.5F;
+            float reducedDamage = damage * 0.5F;
             if (self instanceof Player player) {
                 player.level().playSound(null, self.blockPosition(), SoundEvents.HEAVY_CORE_PLACE, SoundSource.PLAYERS, 1.0F, 1.2F);
                 player.level().playSound(null, self.blockPosition(), SoundEvents.SHIELD_BLOCK.value(), SoundSource.PLAYERS, 0.25F, 1.2F);
                 if (source.getDirectEntity() instanceof LivingEntity attacker) {
                     Vec3 knockbackDirection = attacker.position().subtract(player.position()).normalize();
-                    attacker.knockback(0.25, -knockbackDirection.x, -knockbackDirection.z);
+                    attacker.knockback(0.25, -knockbackDirection.x, -knockbackDirection.z, source, 0);
                     attacker.hurtMarked = true;
                     attacker.needsSync = true;
                 }
             }
             this.ran = true;
-            self.hurtServer(world, source, reducedDamage);
+            self.hurtServer(level, source, reducedDamage);
 
-            if (amount > 20.0F) {
+            if (damage > 20.0F) {
                 if (self instanceof ServerPlayer player) {
                     player.getCooldowns().addCooldown(player.getUseItem(), 20);
                     self.releaseUsingItem();
@@ -83,7 +83,7 @@ public abstract class MyriadAxeBlockMixin extends Entity implements Attackable {
 
             double d = -Mth.sin(this.getYRot() * (float) (Math.PI / 180.0)) * 1.5;
             double e = Mth.cos(this.getYRot() * (float) (Math.PI / 180.0)) * 1.5;
-            world.sendParticles(CAParticles.RING, this.getX() + d, this.getY(0.5) + 0.25, this.getZ() + e, 0, d, 0.0, e, 0.0);
+            level.sendParticles(CAParticles.RING, this.getX() + d, this.getY(0.5) + 0.25, this.getZ() + e, 0, d, 0.0, e, 0.0);
 
             cir.setReturnValue(false);
         } else {
@@ -91,7 +91,7 @@ public abstract class MyriadAxeBlockMixin extends Entity implements Attackable {
                 self.level().playSound(null, self.blockPosition(), SoundEvents.HEAVY_CORE_PLACE, SoundSource.PLAYERS, 1.0F, 1.2F);
                 self.level().playSound(null, self.blockPosition(), SoundEvents.SHIELD_BLOCK.value(), SoundSource.PLAYERS, 0.25F, 1.2F);
                 if (source.getDirectEntity() != null) {
-                    world.sendParticles(CAParticles.RING, source.getDirectEntity().getX(), source.getDirectEntity().getY(), source.getDirectEntity().getZ(), 1, 0.0, 0.0, 0.0, 0);
+                    level.sendParticles(CAParticles.RING, source.getDirectEntity().getX(), source.getDirectEntity().getY(), source.getDirectEntity().getZ(), 1, 0.0, 0.0, 0.0, 0);
                 }
                 cir.setReturnValue(false);
             }

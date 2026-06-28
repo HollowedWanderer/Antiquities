@@ -6,7 +6,7 @@ import com.terraformersmc.modmenu.util.mod.Mod;
 import net.hollowed.antique.Antiquities;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.ObjectSelectionList;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.locale.Language;
@@ -32,11 +32,11 @@ public abstract class ModMenuMixin extends ObjectSelectionList.Entry<@NotNull Mo
     @Shadow public abstract int getYOffset();
 
     @Inject(
-            method = "renderContent",
+            method = "extractContent",
             at = @At("TAIL")
     )
     private void modifyModNameColor(
-            GuiGraphics drawContext, int mouseX, int mouseY, boolean hovered, float delta, CallbackInfo ci
+            GuiGraphicsExtractor drawContext, int mouseX, int mouseY, boolean hovered, float delta, CallbackInfo ci
     ) {
         String modId = this.mod.getId();
         int iconSize = ModMenuConfig.COMPACT_LIST.getValue() ? 19 : 32;
@@ -59,7 +59,7 @@ public abstract class ModMenuMixin extends ObjectSelectionList.Entry<@NotNull Mo
 
         if ("antique".equals(modId)) {
             // Modify the text rendering with a new color
-            drawContext.drawString(
+            drawContext.text(
                     this.client.font,
                     Language.getInstance().getVisualOrder(trimmedName),
                     x + iconSize + 3,

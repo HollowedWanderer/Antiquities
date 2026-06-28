@@ -5,8 +5,7 @@ import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.item.v1.ItemTooltipCallback;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.client.rendering.v1.ArmorRenderer;
-import net.fabricmc.fabric.api.client.rendering.v1.BlockRenderLayerMap;
-import net.fabricmc.fabric.api.client.rendering.v1.EntityModelLayerRegistry;
+import net.fabricmc.fabric.api.client.rendering.v1.ModelLayerRegistry;
 import net.hollowed.antique.client.armor.renderers.AdventureArmorFeatureRenderer;
 import net.hollowed.antique.entities.models.ClothKnotModel;
 import net.hollowed.antique.index.*;
@@ -20,12 +19,10 @@ import net.hollowed.antique.util.ClothUtil;
 import net.hollowed.antique.util.interfaces.duck.ClothAccess;
 import net.hollowed.antique.util.models.*;
 import net.hollowed.antique.util.properties.*;
-import net.hollowed.antique.util.resources.ClothPatternData;
 import net.hollowed.antique.util.resources.SewnClothPattern;
 import net.minecraft.client.color.item.ItemTintSources;
 import net.minecraft.client.gui.screens.MenuScreens;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderers;
-import net.minecraft.client.renderer.chunk.ChunkSectionLayer;
 import net.minecraft.client.renderer.entity.EntityRenderers;
 import net.minecraft.client.renderer.entity.ThrownItemRenderer;
 import net.minecraft.client.renderer.item.ItemModels;
@@ -36,16 +33,13 @@ import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.contents.TranslatableContents;
 import net.minecraft.resources.Identifier;
-import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.entity.projectile.throwableitemprojectile.Snowball;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.component.DyedItemColor;
-import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import java.awt.*;
-import java.util.Optional;
 
 public class AntiquitiesClient implements ClientModInitializer {
 
@@ -61,7 +55,7 @@ public class AntiquitiesClient implements ClientModInitializer {
     @Override
     public void onInitializeClient() {
 
-        ClientTickEvents.START_WORLD_TICK.register(level -> ((ClothAccess) level).antique$tick());
+        ClientTickEvents.START_LEVEL_TICK.register(level -> ((ClothAccess) level).antique$tick());
 
         AntiqueKeyBindings.initialize();
 
@@ -96,10 +90,7 @@ public class AntiquitiesClient implements ClientModInitializer {
             Block Renderers
          */
 
-        BlockEntityRenderers.register(AntiqueBlockEntities.PEDESTAL_BLOCK_ENTITY, context -> new PedestalRenderer());
-        BlockRenderLayerMap.putBlocks(ChunkSectionLayer.CUTOUT, AntiqueBlocks.PEDESTAL, AntiqueBlocks.HOLLOW_CORE, AntiqueBlocks.JAR, AntiqueBlocks.MYRIAD_CLUSTER, AntiqueBlocks.DEEPSLATE_MYRIAD_CLUSTER);
-        BlockRenderLayerMap.putBlocks(ChunkSectionLayer.CUTOUT, AntiqueBlocks.IVY, AntiqueBlocks.RESONATOR);
-        BlockRenderLayerMap.putBlocks(ChunkSectionLayer.TRANSLUCENT, Blocks.GLASS, Blocks.GLASS_PANE);
+        BlockEntityRenderers.register(AntiqueBlockEntities.PEDESTAL_BLOCK_ENTITY, _ -> new PedestalRenderer());
 
         /*
             Packets
@@ -115,8 +106,8 @@ public class AntiquitiesClient implements ClientModInitializer {
             Entity Renderers
          */
 
-        EntityModelLayerRegistry.registerModelLayer(AntiqueEntityLayers.ADVENTURE_ARMOR, AdventureArmor::getTexturedModelData);
-        EntityModelLayerRegistry.registerModelLayer(AntiqueEntityLayers.CLOTH_KNOT, ClothKnotModel::createBodyLayer);
+        ModelLayerRegistry.registerModelLayer(AntiqueEntityLayers.ADVENTURE_ARMOR, AdventureArmor::getTexturedModelData);
+        ModelLayerRegistry.registerModelLayer(AntiqueEntityLayers.CLOTH_KNOT, ClothKnotModel::createBodyLayer);
 
         EntityRenderers.register(AntiqueEntities.CLOTH, ClothEntityRenderer::new);
         EntityRenderers.register(AntiqueEntities.MYRIAD_SHOVEL, MyriadShovelEntityRenderer::new);
@@ -150,7 +141,7 @@ public class AntiquitiesClient implements ClientModInitializer {
                 AABB box = new AABB(pos.x - 1, pos.y - 1, pos.z - 1, pos.x + 1, pos.y + 1, pos.z + 1);
                 box = box.inflate(60);
                 if (client.level != null) {
-                    for (Snowball entity : client.level.getEntitiesOfClass(Snowball.class, box, arrowEntity -> true)) {
+                    for (Snowball entity : client.level.getEntitiesOfClass(Snowball.class, box, _ -> true)) {
                         if (Math.random() > 0.65) {
                             entity.level().addParticle(ParticleTypes.ITEM_SNOWBALL, entity.getX(), entity.getY(), entity.getZ(), 0, 0, 0);
                         }
@@ -172,7 +163,7 @@ public class AntiquitiesClient implements ClientModInitializer {
             }
         });
 
-        ItemTooltipCallback.EVENT.register((itemStack, context, tooltipType, list) -> {
+        ItemTooltipCallback.EVENT.register((itemStack, context, _, list) -> {
             list.replaceAll(text -> {
                 if (text.getContents() instanceof TranslatableContents translatable && translatable.getKey().contains("item.color")) {
                     return text.copy().withColor(new Color(itemStack.getOrDefault(DataComponents.DYED_COLOR, new DyedItemColor(0xFFFFFF)).rgb()).brighter().getRGB());

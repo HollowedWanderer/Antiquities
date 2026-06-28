@@ -8,7 +8,6 @@ import net.hollowed.antique.index.AntiqueDamageTypes;
 import net.hollowed.antique.index.AntiqueEntities;
 import net.hollowed.antique.entities.parts.MyriadShovelPart;
 import net.hollowed.antique.index.AntiqueTrackedData;
-import net.hollowed.antique.util.resources.ClothPatternData;
 import net.hollowed.antique.util.resources.ClothSkinData;
 import net.hollowed.antique.items.components.MyriadToolComponent;
 import net.hollowed.antique.util.resources.SewnClothPattern;
@@ -26,6 +25,7 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.ProjectileDeflection;
@@ -193,11 +193,11 @@ public class MyriadShovelEntity extends AbstractArrow {
 
 			f = EnchantmentHelper.modifyDamage(serverWorld, this.getWeaponItem() != null ? this.getWeaponItem() : ItemStack.EMPTY, entity, damageSource, f);
 			if (entity.hurtServer(serverWorld, damageSource, f)) {
-				if (entity.getType() == EntityType.ENDERMAN) {
+				if (entity.getType() == EntityTypes.ENDERMAN) {
 					return;
 				}
 
-				EnchantmentHelper.doPostAttackEffectsWithItemSourceOnBreak(serverWorld, entity, damageSource, this.getWeaponItem(), item -> this.kill(serverWorld));
+				EnchantmentHelper.doPostAttackEffectsWithItemSourceOnBreak(serverWorld, entity, damageSource, this.getWeaponItem(), _ -> this.kill(serverWorld));
 				if (entity instanceof LivingEntity) {
 					entity.setDeltaMovement(this.getDeltaMovement().multiply(0.6, 0.45, 0.6));
 					entity.hurtMarked = true;
@@ -223,7 +223,7 @@ public class MyriadShovelEntity extends AbstractArrow {
 				null,
 				vec3d,
 				world.getBlockState(blockHitResult.getBlockPos()),
-				item -> this.kill(world)
+                _ -> this.kill(world)
 		);
 	}
 

@@ -4,7 +4,7 @@ import com.terraformersmc.modmenu.gui.ModsScreen;
 import com.terraformersmc.modmenu.gui.widget.entries.ModListEntry;
 import com.terraformersmc.modmenu.util.mod.Mod;
 import net.hollowed.antique.Antiquities;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.locale.Language;
@@ -27,8 +27,8 @@ public abstract class ModMenuEntryMixin extends Screen {
         super(title);
     }
 
-    @Inject(method = "render", at = @At("TAIL"))
-    public void render(GuiGraphics DrawContext, int mouseX, int mouseY, float delta, CallbackInfo ci) {
+    @Inject(method = "extractRenderState", at = @At("TAIL"))
+    public void render(GuiGraphicsExtractor drawContext, int mouseX, int mouseY, float delta, CallbackInfo ci) {
         ModListEntry selectedEntry = this.selected;
         if (selectedEntry != null) {
             Mod mod = selectedEntry.getMod();
@@ -45,8 +45,8 @@ public abstract class ModMenuEntryMixin extends Screen {
             int nameColor = 0xFFAA2F54;
 
             if ("antique".equals(mod.getId())) {
-                DrawContext.drawString(this.font, Language.getInstance().getVisualOrder(trimmedName), this.rightPaneX + imageOffset, 49, nameColor, true);
-                DrawContext.blit(RenderPipelines.GUI_TEXTURED, Antiquities.id("antiquities_small_icon.png"), this.rightPaneX + imageOffset + 50, 45, 0, 0, 16, 16, 16, 16);
+                drawContext.text(this.font, Language.getInstance().getVisualOrder(trimmedName), this.rightPaneX + imageOffset, 49, nameColor, true);
+                drawContext.blit(RenderPipelines.GUI_TEXTURED, Antiquities.id("antiquities_small_icon.png"), this.rightPaneX + imageOffset + 50, 45, 0, 0, 16, 16, 16, 16);
             }
         }
     }

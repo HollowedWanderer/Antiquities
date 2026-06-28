@@ -27,8 +27,8 @@ public class MouseHandlerMixin {
             ),
             cancellable = true
     )
-    private void onScroll(long l, double d, double e, CallbackInfo ci, @Local(ordinal = 4) double ySign) {
-        if (Minecraft.getInstance().screen instanceof AbstractContainerScreenAccessor accessor) {
+    private void onScroll(long handle, double xoffset, double yoffset, CallbackInfo ci, @Local(name = "scaledYOffset") double scaledYOffset) {
+        if (Minecraft.getInstance().gui.screen() instanceof AbstractContainerScreenAccessor accessor) {
             Slot slot = accessor.antique$getHoveredSlot();
             LocalPlayer player = Minecraft.getInstance().player;
 
@@ -37,9 +37,9 @@ public class MouseHandlerMixin {
                 AmethystForkComponent component = stack.get(AntiqueDataComponentTypes.AMETHYST_FORK);
 
                 if (component != null) {
-                    if (ySign == 1) {
+                    if (scaledYOffset == 1) {
                         component = component.withNote(component.note() == 24 ? 0 : (component.note() + 1));
-                    } else if (ySign == -1) {
+                    } else if (scaledYOffset == -1) {
                         component = component.withNote(component.note() == 0 ? 24 : (component.note() - 1));
                     }
 

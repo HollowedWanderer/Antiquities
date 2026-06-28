@@ -17,7 +17,7 @@ public class SatchelPacketReceiver {
 
     public static void registerServerPacket() {
 
-        ServerPlayNetworking.registerGlobalReceiver(SatchelPacketPayload.ID, (payload, context) -> {
+        ServerPlayNetworking.registerGlobalReceiver(SatchelPacketPayload.ID, (_, context) -> {
 
             Player player = context.player();
 

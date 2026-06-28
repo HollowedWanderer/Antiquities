@@ -44,7 +44,7 @@ public record AntiqueToolMaterial(
 						DataComponents.TOOL,
 						new Tool(
 								List.of(
-										Tool.Rule.minesAndDrops(HolderSet.direct(Blocks.COBWEB.defaultBlockState().getBlockHolder()), 15.0F),
+										Tool.Rule.minesAndDrops(HolderSet.direct(Blocks.COBWEB.defaultBlockState().typeHolder()), 15.0F),
 										Tool.Rule.overrideSpeed(registryEntryLookup.getOrThrow(BlockTags.SWORD_EFFICIENT), 1.5F)
 								),
 								1.0F,

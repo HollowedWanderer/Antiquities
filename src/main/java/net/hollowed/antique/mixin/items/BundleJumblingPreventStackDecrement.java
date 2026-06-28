@@ -18,9 +18,9 @@ public class BundleJumblingPreventStackDecrement {
                     target = "Lnet/minecraft/world/item/ItemStack;consume(ILnet/minecraft/world/entity/LivingEntity;)V"
             )
     )
-    private void conditionalDecrement(ItemStack instance, int amount, LivingEntity entity) {
+    private void conditionalDecrement(ItemStack instance, int amount, LivingEntity owner) {
         if (!EnchantmentListener.hasEnchantment(instance, "antique:jumbling")) {
-            instance.consume(1, entity);
+            instance.consume(1, owner);
         }
     }
 }

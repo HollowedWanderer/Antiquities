@@ -5,28 +5,25 @@ import net.fabricmc.api.Environment;
 import net.minecraft.client.Camera;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.particle.*;
-import net.minecraft.client.renderer.LevelRenderer;
-import net.minecraft.client.renderer.state.QuadParticleRenderState;
-import net.minecraft.core.BlockPos;
+import net.minecraft.client.renderer.state.level.QuadParticleRenderState;
 import net.minecraft.core.particles.SimpleParticleType;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Quaternionf;
+import org.jspecify.annotations.NonNull;
 
 @Environment(EnvType.CLIENT)
 public class CakeSmearParticle extends SingleQuadParticle {
 	private final double dirX;
 	private final double dirY;
 	private final double dirZ;
-	private final ClientLevel level;
 
 	CakeSmearParticle(ClientLevel world, double x, double y, double z, double velocityX, double velocityY, double velocityZ, SpriteSet spriteProvider) {
 		super(world, x, y, z, spriteProvider.first());
 
 		this.setPos(x, y, z);
-		this.level = world;
 
 		this.dirX = velocityX;
 		this.dirY = velocityY;
@@ -67,7 +64,7 @@ public class CakeSmearParticle extends SingleQuadParticle {
 		}
 
 		@Override
-		public @Nullable Particle createParticle(SimpleParticleType parameters, @NotNull ClientLevel world, double x, double y, double z, double velocityX, double velocityY, double velocityZ, @NotNull RandomSource random) {
+		public @Nullable Particle createParticle(@NonNull SimpleParticleType parameters, @NotNull ClientLevel world, double x, double y, double z, double velocityX, double velocityY, double velocityZ, @NotNull RandomSource random) {
 			CakeSmearParticle particle = new CakeSmearParticle(world, x, y, z, velocityX, velocityY, velocityZ, this.spriteProvider);
 			particle.setSprite(this.spriteProvider.first());
 			return particle;
@@ -90,11 +87,5 @@ public class CakeSmearParticle extends SingleQuadParticle {
 	@Override
 	protected @NotNull Layer getLayer() {
 		return Layer.TRANSLUCENT;
-	}
-
-	@Override
-	public int getLightColor(float tint) {
-		BlockPos blockPos = BlockPos.containing(this.x, this.y, this.z);
-		return LevelRenderer.getLightColor(this.level, blockPos);
 	}
 }

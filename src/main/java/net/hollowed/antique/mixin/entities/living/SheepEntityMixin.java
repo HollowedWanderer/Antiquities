@@ -25,7 +25,7 @@ public abstract class SheepEntityMixin extends Animal implements Shearable {
 
     @Shadow public abstract boolean readyForShearing();
 
-    @Shadow public abstract void shear(@NotNull ServerLevel world, @NotNull SoundSource shearedSoundCategory, @NotNull ItemStack shears);
+    @Shadow public abstract void shear(@NotNull ServerLevel level, @NotNull SoundSource soundSource, @NotNull ItemStack tool);
 
     protected SheepEntityMixin(EntityType<? extends Animal> entityType, Level world) {
         super(entityType, world);

@@ -21,6 +21,7 @@
     "entities.living.FurBootsFreezeImmunityMixin",
     "entities.living.FurBootsMagmaMixin",
     "entities.living.LivingEntityFreezer",
+    "entities.living.MobShearMixin",
     "entities.living.ProjectileBypassMixin",
     "entities.living.RaidModifierMixin",
     "entities.living.ServerPlayerClipMixin",
@@ -70,7 +71,6 @@
   "client": [
     "accessors.AbstractContainerScreenAccessor",
     "accessors.GetSlotAtAccessor",
-    "accessors.RendererAccessor",
     "accessors.SpriteContentsAnimationStateAccessor",
     "accessors.TextureAtlasAccessor",
     "atlas.AtlasManagerMixin",

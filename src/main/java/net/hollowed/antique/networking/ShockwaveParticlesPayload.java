@@ -13,14 +13,14 @@ public record ShockwaveParticlesPayload(float x, float y, float z, Vec3 pushVect
     public static final StreamCodec<RegistryFriendlyByteBuf, ShockwaveParticlesPayload> CODEC = StreamCodec.ofMember(ShockwaveParticlesPayload::write, ShockwaveParticlesPayload::new);
 
     public ShockwaveParticlesPayload(RegistryFriendlyByteBuf buf) {
-        this(buf.readFloat(), buf.readFloat(), buf.readFloat(), buf.readVec3());
+        this(buf.readFloat(), buf.readFloat(), buf.readFloat(), new Vec3(buf.readVector3f()));
     }
 
     public void write(RegistryFriendlyByteBuf buf) {
         buf.writeFloat(x);
         buf.writeFloat(y);
         buf.writeFloat(z);
-        buf.writeVec3(pushVector);
+        buf.writeVector3f(pushVector.toVector3f());
     }
 
     @Override

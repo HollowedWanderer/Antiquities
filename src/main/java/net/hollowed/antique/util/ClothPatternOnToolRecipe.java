@@ -1,39 +1,51 @@
 package net.hollowed.antique.util;
 
+import java.util.List;
+
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-
-import java.util.List;
-import java.util.Optional;
-
 import net.hollowed.antique.config.AntiquitiesConfig;
 import net.hollowed.antique.index.AntiqueDataComponentTypes;
 import net.hollowed.antique.index.AntiqueItems;
 import net.hollowed.antique.index.AntiqueRecipeSerializer;
 import net.hollowed.antique.items.components.MyriadToolComponent;
-import net.hollowed.antique.util.resources.ClothPatternData;
 import net.hollowed.antique.util.resources.SewnClothPattern;
 import net.hollowed.combatamenities.util.items.CAComponents;
-import net.minecraft.core.HolderLookup;
 import net.minecraft.core.NonNullList;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.crafting.CraftingBookCategory;
-import net.minecraft.world.item.crafting.CraftingInput;
-import net.minecraft.world.item.crafting.CraftingRecipe;
-import net.minecraft.world.item.crafting.Ingredient;
-import net.minecraft.world.item.crafting.PlacementInfo;
-import net.minecraft.world.item.crafting.RecipeSerializer;
+import net.minecraft.world.item.crafting.*;
 import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.NonNull;
 
-public class ClothPatternOnToolRecipe implements CraftingRecipe {
+public class ClothPatternOnToolRecipe extends CustomRecipe {
+
+	private static final MapCodec<ClothPatternOnToolRecipe> CODEC = RecordCodecBuilder.mapCodec(
+			instance -> instance.group(
+							Codec.STRING.optionalFieldOf("group", "").forGetter(recipe -> recipe.group),
+							CraftingBookCategory.CODEC.fieldOf("category").orElse(CraftingBookCategory.MISC).forGetter(recipe -> recipe.category),
+							Ingredient.CODEC.listOf(1, 9).fieldOf("ingredients").forGetter(recipe -> recipe.ingredients)
+					)
+					.apply(instance, ClothPatternOnToolRecipe::new)
+	);
+	public static final StreamCodec<RegistryFriendlyByteBuf, ClothPatternOnToolRecipe> STREAM_CODEC = StreamCodec.composite(
+			ByteBufCodecs.STRING_UTF8,
+			recipe -> recipe.group,
+			CraftingBookCategory.STREAM_CODEC,
+			recipe -> recipe.category,
+			Ingredient.CONTENTS_STREAM_CODEC.apply(ByteBufCodecs.list()),
+			recipe -> recipe.ingredients,
+			ClothPatternOnToolRecipe::new
+	);
+
+	public static final RecipeSerializer<ClothPatternOnToolRecipe> SERIALIZER = new RecipeSerializer<>(CODEC, STREAM_CODEC);
+
 	final String group;
 	final CraftingBookCategory category;
 	final List<Ingredient> ingredients;
@@ -114,11 +126,12 @@ public class ClothPatternOnToolRecipe implements CraftingRecipe {
 		}
 	}
 
-	public @NotNull ItemStack assemble(CraftingInput craftingRecipeInput, HolderLookup.@NotNull Provider wrapperLookup) {
+	@Override
+	public @NonNull ItemStack assemble(CraftingInput input) {
 		ItemStack myriadTool = null;
 		ItemStack clothPattern = null;
 
-		for (ItemStack stack : craftingRecipeInput.items()) {
+		for (ItemStack stack : input.items()) {
 			if (stack.is(AntiqueItems.MYRIAD_TOOL)) {
 				myriadTool = stack;
 			} else if (stack.is(AntiqueItems.CLOTH_PATTERN)) {
@@ -143,35 +156,5 @@ public class ClothPatternOnToolRecipe implements CraftingRecipe {
 		}
 
 		return ItemStack.EMPTY;
-	}
-
-	public static class Serializer implements RecipeSerializer<@NotNull ClothPatternOnToolRecipe> {
-		private static final MapCodec<ClothPatternOnToolRecipe> CODEC = RecordCodecBuilder.mapCodec(
-				instance -> instance.group(
-								Codec.STRING.optionalFieldOf("group", "").forGetter(recipe -> recipe.group),
-								CraftingBookCategory.CODEC.fieldOf("category").orElse(CraftingBookCategory.MISC).forGetter(recipe -> recipe.category),
-								Ingredient.CODEC.listOf(1, 9).fieldOf("ingredients").forGetter(recipe -> recipe.ingredients)
-						)
-						.apply(instance, ClothPatternOnToolRecipe::new)
-		);
-		public static final StreamCodec<RegistryFriendlyByteBuf, ClothPatternOnToolRecipe> STREAM_CODEC = StreamCodec.composite(
-				ByteBufCodecs.STRING_UTF8,
-				recipe -> recipe.group,
-				CraftingBookCategory.STREAM_CODEC,
-				recipe -> recipe.category,
-				Ingredient.CONTENTS_STREAM_CODEC.apply(ByteBufCodecs.list()),
-				recipe -> recipe.ingredients,
-				ClothPatternOnToolRecipe::new
-		);
-
-		@Override
-		public @NotNull MapCodec<ClothPatternOnToolRecipe> codec() {
-			return CODEC;
-		}
-
-		@Override
-		public @NotNull StreamCodec<RegistryFriendlyByteBuf, ClothPatternOnToolRecipe> streamCodec() {
-			return STREAM_CODEC;
-		}
 	}
 }

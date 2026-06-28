@@ -29,7 +29,7 @@ public record ProjectileTypeProperty() implements SelectItemModelProperty<Identi
 		if (chargedProjectilesComponent == null || chargedProjectilesComponent.isEmpty()) {
 			return Identifier.parse("none");
 		} else {
-			return BuiltInRegistries.ITEM.getKey(chargedProjectilesComponent.getItems().getFirst().getItem());
+			return BuiltInRegistries.ITEM.getKey(chargedProjectilesComponent.items().getFirst().item().value());
 		}
 	}
 

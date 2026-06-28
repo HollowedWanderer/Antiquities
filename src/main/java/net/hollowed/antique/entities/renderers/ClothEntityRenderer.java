@@ -1,6 +1,5 @@
 package net.hollowed.antique.entities.renderers;
 
-import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -14,18 +13,17 @@ import net.hollowed.antique.util.ClothUtil;
 import net.hollowed.antique.util.resources.ClothModelListener;
 import net.hollowed.antique.util.resources.client.ClothModelData;
 import net.hollowed.antique.util.resources.client.ClothSprite;
-import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
-import net.minecraft.client.renderer.state.CameraRenderState;
+import net.minecraft.client.renderer.state.level.CameraRenderState;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.resources.Identifier;
+import net.minecraft.util.LightCoordsUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jspecify.annotations.NonNull;
 
 import java.awt.*;
-import java.util.Optional;
 
 @Environment(EnvType.CLIENT)
 public class ClothEntityRenderer extends EntityRenderer<@NotNull ClothEntity, @NotNull ClothRenderState> {
@@ -55,7 +53,7 @@ public class ClothEntityRenderer extends EntityRenderer<@NotNull ClothEntity, @N
 							state,
 							poseStack,
 							this.model.renderType(sprite.texture().withPrefix("textures/").withSuffix(".png")),
-							sprite.light().map(l -> LightTexture.pack(l, l)).orElse(state.lightCoords),
+							sprite.light().map(l -> LightCoordsUtil.pack(l, l)).orElse(state.lightCoords),
 							OverlayTexture.NO_OVERLAY,
 							sprite.tint() ? ClothUtil.getDynamicClothColor(state.cloth, state.entity.registryAccess()).orElse(0xFFFFFFFF) : 0xFFFFFFFF,
 							null,

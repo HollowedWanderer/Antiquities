@@ -7,7 +7,7 @@ import net.hollowed.antique.items.SatchelItem;
 import net.hollowed.antique.mixin.accessors.GetSlotAtAccessor;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.ScrollWheelHandler;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
@@ -34,20 +34,20 @@ public abstract class HandledScreenMixin {
     private ItemStack lastBag = null;
 
     @Inject(method = "mouseScrolled", at = @At("HEAD"), cancellable = true)
-    public void onMouseScrolled(double mouseX, double mouseY, double horizontalAmount, double verticalAmount, CallbackInfoReturnable<Boolean> cir) {
+    public void onMouseScrolled(double x, double y, double scrollX, double scrollY, CallbackInfoReturnable<Boolean> cir) {
         Minecraft client = Minecraft.getInstance();
-        if (client.screen != null) {
+        if (client.gui.screen() != null) {
             boolean bl = client.options.discreteMouseScroll().get();
             double d = client.options.mouseWheelSensitivity().get();
-            double e = (bl ? Math.signum(horizontalAmount) : horizontalAmount) * d;
-            double f = (bl ? Math.signum(verticalAmount) : verticalAmount) * d;
+            double e = (bl ? Math.signum(scrollX) : scrollX) * d;
+            double f = (bl ? Math.signum(scrollY) : scrollY) * d;
             Vector2i vector2i = this.scroller.onMouseScroll(e, f);
             if (vector2i.x == 0 && vector2i.y == 0) {
                 return;
             }
 
             int i = vector2i.y == 0 ? -vector2i.x : vector2i.y;
-            Slot hoveredSlot = ((GetSlotAtAccessor) client.screen).invokeGetSlotAt(mouseX, mouseY);
+            Slot hoveredSlot = ((GetSlotAtAccessor) client.gui.screen()).invokeGetSlotAt(x, y);
 
             if (hoveredSlot != null && !hoveredSlot.getItem().isEmpty() && hoveredSlot.getItem().getItem() instanceof SatchelItem) {
                 performScrollAction(hoveredSlot.getItem(), i);
@@ -60,8 +60,8 @@ public abstract class HandledScreenMixin {
         }
     }
 
-    @Inject(method = "renderTooltip", at = @At("HEAD"))
-    private void drawMouseoverTooltip(GuiGraphics context, int x, int y, CallbackInfo ci) {
+    @Inject(method = "extractTooltip", at = @At("HEAD"))
+    private void drawMouseoverTooltip(GuiGraphicsExtractor graphics, int mouseX, int mouseY, CallbackInfo ci) {
         if (this.hoveredSlot == null && lastSatchel != null || lastSatchel != null && !this.hoveredSlot.hasItem() || lastSatchel != null && this.hoveredSlot.getItem() != lastSatchel) SatchelItem.setInternalIndex(lastSatchel, -1);
         if (this.hoveredSlot != null && this.hoveredSlot.hasItem() && this.hoveredSlot.getItem().is(AntiqueItems.SATCHEL)) lastSatchel = this.hoveredSlot.getItem();
 

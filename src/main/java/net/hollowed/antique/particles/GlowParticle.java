@@ -9,6 +9,7 @@ import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.NonNull;
 
 @Environment(EnvType.CLIENT)
 public class GlowParticle extends SingleQuadParticle {
@@ -30,10 +31,10 @@ public class GlowParticle extends SingleQuadParticle {
 	}
 
 	@Override
-	public int getLightColor(float tint) {
+	public int getLightCoords(float tint) {
 		float f = (this.age + tint) / this.lifetime;
 		f = Mth.clamp(f, 0.0F, 1.0F);
-		int i = super.getLightColor(tint);
+		int i = super.getLightCoords(tint);
 		int j = i & 0xFF;
 		int k = i >> 16 & 0xFF;
 		j += (int)(f * 15.0F * 16.0F);
@@ -59,16 +60,16 @@ public class GlowParticle extends SingleQuadParticle {
 		}
 
 		@Override
-		public @Nullable Particle createParticle(SimpleParticleType parameters, @NotNull ClientLevel world, double x, double y, double z, double velocityX, double velocityY, double velocityZ, @NotNull RandomSource random) {
+		public @Nullable Particle createParticle(@NonNull SimpleParticleType parameters, @NotNull ClientLevel world, double x, double y, double z, double velocityX, double velocityY, double velocityZ, @NotNull RandomSource random) {
 			GlowParticle glowParticle = new GlowParticle(world, x, y, z, 0.0, 0.0, 0.0, this.spriteProvider);
-			if (world.random.nextBoolean()) {
+			if (world.getRandom().nextBoolean()) {
 				glowParticle.setColor(229 / 255.0F, 158 /255.0F, 88 / 255.0F);
 			} else {
 				glowParticle.setColor(210 / 255.0F, 126 / 255.0F, 86 / 255.0F);
 			}
 
 			glowParticle.setParticleSpeed(velocityX * 0.01, velocityY * 0.01, velocityZ * 0.01);
-			glowParticle.setLifetime(world.random.nextInt(30) + 10);
+			glowParticle.setLifetime(world.getRandom().nextInt(30) + 10);
 			return glowParticle;
 		}
 	}

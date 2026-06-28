@@ -2,12 +2,15 @@ package net.hollowed.antique.mixin.entities.living.player;
 
 import net.hollowed.antique.index.AntiqueItems;
 import net.minecraft.client.Camera;
+import net.minecraft.client.DeltaTracker;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
+import org.joml.Vector3fc;
+import org.jspecify.annotations.Nullable;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -21,19 +24,24 @@ public abstract class CameraMixin {
     @Shadow private float xRot;
     @Shadow private float yRot;
 
-    @Shadow @Final private static Vector3f FORWARDS;
-    @Shadow @Final private static Vector3f UP;
-    @Shadow @Final private static Vector3f LEFT;
+    @Shadow @Final private static Vector3fc FORWARDS;
+    @Shadow @Final private static Vector3fc UP;
+    @Shadow @Final private static Vector3fc LEFT;
     @Shadow @Final private Quaternionf rotation;
     @Shadow @Final private Vector3f forwards;
     @Shadow @Final private Vector3f up;
     @Shadow @Final private Vector3f left;
 
+    @Shadow
+    private @Nullable Entity entity;
+    @Shadow
+    private boolean detached;
     @Unique
     private float roll = 0.0F;
 
-    @Inject(method = "setup", at = @At("TAIL"))
-    public void update(Level level, Entity focusedEntity, boolean bl, boolean bl2, float f, CallbackInfo ci) {
+    @Inject(method = "update", at = @At("TAIL"))
+    public void update(DeltaTracker deltaTracker, CallbackInfo ci) {
+        Entity focusedEntity = this.entity;
         if (focusedEntity instanceof Player player) {
             AABB box = player.getBoundingBox();
             double offset = 0.1;
@@ -59,7 +67,7 @@ public abstract class CameraMixin {
 
             float targetRoll = 0.0F;
 
-            if (player.onClimbable() && (this.xRot < 30 && this.xRot > -30) && !bl2 && !player.onGround() && player.isHolding(AntiqueItems.MYRIAD_AXE_HEAD)) {
+            if (player.onClimbable() && (this.xRot < 30 && this.xRot > -30) && !this.detached && !player.onGround() && player.isHolding(AntiqueItems.MYRIAD_AXE_HEAD)) {
                 if (collidingNorth) {
                     if (lookingEast) {
                         targetRoll = -15;

@@ -13,7 +13,7 @@ public record WallJumpParticlePacketPayload(float x, float y, float z, float par
     public static final StreamCodec<RegistryFriendlyByteBuf, WallJumpParticlePacketPayload> CODEC = StreamCodec.ofMember(WallJumpParticlePacketPayload::write, WallJumpParticlePacketPayload::new);
 
     public WallJumpParticlePacketPayload(RegistryFriendlyByteBuf buf) {
-        this(buf.readFloat(), buf.readFloat(), buf.readFloat(), buf.readFloat(), buf.readFloat(), buf.readVec3());
+        this(buf.readFloat(), buf.readFloat(), buf.readFloat(), buf.readFloat(), buf.readFloat(), new Vec3(buf.readVector3f()));
     }
 
     public void write(RegistryFriendlyByteBuf buf) {
@@ -22,7 +22,7 @@ public record WallJumpParticlePacketPayload(float x, float y, float z, float par
         buf.writeFloat(z);
         buf.writeFloat(particleX);
         buf.writeFloat(particleZ);
-        buf.writeVec3(pushVector);
+        buf.writeVector3f(pushVector.toVector3f());
     }
 
     @SuppressWarnings("all")

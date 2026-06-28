@@ -16,10 +16,11 @@ import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.IllagerRenderer;
 import net.minecraft.client.renderer.entity.layers.ItemInHandLayer;
-import net.minecraft.client.renderer.state.CameraRenderState;
+import net.minecraft.client.renderer.state.level.CameraRenderState;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.phys.AABB;
 import org.jetbrains.annotations.NotNull;
+import org.jspecify.annotations.NonNull;
 
 @Environment(EnvType.CLIENT)
 public class IllusionerCloneEntityRenderer extends IllagerRenderer<@NotNull IllusionerCloneEntity, @NotNull IllusionerEntityRenderState> {
@@ -28,7 +29,7 @@ public class IllusionerCloneEntityRenderer extends IllagerRenderer<@NotNull Illu
     public IllusionerCloneEntityRenderer(EntityRendererProvider.Context context) {
         super(context, new IllagerModel<>(context.bakeLayer(ModelLayers.ILLUSIONER)), 0.5F);
         this.addLayer(new ItemInHandLayer<>(this) {
-            public void submit(@NotNull PoseStack poseStack, @NotNull SubmitNodeCollector submitNodeCollector, int i, IllusionerEntityRenderState illusionerEntityRenderState, float f, float g) {
+            public void submit(@NotNull PoseStack poseStack, @NotNull SubmitNodeCollector submitNodeCollector, int i, @NonNull IllusionerEntityRenderState illusionerEntityRenderState, float f, float g) {
                 if (illusionerEntityRenderState.spellcasting || illusionerEntityRenderState.isAggressive) {
                     super.submit(poseStack, submitNodeCollector, i, illusionerEntityRenderState, f, g);
                 }
@@ -38,21 +39,21 @@ public class IllusionerCloneEntityRenderer extends IllagerRenderer<@NotNull Illu
         this.model.getHat().visible = true;
     }
 
-    public @NotNull Identifier getTextureLocation(IllusionerEntityRenderState illusionerEntityRenderState) {
+    public @NotNull Identifier getTextureLocation(@NonNull IllusionerEntityRenderState illusionerEntityRenderState) {
         return TEXTURE;
     }
 
-    public IllusionerEntityRenderState createRenderState() {
+    public @NonNull IllusionerEntityRenderState createRenderState() {
         return new IllusionerEntityRenderState();
     }
 
     @Override
-    public void extractRenderState(IllusionerCloneEntity illusionerEntity, IllusionerEntityRenderState illusionerEntityRenderState, float f) {
+    public void extractRenderState(@NonNull IllusionerCloneEntity illusionerEntity, @NonNull IllusionerEntityRenderState illusionerEntityRenderState, float f) {
         super.extractRenderState(illusionerEntity, illusionerEntityRenderState, f);
     }
 
     @Override
-    public void submit(IllusionerEntityRenderState livingEntityRenderState, @NotNull PoseStack matrixStack, @NotNull SubmitNodeCollector orderedRenderCommandQueue, @NotNull CameraRenderState cameraRenderState) {
+    public void submit(@NonNull IllusionerEntityRenderState livingEntityRenderState, @NotNull PoseStack matrixStack, @NotNull SubmitNodeCollector orderedRenderCommandQueue, @NotNull CameraRenderState cameraRenderState) {
         super.submit(livingEntityRenderState, matrixStack, orderedRenderCommandQueue, cameraRenderState);
     }
 

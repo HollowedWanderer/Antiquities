@@ -11,13 +11,14 @@ import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.state.ArrowRenderState;
 import net.minecraft.client.renderer.item.ItemStackRenderState;
-import net.minecraft.client.renderer.state.CameraRenderState;
+import net.minecraft.client.renderer.state.level.CameraRenderState;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.Items;
 import org.jetbrains.annotations.NotNull;
+import org.jspecify.annotations.NonNull;
 
 @Environment(EnvType.CLIENT)
 public class CakeRenderer<T extends Entity> extends EntityRenderer<T, @org.jetbrains.annotations.NotNull ArrowRenderState> {
@@ -33,7 +34,7 @@ public class CakeRenderer<T extends Entity> extends EntityRenderer<T, @org.jetbr
     }
 
     @Override
-    protected int getBlockLightLevel(T entity, @NotNull BlockPos pos) {
+    protected int getBlockLightLevel(@NonNull T entity, @NotNull BlockPos pos) {
         return this.lit ? 15 : super.getBlockLightLevel(entity, pos);
     }
 
@@ -51,12 +52,12 @@ public class CakeRenderer<T extends Entity> extends EntityRenderer<T, @org.jetbr
         matrixStack.popPose();
     }
 
-    public ArrowRenderState createRenderState() {
+    public @NonNull ArrowRenderState createRenderState() {
         return new ArrowRenderState();
     }
 
     @Override
-    public void extractRenderState(T entity, ArrowRenderState state, float tickProgress) {
+    public void extractRenderState(@NonNull T entity, @NonNull ArrowRenderState state, float tickProgress) {
         super.extractRenderState(entity, state, tickProgress);
         if (entity instanceof CakeEntity cake) {
             state.yRot = cake.getStoredYaw();

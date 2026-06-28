@@ -1,12 +1,13 @@
 package net.hollowed.antique;
 
+import com.google.common.base.Predicates;
 import eu.midnightdust.lib.config.MidnightConfig;
 import net.fabricmc.api.ModInitializer;
 
+import net.fabricmc.fabric.api.creativetab.v1.CreativeModeTabEvents;
+import net.fabricmc.fabric.api.creativetab.v1.FabricCreativeModeTab;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.item.v1.DefaultItemComponentEvents;
-import net.fabricmc.fabric.api.itemgroup.v1.FabricItemGroup;
-import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.fabricmc.fabric.api.resource.v1.ResourceLoader;
 import net.fabricmc.fabric.api.resource.v1.pack.PackActivationType;
@@ -80,25 +81,25 @@ public class Antiquities implements ModInitializer {
 
 		MidnightConfig.init(MOD_ID, AntiquitiesConfig.class);
 
-		ResourceLoader.get(PackType.CLIENT_RESOURCES).registerReloader(id("staff_transforms"), new MyriadStaffTransformResourceReloadListener());
-		ResourceLoader.get(PackType.CLIENT_RESOURCES).registerReloader(id("pedestal_transforms"), new PedestalDisplayListener());
-		ResourceLoader.get(PackType.CLIENT_RESOURCES).registerReloader(id("cloth_models"), new ClothModelListener());
-		ResourceLoader.get(PackType.CLIENT_RESOURCES).registerReloader(id("cloth_pattern_models"), new ClothPatternModelListener());
+		ResourceLoader.get(PackType.CLIENT_RESOURCES).registerReloadListener(id("staff_transforms"), new MyriadStaffTransformResourceReloadListener());
+		ResourceLoader.get(PackType.CLIENT_RESOURCES).registerReloadListener(id("pedestal_transforms"), new PedestalDisplayListener());
+		ResourceLoader.get(PackType.CLIENT_RESOURCES).registerReloadListener(id("cloth_models"), new ClothModelListener());
+		ResourceLoader.get(PackType.CLIENT_RESOURCES).registerReloadListener(id("cloth_pattern_models"), new ClothPatternModelListener());
 
 		/*
 			Packets
 		 */
 
-		PayloadTypeRegistry.playS2C().register(PedestalPacketPayload.ID, PedestalPacketPayload.CODEC);
-		PayloadTypeRegistry.playC2S().register(SatchelPacketPayload.ID, SatchelPacketPayload.CODEC);
-		PayloadTypeRegistry.playC2S().register(WallJumpPacketPayload.ID, WallJumpPacketPayload.CODEC);
-		PayloadTypeRegistry.playS2C().register(WallJumpParticlePacketPayload.ID, WallJumpParticlePacketPayload.CODEC);
-		PayloadTypeRegistry.playC2S().register(CrawlPacketPayload.ID, CrawlPacketPayload.CODEC);
-		PayloadTypeRegistry.playC2S().register(DyePacketPayload.ID, DyePacketPayload.CODEC);
-		PayloadTypeRegistry.playS2C().register(IllusionerParticlePacketPayload.ID, IllusionerParticlePacketPayload.CODEC);
-		PayloadTypeRegistry.playS2C().register(AddClothItemsPayload.ID, AddClothItemsPayload.CODEC);
-		PayloadTypeRegistry.playS2C().register(ShockwaveParticlesPayload.ID, ShockwaveParticlesPayload.CODEC);
-		PayloadTypeRegistry.playC2S().register(TuneAmethystForkPayload.ID, TuneAmethystForkPayload.CODEC);
+		PayloadTypeRegistry.clientboundPlay().register(PedestalPacketPayload.ID, PedestalPacketPayload.CODEC);
+		PayloadTypeRegistry.serverboundPlay().register(SatchelPacketPayload.ID, SatchelPacketPayload.CODEC);
+		PayloadTypeRegistry.serverboundPlay().register(WallJumpPacketPayload.ID, WallJumpPacketPayload.CODEC);
+		PayloadTypeRegistry.clientboundPlay().register(WallJumpParticlePacketPayload.ID, WallJumpParticlePacketPayload.CODEC);
+		PayloadTypeRegistry.serverboundPlay().register(CrawlPacketPayload.ID, CrawlPacketPayload.CODEC);
+		PayloadTypeRegistry.serverboundPlay().register(DyePacketPayload.ID, DyePacketPayload.CODEC);
+		PayloadTypeRegistry.clientboundPlay().register(IllusionerParticlePacketPayload.ID, IllusionerParticlePacketPayload.CODEC);
+		PayloadTypeRegistry.clientboundPlay().register(AddClothItemsPayload.ID, AddClothItemsPayload.CODEC);
+		PayloadTypeRegistry.clientboundPlay().register(ShockwaveParticlesPayload.ID, ShockwaveParticlesPayload.CODEC);
+		PayloadTypeRegistry.serverboundPlay().register(TuneAmethystForkPayload.ID, TuneAmethystForkPayload.CODEC);
 
 		SatchelPacketReceiver.registerServerPacket();
 		WallJumpPacketReceiver.registerServerPacket();
@@ -110,7 +111,7 @@ public class Antiquities implements ModInitializer {
 			Tick Events
 		 */
 
-		ServerTickEvents.END_SERVER_TICK.register(server -> TickDelayScheduler.tick());
+		ServerTickEvents.END_SERVER_TICK.register(_ -> TickDelayScheduler.tick());
 
 		/*
 			Component Modification
@@ -127,7 +128,7 @@ public class Antiquities implements ModInitializer {
 
 		DefaultItemComponentEvents.MODIFY.register(ctx -> ctx.modify(
 				List.of(Items.WOODEN_SPEAR, Items.STONE_SPEAR, Items.IRON_SPEAR, Items.GOLDEN_SPEAR, Items.DIAMOND_SPEAR, Items.NETHERITE_SPEAR),
-				(builder, item) -> builder.set(
+				(builder, _) -> builder.set(
 						DataComponents.SWING_ANIMATION, new SwingAnimation(SwingAnimationType.STAB, (int)((1.0 / (getAttackSpeed(builder) + 4) - 0.1) * 20.0F))
 				).set(
 						DataComponents.ATTRIBUTE_MODIFIERS,
@@ -148,7 +149,7 @@ public class Antiquities implements ModInitializer {
 
 		DefaultItemComponentEvents.MODIFY.register(ctx -> ctx.modify(
 				List.of(Items.COPPER_SPEAR),
-				(builder, item) -> builder.set(
+				(builder, _) -> builder.set(
 						DataComponents.SWING_ANIMATION, new SwingAnimation(SwingAnimationType.STAB, (int)((1.0 / (getAttackSpeed(builder) + 4) - 0.1) * 20.0F))
 				).set(
 						DataComponents.ATTRIBUTE_MODIFIERS,
@@ -168,34 +169,29 @@ public class Antiquities implements ModInitializer {
 		));
 
 		DefaultItemComponentEvents.MODIFY.register(ctx -> ctx.modify(
-				List.of(
-						Items.BUNDLE, Items.WHITE_BUNDLE, Items.LIGHT_GRAY_BUNDLE, Items.GRAY_BUNDLE, Items.BLACK_BUNDLE, Items.BROWN_BUNDLE, Items.RED_BUNDLE,
-						Items.ORANGE_BUNDLE, Items.YELLOW_BUNDLE, Items.LIME_BUNDLE, Items.GREEN_BUNDLE, Items.CYAN_BUNDLE, Items.LIGHT_BLUE_BUNDLE, Items.BLUE_BUNDLE,
-						Items.PURPLE_BUNDLE, Items.MAGENTA_BUNDLE, Items.PINK_BUNDLE
-				),
-				(builder, item) -> builder.set(DataComponents.ENCHANTABLE, new Enchantable(10))
+				Predicates.equalTo(Items.BUNDLE).or(Predicates.equalTo(Items.DYED_BUNDLE)),
+				(builder, _) -> builder.set(DataComponents.ENCHANTABLE, new Enchantable(10))
 		));
 
 		DefaultItemComponentEvents.MODIFY.register(ctx -> ctx.modify(
 				List.of(
 						AntiqueItems.CLOTH
 				),
-				(builder, item) -> builder.set(AntiqueDataComponentTypes.CLOTH_TYPE, ResourceKey.create(AntiqueRegistries.CLOTHS, id("cloth")))
+				(builder, _) -> builder.set(AntiqueDataComponentTypes.CLOTH_TYPE, ResourceKey.create(AntiqueRegistries.CLOTHS, id("cloth")))
 		));
 		DefaultItemComponentEvents.MODIFY.register(ctx -> ctx.modify(
 				List.of(
 						AntiqueItems.MYRIAD_TOOL
 				),
-				(builder, item) -> builder.set(AntiqueDataComponentTypes.MYRIAD_TOOL, MyriadToolComponent.DEFAULT_NO_CLOTH)
+				(builder, _) -> builder.set(AntiqueDataComponentTypes.MYRIAD_TOOL, MyriadToolComponent.DEFAULT_NO_CLOTH)
 		));
 
 		/*
 			Resource Pack
 		 */
 
-		FabricLoader.getInstance().getModContainer(MOD_ID).ifPresent((container) -> {
-			ResourceLoader.registerBuiltinPack(id("antique"), container, Component.translatable("resourcePack.hmi.name"), PackActivationType.NORMAL);
-		});
+		FabricLoader.getInstance().getModContainer(MOD_ID).ifPresent((container) ->
+				ResourceLoader.registerBuiltinPack(id("antique"), container, Component.translatable("resourcePack.hmi.name"), PackActivationType.NORMAL));
 
 		/*
 			Item Group
@@ -206,9 +202,8 @@ public class Antiquities implements ModInitializer {
 		Registry.register(BuiltInRegistries.CREATIVE_MODE_TAB, ANTIQUITIES_CLOTHS_GROUP_KEY, ANTIQUITIES_CLOTHS_GROUP);
 		addItems();
 
-		ItemGroupEvents.modifyEntriesEvent(CreativeModeTabs.SPAWN_EGGS).register(group -> {
-			group.addAfter(Items.WITCH_SPAWN_EGG, AntiqueItems.ILLUSIONER_SPAWN_EGG);
-		});
+		CreativeModeTabEvents.modifyOutputEvent(CreativeModeTabs.SPAWN_EGGS).register(group ->
+				group.insertAfter(Items.WITCH_SPAWN_EGG, AntiqueItems.ILLUSIONER_SPAWN_EGG));
 	}
 
 	private static double getAttackDamage(DataComponentMap.Builder builder) {
@@ -232,27 +227,27 @@ public class Antiquities implements ModInitializer {
 	}
 
 	public static final ResourceKey<CreativeModeTab> ANTIQUITIES_ITEMS_GROUP_KEY = ResourceKey.create(BuiltInRegistries.CREATIVE_MODE_TAB.key(), Identifier.fromNamespaceAndPath(MOD_ID, "antiquities_items_group"));
-	public static final CreativeModeTab ANTIQUITIES_ITEMS_GROUP = FabricItemGroup.builder()
+	public static final CreativeModeTab ANTIQUITIES_ITEMS_GROUP = FabricCreativeModeTab.builder()
 			.icon(() -> new ItemStack(AntiqueItems.FUR_BOOTS))
 			.title(Component.translatable("itemGroup.antique.antiquities_items").withColor(0xFFAA2F54))
 			.build();
 
 	public static final ResourceKey<CreativeModeTab> ANTIQUITIES_BLOCKS_GROUP_KEY = ResourceKey.create(BuiltInRegistries.CREATIVE_MODE_TAB.key(), Identifier.fromNamespaceAndPath(MOD_ID, "antiquities_blocks_group"));
-	public static final CreativeModeTab ANTIQUITIES_BLOCKS_GROUP = FabricItemGroup.builder()
+	public static final CreativeModeTab ANTIQUITIES_BLOCKS_GROUP = FabricCreativeModeTab.builder()
 			.icon(() -> new ItemStack(AntiqueBlocks.HOLLOW_CORE))
 			.title(Component.translatable("itemGroup.antique.antiquities_blocks").withColor(0xFFAA2F54))
 			.build();
 
 	public static final ResourceKey<CreativeModeTab> ANTIQUITIES_CLOTHS_GROUP_KEY = ResourceKey.create(BuiltInRegistries.CREATIVE_MODE_TAB.key(), Identifier.fromNamespaceAndPath(MOD_ID, "antiquities_cloths_group"));
-	public static final CreativeModeTab ANTIQUITIES_CLOTHS_GROUP = FabricItemGroup.builder()
+	public static final CreativeModeTab ANTIQUITIES_CLOTHS_GROUP = FabricCreativeModeTab.builder()
 			.icon(() -> new ItemStack(AntiqueItems.CLOTH))
 			.title(Component.translatable("itemGroup.antique.antiquities_cloths").withColor(0xFFAA2F54))
 			.build();
 
 	private void addItems() {
-		ItemGroupEvents.modifyEntriesEvent(CreativeModeTabs.OP_BLOCKS).register(itemGroup -> itemGroup.accept(AntiqueItems.CRYOSCYTHE));
+		CreativeModeTabEvents.modifyOutputEvent(CreativeModeTabs.OP_BLOCKS).register(itemGroup -> itemGroup.accept(AntiqueItems.CRYOSCYTHE));
 
-		ItemGroupEvents.modifyEntriesEvent(ANTIQUITIES_BLOCKS_GROUP_KEY).register(itemGroup -> {
+		CreativeModeTabEvents.modifyOutputEvent(ANTIQUITIES_BLOCKS_GROUP_KEY).register(itemGroup -> {
 			itemGroup.accept(AntiqueBlocks.MYRIAD_ORE);
 			itemGroup.accept(AntiqueBlocks.DEEPSLATE_MYRIAD_ORE);
 			itemGroup.accept(AntiqueBlocks.MYRIAD_CLUSTER);
@@ -274,7 +269,7 @@ public class Antiquities implements ModInitializer {
 			itemGroup.accept(AntiqueBlocks.RESONATOR);
 		});
 
-		ItemGroupEvents.modifyEntriesEvent(ANTIQUITIES_ITEMS_GROUP_KEY).register(itemGroup -> {
+		CreativeModeTabEvents.modifyOutputEvent(ANTIQUITIES_ITEMS_GROUP_KEY).register(itemGroup -> {
 			ItemStack myriadTool = AntiqueItems.MYRIAD_TOOL.getDefaultInstance();
 			myriadTool.set(AntiqueDataComponentTypes.MYRIAD_TOOL, MyriadToolComponent.getDefaultWithCloth());
 			itemGroup.accept(myriadTool);
@@ -315,7 +310,7 @@ public class Antiquities implements ModInitializer {
 	}
 
 	public static void addClothItems() {
-		ItemGroupEvents.modifyEntriesEvent(ANTIQUITIES_CLOTHS_GROUP_KEY).register(group -> {
+		CreativeModeTabEvents.modifyOutputEvent(ANTIQUITIES_CLOTHS_GROUP_KEY).register(group -> {
 			group.getContext()
 					.holders()
 					.lookupOrThrow(AntiqueRegistries.CLOTHS)

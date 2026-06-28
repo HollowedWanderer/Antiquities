@@ -16,7 +16,7 @@ public abstract class ProjectileBypassMixin {
     @Shadow protected float lastHurt;
 
     @Inject(method = "hurtServer", at = @At("HEAD"))
-    private void bypassImmunityFrames(ServerLevel world, DamageSource source, float amount, CallbackInfoReturnable<Boolean> cir) {
+    private void bypassImmunityFrames(ServerLevel level, DamageSource source, float damage, CallbackInfoReturnable<Boolean> cir) {
         if (source.getDirectEntity() instanceof Projectile) {
             ProjectileBypassMixin entity = this;
             entity.lastHurt = 0;

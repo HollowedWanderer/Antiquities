@@ -2,6 +2,7 @@ package net.hollowed.antique.mixin.items;
 
 import net.fabricmc.fabric.api.item.v1.FabricItem;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStackTemplate;
 import org.jetbrains.annotations.NotNull;
 import org.spongepowered.asm.mixin.Mixin;
 
@@ -29,14 +30,14 @@ public abstract class BowItemMixin implements FabricItem {
     }
 
     @Inject(method = "inventoryTick", at = @At("HEAD"))
-    public void inventoryTick(ItemStack stack, ServerLevel serverLevel, Entity entity, EquipmentSlot equipmentSlot, CallbackInfo ci) {
+    public void inventoryTick(ItemStack itemStack, ServerLevel level, Entity owner, EquipmentSlot slot, CallbackInfo ci) {
         if ((Item) (Object) this instanceof BowItem) {
-            if (entity instanceof Player user) {
-                ItemStack projectile = user.getProjectile(stack);
+            if (owner instanceof Player user) {
+                ItemStack projectile = user.getProjectile(itemStack);
                 if (user.hasInfiniteMaterials() || !projectile.isEmpty()) {
-                    stack.set(DataComponents.CHARGED_PROJECTILES, ChargedProjectiles.of(projectile));
+                    itemStack.set(DataComponents.CHARGED_PROJECTILES, ChargedProjectiles.of(ItemStackTemplate.fromStack(projectile)));
                     if (projectile.get(DataComponents.POTION_CONTENTS) != null) {
-                        stack.set(DataComponents.DYED_COLOR, new DyedItemColor(Objects.requireNonNull(projectile.get(DataComponents.POTION_CONTENTS)).getColor()));
+                        itemStack.set(DataComponents.DYED_COLOR, new DyedItemColor(Objects.requireNonNull(projectile.get(DataComponents.POTION_CONTENTS)).getColor()));
                     }
                 }
             }

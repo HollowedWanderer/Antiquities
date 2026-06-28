@@ -22,7 +22,6 @@ import net.minecraft.core.Holder;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
-import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
@@ -33,7 +32,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
-import java.awt.*;
+
 import java.util.Optional;
 
 @Mixin(ItemInHandLayer.class)
@@ -44,32 +43,32 @@ public abstract class HeldItemRendererMixin<S extends ArmedEntityRenderState, M 
     }
 
     @Inject(method = "submitArmWithItem", at = @At("HEAD"))
-    public void renderItem(S armedEntityRenderState, ItemStackRenderState itemStackRenderState, ItemStack itemStack, HumanoidArm arm, PoseStack matrices, SubmitNodeCollector submitNodeCollector, int i, CallbackInfo ci) {
-        if (armedEntityRenderState instanceof ArmedRenderStateAccess access) {
-            matrices.pushPose();
-            this.getParentModel().translateToHand(armedEntityRenderState, arm, matrices);
-            matrices.mulPose(Axis.XP.rotationDegrees(-90.0F));
-            matrices.mulPose(Axis.YP.rotationDegrees(180.0F));
+    public void renderItem(S state, ItemStackRenderState item, ItemStack itemStack, HumanoidArm arm, PoseStack poseStack, SubmitNodeCollector submitNodeCollector, int lightCoords, CallbackInfo ci) {
+        if (state instanceof ArmedRenderStateAccess access) {
+            poseStack.pushPose();
+            this.getParentModel().translateToHand(state, arm, poseStack);
+            poseStack.mulPose(Axis.XP.rotationDegrees(-90.0F));
+            poseStack.mulPose(Axis.YP.rotationDegrees(180.0F));
             boolean bl = arm == HumanoidArm.LEFT;
-            matrices.translate((float)(bl ? -1 : 1) / 16.0F, 0.125F, -0.625F);
-            matrices.translate(0, 0.6, 0);
+            poseStack.translate((float)(bl ? -1 : 1) / 16.0F, 0.125F, -0.625F);
+            poseStack.translate(0, 0.6, 0);
 
             if (access.antique$getEntity() instanceof LivingEntity entity) {
                 if (entity.getUseItem().is(AntiqueItems.MYRIAD_TOOL) && entity.getItemHeldByArm(arm).getOrDefault(AntiqueDataComponentTypes.MYRIAD_TOOL, MyriadToolComponent.DEFAULT_NO_CLOTH).toolBit().is(AntiqueItems.MYRIAD_SHOVEL_HEAD)) {
-                    matrices.translate(0, -1.2, 0.2);
+                    poseStack.translate(0, -1.2, 0.2);
                 }
 
                 if (entity.getItemHeldByArm(arm).is(AntiqueItems.MYRIAD_TOOL) && entity.getItemHeldByArm(arm).getOrDefault(AntiqueDataComponentTypes.MYRIAD_TOOL, MyriadToolComponent.DEFAULT_NO_CLOTH).toolBit().is(AntiqueItems.MYRIAD_AXE_HEAD)) {
-                    matrices.translate(0, -0.3, 0);
+                    poseStack.translate(0, -0.3, 0);
                     if (entity.isUsingItem()) {
-                        matrices.translate(arm == HumanoidArm.RIGHT ? -0.45 : 0.45, -0.5, 0);
+                        poseStack.translate(arm == HumanoidArm.RIGHT ? -0.45 : 0.45, -0.5, 0);
                     }
                 }
 
                 ItemStack stack = entity.getItemHeldByArm(arm);
                 MyriadToolComponent component = stack.getOrDefault(AntiqueDataComponentTypes.MYRIAD_TOOL, MyriadToolComponent.DEFAULT_NO_CLOTH);
 
-                component.cloth().ifPresent(cloth -> {
+                component.cloth().ifPresent(_ -> {
                     Optional<Holder.Reference<ClothSkinData>> data = ClothUtil.getClothData(component.cloth().get(), entity.registryAccess());
 
                     if (data.isPresent()) {
@@ -82,9 +81,9 @@ public abstract class HeldItemRendererMixin<S extends ArmedEntityRenderState, M 
                             if (manager != null) {
                                 manager.renderCloth(
                                         data.get(),
-                                        matrices,
+                                        poseStack,
                                         submitNodeCollector,
-                                        i,
+                                        lightCoords,
                                         ClothUtil.getDynamicClothColor(component.cloth().get(), entity.registryAccess()).orElse(0xFFFFFFFF),
                                         ClothUtil.getClothPatterns(component.cloth().get()),
                                         entity.registryAccess(),
@@ -96,7 +95,7 @@ public abstract class HeldItemRendererMixin<S extends ArmedEntityRenderState, M 
                 });
             }
 
-            matrices.popPose();
+            poseStack.popPose();
         }
     }
 }

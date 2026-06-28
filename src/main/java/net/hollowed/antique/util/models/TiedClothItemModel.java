@@ -3,7 +3,6 @@ package net.hollowed.antique.util.models;
 import com.google.common.base.Suppliers;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import com.mojang.serialization.Codec;
 import com.mojang.serialization.JsonOps;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
@@ -14,6 +13,7 @@ import java.util.*;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 
+import it.unimi.dsi.fastutil.ints.IntList;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.hollowed.antique.Antiquities;
@@ -30,24 +30,25 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.color.item.ItemTintSource;
 import net.minecraft.client.color.item.ItemTintSources;
 import net.minecraft.client.multiplayer.ClientLevel;
-import net.minecraft.client.renderer.Sheets;
-import net.minecraft.client.renderer.block.model.BakedQuad;
-import net.minecraft.client.renderer.block.model.ItemModelGenerator;
-import net.minecraft.client.renderer.block.model.TextureSlots;
+import net.minecraft.client.renderer.block.dispatch.BlockModelRotation;
 import net.minecraft.client.renderer.item.ItemModel;
 import net.minecraft.client.renderer.item.ItemModelResolver;
 import net.minecraft.client.renderer.item.ItemStackRenderState;
 import net.minecraft.client.renderer.item.ModelRenderProperties;
-import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.client.resources.model.*;
-import net.minecraft.resources.FileToIdConverter;
+import net.minecraft.client.resources.model.cuboid.ItemModelGenerator;
+import net.minecraft.client.resources.model.geometry.BakedQuad;
+import net.minecraft.client.resources.model.sprite.Material;
+import net.minecraft.client.resources.model.sprite.TextureSlots;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.entity.ItemOwner;
 import net.minecraft.world.item.*;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.joml.Matrix4fc;
 import org.joml.Vector3fc;
+import org.jspecify.annotations.NonNull;
 
 @Environment(EnvType.CLIENT)
 public class TiedClothItemModel implements ItemModel {
@@ -57,6 +58,7 @@ public class TiedClothItemModel implements ItemModel {
 			TiedClothSize size,
 			TiedClothDomain domain
 	) {
+
 	}
 
 	private final List<BakedQuad> baseQuads;
@@ -89,7 +91,7 @@ public class TiedClothItemModel implements ItemModel {
 			return set.toArray(Vector3fc[]::new);
 		});
 		this.settings = settings;
-		this.animated = Stream.concat(baseQuads.stream(), quads.values().stream().flatMap(List::stream)).anyMatch(quad -> quad.sprite().contents().isAnimated());
+		this.animated = Stream.concat(baseQuads.stream(), quads.values().stream().flatMap(List::stream)).anyMatch(quad -> quad.materialInfo().sprite().contents().isAnimated());
 		this.tints = tints;
 	}
 
@@ -100,7 +102,7 @@ public class TiedClothItemModel implements ItemModel {
 			@NotNull ItemModelResolver resolver,
 			@NotNull ItemDisplayContext context,
 			@Nullable ClientLevel level,
-			@Nullable ItemOwner heldItemContext,
+			@Nullable ItemOwner owner,
 			int seed
 	) {
 		state.appendModelIdentityElement(this);
@@ -140,43 +142,41 @@ public class TiedClothItemModel implements ItemModel {
 		ItemStackRenderState.LayerRenderState baseLayer = state.newLayer();
 		if (glint != null) baseLayer.setFoilType(glint);
 		baseLayer.setExtents(this.extents);
-		baseLayer.setRenderType(Sheets.translucentItemSheet());
 		this.settings.applyToLayer(baseLayer, context);
 		baseLayer.prepareQuadList().addAll(this.baseQuads);
 
 		ItemStackRenderState.LayerRenderState tintLayer = state.newLayer();
 		if (glint != null) tintLayer.setFoilType(glint);
 		tintLayer.setExtents(this.extents);
-		tintLayer.setRenderType(Sheets.translucentItemSheet());
 		this.settings.applyToLayer(tintLayer, context);
 
 		if (selected != null) {
 			tintLayer.prepareQuadList().addAll(selected);
 		}
 
-		int[] tints = tintLayer.prepareTintLayers(this.tints.size());
+		IntList tintLayers = tintLayer.tintLayers();
 
 		if (level != null && ClothSkinData.get(Optional.of(clothId), level).dyeable()) {
-			for (int i = 0; i < this.tints.size(); i++) {
-				int c = this.tints.get(i).calculate(stack, level, heldItemContext == null ? null : heldItemContext.asLivingEntity());
-				tints[i] = c;
-				state.appendModelIdentityElement(c);
+			for (ItemTintSource tintSource : this.tints) {
+				int tint = tintSource.calculate(stack, level, owner == null ? null : owner.asLivingEntity());
+				tintLayers.add(tint);
+				state.appendModelIdentityElement(tint);
 			}
 		} else {
 			List<ClothSprite> sprites = this.sprites.get(key);
 
-			if (sprites != null) {
+			if (sprites != null && !this.tints.isEmpty()) {
 				for (int i = 0; i < this.tints.size(); i++) {
 					if (i < sprites.size()) {
 						if (!sprites.get(i).tint()) {
-							tints[i] = 0xFFFFFFFF;
+							tintLayers.add(0xFFFFFFFF);
 							state.appendModelIdentityElement(0xFFFFFFFF);
 							continue;
 						}
 					}
 
-					int c = this.tints.get(i).calculate(stack, level, heldItemContext == null ? null : heldItemContext.asLivingEntity());
-					tints[i] = c;
+					int c = this.tints.get(i).calculate(stack, level, owner == null ? null : owner.asLivingEntity());
+					tintLayers.add(c);
 					state.appendModelIdentityElement(c);
 				}
 			}
@@ -202,8 +202,7 @@ public class TiedClothItemModel implements ItemModel {
 		}
 
 		@Override
-		@SuppressWarnings("deprecation")
-		public @NotNull ItemModel bake(ItemModel.BakingContext context) {
+		public @NonNull ItemModel bake(BakingContext context, @NonNull Matrix4fc transformation) {
 			ModelBaker baker = context.blockModelBaker();
 
 			ResolvedModel baseBaked = baker.getModel(this.base);
@@ -239,7 +238,7 @@ public class TiedClothItemModel implements ItemModel {
 										int layer = 0;
 
 										for (ClothSprite sprite : sprites) {
-											builder.addTexture("layer" + (layer++), new Material(TextureAtlas.LOCATION_ITEMS, sprite.texture()));
+											builder.addTexture("layer" + (layer++), new Material(sprite.texture()));
 										}
 
 										TextureSlots.Resolver resolver = new TextureSlots.Resolver();

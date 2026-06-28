@@ -51,6 +51,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.FireworkRocketEntity;
 import net.minecraft.world.entity.raid.Raider;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.component.ChargedProjectiles;
 import net.minecraft.world.level.Level;
@@ -113,7 +114,7 @@ public class IllusionerEntity extends SpellcasterIllager implements RangedAttack
 
     public SpawnGroupData finalizeSpawn(@NotNull ServerLevelAccessor world, @NotNull DifficultyInstance difficulty, @NotNull EntitySpawnReason spawnReason, @Nullable SpawnGroupData entityData) {
         ItemStack bow = Items.BOW.getDefaultInstance();
-        bow.set(DataComponents.CHARGED_PROJECTILES, ChargedProjectiles.of(Items.FIREWORK_ROCKET.getDefaultInstance()));
+        bow.set(DataComponents.CHARGED_PROJECTILES, ChargedProjectiles.of(ItemStackTemplate.fromStack(Items.FIREWORK_ROCKET.getDefaultInstance())));
         this.setItemSlot(EquipmentSlot.MAINHAND, bow);
         return super.finalizeSpawn(world, difficulty, spawnReason, entityData);
     }

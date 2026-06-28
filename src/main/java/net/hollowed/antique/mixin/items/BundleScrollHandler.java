@@ -10,8 +10,8 @@ import org.spongepowered.asm.mixin.injection.ModifyVariable;
 @Mixin(BundleMouseActions.class)
 public class BundleScrollHandler {
 
-    @ModifyVariable(method = "onMouseScrolled", at = @At(value = "STORE", ordinal = 0), ordinal = 2)
-    private int modifyScrollAmount(int original) {
-        return original * -1;
+    @ModifyVariable(method = "onMouseScrolled", at = @At(value = "STORE", ordinal = 0), name = "wheel")
+    private int modifyScrollAmount(int wheel) {
+        return wheel * -1;
     }
 }

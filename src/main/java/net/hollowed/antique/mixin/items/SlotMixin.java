@@ -14,12 +14,12 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public abstract class SlotMixin {
 
     @Inject(method = "set", at = @At("HEAD"))
-    public void setStack(ItemStack stack, CallbackInfo ci) {
-        if (stack.is(AntiqueItems.SATCHEL)) {
-            SatchelItem.setInternalIndex(stack, -1);
+    public void setStack(ItemStack itemStack, CallbackInfo ci) {
+        if (itemStack.is(AntiqueItems.SATCHEL)) {
+            SatchelItem.setInternalIndex(itemStack, -1);
         }
-        if (stack.is(AntiqueItems.BAG_OF_TRICKS)) {
-            BagOfTricksItem.setInternalIndex(stack, -1);
+        if (itemStack.is(AntiqueItems.BAG_OF_TRICKS)) {
+            BagOfTricksItem.setInternalIndex(itemStack, -1);
         }
     }
 }

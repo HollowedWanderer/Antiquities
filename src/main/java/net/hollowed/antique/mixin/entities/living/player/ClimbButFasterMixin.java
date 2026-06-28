@@ -19,9 +19,9 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 @Mixin(LivingEntity.class)
 public abstract class ClimbButFasterMixin extends Entity implements Attackable {
 
-    @Shadow protected abstract Vec3 handleOnClimbable(Vec3 motion);
+    @Shadow protected abstract Vec3 handleOnClimbable(Vec3 delta);
 
-    @Shadow protected abstract float getFrictionInfluencedSpeed(float slipperiness);
+    @Shadow protected abstract float getFrictionInfluencedSpeed(float blockFriction);
 
     @Shadow protected boolean jumping;
 
@@ -32,7 +32,7 @@ public abstract class ClimbButFasterMixin extends Entity implements Attackable {
     }
 
     @Inject(method = "handleRelativeFrictionAndCalculateMovement", at = @At("HEAD"), cancellable = true)
-    private void applyMovementInput(Vec3 movementInput, float slipperiness, CallbackInfoReturnable<Vec3> cir) {
+    private void applyMovementInput(Vec3 input, float friction, CallbackInfoReturnable<Vec3> cir) {
         boolean isCollidingWithSpecificEntity = this.level()
                 .getEntities(this, this.getBoundingBox().inflate(0.1))
                 .stream()
@@ -40,7 +40,7 @@ public abstract class ClimbButFasterMixin extends Entity implements Attackable {
 
         if (isCollidingWithSpecificEntity && this.horizontalCollision) {
 
-            this.moveRelative(this.getFrictionInfluencedSpeed(slipperiness), movementInput);
+            this.moveRelative(this.getFrictionInfluencedSpeed(friction), input);
             this.setDeltaMovement(this.handleOnClimbable(this.getDeltaMovement()));
             this.move(MoverType.SELF, this.getDeltaMovement());
             Vec3 vec3d = this.getDeltaMovement();

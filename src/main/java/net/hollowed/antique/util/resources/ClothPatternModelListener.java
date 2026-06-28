@@ -34,9 +34,7 @@ public class ClothPatternModelListener implements ResourceManagerReloadListener 
                 try (BufferedReader reader = resource.openAsReader()) {
                     JsonObject json = JsonParser.parseReader(reader).getAsJsonObject();
                     ClothPatternModelData.CODEC.decode(JsonOps.INSTANCE, json)
-                            .ifSuccess(result -> {
-                                MODELS.put(id, result.getFirst().fillDefaultSprites(id));
-                            })
+                            .ifSuccess(result -> MODELS.put(id, result.getFirst().fillDefaultSprites(id)))
                             .ifError(error -> Antiquities.LOGGER.error("Error loading cloth pattern model {}: {}", file, error.message()));
                 } catch (IOException e) {
                     Antiquities.LOGGER.error("Error loading cloth pattern model {}", file, e);

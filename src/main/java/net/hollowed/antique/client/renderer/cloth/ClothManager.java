@@ -311,11 +311,11 @@ public class ClothManager {
                     velocity = data.waterVelocity().orElse(velocity);
                 }
 
-                if (level.random.nextFloat() < chance) {
+                if (level.getRandom().nextFloat() < chance) {
                     Vector3d pos = new Vector3d(
-                            level.random.nextDouble() * 2 - 1,
-                            level.random.nextDouble() * 2 - 1,
-                            level.random.nextDouble() * 2 - 1
+                            level.getRandom().nextDouble() * 2 - 1,
+                            level.getRandom().nextDouble() * 2 - 1,
+                            level.getRandom().nextDouble() * 2 - 1
                     ).normalize();
 
                     if (particle.getType() == AntiqueParticles.TYPHO_SPARK) {
@@ -344,7 +344,7 @@ public class ClothManager {
 
     public static ClothManager getOrCreate(ClothOwner owner, Identifier id, ClothSkinData data) {
         if (Minecraft.getInstance().level instanceof ClothAccess clothAccess) {
-            return clothAccess.antique$getManagers().computeIfAbsent(owner, k -> new HashMap<>()).computeIfAbsent(id, k -> {
+            return clothAccess.antique$getManagers().computeIfAbsent(owner, _ -> new HashMap<>()).computeIfAbsent(id, _ -> {
                 ClothManager manager = new ClothManager(new Vector3f(owner.getPosition().toVector3f()), 8, data);
                 manager.owner = owner;
                 return manager;
@@ -402,7 +402,7 @@ public class ClothManager {
 
     public static Vec3 matrixToVec(PoseStack matrixStack) {
         Matrix4f matrix = matrixStack.last().pose();
-        Camera camera = Minecraft.getInstance().gameRenderer.getMainCamera();
+        Camera camera = Minecraft.getInstance().gameRenderer.mainCamera();
         Vector4f localPos = new Vector4f(0, 0, 0, 1);
         matrix.transform(localPos);
         Vec3 cameraPos = camera.position();

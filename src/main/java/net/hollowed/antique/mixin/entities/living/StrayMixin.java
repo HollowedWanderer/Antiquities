@@ -8,6 +8,7 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.monster.skeleton.AbstractSkeleton;
 import net.minecraft.world.entity.monster.skeleton.Stray;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.alchemy.PotionContents;
 import net.minecraft.world.item.alchemy.Potions;
@@ -28,7 +29,7 @@ public abstract class StrayMixin extends AbstractSkeleton {
     protected void populateDefaultEquipmentSlots(@NotNull RandomSource random, @NotNull DifficultyInstance localDifficulty) {
         super.populateDefaultEquipmentSlots(random, localDifficulty);
         ItemStack bow = Items.BOW.getDefaultInstance();
-        bow.set(DataComponents.CHARGED_PROJECTILES, ChargedProjectiles.of(Items.TIPPED_ARROW.getDefaultInstance()));
+        bow.set(DataComponents.CHARGED_PROJECTILES, ChargedProjectiles.of(ItemStackTemplate.fromStack(Items.TIPPED_ARROW.getDefaultInstance())));
         bow.set(DataComponents.DYED_COLOR, new DyedItemColor(new PotionContents(Potions.SLOWNESS).getColor()));
         this.setItemInHand(InteractionHand.MAIN_HAND, bow);
     }

@@ -13,6 +13,8 @@ import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.joml.Matrix4fc;
+import org.jspecify.annotations.NonNull;
 
 import java.util.List;
 
@@ -41,7 +43,8 @@ public class BagOfTricksFirstStackItemModel implements ItemModel {
             return CODEC;
         }
 
-        public @NotNull ItemModel bake(@NotNull BakingContext context) {
+        @Override
+        public @NonNull ItemModel bake(@NonNull BakingContext context, @NonNull Matrix4fc transformation) {
             return BagOfTricksFirstStackItemModel.INSTANCE;
         }
 

@@ -152,7 +152,7 @@ public class SatchelItem extends Item {
         List<ItemStack> contents = entity.getItem().get(AntiqueDataComponentTypes.SATCHEL_STACK);
         if (contents != null) {
             entity.getItem().set(AntiqueDataComponentTypes.SATCHEL_STACK, List.of());
-            ItemUtils.onContainerDestroyed(entity, contents);
+            ItemUtils.onContainerDestroyed(entity, contents.stream());
         }
     }
 

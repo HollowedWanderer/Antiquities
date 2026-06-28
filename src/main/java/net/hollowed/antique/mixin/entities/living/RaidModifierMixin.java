@@ -23,27 +23,27 @@ public abstract class RaidModifierMixin {
 
     @Shadow public abstract int getNumGroups(Difficulty difficulty);
 
-    @Shadow public abstract void joinRaid(ServerLevel world, int wave, Raider raider, @Nullable BlockPos pos, boolean existing);
+    @Shadow public abstract void joinRaid(ServerLevel level, int groupNumber, Raider raider, @Nullable BlockPos pos, boolean exists);
 
     @Inject(method = "spawnGroup", at = @At("HEAD"))
-    public void spawnNextWave(ServerLevel world, BlockPos pos, CallbackInfo ci) {
+    public void spawnNextWave(ServerLevel level, BlockPos pos, CallbackInfo ci) {
         int i = this.groupsSpawned;
-        IllusionerEntity raiderEntity = new IllusionerEntity(AntiqueEntities.ILLUSIONER, world);
+        IllusionerEntity raiderEntity = new IllusionerEntity(AntiqueEntities.ILLUSIONER, level);
         raiderEntity.setItemInHand(InteractionHand.MAIN_HAND, Items.BOW.getDefaultInstance());
-        switch (world.getDifficulty()) {
+        switch (level.getDifficulty()) {
             case Difficulty.EASY -> {
                 if (i == this.getNumGroups(Difficulty.EASY)) {
-                    this.joinRaid(world, i, raiderEntity, pos, false);
+                    this.joinRaid(level, i, raiderEntity, pos, false);
                 }
             }
             case Difficulty.NORMAL -> {
                 if (i == this.getNumGroups(Difficulty.NORMAL)) {
-                    this.joinRaid(world, i, raiderEntity, pos, false);
+                    this.joinRaid(level, i, raiderEntity, pos, false);
                 }
             }
             case Difficulty.HARD -> {
                 if (i == this.getNumGroups(Difficulty.HARD)) {
-                    this.joinRaid(world, i, raiderEntity, pos, false);
+                    this.joinRaid(level, i, raiderEntity, pos, false);
                 }
             }
         }

@@ -12,11 +12,7 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.util.Unit;
-import net.minecraft.world.item.InstrumentItem;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.Rarity;
-import net.minecraft.world.item.ShearsItem;
-import net.minecraft.world.item.SpawnEggItem;
+import net.minecraft.world.item.*;
 import net.minecraft.world.item.component.DyedItemColor;
 import net.minecraft.world.item.component.InstrumentComponent;
 import net.minecraft.world.item.equipment.ArmorType;
@@ -137,9 +133,8 @@ public interface AntiqueItems {
             .rarity(Rarity.UNCOMMON)
             .fireResistant()
     ));
-    @SuppressWarnings("deprecation")
     Item WARHORN = register("warhorn", settings -> new InstrumentItem(settings.stacksTo(1)
-            .component(DataComponents.INSTRUMENT, new InstrumentComponent(AntiqueInstruments.WARHORN))
+            .delayedComponent(DataComponents.INSTRUMENT, context -> new InstrumentComponent(context.getOrThrow(AntiqueInstruments.WARHORN)))
             .rarity(Rarity.UNCOMMON)
     ));
     Item ILLUSIONER_SPAWN_EGG = register("illusioner_spawn_egg", settings -> new SpawnEggItem(settings.stacksTo(64)

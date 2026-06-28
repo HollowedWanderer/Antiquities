@@ -23,9 +23,9 @@ public abstract class SkeletonFeatureAdder<T extends AbstractSkeleton, S extends
     }
 
     @Inject(method = "extractRenderState(Lnet/minecraft/world/entity/monster/skeleton/AbstractSkeleton;Lnet/minecraft/client/renderer/entity/state/SkeletonRenderState;F)V", at = @At("HEAD"))
-    public void updateRenderState(T abstractSkeletonEntity, S skeletonEntityRenderState, float f, CallbackInfo ci) {
-        if (abstractSkeletonEntity instanceof WitherSkeleton) {
-            if (skeletonEntityRenderState instanceof IsWitherGetter access) {
+    public void updateRenderState(T entity, S state, float partialTicks, CallbackInfo ci) {
+        if (entity instanceof WitherSkeleton) {
+            if (state instanceof IsWitherGetter access) {
                 access.antiquities$setWither(true);
             }
         }

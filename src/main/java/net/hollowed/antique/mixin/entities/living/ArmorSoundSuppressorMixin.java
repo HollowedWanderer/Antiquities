@@ -16,7 +16,7 @@ public abstract class ArmorSoundSuppressorMixin {
     @Shadow public abstract boolean hasInfiniteMaterials();
 
     @Inject(method = "onEquipItem", at = @At("HEAD"), cancellable = true)
-    public void onEquip(EquipmentSlot slot, ItemStack oldStack, ItemStack newStack, CallbackInfo ci) {
-        if (this.hasInfiniteMaterials() && oldStack.is(AntiqueItems.SATCHEL) && newStack.is(AntiqueItems.SATCHEL)) ci.cancel();
+    public void onEquip(EquipmentSlot slot, ItemStack oldStack, ItemStack stack, CallbackInfo ci) {
+        if (this.hasInfiniteMaterials() && oldStack.is(AntiqueItems.SATCHEL) && stack.is(AntiqueItems.SATCHEL)) ci.cancel();
     }
 }

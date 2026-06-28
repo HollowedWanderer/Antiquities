@@ -53,7 +53,7 @@ public class MyriadStaffTransformResourceReloadListener implements ResourceManag
                                 MyriadStaffTransformData finalData = data;
                                 BuiltInRegistries.ITEM.forEach(item -> {
                                     Identifier itemId = BuiltInRegistries.ITEM.getKey(item);
-                                    if (item.getDefaultInstance().getItemHolder().is(key)) {
+                                    if (item.getDefaultInstance().typeHolder().is(key)) {
                                         transforms.put(itemId, finalData);
                                     }
                                 });

@@ -57,59 +57,59 @@ public abstract class PlayerFeatureAdder extends LivingEntityRenderer<@NotNull A
     }
 
     @Inject(method = "<init>", at = @At("TAIL"))
-    private void addCustomFeature(EntityRendererProvider.Context ctx, boolean slim, CallbackInfo ci) {
-        this.slim = slim;
-        this.armorModel = new AdventureArmor<>(ctx.getModelSet().bakeLayer(AntiqueEntityLayers.ADVENTURE_ARMOR));
+    private void addCustomFeature(EntityRendererProvider.Context context, boolean slimSteve, CallbackInfo ci) {
+        this.slim = slimSteve;
+        this.armorModel = new AdventureArmor<>(context.getModelSet().bakeLayer(AntiqueEntityLayers.ADVENTURE_ARMOR));
     }
 
     @Inject(method = "getArmPose(Lnet/minecraft/world/entity/Avatar;Lnet/minecraft/world/item/ItemStack;Lnet/minecraft/world/InteractionHand;)Lnet/minecraft/client/model/HumanoidModel$ArmPose;", at = @At("HEAD"), cancellable = true)
-    private static void getArmPose(Avatar player, ItemStack stack, InteractionHand hand, CallbackInfoReturnable<HumanoidModel.ArmPose> cir) {
-        if (stack.getTags().toList().contains(TagKey.create(Registries.ITEM, Antiquities.id("two_handed")))) {
-            if (!player.isUsingItem() && !player.swinging && !player.isShiftKeyDown()) {
+    private static void getArmPose(Avatar avatar, ItemStack itemInHand, InteractionHand hand, CallbackInfoReturnable<HumanoidModel.ArmPose> cir) {
+        if (itemInHand.tags().toList().contains(TagKey.create(Registries.ITEM, Antiquities.id("two_handed")))) {
+            if (!avatar.isUsingItem() && !avatar.swinging && !avatar.isShiftKeyDown()) {
                 cir.setReturnValue(HumanoidModel.ArmPose.CROSSBOW_CHARGE);
-            } else if (player.isShiftKeyDown() || player.swinging) {
+            } else if (avatar.isShiftKeyDown() || avatar.swinging) {
                 cir.setReturnValue(HumanoidModel.ArmPose.CROSSBOW_HOLD);
             }
         }
-        if (stack.getItem() instanceof MyriadToolItem) {
-            if (player.isShiftKeyDown() && !player.isUsingItem()) {
+        if (itemInHand.getItem() instanceof MyriadToolItem) {
+            if (avatar.isShiftKeyDown() && !avatar.isUsingItem()) {
                 cir.setReturnValue(HumanoidModel.ArmPose.BLOCK);
-            } else if (!player.isUsingItem()) {
+            } else if (!avatar.isUsingItem()) {
                 cir.setReturnValue(HumanoidModel.ArmPose.BRUSH);
             }
         }
     }
 
     @Inject(method = "renderLeftHand", at = @At("TAIL"))
-    public void renderArmoredLeftArm(PoseStack matrices, SubmitNodeCollector queue, int light, Identifier skinTexture, boolean sleeveVisible, CallbackInfo ci) {
+    public void renderArmoredLeftArm(PoseStack poseStack, SubmitNodeCollector submitNodeCollector, int lightCoords, Identifier skinTexture, boolean hasSleeve, CallbackInfo ci) {
         LocalPlayer player = Minecraft.getInstance().player;
         if (player == null) return;
         if (player.getItemBySlot(EquipmentSlot.CHEST).getItem() == AntiqueItems.MYRIAD_PAULDRONS) {
-            matrices.mulPose(Axis.ZP.rotationDegrees(-5));
-            matrices.translate(0.325, 0.1, 0);
+            poseStack.mulPose(Axis.ZP.rotationDegrees(-5));
+            poseStack.translate(0.325, 0.1, 0);
             if (slim) {
-                queue.order(1).submitModelPart(armorModel.leftArmArmor, matrices, RENDER_LAYER, light, OverlayTexture.NO_OVERLAY, null);
-                if (player.getItemBySlot(EquipmentSlot.CHEST).hasFoil()) queue.order(2).submitModelPart(armorModel.leftArmArmor, matrices, RenderTypes.armorEntityGlint(), light, OverlayTexture.NO_OVERLAY, null);
+                submitNodeCollector.order(1).submitModelPart(armorModel.leftArmArmor, poseStack, RENDER_LAYER, lightCoords, OverlayTexture.NO_OVERLAY, null);
+                if (player.getItemBySlot(EquipmentSlot.CHEST).hasFoil()) submitNodeCollector.order(2).submitModelPart(armorModel.leftArmArmor, poseStack, RenderTypes.armorEntityGlint(), lightCoords, OverlayTexture.NO_OVERLAY, null);
             } else {
-                queue.order(1).submitModelPart(armorModel.leftArmArmorThick, matrices, THICK_RENDER_LAYER, light, OverlayTexture.NO_OVERLAY, null);
-                if (player.getItemBySlot(EquipmentSlot.CHEST).hasFoil()) queue.order(2).submitModelPart(armorModel.leftArmArmorThick, matrices, RenderTypes.armorEntityGlint(), light, OverlayTexture.NO_OVERLAY, null);
+                submitNodeCollector.order(1).submitModelPart(armorModel.leftArmArmorThick, poseStack, THICK_RENDER_LAYER, lightCoords, OverlayTexture.NO_OVERLAY, null);
+                if (player.getItemBySlot(EquipmentSlot.CHEST).hasFoil()) submitNodeCollector.order(2).submitModelPart(armorModel.leftArmArmorThick, poseStack, RenderTypes.armorEntityGlint(), lightCoords, OverlayTexture.NO_OVERLAY, null);
             }
         }
     }
 
     @Inject(method = "renderRightHand", at = @At("TAIL"))
-    public void renderArmoredRightArm(PoseStack matrices, SubmitNodeCollector queue, int light, Identifier skinTexture, boolean sleeveVisible, CallbackInfo ci) {
+    public void renderArmoredRightArm(PoseStack poseStack, SubmitNodeCollector submitNodeCollector, int lightCoords, Identifier skinTexture, boolean hasSleeve, CallbackInfo ci) {
         LocalPlayer player = Minecraft.getInstance().player;
         if (player == null) return;
         if (player.getItemBySlot(EquipmentSlot.CHEST).getItem() == AntiqueItems.MYRIAD_PAULDRONS) {
-            matrices.mulPose(Axis.ZP.rotationDegrees(5));
-            matrices.translate(-0.325, 0.1, 0);
+            poseStack.mulPose(Axis.ZP.rotationDegrees(5));
+            poseStack.translate(-0.325, 0.1, 0);
             if (slim) {
-                queue.order(1).submitModelPart(armorModel.rightArmArmor, matrices, RENDER_LAYER, light, OverlayTexture.NO_OVERLAY, null);
-                if (player.getItemBySlot(EquipmentSlot.CHEST).hasFoil()) queue.order(2).submitModelPart(armorModel.rightArmArmor, matrices, RenderTypes.armorEntityGlint(), light, OverlayTexture.NO_OVERLAY, null);
+                submitNodeCollector.order(1).submitModelPart(armorModel.rightArmArmor, poseStack, RENDER_LAYER, lightCoords, OverlayTexture.NO_OVERLAY, null);
+                if (player.getItemBySlot(EquipmentSlot.CHEST).hasFoil()) submitNodeCollector.order(2).submitModelPart(armorModel.rightArmArmor, poseStack, RenderTypes.armorEntityGlint(), lightCoords, OverlayTexture.NO_OVERLAY, null);
             } else {
-                queue.order(1).submitModelPart(armorModel.rightArmArmorThick, matrices, THICK_RENDER_LAYER, light, OverlayTexture.NO_OVERLAY, null);
-                if (player.getItemBySlot(EquipmentSlot.CHEST).hasFoil()) queue.order(2).submitModelPart(armorModel.rightArmArmorThick, matrices, RenderTypes.armorEntityGlint(), light, OverlayTexture.NO_OVERLAY, null);
+                submitNodeCollector.order(1).submitModelPart(armorModel.rightArmArmorThick, poseStack, THICK_RENDER_LAYER, lightCoords, OverlayTexture.NO_OVERLAY, null);
+                if (player.getItemBySlot(EquipmentSlot.CHEST).hasFoil()) submitNodeCollector.order(2).submitModelPart(armorModel.rightArmArmorThick, poseStack, RenderTypes.armorEntityGlint(), lightCoords, OverlayTexture.NO_OVERLAY, null);
             }
         }
     }

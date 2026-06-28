@@ -26,17 +26,17 @@ import java.util.Optional;
 public class AxeItemMixin {
 
     @Inject(method = "evaluateNewBlockState", at = @At("HEAD"), cancellable = true)
-    private void tryStrip(Level world, BlockPos pos, @Nullable Player player, BlockState state, CallbackInfoReturnable<Optional<BlockState>> cir) {
-        Optional<BlockState> optional = getPreviousTarnishLevel(state);
+    private void tryStrip(Level level, BlockPos pos, @Nullable Player player, BlockState oldState, CallbackInfoReturnable<Optional<BlockState>> cir) {
+        Optional<BlockState> optional = getPreviousTarnishLevel(oldState);
         if (optional.isPresent()) {
-            world.playSound(player, pos, SoundEvents.AXE_SCRAPE, SoundSource.BLOCKS, 1.0F, 1.0F);
-            ParticleUtils.spawnParticlesOnBlockFaces(world, pos, AntiqueParticles.SCRAPE, UniformInt.of(3, 5));
+            level.playSound(player, pos, SoundEvents.AXE_SCRAPE, SoundSource.BLOCKS, 1.0F, 1.0F);
+            ParticleUtils.spawnParticlesOnBlockFaces(level, pos, AntiqueParticles.SCRAPE, UniformInt.of(3, 5));
             cir.setReturnValue(optional);
         } else {
-            Optional<BlockState> optional2 = getUncoat(state);
+            Optional<BlockState> optional2 = getUncoat(oldState);
             if (optional2.isPresent()) {
-                world.playSound(player, pos, SoundEvents.AXE_WAX_OFF, SoundSource.BLOCKS, 1.0F, 1.0F);
-                world.levelEvent(player, LevelEvent.PARTICLES_WAX_OFF, pos, 0);
+                level.playSound(player, pos, SoundEvents.AXE_WAX_OFF, SoundSource.BLOCKS, 1.0F, 1.0F);
+                level.levelEvent(player, LevelEvent.PARTICLES_WAX_OFF, pos, 0);
                 cir.setReturnValue(optional2);
             }
         }

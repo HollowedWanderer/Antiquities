@@ -34,6 +34,6 @@ public class DyeTableBlock extends Block {
 
     @Override
     protected MenuProvider getMenuProvider(@NotNull BlockState state, @NotNull Level world, @NotNull BlockPos pos) {
-        return new SimpleMenuProvider((syncId, inventory, player) -> new DyeingScreenHandler(syncId, inventory, ContainerLevelAccess.create(world, pos)), TITLE);
+        return new SimpleMenuProvider((syncId, inventory, _) -> new DyeingScreenHandler(syncId, inventory, ContainerLevelAccess.create(world, pos)), TITLE);
     }
 }

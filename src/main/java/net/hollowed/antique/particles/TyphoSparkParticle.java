@@ -8,10 +8,10 @@ import net.minecraft.client.particle.Particle;
 import net.minecraft.client.particle.ParticleProvider;
 import net.minecraft.client.particle.SingleQuadParticle;
 import net.minecraft.client.particle.SpriteSet;
-import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleType;
+import net.minecraft.util.LightCoordsUtil;
 import net.minecraft.util.RandomSource;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -51,8 +51,8 @@ public class TyphoSparkParticle extends SingleQuadParticle {
 	}
 
 	@Override
-	protected int getLightColor(float f) {
-		return LightTexture.FULL_BRIGHT;
+	protected int getLightCoords(float f) {
+		return LightCoordsUtil.FULL_BRIGHT;
 	}
 
 	@Override

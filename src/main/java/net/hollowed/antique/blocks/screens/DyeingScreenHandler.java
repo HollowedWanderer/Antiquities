@@ -7,7 +7,6 @@ import net.hollowed.antique.index.AntiqueScreenHandlerType;
 import net.hollowed.antique.items.components.MyriadToolComponent;
 import net.hollowed.antique.util.ClothUtil;
 import net.minecraft.core.component.DataComponents;
-import net.minecraft.tags.ItemTags;
 import net.minecraft.world.Container;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Inventory;
@@ -67,14 +66,14 @@ public class DyeingScreenHandler extends AbstractContainerMenu {
 					return stack.getOrDefault(AntiqueDataComponentTypes.MYRIAD_TOOL, MyriadToolComponent.DEFAULT_NO_CLOTH)
 							.cloth()
 							.map(key ->
-									context.evaluate((level, pos) -> ClothUtil.getClothData(key, level.registryAccess()))
+									context.evaluate((level, _) -> ClothUtil.getClothData(key, level.registryAccess()))
 											.flatMap(it -> it)
 											.map(skin -> skin.value().dyeable())
 											.orElse(false)
 							)
 							.orElse(false);
 				}
-				return stack.is(ItemTags.DYEABLE);
+				return stack.get(DataComponents.DYED_COLOR) != null;
 			}
 
 			@Override
@@ -125,7 +124,7 @@ public class DyeingScreenHandler extends AbstractContainerMenu {
 					return ItemStack.EMPTY;
 				}
 			} else {
-				if (originalStack.is(ItemTags.DYEABLE)) {
+				if (originalStack.get(DataComponents.DYED_COLOR) != null) {
 					if (!moveItemStackTo(originalStack, inputSlot, inputSlot + 1, false)) {
 						return ItemStack.EMPTY;
 					}
@@ -160,7 +159,7 @@ public class DyeingScreenHandler extends AbstractContainerMenu {
 	@Override
 	public void removed(@NotNull Player player) {
 		super.removed(player);
-		this.context.execute((world, pos) -> this.clearContainer(player, this.inventory));
+		this.context.execute((_, _) -> this.clearContainer(player, this.inventory));
 	}
 
 	@Override

@@ -21,18 +21,18 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 public class CakeThrowMixin {
 
     @Inject(method = "use", at = @At("HEAD"), cancellable = true)
-    public void use(Level world, Player player, InteractionHand hand, CallbackInfoReturnable<InteractionResult> cir) {
+    public void use(Level level, Player player, InteractionHand hand, CallbackInfoReturnable<InteractionResult> cir) {
         if (player.getItemInHand(hand).is(Items.CAKE)) {
             ItemStack stack = player.getItemInHand(hand);
             player.swing(hand, true);
-            if (!world.isClientSide()) {
-                CakeEntity cake = new CakeEntity(AntiqueEntities.CAKE_ENTITY, world);
+            if (!level.isClientSide()) {
+                CakeEntity cake = new CakeEntity(AntiqueEntities.CAKE_ENTITY, level);
                 cake.setPosRaw(player.getX(), player.getY() + 1.5, player.getZ());
                 cake.setDeltaMovement(player.getLookAngle().scale(0.75));
                 cake.absSnapRotationTo(-player.getYHeadRot(), -player.getXRot());
-                world.addFreshEntity(cake);
+                level.addFreshEntity(cake);
 
-                world.playSound(null, player.getX(), player.getY(), player.getZ(), SoundEvents.WIND_CHARGE_THROW, SoundSource.NEUTRAL, 0.5F, 0.1F);
+                level.playSound(null, player.getX(), player.getY(), player.getZ(), SoundEvents.WIND_CHARGE_THROW, SoundSource.NEUTRAL, 0.5F, 0.1F);
             }
             stack.consume(1, player);
             player.awardStat(Stats.ITEM_USED.get((Item) (Object) this));

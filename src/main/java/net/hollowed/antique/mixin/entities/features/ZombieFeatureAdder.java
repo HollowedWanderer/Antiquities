@@ -23,9 +23,9 @@ public abstract class ZombieFeatureAdder<T extends Zombie, S extends ZombieRende
     }
 
     @Inject(method = "extractRenderState(Lnet/minecraft/world/entity/monster/zombie/Zombie;Lnet/minecraft/client/renderer/entity/state/ZombieRenderState;F)V", at = @At("HEAD"))
-    public void updateRenderState(T zombieEntity, S zombieEntityRenderState, float f, CallbackInfo ci) {
-        if (zombieEntity instanceof Husk) {
-            if (zombieEntityRenderState instanceof IsHuskGetter access) {
+    public void updateRenderState(T entity, S state, float partialTicks, CallbackInfo ci) {
+        if (entity instanceof Husk) {
+            if (state instanceof IsHuskGetter access) {
                 access.antiquities$setHusk(true);
             }
         }

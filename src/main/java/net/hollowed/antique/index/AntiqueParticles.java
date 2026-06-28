@@ -1,7 +1,7 @@
 package net.hollowed.antique.index;
 
 import com.mojang.serialization.Codec;
-import net.fabricmc.fabric.api.client.particle.v1.ParticleFactoryRegistry;
+import net.fabricmc.fabric.api.client.particle.v1.ParticleProviderRegistry;
 import net.fabricmc.fabric.api.particle.v1.FabricParticleTypes;
 import net.hollowed.antique.Antiquities;
 import net.hollowed.antique.particles.*;
@@ -40,12 +40,12 @@ public interface AntiqueParticles {
     }
 
     static void initializeClient() {
-        ParticleFactoryRegistry.getInstance().register(SPARKLE_PARTICLE, FacingRingParticle.Factory::new);
-        ParticleFactoryRegistry.getInstance().register(CAKE_SMEAR, CakeSmearParticle.Factory::new);
-        ParticleFactoryRegistry.getInstance().register(DUST_PARTICLE, DustParticle.CosySmokeFactory::new);
-        ParticleFactoryRegistry.getInstance().register(HIT_MARKER, HitMarkerParticle.Factory::new);
-        ParticleFactoryRegistry.getInstance().register(SCRAPE, GlowParticle.ScrapeFactory::new);
-        ParticleFactoryRegistry.getInstance().register(SHOCKWAVE_BUBBLE, ShockwaveBubbleParticle.Factory::new);
-        ParticleFactoryRegistry.getInstance().register(TYPHO_SPARK, TyphoSparkParticle.Factory::new);
+        ParticleProviderRegistry.getInstance().register(SPARKLE_PARTICLE, FacingRingParticle.Factory::new);
+        ParticleProviderRegistry.getInstance().register(CAKE_SMEAR, CakeSmearParticle.Factory::new);
+        ParticleProviderRegistry.getInstance().register(DUST_PARTICLE, DustParticle.CosySmokeFactory::new);
+        ParticleProviderRegistry.getInstance().register(HIT_MARKER, HitMarkerParticle.Factory::new);
+        ParticleProviderRegistry.getInstance().register(SCRAPE, GlowParticle.ScrapeFactory::new);
+        ParticleProviderRegistry.getInstance().register(SHOCKWAVE_BUBBLE, ShockwaveBubbleParticle.Factory::new);
+        ParticleProviderRegistry.getInstance().register(TYPHO_SPARK, TyphoSparkParticle.Factory::new);
     }
 }

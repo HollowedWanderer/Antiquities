@@ -7,16 +7,13 @@ import net.hollowed.antique.Antiquities;
 import net.hollowed.antique.AntiquitiesClient;
 import net.hollowed.antique.client.renderer.cloth.ClothBody;
 import net.hollowed.antique.client.renderer.cloth.ClothManager;
-import net.hollowed.antique.util.ClothUtil;
 import net.hollowed.antique.util.CodecUtil;
-import net.hollowed.antique.util.resources.ClothPatternData;
 import net.hollowed.antique.util.resources.ClothPatternModelListener;
 import net.hollowed.antique.util.resources.ClothSkinData;
 import net.hollowed.antique.util.resources.SewnClothPattern;
 import net.hollowed.antique.util.resources.client.ClothPatternModelData;
 import net.hollowed.antique.util.resources.client.ClothSprite;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.client.renderer.rendertype.RenderTypes;
@@ -26,6 +23,7 @@ import net.minecraft.core.Holder;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.resources.Identifier;
 import net.minecraft.util.ARGB;
+import net.minecraft.util.LightCoordsUtil;
 import net.minecraft.world.phys.Vec2;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Matrix4f;
@@ -45,7 +43,7 @@ public class BasicClothRenderer implements ClothRenderer {
 
     private static final double CAMERA_FOV_DECAY = .1;
 
-    public static final RenderType CLOTH_RENDER_LAYER = RenderTypes.itemEntityTranslucentCull(AntiquitiesClient.CLOTHS_ATLAS_TEXTURE);
+    public static final RenderType CLOTH_RENDER_LAYER = RenderTypes.entityTranslucentCullItemTarget(AntiquitiesClient.CLOTHS_ATLAS_TEXTURE);
 
     public final List<ClothSprite> sprites;
 
@@ -92,7 +90,7 @@ public class BasicClothRenderer implements ClothRenderer {
         matrices.pushPose();
 
         // Get camera position, only once, no more is needed.
-        final Vec3 cameraPosVec3d = Minecraft.getInstance().gameRenderer.getMainCamera().position();
+        final Vec3 cameraPosVec3d = Minecraft.getInstance().gameRenderer.mainCamera().position();
         final Vector3f cameraPos = new Vector3f(new Vector3d(cameraPosVec3d.x, cameraPosVec3d.y, cameraPosVec3d.z));
 
         Vector3f toCam = new Vector3f();
@@ -149,7 +147,7 @@ public class BasicClothRenderer implements ClothRenderer {
                         new Vec2(sprite.getU1(), sprite.getV(uvTop)),
                         new Vec2(sprite.getU1(), sprite.getV(uvBot)),
                         new Vec2(sprite.getU0(), sprite.getV(uvBot)),
-                        spriteData.light().map(l -> LightTexture.pack(l, l)).orElse(finalLight),
+                        spriteData.light().map(l -> LightCoordsUtil.pack(l, l)).orElse(finalLight),
                         ARGB.opaque(color)
                 );
             }
@@ -203,7 +201,7 @@ public class BasicClothRenderer implements ClothRenderer {
     }
 
     public static void drawQuad(PoseStack matrices, Matrix4f matrix, RenderType layer, SubmitNodeCollector queue, int order, Vector3f posA, Vector3f posB, Vector3f posC, Vector3f posD, Vec2 uvA, Vec2 uvB, Vec2 uvC, Vec2 uvD, int light, int color) {
-        queue.order(order).submitCustomGeometry(matrices, layer, (matricesEntry, vertexConsumer) -> {
+        queue.order(order).submitCustomGeometry(matrices, layer, (_, vertexConsumer) -> {
             vertexConsumer.addVertex(matrix, posD.x, posD.y, posD.z).setOverlay(OverlayTexture.NO_OVERLAY).setNormal(0, 1, 0).setLight(light).setUv(uvC.x, uvC.y).setColor(color);
             vertexConsumer.addVertex(matrix, posC.x, posC.y, posC.z).setOverlay(OverlayTexture.NO_OVERLAY).setNormal(0, 1, 0).setLight(light).setUv(uvD.x, uvD.y).setColor(color);
             vertexConsumer.addVertex(matrix, posB.x, posB.y, posB.z).setOverlay(OverlayTexture.NO_OVERLAY).setNormal(0, 1, 0).setLight(light).setUv(uvA.x, uvA.y).setColor(color);

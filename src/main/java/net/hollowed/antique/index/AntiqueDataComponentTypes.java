@@ -1,7 +1,7 @@
 package net.hollowed.antique.index;
 
 import com.mojang.serialization.Codec;
-import net.fabricmc.fabric.api.item.v1.ComponentTooltipAppenderRegistry;
+import net.fabricmc.fabric.api.item.v1.ItemComponentTooltipProviderRegistry;
 import net.hollowed.antique.Antiquities;
 import net.hollowed.antique.items.components.MyriadToolComponent;
 import net.hollowed.antique.items.components.AmethystForkComponent;
@@ -97,6 +97,6 @@ public interface AntiqueDataComponentTypes {
     );
 
     static void initialize() {
-        ComponentTooltipAppenderRegistry.addFirst(AMETHYST_FORK);
+        ItemComponentTooltipProviderRegistry.addFirst(AMETHYST_FORK);
     }
 }

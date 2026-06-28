@@ -5,7 +5,7 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.client.renderer.block.model.BakedQuad;
+import net.minecraft.client.resources.model.geometry.BakedQuad;
 import net.minecraft.resources.Identifier;
 import org.jetbrains.annotations.NotNull;
 
@@ -39,14 +39,11 @@ public record ClothSprite(
 
         quadLoop:
         for (BakedQuad quad : quads) {
-            Identifier spriteId = quad.sprite().contents().name();
+            Identifier spriteId = quad.materialInfo().sprite().contents().name();
 
-            for (int i = 0; i < sprites.size(); i++) {
-                ClothSprite sprite = sprites.get(i);
-
+            for (ClothSprite sprite : sprites) {
                 if (sprite.texture.equals(spriteId)) {
-                    int tintIndex = i;
-                    newQuads.add(sprite.light.map(light -> new BakedQuad(
+                    newQuads.add(sprite.light.map(_ -> new BakedQuad(
                             quad.position0(),
                             quad.position1(),
                             quad.position2(),
@@ -55,11 +52,8 @@ public record ClothSprite(
                             quad.packedUV1(),
                             quad.packedUV2(),
                             quad.packedUV3(),
-                            tintIndex,
                             quad.direction(),
-                            quad.sprite(),
-                            quad.shade(),
-                            light
+                            quad.materialInfo()
                     )).orElse(quad));
                     continue quadLoop;
                 }

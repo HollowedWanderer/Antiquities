@@ -9,11 +9,12 @@ import net.minecraft.world.item.crafting.RecipeSerializer;
 import org.jetbrains.annotations.NotNull;
 
 public interface AntiqueRecipeSerializer {
+
     RecipeSerializer<@NotNull ClothPatternOnToolRecipe> CLOTH_PATTERN = register(
-            "crafting_special_cloth_pattern", new ClothPatternOnToolRecipe.Serializer()
+            "crafting_special_cloth_pattern", ClothPatternOnToolRecipe.SERIALIZER
     );
     RecipeSerializer<@NotNull ClothPatternGlowRecipe> PATTERN_GLOW = register(
-            "crafting_special_pattern_glow", new ClothPatternGlowRecipe.Serializer()
+            "crafting_special_pattern_glow", ClothPatternGlowRecipe.SERIALIZER
     );
 
     static void initialize() {}

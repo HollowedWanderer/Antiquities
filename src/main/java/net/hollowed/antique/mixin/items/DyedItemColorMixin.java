@@ -24,7 +24,7 @@ public class DyedItemColorMixin {
     private int rgb;
 
     @Inject(method = "addToTooltip", at = @At("HEAD"), cancellable = true)
-    private void addToTooltip(Item.TooltipContext tooltipContext, Consumer<Component> consumer, TooltipFlag tooltipFlag, DataComponentGetter dataComponentGetter, CallbackInfo ci) {
+    private void addToTooltip(Item.TooltipContext context, Consumer<Component> consumer, TooltipFlag flag, DataComponentGetter components, CallbackInfo ci) {
         consumer.accept(Component.translatable("item.color", String.format(Locale.ROOT, "#%06X", this.rgb)).withStyle(ChatFormatting.GRAY));
         ci.cancel();
     }

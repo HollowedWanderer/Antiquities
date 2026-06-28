@@ -14,19 +14,17 @@ import net.hollowed.antique.util.resources.client.ClothPatternModelData;
 import net.hollowed.antique.util.resources.client.ClothSprite;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
-import net.minecraft.client.renderer.Sheets;
-import net.minecraft.client.renderer.block.model.BakedQuad;
-import net.minecraft.client.renderer.block.model.ItemModelGenerator;
-import net.minecraft.client.renderer.block.model.TextureSlots;
+import net.minecraft.client.renderer.block.dispatch.BlockModelRotation;
 import net.minecraft.client.renderer.item.ItemModel;
 import net.minecraft.client.renderer.item.ItemModelResolver;
 import net.minecraft.client.renderer.item.ItemStackRenderState;
 import net.minecraft.client.renderer.item.ModelRenderProperties;
-import net.minecraft.client.renderer.texture.TextureAtlas;
-import net.minecraft.client.resources.model.BlockModelRotation;
-import net.minecraft.client.resources.model.Material;
 import net.minecraft.client.resources.model.ModelBaker;
 import net.minecraft.client.resources.model.ResolvedModel;
+import net.minecraft.client.resources.model.cuboid.ItemModelGenerator;
+import net.minecraft.client.resources.model.geometry.BakedQuad;
+import net.minecraft.client.resources.model.sprite.Material;
+import net.minecraft.client.resources.model.sprite.TextureSlots;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.entity.ItemOwner;
@@ -34,7 +32,9 @@ import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.joml.Matrix4fc;
 import org.joml.Vector3fc;
+import org.jspecify.annotations.NonNull;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -64,7 +64,7 @@ public class ClothPatternItemModel implements ItemModel {
 			return extents.toArray(Vector3fc[]::new);
 		});
 		this.settings = settings;
-		this.animated = quads.values().stream().anyMatch(list -> list.stream().anyMatch(quad -> quad.sprite().contents().isAnimated()));
+		this.animated = quads.values().stream().anyMatch(list -> list.stream().anyMatch(quad -> quad.materialInfo().sprite().contents().isAnimated()));
 	}
 
 	@Override
@@ -93,13 +93,12 @@ public class ClothPatternItemModel implements ItemModel {
 				.orElse(Antiquities.id("cloth"));
 		state.appendModelIdentityElement(clothId);
 
-		List<BakedQuad> selected = quads.computeIfAbsent(clothId, key -> {
+		List<BakedQuad> selected = quads.computeIfAbsent(clothId, _ -> {
 			Antiquities.LOGGER.error("Couldn't get item model for cloth pattern {}", clothId);
 			return quads.get(Antiquities.id("cloth"));
 		});
 
 		layer.setExtents(this.extents);
-		layer.setRenderType(Sheets.translucentItemSheet());
 		layer.setUsesBlockLight(false);
 		this.settings.applyToLayer(layer, displayContext);
 
@@ -122,8 +121,7 @@ public class ClothPatternItemModel implements ItemModel {
 		}
 
 		@Override
-		@SuppressWarnings("deprecation")
-		public @NotNull ItemModel bake(BakingContext context) {
+		public @NonNull ItemModel bake(BakingContext context, @NonNull Matrix4fc transformation) {
 			ModelBaker baker = context.blockModelBaker();
 			Map<Identifier, List<BakedQuad>> variantQuads = new HashMap<>();
 
@@ -146,7 +144,7 @@ public class ClothPatternItemModel implements ItemModel {
 								int layer = 0;
 
 								for (ClothSprite sprite : model.itemSprites()) {
-									builder.addTexture("layer" + (layer++), new Material(TextureAtlas.LOCATION_ITEMS, sprite.texture()));
+									builder.addTexture("layer" + (layer++), new Material(sprite.texture()));
 								}
 
 								TextureSlots.Resolver resolver = new TextureSlots.Resolver();

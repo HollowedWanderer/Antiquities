@@ -9,7 +9,7 @@ import net.hollowed.antique.items.MyriadToolItem;
 import net.hollowed.antique.items.components.MyriadToolComponent;
 import net.hollowed.antique.networking.DyePacketPayload;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.input.KeyEvent;
@@ -24,6 +24,7 @@ import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.DyedItemColor;
 import org.jetbrains.annotations.NotNull;
+import org.jspecify.annotations.NonNull;
 import org.lwjgl.glfw.GLFW;
 
 import java.util.Optional;
@@ -50,7 +51,7 @@ public class DyeingScreen extends AbstractContainerScreen<@NotNull DyeingScreenH
 		this.colorField.setMaxLength(6);
 		this.colorField.setResponder(this::onColorChanged);
 		this.colorField.setValue("");
-		this.colorField.setFilter(s -> s.matches("(?i)[0-9a-f]{0,6}"));
+		this.colorField.addFormatter((text, _) -> _ -> text.matches("(?i)[0-9a-f]{0,6}"));
 		this.addRenderableWidget(this.colorField);
 		this.colorField.setEditable(this.menu.getSlot(0).hasItem());
 		this.menu.addSlotListener(this);
@@ -67,14 +68,14 @@ public class DyeingScreen extends AbstractContainerScreen<@NotNull DyeingScreenH
 	}
 
 	@Override
-	public void render(@NotNull GuiGraphics context, int mouseX, int mouseY, float deltaTicks) {
-		super.render(context, mouseX, mouseY, deltaTicks);
-		this.renderTooltip(context, mouseX, mouseY);
+	public void extractRenderState(@NonNull GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
+		super.extractRenderState(graphics, mouseX, mouseY, a);
+		this.extractTooltip(graphics, mouseX, mouseY);
 	}
 
 	@Override
-	protected void renderLabels(GuiGraphics context, int mouseX, int mouseY) {
-		context.drawString(this.font, this.title, this.titleLabelX, this.titleLabelY, 0xff6b5e3c, false);
+	protected void extractLabels(@NonNull GuiGraphicsExtractor graphics, int xm, int ym) {
+		graphics.text(this.font, this.title, this.titleLabelX, this.titleLabelY, 0xff6b5e3c, false);
 	}
 
 	@Override
@@ -106,10 +107,10 @@ public class DyeingScreen extends AbstractContainerScreen<@NotNull DyeingScreenH
 	}
 
 	@Override
-	protected void renderBg(GuiGraphics context, float deltaTicks, int mouseX, int mouseY) {
+	public void extractBackground(@NonNull GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
 		int i = this.leftPos;
 		int j = this.topPos;
-		context.blit(RenderPipelines.GUI_TEXTURED, TEXTURE, i, j, 0.0F, 0.0F, this.imageWidth, this.imageHeight, 256, 256);
+		graphics.blit(RenderPipelines.GUI_TEXTURED, TEXTURE, i, j, 0.0F, 0.0F, this.imageWidth, this.imageHeight, 256, 256);
 
 		ItemStack result = this.menu.getResult();
 		if (!result.isEmpty()) {
@@ -124,7 +125,7 @@ public class DyeingScreen extends AbstractContainerScreen<@NotNull DyeingScreenH
 				rgb = result.getOrDefault(DataComponents.DYED_COLOR, new DyedItemColor(0xFFFFFF)).rgb();
 			}
 
-			context.blit(RenderPipelines.GUI_TEXTURED, TEXTURE, i + 1, j + 3, 0.0F, 176.0F, 174, 80, 256, 256, 0xFF000000 | rgb);
+			graphics.blit(RenderPipelines.GUI_TEXTURED, TEXTURE, i + 1, j + 3, 0.0F, 176.0F, 174, 80, 256, 256, 0xFF000000 | rgb);
 		}
 	}
 

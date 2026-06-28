@@ -32,7 +32,7 @@ public abstract class AnimeEffectMixin extends Entity {
 
     @Shadow private long lastDamageStamp;
 
-    @Shadow public abstract boolean hurtServer(@NotNull ServerLevel world, @NotNull DamageSource source, float amount);
+    @Shadow public abstract boolean hurtServer(@NotNull ServerLevel level, @NotNull DamageSource source, float damage);
 
     @Shadow public abstract @Nullable LivingEntity getLastHurtByMob();
 

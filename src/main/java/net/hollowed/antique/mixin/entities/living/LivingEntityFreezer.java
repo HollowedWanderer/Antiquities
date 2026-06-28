@@ -28,7 +28,7 @@ public abstract class LivingEntityFreezer implements EntityFreezer {
     }
 
     @Inject(method = "handleRelativeFrictionAndCalculateMovement", at = @At("HEAD"), cancellable = true)
-    public void setMovementInput(Vec3 movementInput, float slipperiness, CallbackInfoReturnable<Vec3> cir) {
+    public void setMovementInput(Vec3 input, float friction, CallbackInfoReturnable<Vec3> cir) {
         if (this.frozen && this.time > 0) {
             this.time--;
             cir.setReturnValue(Vec3.ZERO);

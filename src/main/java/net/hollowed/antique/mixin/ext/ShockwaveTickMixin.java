@@ -14,7 +14,7 @@ import java.util.function.BooleanSupplier;
 public class ShockwaveTickMixin {
 
     @Inject(method = "tick", at = @At("HEAD"))
-    private void tick(BooleanSupplier booleanSupplier, CallbackInfo ci) {
+    private void tick(BooleanSupplier haveTime, CallbackInfo ci) {
         for (Shockwave shockwave : ShockwaveManager.shockwaves.keySet()) {
             ServerLevel level = ShockwaveManager.shockwaves.get(shockwave);
             if (shockwave.tick(level)) {

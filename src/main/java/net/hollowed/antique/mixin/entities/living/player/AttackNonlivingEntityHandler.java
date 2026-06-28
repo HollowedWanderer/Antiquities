@@ -35,9 +35,9 @@ import java.util.Objects;
 @Mixin(Player.class)
 public abstract class AttackNonlivingEntityHandler extends LivingEntity {
 
-    @Shadow public abstract void setRemainingFireTicks(int fireTicks);
+    @Shadow public abstract void setRemainingFireTicks(int remainingTicks);
 
-    @Shadow public abstract void attack(Entity target);
+    @Shadow public abstract void attack(Entity entity);
 
     @Unique
     private boolean ranScepterAttack = false;
@@ -50,7 +50,7 @@ public abstract class AttackNonlivingEntityHandler extends LivingEntity {
     }
 
     @Inject(at = @At("HEAD"), method = "attack", cancellable = true)
-    private void attackWithScepter(Entity target, CallbackInfo ci) {
+    private void attackWithScepter(Entity entity, CallbackInfo ci) {
         if (!ranScepterAttack) {
             Player player = (Player) (Object) this;
 
@@ -62,14 +62,14 @@ public abstract class AttackNonlivingEntityHandler extends LivingEntity {
                         SoundEvents.HEAVY_CORE_PLACE, SoundSource.PLAYERS, 1.0F, 1.3F);
 
                 if (this.level() instanceof ServerLevel serverWorld) {
-                    serverWorld.sendParticles(CAParticles.RING, target.getX(), target.getY(0.6), target.getZ(), 1, 0.1, 0.2, 0.1, 0);
+                    serverWorld.sendParticles(CAParticles.RING, entity.getX(), entity.getY(0.6), entity.getZ(), 1, 0.1, 0.2, 0.1, 0);
                 }
 
                 Vec3 effectiveVelocity = ScepterItem.playerVelocity;
 
                 if (player.getDeltaMovement().length() > 0.1) {
                     int delay = player.getDeltaMovement().length() > 0.6 ? (int) (player.getDeltaMovement().length() * 5F) : 0;
-                    if (target instanceof net.hollowed.combatamenities.util.interfaces.EntityFreezer access) {
+                    if (entity instanceof net.hollowed.combatamenities.util.interfaces.EntityFreezer access) {
                         access.antiquities$setFrozen(true, delay - 1);
                     }
                     if (player instanceof net.hollowed.combatamenities.util.interfaces.EntityFreezer access) {
@@ -80,10 +80,10 @@ public abstract class AttackNonlivingEntityHandler extends LivingEntity {
                         if (attackPower > 0.9f) {
                             float pitch = 1.1f + (player.getRandom().nextFloat() * .2f);
                             if (this.level() instanceof ServerLevel serverWorld) {
-                                serverWorld.sendParticles(ParticleTypes.GUST_EMITTER_SMALL, target.getX(), target.getY(0.5), target.getZ(), 1, 0.1, 0.0, 0.1, 0);
+                                serverWorld.sendParticles(ParticleTypes.GUST_EMITTER_SMALL, entity.getX(), entity.getY(0.5), entity.getZ(), 1, 0.1, 0.0, 0.1, 0);
                             }
 
-                            if (!target.onGround()) {
+                            if (!entity.onGround()) {
                                 player.level().playSound(player, player.getX(), player.getY(), player.getZ(),
                                         SoundEvents.MACE_SMASH_AIR, SoundSource.PLAYERS, 1.0F, 1.3F);
                             } else {
@@ -97,25 +97,25 @@ public abstract class AttackNonlivingEntityHandler extends LivingEntity {
 
                             float damage = Math.min((float) (effectiveVelocity.length() * 7.5 + 6), 30);
                             if (player.level() instanceof ServerLevel serverWorld) {
-                                target.hurtServer(serverWorld, player.level().damageSources().flyIntoWall(), damage);
+                                entity.hurtServer(serverWorld, player.level().damageSources().flyIntoWall(), damage);
                             }
 
                             Vec3 targetVelocity = effectiveVelocity.multiply(4, 2.5, 4);
 
-                            if (target instanceof Player || target instanceof ServerPlayer) {
+                            if (entity instanceof Player || entity instanceof ServerPlayer) {
                                 targetVelocity = targetVelocity.multiply(2, 0.2, 2);
                             }
 
-                            target.setDeltaMovement(targetVelocity.scale(0.6 / targetVelocity.length() * targetVelocity.length()));
-                            target.hurtMarked = true;
+                            entity.setDeltaMovement(targetVelocity.scale(0.6 / targetVelocity.length() * targetVelocity.length()));
+                            entity.hurtMarked = true;
 
                             double radius = 5.0;
                             List<Entity> nearbyEntities = player.level().getEntities(
-                                    target, target.getBoundingBox().inflate(radius));
+                                    entity, entity.getBoundingBox().inflate(radius));
 
                             for (Entity nearby : nearbyEntities) {
-                                if (nearby instanceof LivingEntity && nearby != target && nearby != player) {
-                                    double distance = target.position().distanceTo(nearby.position());
+                                if (nearby instanceof LivingEntity && nearby != entity && nearby != player) {
+                                    double distance = entity.position().distanceTo(nearby.position());
                                     if (distance <= radius) {
                                         double scalingFactor = 2.5 - (distance / radius);
                                         Vec3 reducedVelocity = effectiveVelocity.scale(scalingFactor);
@@ -140,14 +140,14 @@ public abstract class AttackNonlivingEntityHandler extends LivingEntity {
                                 player.addEffect(new MobEffectInstance(AntiqueEffects.VOLATILE_BOUNCE_EFFECT, 30, 0, true, true));
                             }
 
-                            if (target instanceof Player playerTarget && !EnchantmentListener.hasEnchantment(stack, "antique:kinematic")) {
+                            if (entity instanceof Player playerTarget && !EnchantmentListener.hasEnchantment(stack, "antique:kinematic")) {
                                 playerTarget.addEffect(new MobEffectInstance(AntiqueEffects.VOLATILE_BOUNCE_EFFECT, 30, 0, true, true));
-                            } else if (target instanceof LivingEntity livingTarget) {
+                            } else if (entity instanceof LivingEntity livingTarget) {
                                 livingTarget.addEffect(new MobEffectInstance(AntiqueEffects.BOUNCE_EFFECT, 30, 0, true, true));
                             }
                         }
 
-                        this.attack(target);
+                        this.attack(entity);
                     });
 
                     ci.cancel();

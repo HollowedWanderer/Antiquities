@@ -23,17 +23,17 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 @Mixin(NoiseBasedChunkGenerator.class)
 public class NoiseChunkGeneratorMixin {
 
-        @Inject(method = "doFill(Lnet/minecraft/world/level/levelgen/blending/Blender;Lnet/minecraft/world/level/StructureManager;Lnet/minecraft/world/level/levelgen/RandomState;Lnet/minecraft/world/level/chunk/ChunkAccess;II)Lnet/minecraft/world/level/chunk/ChunkAccess;", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/chunk/LevelChunkSection;setBlockState(IIILnet/minecraft/world/level/block/state/BlockState;Z)Lnet/minecraft/world/level/block/state/BlockState;"))
-    private void placeClusters(Blender blender, StructureManager structureAccessor, RandomState noiseConfig, ChunkAccess chunk, int minimumCellY, int cellHeight, CallbackInfoReturnable<ChunkAccess> cir, @Local LevelChunkSection chunkSection, @Local BlockState state, @Local(ordinal = 17) int x1, @Local(ordinal = 13) int y1, @Local(ordinal = 20) int z1) {
+    @Inject(method = "doFill(Lnet/minecraft/world/level/levelgen/blending/Blender;Lnet/minecraft/world/level/StructureManager;Lnet/minecraft/world/level/levelgen/RandomState;Lnet/minecraft/world/level/chunk/ChunkAccess;II)Lnet/minecraft/world/level/chunk/ChunkAccess;", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/chunk/LevelChunkSection;setBlockState(IIILnet/minecraft/world/level/block/state/BlockState;Z)Lnet/minecraft/world/level/block/state/BlockState;"))
+    private void placeClusters(Blender blender, StructureManager structureManager, RandomState randomState, ChunkAccess centerChunk, int cellMinY, int cellCountY, CallbackInfoReturnable<ChunkAccess> cir, @Local(name = "section") LevelChunkSection section, @Local(name = "state") BlockState state, @Local(name = "posX") int posX, @Local(name = "posY") int posY, @Local(name = "posZ") int posZ) {
         if (state.getBlock().equals(AntiqueBlocks.MYRIAD_ORE) || state.getBlock().equals(AntiqueBlocks.DEEPSLATE_MYRIAD_ORE)) {
             for (Direction direction : Direction.values()) {
-                BlockPos blockPos = new BlockPos(x1, y1, z1).offset(direction.getUnitVec3i());
+                BlockPos blockPos = new BlockPos(posX, posY, posZ).offset(direction.getUnitVec3i());
 
-                if (chunkSection != null) {
+                if (section != null) {
 
-                    int originX = SectionPos.sectionRelative(x1);
-                    int originY = SectionPos.sectionRelative(y1);
-                    int originZ = SectionPos.sectionRelative(z1);
+                    int originX = SectionPos.sectionRelative(posX);
+                    int originY = SectionPos.sectionRelative(posY);
+                    int originZ = SectionPos.sectionRelative(posZ);
 
                     int x = SectionPos.sectionRelative(blockPos.getX());
                     int y = SectionPos.sectionRelative(blockPos.getY());
@@ -42,14 +42,14 @@ public class NoiseChunkGeneratorMixin {
                     BlockState cluster = state.getBlock().equals(AntiqueBlocks.MYRIAD_ORE) ? AntiqueBlocks.MYRIAD_CLUSTER.defaultBlockState() : AntiqueBlocks.DEEPSLATE_MYRIAD_CLUSTER.defaultBlockState();
 
                     cluster = cluster.setValue(AmethystClusterBlock.FACING, direction)
-                            .setValue(AmethystClusterBlock.WATERLOGGED, chunkSection.getFluidState(x, y, z).getType() == Fluids.WATER);
+                            .setValue(AmethystClusterBlock.WATERLOGGED, section.getFluidState(x, y, z).getType() == Fluids.WATER);
 
                     boolean notOnBorder = Math.abs(originX - x) <= 1
                             && Math.abs(originY - y) <= 1
                             && Math.abs(originZ - z) <= 1;
 
-                    if (chunkSection.getBlockState(x, y, z).is(AntiqueBlockTags.WATER_OR_AIR) && Math.random() < 0.3 && notOnBorder) {
-                        chunkSection.setBlockState(x, y, z, cluster, false);
+                    if (section.getBlockState(x, y, z).is(AntiqueBlockTags.WATER_OR_AIR) && Math.random() < 0.3 && notOnBorder) {
+                        section.setBlockState(x, y, z, cluster, false);
                     }
                 }
             }

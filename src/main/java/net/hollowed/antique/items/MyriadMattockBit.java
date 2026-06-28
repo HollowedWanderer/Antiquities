@@ -62,7 +62,7 @@ public class MyriadMattockBit extends MyriadToolBitItem{
                     Blocks.COARSE_DIRT,
                     com.mojang.datafixers.util.Pair.of(HoeItem::onlyIfAirAbove, createTillAction(Blocks.DIRT.defaultBlockState())),
                     Blocks.ROOTED_DIRT,
-                    Pair.of(itemUsageContext -> true, createTillAndDropAction(Blocks.DIRT.defaultBlockState(), Items.HANGING_ROOTS))
+                    Pair.of(_ -> true, createTillAndDropAction(Blocks.DIRT.defaultBlockState(), Items.HANGING_ROOTS))
             )
     );
 

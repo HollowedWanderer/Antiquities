@@ -1,7 +1,7 @@
 package net.hollowed.antique.mixin.atlas;
 
 import net.hollowed.antique.AntiquitiesClient;
-import net.minecraft.client.resources.model.AtlasManager;
+import net.minecraft.client.resources.model.sprite.AtlasManager;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Mutable;

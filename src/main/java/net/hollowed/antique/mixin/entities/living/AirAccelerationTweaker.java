@@ -30,7 +30,7 @@ public abstract class AirAccelerationTweaker extends Entity {
 
     @Shadow public abstract boolean hasEffect(Holder<MobEffect> effect);
 
-    @Shadow public abstract boolean hurtServer(@NotNull ServerLevel world, @NotNull DamageSource source, float amount);
+    @Shadow public abstract boolean hurtServer(@NotNull ServerLevel level, @NotNull DamageSource source, float damage);
 
     @Shadow public abstract boolean isAutoSpinAttack();
 
@@ -42,7 +42,7 @@ public abstract class AirAccelerationTweaker extends Entity {
     }
 
     @Inject(method = "travelInAir", at = @At("HEAD"))
-    private void boostHorizontalAcceleration(Vec3 movementInput, CallbackInfo ci) {
+    private void boostHorizontalAcceleration(Vec3 input, CallbackInfo ci) {
         Entity entity = this;
 
         if ((LivingEntity) (Object) this instanceof Player player && !entity.onGround() && player.getFallFlyingTicks() == 0 && !(player.getAbilities().flying || player.isSpectator())) {
@@ -53,7 +53,7 @@ public abstract class AirAccelerationTweaker extends Entity {
             double maxHorizontalSpeed = 0.55;
             if (this.isSprinting()) maxHorizontalSpeed = 0.95;
 
-            Vec3 newVelocity = getVec3d(movementInput, entity, horizontalBoost);
+            Vec3 newVelocity = getVec3d(input, entity, horizontalBoost);
 
             double horizontalSpeed = Math.sqrt(newVelocity.x * newVelocity.x + newVelocity.z * newVelocity.z);
             if (horizontalSpeed > maxHorizontalSpeed) {
@@ -63,7 +63,7 @@ public abstract class AirAccelerationTweaker extends Entity {
 
             if (this.hasEffect(AntiqueEffects.BOUNCE_EFFECT)) {
                 this.setDeltaMovement(newVelocity);
-            } else if (movementInput.length() > 0.1) {
+            } else if (input.length() > 0.1) {
                 this.setDeltaMovement(newVelocity);
             }
         }
@@ -84,7 +84,7 @@ public abstract class AirAccelerationTweaker extends Entity {
     }
 
     @Inject(method = "travelInFluid", at = @At("HEAD"))
-    private void boostHorizontalAccelerationInWater(Vec3 movementInput, CallbackInfo ci) {
+    private void boostHorizontalAccelerationInWater(Vec3 input, CallbackInfo ci) {
         Entity entity = this;
 
         if ((LivingEntity) (Object) this instanceof Player player && !entity.onGround() && player.getFallFlyingTicks() == 0 && !(player.getAbilities().flying || player.isSpectator())) {
@@ -95,7 +95,7 @@ public abstract class AirAccelerationTweaker extends Entity {
             double maxHorizontalSpeed = 0.75;
             if (this.isSprinting()) maxHorizontalSpeed = 1.15;
 
-            Vec3 newVelocity = getVec3d(movementInput, entity, horizontalBoost);
+            Vec3 newVelocity = getVec3d(input, entity, horizontalBoost);
 
             double horizontalSpeed = Math.sqrt(newVelocity.x * newVelocity.x + newVelocity.z * newVelocity.z);
             if (horizontalSpeed > maxHorizontalSpeed) {
@@ -105,7 +105,7 @@ public abstract class AirAccelerationTweaker extends Entity {
 
             if (this.hasEffect(AntiqueEffects.BOUNCE_EFFECT)) {
                 this.setDeltaMovement(newVelocity);
-            } else if (movementInput.length() > 0.1) {
+            } else if (input.length() > 0.1) {
                 this.setDeltaMovement(newVelocity);
             }
         }

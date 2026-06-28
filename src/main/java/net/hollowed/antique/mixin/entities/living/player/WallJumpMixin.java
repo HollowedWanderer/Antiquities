@@ -41,13 +41,13 @@ public abstract class WallJumpMixin extends Entity implements Attackable {
     @Unique
     private static final EntityDataAccessor<Vector3fc> MOVEMENT_INPUT = SynchedEntityData.defineId(WallJumpMixin.class, EntityDataSerializers.VECTOR3);
 
-    @Shadow protected abstract float getFrictionInfluencedSpeed(float slipperiness);
+    @Shadow protected abstract float getFrictionInfluencedSpeed(float blockFriction);
 
     @Shadow protected boolean jumping;
 
     @Shadow public abstract boolean onClimbable();
 
-    @Shadow public abstract void setSprinting(boolean sprinting);
+    @Shadow public abstract void setSprinting(boolean isSprinting);
 
     @Shadow protected abstract float getJumpPower();
 
@@ -82,14 +82,14 @@ public abstract class WallJumpMixin extends Entity implements Attackable {
     private Vec3 startTickPosition = new Vec3(0, 0, 0);
 
     @Inject(method = "hurtServer", at = @At("HEAD"), cancellable = true)
-    public void damage(ServerLevel world, DamageSource source, float amount, CallbackInfoReturnable<Boolean> cir) {
+    public void damage(ServerLevel level, DamageSource source, float damage, CallbackInfoReturnable<Boolean> cir) {
         if (this.playerVelocity.length() > 4 && source.is(DamageTypes.FALL) && !ran) {
             LivingEntity self = (LivingEntity) (Object) this;
 
-            float reducedAmount = amount * 0.5F;
+            float reducedAmount = damage * 0.5F;
 
             this.ran = true;
-            self.hurtServer(world, source, reducedAmount);
+            self.hurtServer(level, source, reducedAmount);
             cir.setReturnValue(false);
         } else {
             this.ran = false;
@@ -112,7 +112,7 @@ public abstract class WallJumpMixin extends Entity implements Attackable {
                     if (!this.jumping && !this.isShiftKeyDown()) {
                         vec3d = new Vec3(vec3d.x, 0, vec3d.z);
                     } else if (!this.jumping) {
-                        vec3d = new Vec3(vec3d.x * 0.4, vec3d.y, vec3d.z * 0.4);
+                        vec3d = new Vec3(vec3d.x, vec3d.y, vec3d.z);
                     }
                 }
 
@@ -122,8 +122,8 @@ public abstract class WallJumpMixin extends Entity implements Attackable {
     }
 
     @Inject(method = "defineSynchedData", at = @At("HEAD"))
-    protected void initDataTracker(SynchedEntityData.Builder builder, CallbackInfo ci) {
-        builder.define(MOVEMENT_INPUT, new Vector3f());
+    protected void initDataTracker(SynchedEntityData.Builder entityData, CallbackInfo ci) {
+        entityData.define(MOVEMENT_INPUT, new Vector3f());
     }
 
     @Inject(method = "aiStep", at = @At("HEAD"))

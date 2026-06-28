@@ -3,7 +3,7 @@ package net.hollowed.antique.client.renderer.pedestal;
 import net.hollowed.antique.blocks.PedestalBlock;
 import net.hollowed.antique.blocks.entities.PedestalBlockEntity;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipComponent;
 import net.minecraft.client.gui.screens.inventory.tooltip.DefaultTooltipPositioner;
 import net.minecraft.core.component.DataComponents;
@@ -18,7 +18,7 @@ import java.util.List;
 
 public class PedestalTooltipRenderer {
 
-    private static void renderItemTooltip(GuiGraphics context, ItemStack itemStack, int screenWidth, int screenHeight) {
+    private static void renderItemTooltip(GuiGraphicsExtractor context, ItemStack itemStack, int screenWidth, int screenHeight) {
         Minecraft client = Minecraft.getInstance();
         if (client.player == null) return;
 
@@ -35,10 +35,10 @@ public class PedestalTooltipRenderer {
         int posY = screenHeight / 2 - textList.size() * 10 / 2;
 
         // Render the tooltip
-        context.renderTooltip(client.font, components, posX, posY, DefaultTooltipPositioner.INSTANCE, itemStack.get(DataComponents.TOOLTIP_STYLE));
+        context.tooltip(client.font, components, posX, posY, DefaultTooltipPositioner.INSTANCE, itemStack.get(DataComponents.TOOLTIP_STYLE));
     }
 
-    public static void renderTooltip(GuiGraphics context, int screenWidth, int screenHeight) {
+    public static void renderTooltip(GuiGraphicsExtractor context, int screenWidth, int screenHeight) {
 
         Minecraft client = Minecraft.getInstance();
 

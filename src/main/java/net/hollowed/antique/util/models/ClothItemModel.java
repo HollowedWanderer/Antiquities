@@ -6,6 +6,7 @@ import com.google.gson.JsonParser;
 import com.mojang.serialization.JsonOps;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import it.unimi.dsi.fastutil.ints.IntList;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.hollowed.antique.Antiquities;
@@ -17,16 +18,16 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.color.item.ItemTintSource;
 import net.minecraft.client.color.item.ItemTintSources;
 import net.minecraft.client.multiplayer.ClientLevel;
-import net.minecraft.client.renderer.Sheets;
-import net.minecraft.client.renderer.block.model.BakedQuad;
-import net.minecraft.client.renderer.block.model.ItemModelGenerator;
-import net.minecraft.client.renderer.block.model.TextureSlots;
+import net.minecraft.client.renderer.block.dispatch.BlockModelRotation;
 import net.minecraft.client.renderer.item.ItemModel;
 import net.minecraft.client.renderer.item.ItemModelResolver;
 import net.minecraft.client.renderer.item.ItemStackRenderState;
 import net.minecraft.client.renderer.item.ModelRenderProperties;
-import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.client.resources.model.*;
+import net.minecraft.client.resources.model.cuboid.ItemModelGenerator;
+import net.minecraft.client.resources.model.geometry.BakedQuad;
+import net.minecraft.client.resources.model.sprite.Material;
+import net.minecraft.client.resources.model.sprite.TextureSlots;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.entity.ItemOwner;
@@ -34,7 +35,9 @@ import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.joml.Matrix4fc;
 import org.joml.Vector3fc;
+import org.jspecify.annotations.NonNull;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -65,7 +68,7 @@ public class ClothItemModel implements ItemModel {
 
 			return extents.toArray(Vector3fc[]::new);
 		});
-		this.animated = quads.values().stream().anyMatch(list -> list.stream().anyMatch(quad -> quad.sprite().contents().isAnimated()));
+		this.animated = quads.values().stream().anyMatch(list -> list.stream().anyMatch(quad -> quad.materialInfo().sprite().contents().isAnimated()));
 		this.tints = tints;
 	}
 
@@ -76,7 +79,7 @@ public class ClothItemModel implements ItemModel {
 			@NotNull ItemModelResolver resolver,
 			@NotNull ItemDisplayContext displayContext,
 			@Nullable ClientLevel level,
-			@Nullable ItemOwner heldItemContext,
+			@Nullable ItemOwner owner,
 			int seed
 	) {
 		state.appendModelIdentityElement(this);
@@ -95,23 +98,22 @@ public class ClothItemModel implements ItemModel {
 				.orElse(Antiquities.id("cloth"));
 		state.appendModelIdentityElement(clothId);
 
-		List<BakedQuad> selected = quads.computeIfAbsent(clothId, key -> {
+		List<BakedQuad> selected = quads.computeIfAbsent(clothId, _ -> {
 			Antiquities.LOGGER.error("Couldn't get item model for cloth {}", clothId);
 			return quads.get(Antiquities.id("cloth"));
 		});
 
 		layer.setExtents(this.extents);
-		layer.setRenderType(Sheets.translucentItemSheet());
 		layer.setUsesBlockLight(false);
 		this.settings.applyToLayer(layer, displayContext);
 		layer.prepareQuadList().addAll(selected);
 
 		if (level != null && ClothSkinData.getHolderFromKey(cloth, level).map(skin -> skin.value().dyeable()).orElse(false)) {
-			int[] tintLayers = layer.prepareTintLayers(this.tints.size());
+			IntList tintLayers = layer.tintLayers();
 
-			for (int i = 0; i < this.tints.size(); i++) {
-				int tint = this.tints.get(i).calculate(stack, level, heldItemContext == null ? null : heldItemContext.asLivingEntity());
-				tintLayers[i] = tint;
+			for (ItemTintSource tintSource : this.tints) {
+				int tint = tintSource.calculate(stack, level, owner == null ? null : owner.asLivingEntity());
+				tintLayers.add(tint);
 				state.appendModelIdentityElement(tint);
 			}
 		}
@@ -135,8 +137,7 @@ public class ClothItemModel implements ItemModel {
 		}
 
 		@Override
-		@SuppressWarnings("deprecation")
-		public @NotNull ItemModel bake(BakingContext context) {
+		public @NonNull ItemModel bake(BakingContext context, @NonNull Matrix4fc transformation) {
 			ModelBaker baker = context.blockModelBaker();
 			Map<Identifier, List<BakedQuad>> variantQuads = new HashMap<>();
 
@@ -159,7 +160,7 @@ public class ClothItemModel implements ItemModel {
 								int layer = 0;
 
 								for (ClothSprite sprite : model.itemSprites()) {
-									builder.addTexture("layer" + (layer++), new Material(TextureAtlas.LOCATION_ITEMS, sprite.texture()));
+									builder.addTexture("layer" + (layer++), new Material(sprite.texture()));
 								}
 
 								TextureSlots.Resolver resolver = new TextureSlots.Resolver();

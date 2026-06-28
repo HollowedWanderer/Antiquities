@@ -6,8 +6,7 @@ import net.hollowed.antique.util.MathUtils;
 import net.minecraft.client.Camera;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.particle.*;
-import net.minecraft.client.renderer.LevelRenderer;
-import net.minecraft.client.renderer.state.QuadParticleRenderState;
+import net.minecraft.client.renderer.state.level.QuadParticleRenderState;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.SimpleParticleType;
 import net.minecraft.util.ARGB;
@@ -18,6 +17,7 @@ import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Quaternionf;
+import org.jspecify.annotations.NonNull;
 
 @Environment(EnvType.CLIENT)
 public class FacingRingParticle extends SimpleAnimatedParticle {
@@ -61,7 +61,7 @@ public class FacingRingParticle extends SimpleAnimatedParticle {
 		}
 
 		@Override
-		public @Nullable Particle createParticle(SimpleParticleType parameters, @NotNull ClientLevel world, double x, double y, double z, double velocityX, double velocityY, double velocityZ, @NotNull RandomSource random) {
+		public @Nullable Particle createParticle(@NonNull SimpleParticleType parameters, @NotNull ClientLevel world, double x, double y, double z, double velocityX, double velocityY, double velocityZ, @NotNull RandomSource random) {
 			return new FacingRingParticle(world, x, y, z, velocityX, velocityY, velocityZ, this.spriteProvider);
 		}
 	}
@@ -85,11 +85,5 @@ public class FacingRingParticle extends SimpleAnimatedParticle {
 		this.extractRotatedQuad(submittable, camera, quaternionf, tickProgress);
 		Quaternionf quaternionf1 = MathUtils.vec3ToQuaternion(new Vec3(-direction.x, -direction.y, -direction.z)).rotateX((float) Math.toRadians(-90.0F));
 		this.extractRotatedQuad(submittable, camera, quaternionf1, tickProgress);
-	}
-
-	@Override
-	public int getLightColor(float tint) {
-		BlockPos blockPos = BlockPos.containing(this.x, this.y, this.z);
-		return LevelRenderer.getLightColor(this.level, blockPos);
 	}
 }

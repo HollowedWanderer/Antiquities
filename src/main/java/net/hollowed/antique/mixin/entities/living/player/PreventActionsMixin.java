@@ -23,7 +23,7 @@ public abstract class PreventActionsMixin {
     }
 
     @Inject(method = "isWithinBlockInteractionRange", at = @At("HEAD"), cancellable = true)
-    public void preventInteract(BlockPos pos, double additionalRange, CallbackInfoReturnable<Boolean> cir) {
+    public void preventInteract(BlockPos pos, double buffer, CallbackInfoReturnable<Boolean> cir) {
         if (AntiqueKeyBindings.showSatchel.isDown()) {
             cir.setReturnValue(false);
         }

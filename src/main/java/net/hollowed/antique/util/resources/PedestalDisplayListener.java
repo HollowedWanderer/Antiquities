@@ -50,7 +50,7 @@ public class PedestalDisplayListener implements ResourceManagerReloadListener {
                                 TagKey<Item> tag = TagKey.create(BuiltInRegistries.ITEM.key(), tagId);
                                 BuiltInRegistries.ITEM.forEach((item) -> {
                                     Identifier itemId = BuiltInRegistries.ITEM.getKey(item);
-                                    if (item.getDefaultInstance().getItemHolder().is(tag)) {
+                                    if (item.getDefaultInstance().typeHolder().is(tag)) {
                                         transforms.putIfAbsent(itemId, data);
                                     }
 

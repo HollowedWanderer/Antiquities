@@ -53,7 +53,7 @@ public abstract class BundleItemMixin extends Item {
     }
 
     @Inject(method = "overrideStackedOnOther", at = @At("HEAD"), cancellable = true)
-    private void preventSatchelsOnStackClicked(ItemStack stack, Slot slot, ClickAction clickType, Player player, CallbackInfoReturnable<Boolean> cir) {
+    private void preventSatchelsOnStackClicked(ItemStack self, Slot slot, ClickAction clickAction, Player player, CallbackInfoReturnable<Boolean> cir) {
         ItemStack itemStack = slot.getItem();
         if (itemStack.getItem() instanceof SatchelItem) {
             cir.setReturnValue(false);
@@ -61,44 +61,44 @@ public abstract class BundleItemMixin extends Item {
     }
 
     @Inject(method = "overrideOtherStackedOnMe", at = @At("HEAD"), cancellable = true)
-    private void preventSatchelsOnClicked(ItemStack stack, ItemStack otherStack, Slot slot, ClickAction clickType, Player player, SlotAccess cursorStackReference, CallbackInfoReturnable<Boolean> cir) {
-        if (otherStack.getItem() instanceof SatchelItem) {
+    private void preventSatchelsOnClicked(ItemStack self, ItemStack other, Slot slot, ClickAction clickAction, Player player, SlotAccess carriedItem, CallbackInfoReturnable<Boolean> cir) {
+        if (other.getItem() instanceof SatchelItem) {
             cir.setReturnValue(false);
         }
     }
 
     @Inject(method = "overrideOtherStackedOnMe", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/item/ItemStack;isEmpty()Z", ordinal = 1), cancellable = true)
-    private void myriadToolCompatibleSelectable(ItemStack itemStack, ItemStack itemStack2, Slot slot, ClickAction clickAction, Player player, SlotAccess slotAccess, CallbackInfoReturnable<Boolean> cir) {
-        if (itemStack2.is(AntiqueItems.MYRIAD_TOOL)) {
-            BundleContents bundleContents = itemStack.get(DataComponents.BUNDLE_CONTENTS);
+    private void myriadToolCompatibleSelectable(ItemStack self, ItemStack other, Slot slot, ClickAction clickAction, Player player, SlotAccess carriedItem, CallbackInfoReturnable<Boolean> cir) {
+        if (other.is(AntiqueItems.MYRIAD_TOOL)) {
+            BundleContents bundleContents = self.get(DataComponents.BUNDLE_CONTENTS);
             if (bundleContents != null) {
                 BundleContents.Mutable mutable = new BundleContents.Mutable(bundleContents);
-                MyriadToolComponent toolComponent = itemStack2.get(AntiqueDataComponentTypes.MYRIAD_TOOL);
+                MyriadToolComponent toolComponent = other.get(AntiqueDataComponentTypes.MYRIAD_TOOL);
                 if (toolComponent != null) {
                     ItemStack replacementStack = toolComponent.toolBit();
-                    if (bundleContents.getSelectedItem() != -1 && bundleContents.itemCopyStream().toList().get(bundleContents.getSelectedItem()).getItem() instanceof MyriadToolBitItem) {
+                    if (bundleContents.getSelectedItemIndex() != -1 && bundleContents.itemCopyStream().toList().get(bundleContents.getSelectedItemIndex()).getItem() instanceof MyriadToolBitItem) {
                         ItemStack toolBitStack = mutable.removeOne();
 
                         if (toolBitStack != null) {
-                            MyriadToolItem.setToolBit(itemStack2, toolBitStack);
+                            MyriadToolItem.setToolBit(other, toolBitStack);
                             playRemoveOneSound(player);
                             if (!replacementStack.isEmpty() && !(slot.allowModification(player) && mutable.tryInsert(replacementStack) > 0)) {
                                 playInsertFailSound(player);
                             }
                         }
 
-                        itemStack.set(DataComponents.BUNDLE_CONTENTS, mutable.toImmutable());
+                        self.set(DataComponents.BUNDLE_CONTENTS, mutable.toImmutable());
                         this.broadcastChangesOnContainerMenu(player);
                         cir.setReturnValue(true);
                     } else if (!replacementStack.isEmpty()) {
                         if (slot.allowModification(player) && mutable.tryInsert(replacementStack) > 0) {
-                            MyriadToolItem.setToolBit(itemStack2, ItemStack.EMPTY);
+                            MyriadToolItem.setToolBit(other, ItemStack.EMPTY);
                             playInsertSound(player);
                         } else {
                             playInsertFailSound(player);
                         }
 
-                        itemStack.set(DataComponents.BUNDLE_CONTENTS, mutable.toImmutable());
+                        self.set(DataComponents.BUNDLE_CONTENTS, mutable.toImmutable());
                         this.broadcastChangesOnContainerMenu(player);
                         cir.setReturnValue(true);
                     }
@@ -108,7 +108,7 @@ public abstract class BundleItemMixin extends Item {
     }
 
     @Shadow
-    private static Optional<ItemStack> removeOneItemFromBundle(ItemStack stack, Player player, BundleContents contents) {
+    private static Optional<ItemStack> removeOneItemFromBundle(ItemStack self, Player player, BundleContents initialContents) {
         return Optional.empty();
     }
 
@@ -124,9 +124,9 @@ public abstract class BundleItemMixin extends Item {
     private static void playRemoveOneSound(Entity entity) {}
 
     @Inject(method = "overrideStackedOnOther", at = @At("RETURN"))
-    public void onStackClicked(ItemStack stack, Slot slot, ClickAction clickType, Player player, CallbackInfoReturnable<Boolean> cir) {
-        if (EnchantmentListener.hasEnchantment(stack, AntiqueEnchantments.CURSE_OF_VOIDING.identifier().toString())) {
-            BundleContents bundleContentsComponent = stack.get(DataComponents.BUNDLE_CONTENTS);
+    public void onStackClicked(ItemStack self, Slot slot, ClickAction clickAction, Player player, CallbackInfoReturnable<Boolean> cir) {
+        if (EnchantmentListener.hasEnchantment(self, AntiqueEnchantments.CURSE_OF_VOIDING.identifier().toString())) {
+            BundleContents bundleContentsComponent = self.get(DataComponents.BUNDLE_CONTENTS);
             if (bundleContentsComponent == null) return;
 
             BundleContents.Mutable builder = new BundleContents.Mutable(bundleContentsComponent);
@@ -140,14 +140,14 @@ public abstract class BundleItemMixin extends Item {
             }
 
             builder.removeOne();
-            stack.set(DataComponents.BUNDLE_CONTENTS, builder.toImmutable());
+            self.set(DataComponents.BUNDLE_CONTENTS, builder.toImmutable());
         }
     }
 
     @Inject(method = "overrideOtherStackedOnMe", at = @At("RETURN"))
-    public void onClicked(ItemStack stack, ItemStack otherStack, Slot slot, ClickAction clickType, Player player, SlotAccess cursorStackReference, CallbackInfoReturnable<Boolean> cir) {
-        if (EnchantmentListener.hasEnchantment(stack, AntiqueEnchantments.CURSE_OF_VOIDING.identifier().toString())) {
-            BundleContents bundleContentsComponent = stack.get(DataComponents.BUNDLE_CONTENTS);
+    public void onClicked(ItemStack self, ItemStack other, Slot slot, ClickAction clickAction, Player player, SlotAccess carriedItem, CallbackInfoReturnable<Boolean> cir) {
+        if (EnchantmentListener.hasEnchantment(self, AntiqueEnchantments.CURSE_OF_VOIDING.identifier().toString())) {
+            BundleContents bundleContentsComponent = self.get(DataComponents.BUNDLE_CONTENTS);
             if (bundleContentsComponent == null) return;
 
             BundleContents.Mutable builder = new BundleContents.Mutable(bundleContentsComponent);
@@ -161,7 +161,7 @@ public abstract class BundleItemMixin extends Item {
             }
 
             builder.removeOne();
-            stack.set(DataComponents.BUNDLE_CONTENTS, builder.toImmutable());
+            self.set(DataComponents.BUNDLE_CONTENTS, builder.toImmutable());
         }
     }
 
@@ -188,11 +188,11 @@ public abstract class BundleItemMixin extends Item {
     }
 
     @Inject(method = "removeOneItemFromBundle", at = @At("HEAD"), cancellable = true)
-    private static void popFirstBundledStackInject(ItemStack stack, Player player, BundleContents contents, CallbackInfoReturnable<Optional<ItemStack>> cir) {
+    private static void popFirstBundledStackInject(ItemStack self, Player player, BundleContents initialContents, CallbackInfoReturnable<Optional<ItemStack>> cir) {
 
-        boolean hasProjectingEnchantment = EnchantmentListener.hasEnchantment(stack, AntiqueEnchantments.PROJECTING.identifier().toString());
+        boolean hasProjectingEnchantment = EnchantmentListener.hasEnchantment(self, AntiqueEnchantments.PROJECTING.identifier().toString());
 
-        BundleContents.Mutable builder = new BundleContents.Mutable(contents);
+        BundleContents.Mutable builder = new BundleContents.Mutable(initialContents);
         ItemStack itemStack = builder.removeOne();
 
         if (hasProjectingEnchantment && itemStack != null) {
@@ -232,10 +232,10 @@ public abstract class BundleItemMixin extends Item {
 
                         player.awardStat(Stats.ITEM_USED.get(itemStack.getItem()));
                         if (!player.isCreative()) {
-                            stack.set(DataComponents.BUNDLE_CONTENTS, builder.toImmutable());
+                            self.set(DataComponents.BUNDLE_CONTENTS, builder.toImmutable());
                         }
                     } else {
-                        stack.set(DataComponents.BUNDLE_CONTENTS, builder.toImmutable());
+                        self.set(DataComponents.BUNDLE_CONTENTS, builder.toImmutable());
                     }
                 }
                 case MinecartItem ignored -> {
@@ -268,31 +268,31 @@ public abstract class BundleItemMixin extends Item {
                             builder.tryInsert(itemStack);
                         } else {
                             takeItem = false;
-                            player.displayClientMessage(Component.translatable("item.antique.bundle_minecart"), true);
+                            player.sendOverlayMessage(Component.translatable("item.antique.bundle_minecart"));
                             cir.setReturnValue(Optional.empty());
                         }
                         player.awardStat(Stats.ITEM_USED.get(itemStack.getItem()));
                         if (!player.isCreative() && takeItem) {
-                            stack.set(DataComponents.BUNDLE_CONTENTS, builder.toImmutable());
+                            self.set(DataComponents.BUNDLE_CONTENTS, builder.toImmutable());
                         }
                     }
                 }
                 case ThrowablePotionItem ignored -> {
                     if (!player.isCreative()) {
-                        stack.set(DataComponents.BUNDLE_CONTENTS, builder.toImmutable());
+                        self.set(DataComponents.BUNDLE_CONTENTS, builder.toImmutable());
                     }
                 }
-                default -> stack.set(DataComponents.BUNDLE_CONTENTS, builder.toImmutable());
+                default -> self.set(DataComponents.BUNDLE_CONTENTS, builder.toImmutable());
             }
         }
     }
 
     @Inject(method = "dropContent(Lnet/minecraft/world/item/ItemStack;Lnet/minecraft/world/entity/player/Player;)Z", at = @At("HEAD"), cancellable = true)
-    private void projectingDropStack(ItemStack stack, Player player, CallbackInfoReturnable<Boolean> cir) {
-        if (EnchantmentListener.hasEnchantment(stack, AntiqueEnchantments.PROJECTING.identifier().toString())) {
-            BundleContents bundleContentsComponent = stack.get(DataComponents.BUNDLE_CONTENTS);
+    private void projectingDropStack(ItemStack bundle, Player player, CallbackInfoReturnable<Boolean> cir) {
+        if (EnchantmentListener.hasEnchantment(bundle, AntiqueEnchantments.PROJECTING.identifier().toString())) {
+            BundleContents bundleContentsComponent = bundle.get(DataComponents.BUNDLE_CONTENTS);
             if (bundleContentsComponent != null && !bundleContentsComponent.isEmpty()) {
-                Optional<ItemStack> optional = removeOneItemFromBundle(stack, player, bundleContentsComponent);
+                Optional<ItemStack> optional = removeOneItemFromBundle(bundle, player, bundleContentsComponent);
                 if (optional.isPresent()) {
                     cir.setReturnValue(true);
                     if (optional.get().getItem() instanceof ThrowablePotionItem) {

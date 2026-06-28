@@ -18,11 +18,11 @@ import java.util.List;
 public interface TooltipComponentMixin {
 
     @Inject(method = "create(Lnet/minecraft/world/inventory/tooltip/TooltipComponent;)Lnet/minecraft/client/gui/screens/inventory/tooltip/ClientTooltipComponent;", at = @At("HEAD"), cancellable = true)
-    private static void of(TooltipComponent tooltipData, CallbackInfoReturnable<ClientTooltipComponent> cir) {
-        if (tooltipData instanceof SatchelTooltipData(List<ItemStack> contents, ItemStack stack)) {
+    private static void of(TooltipComponent component, CallbackInfoReturnable<ClientTooltipComponent> cir) {
+        if (component instanceof SatchelTooltipData(List<ItemStack> contents, ItemStack stack)) {
             cir.setReturnValue(new SatchelTooltipComponent(contents, stack));
         }
-        if (tooltipData instanceof BagOfTricksTooltipData(List<ItemStack> contents, ItemStack stack)) {
+        if (component instanceof BagOfTricksTooltipData(List<ItemStack> contents, ItemStack stack)) {
             cir.setReturnValue(new BagOfTricksTooltipComponent(contents, stack));
         }
     }

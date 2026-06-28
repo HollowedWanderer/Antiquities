@@ -11,7 +11,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(Entity.class)
 public abstract class EntityFreezer implements net.hollowed.combatamenities.util.interfaces.EntityFreezer {
-    @Shadow public abstract void setDeltaMovement(Vec3 velocity);
+    @Shadow public abstract void setDeltaMovement(Vec3 deltaMovement);
 
     @Shadow public boolean hurtMarked;
     @Unique

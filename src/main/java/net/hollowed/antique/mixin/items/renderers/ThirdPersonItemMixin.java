@@ -35,10 +35,10 @@ public class ThirdPersonItemMixin<S extends AvatarRenderState, M extends EntityM
 
     @Inject(method = "submitArmWithItem(Lnet/minecraft/client/renderer/entity/state/AvatarRenderState;Lnet/minecraft/client/renderer/item/ItemStackRenderState;Lnet/minecraft/world/item/ItemStack;Lnet/minecraft/world/entity/HumanoidArm;Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/SubmitNodeCollector;I)V",
             at = @At("HEAD"), cancellable = true)
-    private void spin(S playerEntityRenderState, ItemStackRenderState itemStackRenderState, ItemStack itemStack, HumanoidArm arm, PoseStack matrixStack, SubmitNodeCollector submitNodeCollector, int i, CallbackInfo ci) {
+    private void spin(S state, ItemStackRenderState item, ItemStack itemStack, HumanoidArm arm, PoseStack poseStack, SubmitNodeCollector submitNodeCollector, int lightCoords, CallbackInfo ci) {
 
-        if (playerEntityRenderState instanceof PlayerEntityRenderStateAccess) {
-            Entity entity = ((PlayerEntityRenderStateAccess) playerEntityRenderState).combat_Amenities$getPlayerEntity();
+        if (state instanceof PlayerEntityRenderStateAccess) {
+            Entity entity = ((PlayerEntityRenderStateAccess) state).combat_Amenities$getPlayerEntity();
             if (entity instanceof Player player && player.getUseItem().getItem() instanceof ScepterItem) {
                 int useTime = player.getTicksUsingItem();
                 float tickDelta = Minecraft.getInstance().getDeltaTracker().getGameTimeDeltaPartialTick(true);
@@ -48,22 +48,22 @@ public class ThirdPersonItemMixin<S extends AvatarRenderState, M extends EntityM
                 if (EnchantmentListener.hasEnchantment(stack, "antique:kinematic")) {
                     final float totalRotation = getTotalRotation(useTime, tickDelta);
 
-                    matrixStack.pushPose();
-                    matrixStack.mulPose(Axis.ZP.rotationDegrees(-10));
-                    matrixStack.translate(0, -0.2, 0.2);
-                    matrixStack.translate(0, 0.6, -0.3);
+                    poseStack.pushPose();
+                    poseStack.mulPose(Axis.ZP.rotationDegrees(-10));
+                    poseStack.translate(0, -0.2, 0.2);
+                    poseStack.translate(0, 0.6, -0.3);
 
-                    matrixStack.mulPose(Axis.XP.rotationDegrees(totalRotation));
+                    poseStack.mulPose(Axis.XP.rotationDegrees(totalRotation));
 
-                    matrixStack.translate(-0.2, -0.6, 0.3);
-                    this.getParentModel().translateToHand(playerEntityRenderState, arm, matrixStack);
-                    matrixStack.mulPose(Axis.XP.rotationDegrees(-90.0F));
-                    matrixStack.mulPose(Axis.YP.rotationDegrees(180.0F));
+                    poseStack.translate(-0.2, -0.6, 0.3);
+                    this.getParentModel().translateToHand(state, arm, poseStack);
+                    poseStack.mulPose(Axis.XP.rotationDegrees(-90.0F));
+                    poseStack.mulPose(Axis.YP.rotationDegrees(180.0F));
                     boolean bl = arm == HumanoidArm.LEFT;
-                    matrixStack.translate((float)(bl ? -1 : 1) / 16.0F, 0.125F, -0.625F);
-                    itemStackRenderState.submit(matrixStack, submitNodeCollector, i, 0, playerEntityRenderState.outlineColor);
+                    poseStack.translate((float)(bl ? -1 : 1) / 16.0F, 0.125F, -0.625F);
+                    item.submit(poseStack, submitNodeCollector, lightCoords, 0, state.outlineColor);
                     ci.cancel();
-                    matrixStack.popPose();
+                    poseStack.popPose();
                 }
             }
         }

@@ -34,21 +34,21 @@ public abstract class NoteBlockMixin {
     )
     private void useItemOn(
             ItemStack itemStack,
-            BlockState blockState,
+            BlockState state,
             Level level,
-            BlockPos blockPos,
+            BlockPos pos,
             Player player,
-            InteractionHand interactionHand,
-            BlockHitResult blockHitResult,
+            InteractionHand hand,
+            BlockHitResult hitResult,
             CallbackInfoReturnable<InteractionResult> cir
     ) {
         if (!level.isClientSide()) {
             AmethystForkComponent component = itemStack.get(AntiqueDataComponentTypes.AMETHYST_FORK);
 
             if (component != null) {
-                blockState = blockState.setValue(BlockStateProperties.NOTE, component.note());
-                level.setBlock(blockPos, blockState, Block.UPDATE_ALL);
-                playNote(player, blockState, level, blockPos);
+                state = state.setValue(BlockStateProperties.NOTE, component.note());
+                level.setBlock(pos, state, Block.UPDATE_ALL);
+                playNote(player, state, level, pos);
                 player.awardStat(Stats.TUNE_NOTEBLOCK);
                 cir.setReturnValue(InteractionResult.SUCCESS);
             }

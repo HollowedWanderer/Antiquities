@@ -5,7 +5,7 @@ import com.google.common.collect.ImmutableMap;
 import net.hollowed.antique.util.BlockUtil;
 import net.hollowed.antique.index.AntiqueItems;
 import net.hollowed.antique.index.AntiqueParticles;
-import net.minecraft.advancements.CriteriaTriggers;
+import net.minecraft.advancements.triggers.CriteriaTriggers;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.server.level.ServerPlayer;

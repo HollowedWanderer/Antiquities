@@ -20,7 +20,7 @@ import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.IllagerRenderer;
 import net.minecraft.client.renderer.entity.layers.ItemInHandLayer;
 import net.minecraft.client.renderer.item.ItemStackRenderState;
-import net.minecraft.client.renderer.state.CameraRenderState;
+import net.minecraft.client.renderer.state.level.CameraRenderState;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.resources.Identifier;
@@ -31,6 +31,7 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
+import org.jspecify.annotations.NonNull;
 
 @Environment(EnvType.CLIENT)
 public class IllusionerEntityRenderer extends IllagerRenderer<@org.jetbrains.annotations.NotNull IllusionerEntity, @org.jetbrains.annotations.NotNull IllusionerEntityRenderState> {
@@ -40,7 +41,7 @@ public class IllusionerEntityRenderer extends IllagerRenderer<@org.jetbrains.ann
     public IllusionerEntityRenderer(EntityRendererProvider.Context context) {
         super(context, new IllagerModel<>(context.bakeLayer(ModelLayers.ILLUSIONER)), 0.5F);
         this.addLayer(new ItemInHandLayer<@NotNull IllusionerEntityRenderState, @NotNull IllagerModel<@NotNull IllusionerEntityRenderState>>(this) {
-            public void submit(@NotNull PoseStack matrixStack, @NotNull SubmitNodeCollector orderedRenderCommandQueue, int i, IllusionerEntityRenderState illusionerEntityRenderState, float f, float g) {
+            public void submit(@NotNull PoseStack matrixStack, @NotNull SubmitNodeCollector orderedRenderCommandQueue, int i, @NonNull IllusionerEntityRenderState illusionerEntityRenderState, float f, float g) {
                 if (illusionerEntityRenderState.spellcasting || illusionerEntityRenderState.isAggressive) {
                     super.submit(matrixStack, orderedRenderCommandQueue, i, illusionerEntityRenderState, f, g);
                 }
@@ -56,11 +57,11 @@ public class IllusionerEntityRenderer extends IllagerRenderer<@org.jetbrains.ann
         return TEXTURE;
     }
 
-    public IllusionerEntityRenderState createRenderState() {
+    public @NonNull IllusionerEntityRenderState createRenderState() {
         return new IllusionerEntityRenderState();
     }
 
-    public void extractRenderState(IllusionerEntity illusionerEntity, IllusionerEntityRenderState illusionerEntityRenderState, float f) {
+    public void extractRenderState(@NonNull IllusionerEntity illusionerEntity, @NonNull IllusionerEntityRenderState illusionerEntityRenderState, float f) {
         super.extractRenderState(illusionerEntity, illusionerEntityRenderState, f);
         Vec3[] vec3ds = illusionerEntity.getMirrorCopyOffsets(f);
         illusionerEntityRenderState.mirrorCopyOffsets = Arrays.copyOf(vec3ds, vec3ds.length);
@@ -94,7 +95,7 @@ public class IllusionerEntityRenderer extends IllagerRenderer<@org.jetbrains.ann
         }
     }
 
-    protected boolean isBodyVisible(IllusionerEntityRenderState illusionerEntityRenderState) {
+    protected boolean isBodyVisible(@NonNull IllusionerEntityRenderState illusionerEntityRenderState) {
         return true;
     }
 

@@ -1,12 +1,10 @@
 package net.hollowed.antique.items;
 
-import net.hollowed.antique.Antiquities;
 import net.hollowed.antique.config.AntiquitiesConfig;
 import net.hollowed.antique.entities.ClothEntity;
 import net.hollowed.antique.index.AntiqueDataComponentTypes;
 import net.hollowed.antique.index.AntiqueEntities;
 import net.hollowed.antique.util.ClothUtil;
-import net.hollowed.antique.util.resources.ClothPatternData;
 import net.hollowed.antique.util.resources.ClothSkinData;
 import net.hollowed.antique.util.resources.SewnClothPattern;
 import net.minecraft.core.BlockPos;
@@ -34,9 +32,6 @@ import net.minecraft.world.level.block.LayeredCauldronBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.gameevent.GameEvent;
 import org.jspecify.annotations.NonNull;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class ClothItem extends Item {
     public ClothItem(Properties properties) {
