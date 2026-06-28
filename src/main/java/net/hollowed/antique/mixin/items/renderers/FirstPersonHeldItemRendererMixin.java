@@ -12,7 +12,9 @@ import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.ItemInHandRenderer;
+import net.minecraft.client.renderer.Projection;
 import net.minecraft.client.renderer.SubmitNodeCollector;
+import net.minecraft.client.renderer.state.level.CameraRenderState;
 import net.minecraft.core.Holder;
 import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.entity.LivingEntity;
@@ -116,16 +118,22 @@ public abstract class FirstPersonHeldItemRendererMixin {
     private Matrix4f getReprojectMatrix() {
         GameRenderer renderer = Minecraft.getInstance().gameRenderer;
         Camera mainCamera = renderer.mainCamera();
-        Matrix4f projectionA = this.getProjection(mainCamera, renderer.gameRenderState().levelRenderState.cameraRenderState.projectionMatrix);
-        Matrix4f projectionO = this.getProjection(mainCamera, new Matrix4f());
+        float cameraFov = mainCamera.getFov();
+        Matrix4f projectionA = this.getProjection(renderer, cameraFov);
+        Matrix4f projectionO = this.getProjection(renderer, 70);
         return projectionO.invert().mul(projectionA);
     }
-    
+
     @Unique
-    private Matrix4f getProjection(Camera camera, Matrix4f matrix4f) {
-        Matrix4f projection = new Matrix4f(matrix4f);
-        Quaternionf quaternionf = camera.rotation();
+    private Matrix4f getProjection(GameRenderer renderer, float fov) {
+        Camera mainCamera = renderer.mainCamera();
+        CameraRenderState state = renderer.gameRenderState().levelRenderState.cameraRenderState;
+        Matrix4f projMat = new Matrix4f();
+        Projection proj = new Projection();
+        proj.setupPerspective(0.05f, state.depthFar, fov, Minecraft.getInstance().getWindow().getWidth(), Minecraft.getInstance().getWindow().getHeight());
+        proj.getMatrix(projMat);
+        Quaternionf quaternionf = mainCamera.rotation();
         Matrix4f rotation = (new Matrix4f()).rotation(quaternionf).invert();
-        return projection.mul(rotation);
+        return projMat.mul(rotation);
     }
 }
