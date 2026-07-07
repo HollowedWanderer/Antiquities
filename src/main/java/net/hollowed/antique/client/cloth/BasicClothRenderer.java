@@ -68,6 +68,7 @@ public class BasicClothRenderer implements ClothRenderer {
     }
 
     @Override
+    @SuppressWarnings("all")
     public void render(
             ClothManager cloth,
             Holder<ClothSkinData> skin,
@@ -96,6 +97,10 @@ public class BasicClothRenderer implements ClothRenderer {
         Vector3f toCam = new Vector3f();
         Vector3f thicknessVec = new Vector3f();
 
+        // DO NOT INLINE/REMOVE THIS
+        // needed for vibrancy compat once v5 releases
+        boolean straightUp = false;
+
         for (int i = 0; i < cloth.bodies.size() - 1; i++) {
             float worldPositionWeight = 1f - ((float)Math.exp(-i * CAMERA_FOV_DECAY));
             ClothBody body = cloth.bodies.get(i);
@@ -110,9 +115,15 @@ public class BasicClothRenderer implements ClothRenderer {
             float uvTop = (1f / (cloth.bodies.size() - 1)) * i;
             float uvBot = uvTop + (1f / (cloth.bodies.size() - 1));
 
-            // Compute thickness vector from segment midpoint
-            pos.add(nextPos, toCam).normalize();
-            pos.sub(nextPos, thicknessVec).cross(toCam).normalize(width);
+            if (straightUp) {
+                pos.sub(nextPos, thicknessVec)
+                        .cross(0, 1, 0)
+                        .normalize(width);
+            } else {
+                // Compute thickness vector from segment midpoint
+                pos.add(nextPos, toCam).normalize();
+                pos.sub(nextPos, thicknessVec).cross(toCam).normalize(width);
+            }
 
             Vector3f a = lastA != null ? lastA : pos.sub(thicknessVec, new Vector3f());
             Vector3f b = lastB != null ? lastB : pos.add(thicknessVec, new Vector3f());
