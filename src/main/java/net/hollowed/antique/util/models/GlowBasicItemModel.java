@@ -58,15 +58,13 @@ public class GlowBasicItemModel implements ItemModel {
 	private final Supplier<Vector3fc[]> vector;
 	private final ModelRenderProperties settings;
 	private final boolean animated;
-	private final Function<TextureAtlasSprite, RenderType> renderType;
 
-	public GlowBasicItemModel(List<ItemTintSource> tints, List<Integer> emissions, List<BakedQuad> quads, ModelRenderProperties settings, Function<TextureAtlasSprite, RenderType> function) {
+	public GlowBasicItemModel(List<ItemTintSource> tints, List<Integer> emissions, List<BakedQuad> quads, ModelRenderProperties settings) {
 		this.tints = tints;
 		this.emissions = emissions;
 		this.quads = quads;
 		this.settings = settings;
 		this.vector = Suppliers.memoize(() -> computeExtents(this.quads));
-		this.renderType = function;
 		boolean bl = false;
 
 		for (BakedQuad bakedQuad : quads) {
@@ -161,33 +159,6 @@ public class GlowBasicItemModel implements ItemModel {
 		return newQuads;
 	}
 
-	@SuppressWarnings("all")
-	static Function<TextureAtlasSprite, RenderType> detectRenderType(List<BakedQuad> list) {
-		Iterator<BakedQuad> iterator = list.iterator();
-		if (!iterator.hasNext()) {
-			return ITEM_RENDER_TYPE_GETTER;
-		} else {
-			Identifier identifier = ((BakedQuad)iterator.next()).materialInfo().sprite().atlasLocation();
-
-			while(iterator.hasNext()) {
-				BakedQuad bakedQuad = (BakedQuad)iterator.next();
-				Identifier identifier2 = bakedQuad.materialInfo().sprite().atlasLocation();
-				if (!identifier2.equals(identifier)) {
-					String var10002 = String.valueOf(identifier);
-					throw new IllegalStateException("Multiple atlases used in model, expected " + var10002 + ", but also got " + String.valueOf(identifier2));
-				}
-			}
-
-			if (identifier.equals(TextureAtlas.LOCATION_ITEMS)) {
-				return ITEM_RENDER_TYPE_GETTER;
-			} else if (identifier.equals(TextureAtlas.LOCATION_BLOCKS)) {
-				return BLOCK_RENDER_TYPE_GETTER;
-			} else {
-				throw new IllegalArgumentException("Atlas " + String.valueOf(identifier) + " can't be used for item models");
-			}
-		}
-	}
-
 	private static boolean shouldUseSpecialGlint(ItemStack stack) {
 		return stack.is(ItemTags.COMPASSES) || stack.is(Items.CLOCK);
 	}
@@ -215,8 +186,7 @@ public class GlowBasicItemModel implements ItemModel {
 			TextureSlots modelTextures = bakedSimpleModel.getTopTextureSlots();
 			List<BakedQuad> list = bakedSimpleModel.bakeTopGeometry(modelTextures, baker, BlockModelRotation.IDENTITY).getAll();
 			ModelRenderProperties modelSettings = ModelRenderProperties.fromResolvedModel(baker, bakedSimpleModel, modelTextures);
-			Function<TextureAtlasSprite, RenderType> function = detectRenderType(list);
-			return new GlowBasicItemModel(this.tints, this.emissions, list, modelSettings, function);
+			return new GlowBasicItemModel(this.tints, this.emissions, list, modelSettings);
 		}
 
 		@Override
