@@ -99,7 +99,7 @@ public class BasicClothRenderer implements ClothRenderer {
 
         // DO NOT INLINE/REMOVE THIS
         // needed for vibrancy compat once v5 releases
-        boolean straightUp = false;
+        boolean straightUp = true;
 
         for (int i = 0; i < cloth.bodies.size() - 1; i++) {
             float worldPositionWeight = 1f - ((float)Math.exp(-i * CAMERA_FOV_DECAY));

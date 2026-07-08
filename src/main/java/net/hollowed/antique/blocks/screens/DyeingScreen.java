@@ -43,7 +43,26 @@ public class DyeingScreen extends AbstractContainerScreen<@NotNull DyeingScreenH
 		super.init();
 		int i = (this.width - this.imageWidth) / 2;
 		int j = (this.height - this.imageHeight) / 2;
-        this.colorField = new EditBox(Minecraft.getInstance().font, i + 63, j + 65, 58, 9, Component.translatable("container.antique.hex"));
+        this.colorField = new EditBox(Minecraft.getInstance().font, i + 63, j + 65, 58, 9, Component.translatable("container.antique.hex")) {
+			@Override
+			public void insertText(@NonNull String input) {
+				StringBuilder builder = new StringBuilder();
+
+				input.chars().forEach(c -> {
+					if (builder.length() + getValue().length() >= 6) {
+						return;
+					}
+
+					if ((c >= 'a' && c <= 'f') || (c >= 'A' && c <= 'F') || (c >= '0' && c <= '9')) {
+						builder.append(Character.toLowerCase((char) c));
+					}
+				});
+
+				if (!builder.isEmpty()) {
+					super.insertText(builder.toString());
+				}
+			}
+        };
 		this.colorField.setCanLoseFocus(false);
 		this.colorField.setTextColor(0xFFFFF4BC);
 		this.colorField.setTextColorUneditable(0xFFFFF4BC);
@@ -51,7 +70,6 @@ public class DyeingScreen extends AbstractContainerScreen<@NotNull DyeingScreenH
 		this.colorField.setMaxLength(6);
 		this.colorField.setResponder(this::onColorChanged);
 		this.colorField.setValue("");
-		this.colorField.addFormatter((text, _) -> _ -> text.matches("(?i)[0-9a-f]{0,6}"));
 		this.addRenderableWidget(this.colorField);
 		this.colorField.setEditable(this.menu.getSlot(0).hasItem());
 		this.menu.addSlotListener(this);
@@ -87,7 +105,7 @@ public class DyeingScreen extends AbstractContainerScreen<@NotNull DyeingScreenH
 	@Override
 	public void resize(int i, int j) {
 		String string = this.colorField.getValue();
-		this.init(width, height);
+		super.resize(i, j);
 		this.colorField.setValue(string);
 	}
 

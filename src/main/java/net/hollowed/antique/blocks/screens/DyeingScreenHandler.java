@@ -16,6 +16,7 @@ import net.minecraft.world.inventory.ContainerLevelAccess;
 import net.minecraft.world.inventory.ResultContainer;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.item.component.DyedItemColor;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -105,55 +106,50 @@ public class DyeingScreenHandler extends AbstractContainerMenu {
 	}
 
 	@Override
-	public @NotNull ItemStack quickMoveStack(@NotNull Player player, int index) {
-		ItemStack newStack = ItemStack.EMPTY;
-		Slot slot = this.slots.get(index);
+	public @NotNull ItemStack quickMoveStack(@NotNull Player player, int slotIndex) {
+		ItemStack clicked = ItemStack.EMPTY;
+		Slot slot = this.slots.get(slotIndex);
 
 		if (slot.hasItem()) {
-			ItemStack originalStack = slot.getItem();
-			newStack = originalStack.copy();
+			ItemStack stack = slot.getItem();
+			clicked = stack.copy();
 
-			int inputSlot = 0;
-			int outputSlot = 1;
-            int playerInvStart = 2;
-			int playerInvEnd = playerInvStart + 27;
-            int hotbarEnd = playerInvEnd + 9;
-
-			if (index == outputSlot || index == inputSlot) {
-				if (!moveItemStackTo(originalStack, playerInvStart, hotbarEnd, false)) {
+			if (slotIndex == 0) {
+				if (!this.moveItemStackTo(stack, 2, 38, true)) {
+					return ItemStack.EMPTY;
+				}
+			} else if (slotIndex == 1) {
+				if (!this.moveItemStackTo(stack, 2, 38, true)) {
+					return ItemStack.EMPTY;
+				}
+			} else if (stack.get(DataComponents.DYED_COLOR) != null) {
+				if (!this.moveItemStackTo(stack, 1, 2, true)) {
 					return ItemStack.EMPTY;
 				}
 			} else {
-				if (originalStack.get(DataComponents.DYED_COLOR) != null) {
-					if (!moveItemStackTo(originalStack, inputSlot, inputSlot + 1, false)) {
-						return ItemStack.EMPTY;
-					}
-				} else if (index >= playerInvStart && index < playerInvEnd) {
-					if (!moveItemStackTo(originalStack, playerInvEnd, hotbarEnd, false)) {
-						return ItemStack.EMPTY;
-					}
-				} else if (index >= playerInvEnd && index < hotbarEnd) {
-					if (!moveItemStackTo(originalStack, playerInvStart, playerInvEnd, false)) {
-						return ItemStack.EMPTY;
-					}
+				if (this.slots.getFirst().hasItem() || !this.slots.getFirst().mayPlace(stack)) {
+					return ItemStack.EMPTY;
 				}
+
+				ItemStack singleItem = stack.copyWithCount(1);
+				stack.shrink(1);
+				this.slots.getFirst().setByPlayer(singleItem);
 			}
 
-			if (originalStack.isEmpty()) {
+			if (stack.isEmpty()) {
 				slot.setByPlayer(ItemStack.EMPTY);
 			} else {
 				slot.setChanged();
 			}
 
-			if (originalStack.getCount() == newStack.getCount()) {
+			if (stack.getCount() == clicked.getCount()) {
 				return ItemStack.EMPTY;
 			}
 
-			slot.onTake(player, originalStack);
-			this.broadcastChanges();
+			slot.onTake(player, stack);
 		}
 
-		return newStack;
+		return clicked;
 	}
 
 	@Override

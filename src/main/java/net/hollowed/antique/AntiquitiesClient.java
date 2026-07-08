@@ -179,7 +179,7 @@ public class AntiquitiesClient implements ClientModInitializer {
 
                 Component line = Component.translatable("item.antique.myriad_tool.no_tool").withColor(0xAAAAAA);
 
-                ItemStack toolBit = itemStack.getOrDefault(AntiqueDataComponentTypes.MYRIAD_TOOL, MyriadToolComponent.DEFAULT_NO_CLOTH).toolBit();
+                ItemStack toolBit = component.toolBit();
 
                 if (!toolBit.isEmpty()) {
                     String string = toolBit.getItem().getDescriptionId();
@@ -196,7 +196,7 @@ public class AntiquitiesClient implements ClientModInitializer {
                     String clothName = clothKey.identifier().toLanguageKey();
                     list.add(index++, Component.literal(" - ").append(Component.translatable("item." + clothName)).withColor(new Color(ClothUtil.getDynamicClothColor(cloth, context.registries()).orElse(0xFFFFFFFF)).brighter().getRGB()));
 
-                    for (SewnClothPattern pattern : ClothUtil.getClothPatterns(itemStack)) {
+                    for (SewnClothPattern pattern : ClothUtil.getClothPatterns(cloth)) {
                         String patternName = pattern.key().identifier().toLanguageKey();
                         Component text = Component.literal(" - ").append(Component.translatable("item." + patternName)).withColor(new Color(pattern.color().orElse(0xFFFFFFFF)).brighter().getRGB());
 
