@@ -144,7 +144,7 @@ public class MyriadToolItem extends Item {
                                     .orElse(false) && ClothUtil.getClothPatterns(component.cloth().get()).size() < AntiquitiesConfig.MAX_CLOTH_PATTERNS
                     ) {
                         ItemStack newStack = component.cloth().get().copy();
-                        ClothUtil.addClothPattern(newStack, pattern);
+                        ClothUtil.sewClothPattern(newStack, pattern);
                         player.playSound(SoundEvents.BOOK_PAGE_TURN, 1.0F, 1.0F); // TODO better sound
                         stack.set(AntiqueDataComponentTypes.MYRIAD_TOOL, component.withCloth(newStack));
                         return true;

@@ -145,7 +145,7 @@ public class ClothPatternOnToolRecipe extends CustomRecipe {
 			MyriadToolComponent component = result.getOrDefault(AntiqueDataComponentTypes.MYRIAD_TOOL, MyriadToolComponent.DEFAULT_NO_CLOTH);
 			ItemStack finalClothPattern = clothPattern;
 
-			result.set(AntiqueDataComponentTypes.MYRIAD_TOOL, component.withCloth(cloth -> ClothUtil.addClothPattern(cloth.copy(), new SewnClothPattern(
+			result.set(AntiqueDataComponentTypes.MYRIAD_TOOL, component.withCloth(cloth -> ClothUtil.sewClothPattern(cloth.copy(), new SewnClothPattern(
 					ClothUtil.getClothPattern(finalClothPattern).orElseThrow(),
 					ClothUtil.getClothPatternColor(finalClothPattern),
 					ClothUtil.getClothPatternGlowing(finalClothPattern)

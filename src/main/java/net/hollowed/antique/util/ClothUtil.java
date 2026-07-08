@@ -121,6 +121,14 @@ public class ClothUtil {
         return stack;
     }
 
+    public static ItemStack sewClothPattern(ItemStack stack, SewnClothPattern pattern) {
+        List<SewnClothPattern> patterns = new ArrayList<>(getClothPatterns(stack));
+        patterns.removeIf(p -> p.key() == pattern.key());
+        patterns.add(pattern);
+        setClothPatterns(stack, patterns);
+        return stack;
+    }
+
     public static ItemStack setClothPatterns(ItemStack stack, List<SewnClothPattern> patterns) {
         stack.set(AntiqueDataComponentTypes.SEWN_CLOTHS, patterns);
         return stack;

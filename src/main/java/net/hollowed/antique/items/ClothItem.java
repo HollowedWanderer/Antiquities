@@ -43,7 +43,7 @@ public class ClothItem extends Item {
         if (clickAction == ClickAction.PRIMARY) {
             if (otherStack.getItem() instanceof ClothPatternItem && ClothUtil.getClothPatterns(itemStack).size() < AntiquitiesConfig.MAX_CLOTH_PATTERNS) {
                 if (ClothUtil.getClothData(itemStack, player.level().registryAccess()).map(skin -> skin.value().patternable()).orElse(false)) {
-                    ClothUtil.addClothPattern(itemStack, new SewnClothPattern(
+                    ClothUtil.sewClothPattern(itemStack, new SewnClothPattern(
                             ClothUtil.getClothPattern(otherStack).orElseThrow(),
                             ClothUtil.getClothPatternColor(otherStack),
                             ClothUtil.getClothPatternGlowing(otherStack)
