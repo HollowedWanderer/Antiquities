@@ -69,7 +69,7 @@ public class ClothEntityRenderer extends EntityRenderer<@NotNull ClothEntity, @N
 
 			if (manager != null) {
 				poseStack.pushPose();
-				poseStack.translate(0, 0.425, 0);
+				poseStack.translate(0, 0.325, 0);
 				manager.renderCloth(
 						cloth,
 						poseStack,
