@@ -125,7 +125,7 @@ public class MyriadToolItem extends Item {
                     if (component.cloth().isPresent()) {
                         stack.set(AntiqueDataComponentTypes.MYRIAD_TOOL, component.withCloth(Optional.empty()));
 
-                        cursorStackReference.set(component.cloth().get());
+                        cursorStackReference.set(component.cloth().get().copy());
                         player.playSound(SoundEvents.BUNDLE_REMOVE_ONE, 1.0F, 1.0F);
                         return true;
                     }
