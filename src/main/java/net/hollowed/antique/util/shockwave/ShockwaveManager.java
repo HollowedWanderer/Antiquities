@@ -6,10 +6,11 @@ import net.minecraft.world.level.block.Blocks;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class ShockwaveManager {
 
-    private static final Map<Shockwave, ServerLevel> shockwaves = new HashMap<>();
+    private static final Map<Shockwave, ServerLevel> shockwaves = new ConcurrentHashMap<>();
     public static final Map<Block, Float> RESISTANCES = new HashMap<>();
 
     static {
