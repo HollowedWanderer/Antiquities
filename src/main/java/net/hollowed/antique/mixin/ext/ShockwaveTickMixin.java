@@ -15,10 +15,10 @@ public class ShockwaveTickMixin {
 
     @Inject(method = "tick", at = @At("HEAD"))
     private void tick(BooleanSupplier haveTime, CallbackInfo ci) {
-        for (Shockwave shockwave : ShockwaveManager.shockwaves.keySet()) {
-            ServerLevel level = ShockwaveManager.shockwaves.get(shockwave);
+        for (Shockwave shockwave : ShockwaveManager.getShockwaveSet()) {
+            ServerLevel level = ShockwaveManager.getShockwaveLevel(shockwave);
             if (shockwave.tick(level)) {
-                ShockwaveManager.shockwaves.remove(shockwave, level);
+                ShockwaveManager.removeShockwave(shockwave, level);
             }
         }
     }

@@ -58,9 +58,7 @@ public class DyeingScreen extends AbstractContainerScreen<@NotNull DyeingScreenH
 					}
 				});
 
-				if (!builder.isEmpty()) {
-					super.insertText(builder.toString());
-				}
+				super.insertText(!builder.isEmpty() ? builder.toString() : "");
 			}
         };
 		this.colorField.setCanLoseFocus(false);

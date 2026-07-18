@@ -6,12 +6,11 @@ import net.hollowed.antique.items.SatchelItem;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.Hud;
 import net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipComponent;
 import net.minecraft.client.gui.screens.inventory.tooltip.DefaultTooltipPositioner;
 import net.minecraft.client.renderer.RenderPipelines;
-import net.minecraft.client.renderer.state.gui.GuiRenderState;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
@@ -29,30 +28,23 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import java.util.ArrayList;
 import java.util.List;
 
-@Mixin(Gui.class)
+@Mixin(Hud.class)
 public class SatchelOverlayMixin {
 
     @Shadow
     @Final
     private Minecraft minecraft;
-    @Shadow
-    @Final
-    private GuiRenderState guiRenderState;
     @Unique
     private static final Identifier HOTBAR_SLOT = Identifier.withDefaultNamespace("textures/gui/sprites/hud/hotbar_offhand_left.png");
     @Unique
     private static final Identifier HOTBAR_SELECTORS = Identifier.withDefaultNamespace("textures/gui/sprites/hud/hotbar_selection.png");
 
-    @Inject(method = "extractRenderState", at = @At("HEAD"))
-    public void render(DeltaTracker deltaTracker, boolean shouldRenderLevel, boolean resourcesLoaded, CallbackInfo ci) {
+    @Inject(method = "extractItemHotbar", at = @At("HEAD"))
+    public void render(GuiGraphicsExtractor graphics, DeltaTracker deltaTracker, CallbackInfo ci) {
         Minecraft client = this.minecraft;
         Font textRenderer = client.font;
         Player player = client.player;
         if (player == null) return;
-
-        int xMouse = (int)client.mouseHandler.getScaledXPos(client.getWindow());
-        int yMouse = (int)client.mouseHandler.getScaledYPos(client.getWindow());
-        GuiGraphicsExtractor graphics = new GuiGraphicsExtractor(client, this.guiRenderState, xMouse, yMouse);
 
         ItemStack satchel = player.getItemBySlot(EquipmentSlot.LEGS);
         if (satchel.getItem() != AntiqueItems.SATCHEL || !AntiqueKeyBindings.showSatchel.isDown()) return;

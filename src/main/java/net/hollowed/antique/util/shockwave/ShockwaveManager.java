@@ -9,7 +9,7 @@ import java.util.*;
 
 public class ShockwaveManager {
 
-    public static final Map<Shockwave, ServerLevel> shockwaves = new HashMap<>();
+    private static final Map<Shockwave, ServerLevel> shockwaves = new HashMap<>();
     public static final Map<Block, Float> RESISTANCES = new HashMap<>();
 
     static {
@@ -19,6 +19,18 @@ public class ShockwaveManager {
     }
 
     public static final int MAX_PATH_LENGTH = 4;
+
+    public static Set<Shockwave> getShockwaveSet() {
+        return shockwaves.keySet();
+    }
+
+    public static ServerLevel getShockwaveLevel(Shockwave shockwave) {
+        return shockwaves.get(shockwave);
+    }
+
+    public static void removeShockwave(@NotNull Shockwave shockwave, @NotNull ServerLevel level) {
+        shockwaves.remove(shockwave, level);
+    }
 
     public static void createShockwave(@NotNull Shockwave shockwave, @NotNull ServerLevel level) {
         shockwaves.put(shockwave, level);
