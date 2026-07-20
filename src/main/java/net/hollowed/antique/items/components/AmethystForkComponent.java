@@ -2,7 +2,6 @@ package net.hollowed.antique.items.components;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.minecraft.ChatFormatting;
 import net.minecraft.core.component.DataComponentGetter;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
@@ -45,11 +44,27 @@ public record AmethystForkComponent(
 
     @Override
     public void addToTooltip(Item.@NonNull TooltipContext context, @NonNull Consumer<Component> consumer, @NonNull TooltipFlag flag, @NonNull DataComponentGetter dataGetter) {
-        float s = (float) note / 24;
-        float r = Math.max(0, Mth.sin(s * (float) Math.PI * 2) * 0.65f + 0.35f);
-        float g = Math.max(0, Mth.sin((s + 1f / 3) * (float) Math.PI * 2) * 0.65f + 0.35f);
-        float b = Math.max(0, Mth.sin((s + 2f / 3) * (float) Math.PI * 2) * 0.65f + 0.35f);
+        int extraPrevNote = (note + 23) % 25;
+        int prevNote = (note + 24) % 25;
+        int nextNote = (note + 1) % 25;
+        int extraNextNote = (note + 2) % 25;
 
-        consumer.accept(Component.translatable("antique.note", note + 1, Component.translatable("antique.note" + note).withColor(new Color(ARGB.colorFromFloat(1f, r, g, b)).brighter().getRGB())).withStyle(ChatFormatting.GRAY));
+        consumer.accept(Component.translatable("antique.note_extra_fade", extraNextNote + 1, Component.translatable("antique.note" + extraNextNote).withColor(new Color(ARGB.colorFromFloat(1f, getRed(extraNextNote), getGreen(extraNextNote), getBlue(extraNextNote))).darker().getRGB())).withColor(5592405));
+        consumer.accept(Component.translatable("antique.note_fade", nextNote + 1, Component.translatable("antique.note" + nextNote).withColor(new Color(ARGB.colorFromFloat(1f, getRed(nextNote), getGreen(nextNote), getBlue(nextNote))).getRGB())).withColor(7763574));
+        consumer.accept(Component.translatable("antique.note", note + 1, Component.translatable("antique.note" + note).withColor(new Color(ARGB.colorFromFloat(1f, getRed(note), getGreen(note), getBlue(note))).brighter().getRGB())).withColor(11184810));
+        consumer.accept(Component.translatable("antique.note_fade", prevNote + 1, Component.translatable("antique.note" + prevNote).withColor(new Color(ARGB.colorFromFloat(1f, getRed(prevNote), getGreen(prevNote), getBlue(prevNote))).getRGB())).withColor(7763574));
+        consumer.accept(Component.translatable("antique.note_extra_fade", extraPrevNote + 1, Component.translatable("antique.note" + extraPrevNote).withColor(new Color(ARGB.colorFromFloat(1f, getRed(extraPrevNote), getGreen(extraPrevNote), getBlue(extraPrevNote))).darker().getRGB())).withColor(5592405));
+    }
+
+    private float getRed(float input) {
+        return Math.max(0, Mth.sin((input / 24) * (float) Math.PI * 2) * 0.65f + 0.35f);
+    }
+
+    private float getGreen(float input) {
+        return Math.max(0, Mth.sin(((input / 24) + 1f / 3) * (float) Math.PI * 2) * 0.65f + 0.35f);
+    }
+
+    private float getBlue(float input) {
+        return Math.max(0, Mth.sin(((input / 24) + 2f / 3) * (float) Math.PI * 2) * 0.65f + 0.35f);
     }
 }
