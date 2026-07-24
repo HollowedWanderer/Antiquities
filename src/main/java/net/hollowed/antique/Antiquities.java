@@ -303,6 +303,8 @@ public class Antiquities implements ModInitializer {
 			itemGroup.accept(AntiqueItems.MYRIAD_PAULDRONS);
 			itemGroup.accept(AntiqueItems.SATCHEL);
 			itemGroup.accept(AntiqueItems.FUR_BOOTS);
+			itemGroup.accept(AntiqueItems.BILLET_ROD);
+			itemGroup.accept(AntiqueItems.ALLOY_CHARGE);
 			itemGroup.accept(AntiqueItems.AMETHYST_FORK);
 			//itemGroup.accept(AntiqueItems.SCEPTER);
 			itemGroup.accept(AntiqueItems.WARHORN);

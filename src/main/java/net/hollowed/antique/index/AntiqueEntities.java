@@ -38,6 +38,14 @@ public interface AntiqueEntities {
                     .clientTrackingRange(8)
     );
 
+    EntityType<@NotNull AlloyChargeEntity> ALLOY_CHARGE = register(
+            "alloy_charge",
+            EntityType.Builder.of(AlloyChargeEntity::new, MobCategory.MISC)
+                    .noLootTable()
+                    .sized(0.25F, 0.25F)
+                    .clientTrackingRange(8)
+    );
+
     EntityType<@NotNull CakeEntity> CAKE_ENTITY = register(
             "cake",
             EntityType.Builder.of(CakeEntity::new, MobCategory.MISC)

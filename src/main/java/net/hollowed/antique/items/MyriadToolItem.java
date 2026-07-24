@@ -80,7 +80,7 @@ public class MyriadToolItem extends Item {
                 Optional<ItemStack> oldCloth = component.cloth();
                 stack.set(AntiqueDataComponentTypes.MYRIAD_TOOL, component.withCloth(otherStack));
 
-                slot.setByPlayer(oldCloth.orElse(ItemStack.EMPTY));
+                slot.setByPlayer(oldCloth.orElse(ItemStack.EMPTY).copy());
                 player.playSound(SoundEvents.BUNDLE_INSERT, 1.0F, 1.0F);
                 return true;
             }
@@ -156,7 +156,7 @@ public class MyriadToolItem extends Item {
                 Optional<ItemStack> oldCloth = component.cloth();
                 stack.set(AntiqueDataComponentTypes.MYRIAD_TOOL, component.withCloth(otherStack));
 
-                cursorStackReference.set(oldCloth.orElse(ItemStack.EMPTY));
+                cursorStackReference.set(oldCloth.orElse(ItemStack.EMPTY).copy());
                 player.playSound(SoundEvents.BUNDLE_INSERT, 1.0F, 1.0F);
                 return true;
             }

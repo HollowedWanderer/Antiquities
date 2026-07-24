@@ -9,6 +9,7 @@ import net.minecraft.sounds.SoundEvent;
 public class AntiqueSounds {
     public static SoundEvent FIRECRACKER = register("firecracker");
     public static SoundEvent CAKE_SPLAT = register("cake_splat");
+    public static SoundEvent METAL_PIPE = register("metal_pipe");
     @SuppressWarnings("unused") public static SoundEvent WARHORN = register("warhorn");
 
     private static SoundEvent register(String id) {

@@ -3,6 +3,7 @@
   "package": "net.hollowed.antique.mixin",
   "compatibilityLevel": "JAVA_21",
   "mixins": [
+    "entities.living.ItemEntityMixin",
     "accessors.CanRemoveSaddleAccessor",
     "accessors.MinecartItemAccessor",
     "accessors.MobEntitySoundAccessor",

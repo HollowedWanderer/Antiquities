@@ -5,6 +5,12 @@
       "antique:firecracker"
     ]
   },
+  "metal_pipe": {
+    "subtitle": "subtitles.antique.metal_pipe",
+    "sounds": [
+      "antique:metal_pipe"
+    ]
+  },
   "warhorn": {
     "subtitle": "subtitles.antique.warhorn",
     "sounds": [
