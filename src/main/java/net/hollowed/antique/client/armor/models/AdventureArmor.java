@@ -37,7 +37,7 @@ public class AdventureArmor<S extends HumanoidRenderState> extends HumanoidModel
 		this.leftBoot = root.getChild(PartNames.LEFT_LEG).getChild("leftBoot");
 	}
 
-	public static LayerDefinition getTexturedModelData() {
+	public static LayerDefinition createBodyLayer() {
 		MeshDefinition modelData = new MeshDefinition();
 		PartDefinition modelPartData = modelData.getRoot();
 

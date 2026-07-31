@@ -7,6 +7,7 @@ import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.client.rendering.v1.ArmorRenderer;
 import net.fabricmc.fabric.api.client.rendering.v1.ModelLayerRegistry;
 import net.hollowed.antique.client.armor.renderers.AdventureArmorFeatureRenderer;
+import net.hollowed.antique.entities.models.BilletModel;
 import net.hollowed.antique.entities.models.ClothKnotModel;
 import net.hollowed.antique.index.*;
 import net.hollowed.antique.blocks.screens.DyeingScreen;
@@ -106,13 +107,15 @@ public class AntiquitiesClient implements ClientModInitializer {
             Entity Renderers
          */
 
-        ModelLayerRegistry.registerModelLayer(AntiqueEntityLayers.ADVENTURE_ARMOR, AdventureArmor::getTexturedModelData);
+        ModelLayerRegistry.registerModelLayer(AntiqueEntityLayers.ADVENTURE_ARMOR, AdventureArmor::createBodyLayer);
         ModelLayerRegistry.registerModelLayer(AntiqueEntityLayers.CLOTH_KNOT, ClothKnotModel::createBodyLayer);
+        ModelLayerRegistry.registerModelLayer(AntiqueEntityLayers.BILLET, BilletModel::createBodyLayer);
 
         EntityRenderers.register(AntiqueEntities.CLOTH, ClothEntityRenderer::new);
         EntityRenderers.register(AntiqueEntities.MYRIAD_SHOVEL, MyriadShovelEntityRenderer::new);
         EntityRenderers.register(AntiqueEntities.MYRIAD_SHOVEL_PART, MyriadShovelPartRenderer::new);
 
+        EntityRenderers.register(AntiqueEntities.BILLET, BilletEntityRenderer::new);
         EntityRenderers.register(AntiqueEntities.ILLUSIONER, IllusionerEntityRenderer::new);
         EntityRenderers.register(AntiqueEntities.ILLUSIONER_CLONE, IllusionerCloneEntityRenderer::new);
         EntityRenderers.register(AntiqueEntities.SMOKE_BOMB, ThrownItemRenderer::new);

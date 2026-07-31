@@ -54,6 +54,7 @@
   "item.antique.myriad_tool.shovel": " - Spade -",
   "item.antique.myriad_tool.cleaver": " - Cleaver -",
   "item.antique.illusioner_spawn_egg": "Illusioner Spawn Egg",
+  "item.antique.billet_spawn_egg": "Billet Spawn Egg",
   "item.antique.warhorn": "Warhorn",
 
   "item.antique.cryoscythe": "Cryoscythe",
@@ -73,6 +74,7 @@
   "subtitles.antique.cake_splat": "Cake Splats",
   "subtitles.antique.typho_cloth_underwater": "Astral Electricity Sparks",
 
+  "entity.antique.billet": "Billet",
   "entity.antique.illusioner": "Illusioner",
   "entity.antique.illusioner_clone": "a Dirty Trick",
 

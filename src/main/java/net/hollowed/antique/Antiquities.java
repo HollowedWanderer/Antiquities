@@ -308,6 +308,7 @@ public class Antiquities implements ModInitializer {
 			itemGroup.accept(AntiqueItems.AMETHYST_FORK);
 			//itemGroup.accept(AntiqueItems.SCEPTER);
 			itemGroup.accept(AntiqueItems.WARHORN);
+			itemGroup.accept(AntiqueItems.BILLET_SPAWN_EGG);
 		});
 	}
 

@@ -58,6 +58,8 @@ public interface AntiqueItems {
             .rarity(Rarity.UNCOMMON)
             .fireResistant()
     ));
+
+    Item BILLET_SPAWN_EGG = register("billet_spawn_egg", settings -> new SpawnEggItem(settings.spawnEgg(AntiqueEntities.BILLET)));
     Item BILLET_ROD = register("billet_rod", Item::new);
     Item ALLOY_CHARGE = register("alloy_charge", AlloyChargeItem::new);
     Item AMETHYST_FORK = register("amethyst_fork", settings -> new AmethystForkItem(settings.stacksTo(1)

@@ -15,6 +15,13 @@ import org.jetbrains.annotations.NotNull;
 
 public interface AntiqueEntities {
 
+    EntityType<@NotNull BilletEntity> BILLET = register(
+            "billet",
+            EntityType.Builder.of(BilletEntity::new, MobCategory.MONSTER)
+                    .sized(0.6F, 1.77F)
+                    .clientTrackingRange(8)
+    );
+
     EntityType<@NotNull IllusionerEntity> ILLUSIONER = register(
             "illusioner",
             EntityType.Builder.of(IllusionerEntity::new, MobCategory.MONSTER)
@@ -94,5 +101,6 @@ public interface AntiqueEntities {
     static void initialize() {
         FabricDefaultAttributeRegistry.register(AntiqueEntities.ILLUSIONER_CLONE, IllusionerCloneEntity.createIllusionerAttributes());
         FabricDefaultAttributeRegistry.register(AntiqueEntities.ILLUSIONER, IllusionerEntity.createIllusionerAttributes());
+        FabricDefaultAttributeRegistry.register(AntiqueEntities.BILLET, BilletEntity.createAttributes());
     }
 }
