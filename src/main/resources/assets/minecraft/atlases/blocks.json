@@ -4,6 +4,10 @@
     {
       "type": "minecraft:single",
       "resource": "antique:entity/bell/ornate_bell"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "antique:entity/bell/emblazoned_bell"
     }
   ]
 }

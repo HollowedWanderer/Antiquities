@@ -46,6 +46,14 @@ public interface AntiqueBlocks {
             .pushReaction(PushReaction.DESTROY)
             ), Rarity.COMMON
     );
+    Block EMBLAZONED_BELL = register("emblazoned_bell", settings -> new OrnateBellBlock(settings
+                    .sound(SoundType.ANVIL)
+                    .mapColor(MapColor.METAL)
+                    .strength(5.0F)
+                    .forceSolidOn()
+                    .pushReaction(PushReaction.DESTROY)
+            ), Rarity.COMMON
+    );
     Block DYE_TABLE = register("dye_table", settings -> new DyeTableBlock(settings
             .sound(SoundType.WOOD)
             .strength(2.5F)

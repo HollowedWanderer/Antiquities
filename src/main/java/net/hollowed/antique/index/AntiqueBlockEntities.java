@@ -18,7 +18,7 @@ public interface AntiqueBlockEntities {
     BlockEntityType<@NotNull OrnateBellBlockEntity> ORNATE_BELL =
             Registry.register(BuiltInRegistries.BLOCK_ENTITY_TYPE, Antiquities.id("ornate_bell"),
                     FabricBlockEntityTypeBuilder.create(OrnateBellBlockEntity::new,
-                            AntiqueBlocks.ORNATE_BELL).build());
+                            AntiqueBlocks.ORNATE_BELL, AntiqueBlocks.EMBLAZONED_BELL).build());
 
     static void initialize() {}
 }

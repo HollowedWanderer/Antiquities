@@ -8,6 +8,7 @@ import net.hollowed.antique.Antiquities;
 import net.hollowed.antique.blocks.OrnateBellBlock;
 import net.hollowed.antique.blocks.entities.OrnateBellBlockEntity;
 import net.hollowed.antique.blocks.entities.model.OrnateBellModel;
+import net.hollowed.antique.index.AntiqueBlocks;
 import net.hollowed.antique.index.AntiqueEntityLayers;
 import net.minecraft.client.renderer.Sheets;
 import net.minecraft.client.renderer.SubmitNodeCollector;
@@ -27,7 +28,8 @@ import org.jspecify.annotations.NonNull;
 
 @Environment(EnvType.CLIENT)
 public class OrnateBellRenderer implements BlockEntityRenderer<OrnateBellBlockEntity, OrnateBellRenderState> {
-	public static final SpriteId BELL_TEXTURE = Sheets.BLOCK_ENTITIES_MAPPER.apply(Antiquities.id("bell/ornate_bell"));
+	public static final SpriteId ORNATE_BELL_TEXTURE = Sheets.BLOCK_ENTITIES_MAPPER.apply(Antiquities.id("bell/ornate_bell"));
+	public static final SpriteId EMBLAZONED_BELL_TEXTURE = Sheets.BLOCK_ENTITIES_MAPPER.apply(Antiquities.id("bell/emblazoned_bell"));
 	private final SpriteGetter sprites;
 	private final OrnateBellModel model;
 
@@ -60,10 +62,18 @@ public class OrnateBellRenderer implements BlockEntityRenderer<OrnateBellBlockEn
 		if (blockState != null) type = blockState.getValue(OrnateBellBlock.ATTACHMENT);
 
 		state.ticks = blockEntity.ticks + partialTicks;
+
 		state.shakeDirection = blockEntity.shaking ? blockEntity.clickDirection : null;
 		if (state.shakeDirection != null && state.shakeDirection.getAxis().equals(Direction.Axis.X)) state.shakeDirection = state.shakeDirection.getCounterClockWise();
+
 		state.facingDirection = blockState != null ? blockState.getValue(OrnateBellBlock.FACING) : null;
 		if (state.facingDirection != null && (type.equals(BellAttachType.SINGLE_WALL) || type.equals(BellAttachType.DOUBLE_WALL))) state.facingDirection = state.facingDirection.getCounterClockWise();
+
+		if (state.shakeDirection != null && state.facingDirection != null && (state.facingDirection.equals(Direction.SOUTH) || state.facingDirection.equals(Direction.WEST))) {
+			state.shakeDirection = state.shakeDirection.getOpposite();
+		}
+
+		state.emblazoned = blockState != null && blockState.is(AntiqueBlocks.EMBLAZONED_BELL);
 	}
 
 	@SuppressWarnings("ConstantConditions")
@@ -76,8 +86,11 @@ public class OrnateBellRenderer implements BlockEntityRenderer<OrnateBellBlockEn
 		if (state.facingDirection != null && state.facingDirection.getAxis().equals(Direction.Axis.X)) {
 			poseStack.mulPose(Axis.YP.rotationDegrees(90));
 		}
+		if (state.facingDirection != null && (state.facingDirection.equals(Direction.SOUTH) || state.facingDirection.equals(Direction.WEST))) {
+			poseStack.mulPose(Axis.YP.rotationDegrees(180));
+		}
 		submitNodeCollector.submitModel(
-				this.model, modelState, poseStack, state.lightCoords, OverlayTexture.NO_OVERLAY, -1, BELL_TEXTURE, this.sprites, 0, state.breakProgress
+				this.model, modelState, poseStack, state.lightCoords, OverlayTexture.NO_OVERLAY, -1, state.emblazoned ? EMBLAZONED_BELL_TEXTURE : ORNATE_BELL_TEXTURE, this.sprites, 0, state.breakProgress
 		);
 		poseStack.popPose();
 	}

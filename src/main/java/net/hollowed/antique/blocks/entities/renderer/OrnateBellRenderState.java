@@ -8,9 +8,11 @@ import org.jspecify.annotations.Nullable;
 
 @Environment(EnvType.CLIENT)
 public class OrnateBellRenderState extends BlockEntityRenderState {
+
 	@Nullable
 	public Direction shakeDirection;
 	@Nullable
 	public Direction facingDirection;
 	public float ticks;
+	public boolean emblazoned;
 }
