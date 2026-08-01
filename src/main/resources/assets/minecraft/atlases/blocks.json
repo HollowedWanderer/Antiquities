@@ -1,0 +1,9 @@
+{
+  "replace": false,
+  "sources": [
+    {
+      "type": "minecraft:single",
+      "resource": "antique:entity/bell/ornate_bell"
+    }
+  ]
+}

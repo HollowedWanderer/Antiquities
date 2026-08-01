@@ -1,0 +1,46 @@
+{
+	"format_version": "1.21.11",
+	"credit": "Made with Blockbench",
+	"texture_size": [32, 32],
+	"textures": {
+		"0": "antique:block/ornate_bell_floor",
+		"particle": "antique:item/ornate_bell"
+	},
+	"elements": [
+		{
+			"from": [14, 0, 6],
+			"to": [16, 12, 10],
+			"rotation": {"angle": 0, "axis": "y", "origin": [15, 0, 8]},
+			"faces": {
+				"north": {"uv": [2, 2, 3, 8], "texture": "#0"},
+				"east": {"uv": [0, 2, 2, 8], "texture": "#0"},
+				"south": {"uv": [5, 2, 6, 8], "texture": "#0"},
+				"west": {"uv": [3, 2, 5, 8], "texture": "#0"},
+				"up": {"uv": [3, 2, 2, 0], "texture": "#0"},
+				"down": {"uv": [4, 0, 3, 2], "texture": "#0"}
+			}
+		},
+		{
+			"from": [0, 0, 6],
+			"to": [2, 12, 10],
+			"rotation": {"angle": 0, "axis": "y", "origin": [1, 0, 8]},
+			"faces": {
+				"north": {"uv": [8, 2, 9, 8], "texture": "#0"},
+				"east": {"uv": [6, 2, 8, 8], "texture": "#0"},
+				"south": {"uv": [11, 2, 12, 8], "texture": "#0"},
+				"west": {"uv": [9, 2, 11, 8], "texture": "#0"},
+				"up": {"uv": [9, 2, 8, 0], "texture": "#0"},
+				"down": {"uv": [10, 0, 9, 2], "texture": "#0"}
+			}
+		}
+	],
+	"groups": [
+		{
+			"name": "stand",
+			"origin": [0, 0, 0],
+			"scope": 0,
+			"color": 0,
+			"children": [0, 1]
+		}
+	]
+}

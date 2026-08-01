@@ -267,6 +267,7 @@ public class Antiquities implements ModInitializer {
 			itemGroup.accept(AntiqueBlocks.JAR);
 			itemGroup.accept(AntiqueBlocks.IVY);
 			itemGroup.accept(AntiqueBlocks.RESONATOR);
+			itemGroup.accept(AntiqueBlocks.ORNATE_BELL);
 		});
 
 		CreativeModeTabEvents.modifyOutputEvent(ANTIQUITIES_ITEMS_GROUP_KEY).register(itemGroup -> {

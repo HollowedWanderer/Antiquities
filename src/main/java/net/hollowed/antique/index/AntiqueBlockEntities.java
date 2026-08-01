@@ -2,6 +2,7 @@ package net.hollowed.antique.index;
 
 import net.fabricmc.fabric.api.object.builder.v1.block.entity.FabricBlockEntityTypeBuilder;
 import net.hollowed.antique.Antiquities;
+import net.hollowed.antique.blocks.entities.OrnateBellBlockEntity;
 import net.hollowed.antique.blocks.entities.PedestalBlockEntity;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -13,6 +14,11 @@ public interface AntiqueBlockEntities {
             Registry.register(BuiltInRegistries.BLOCK_ENTITY_TYPE, Antiquities.id("pedestal"),
                     FabricBlockEntityTypeBuilder.create(PedestalBlockEntity::new,
                             AntiqueBlocks.PEDESTAL).build());
+
+    BlockEntityType<@NotNull OrnateBellBlockEntity> ORNATE_BELL =
+            Registry.register(BuiltInRegistries.BLOCK_ENTITY_TYPE, Antiquities.id("ornate_bell"),
+                    FabricBlockEntityTypeBuilder.create(OrnateBellBlockEntity::new,
+                            AntiqueBlocks.ORNATE_BELL).build());
 
     static void initialize() {}
 }

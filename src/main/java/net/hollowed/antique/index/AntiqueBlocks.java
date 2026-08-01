@@ -9,11 +9,7 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Rarity;
-import net.minecraft.world.level.block.AmethystClusterBlock;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.GlowLichenBlock;
-import net.minecraft.world.level.block.HeavyCoreBlock;
-import net.minecraft.world.level.block.SoundType;
+import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.properties.NoteBlockInstrument;
 import net.minecraft.world.level.material.MapColor;
@@ -40,6 +36,14 @@ public interface AntiqueBlocks {
             .sound(SoundType.DECORATED_POT)
             .strength(0.3F)
             .noOcclusion()
+            ), Rarity.COMMON
+    );
+    Block ORNATE_BELL = register("ornate_bell", settings -> new OrnateBellBlock(settings
+            .sound(SoundType.ANVIL)
+            .mapColor(MapColor.METAL)
+            .strength(5.0F)
+            .forceSolidOn()
+            .pushReaction(PushReaction.DESTROY)
             ), Rarity.COMMON
     );
     Block DYE_TABLE = register("dye_table", settings -> new DyeTableBlock(settings

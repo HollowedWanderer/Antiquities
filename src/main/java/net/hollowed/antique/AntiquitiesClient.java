@@ -6,6 +6,8 @@ import net.fabricmc.fabric.api.client.item.v1.ItemTooltipCallback;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.client.rendering.v1.ArmorRenderer;
 import net.fabricmc.fabric.api.client.rendering.v1.ModelLayerRegistry;
+import net.hollowed.antique.blocks.entities.model.OrnateBellModel;
+import net.hollowed.antique.blocks.entities.renderer.OrnateBellRenderer;
 import net.hollowed.antique.client.armor.renderers.AdventureArmorFeatureRenderer;
 import net.hollowed.antique.entities.models.BilletModel;
 import net.hollowed.antique.entities.models.ClothKnotModel;
@@ -92,6 +94,7 @@ public class AntiquitiesClient implements ClientModInitializer {
          */
 
         BlockEntityRenderers.register(AntiqueBlockEntities.PEDESTAL_BLOCK_ENTITY, _ -> new PedestalRenderer());
+        BlockEntityRenderers.register(AntiqueBlockEntities.ORNATE_BELL, OrnateBellRenderer::new);
 
         /*
             Packets
@@ -110,6 +113,7 @@ public class AntiquitiesClient implements ClientModInitializer {
         ModelLayerRegistry.registerModelLayer(AntiqueEntityLayers.ADVENTURE_ARMOR, AdventureArmor::createBodyLayer);
         ModelLayerRegistry.registerModelLayer(AntiqueEntityLayers.CLOTH_KNOT, ClothKnotModel::createBodyLayer);
         ModelLayerRegistry.registerModelLayer(AntiqueEntityLayers.BILLET, BilletModel::createBodyLayer);
+        ModelLayerRegistry.registerModelLayer(AntiqueEntityLayers.ORNATE_BELL, OrnateBellModel::createBodyLayer);
 
         EntityRenderers.register(AntiqueEntities.CLOTH, ClothEntityRenderer::new);
         EntityRenderers.register(AntiqueEntities.MYRIAD_SHOVEL, MyriadShovelEntityRenderer::new);

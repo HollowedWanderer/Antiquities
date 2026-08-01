@@ -13,6 +13,7 @@ public class AntiqueEntityLayers extends ModelLayers {
     public static final ModelLayerLocation ADVENTURE_ARMOR = register("adventure_armor");
     public static final ModelLayerLocation CLOTH_KNOT = register("cloth_knot");
     public static final ModelLayerLocation BILLET = register("billet");
+    public static final ModelLayerLocation ORNATE_BELL = register("ornate_bell");
 
     private static ModelLayerLocation register(String id) {
         return register(id, "main");
