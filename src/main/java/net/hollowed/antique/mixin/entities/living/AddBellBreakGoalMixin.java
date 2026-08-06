@@ -37,7 +37,6 @@ public class AddBellBreakGoalMixin extends PathfinderMob {
     @Inject(method = "registerGoals", at = @At("HEAD"))
     private void registerGoals(CallbackInfo ci) {
         this.goalSelector.addGoal(0, new AttackBellGoal(this, 1.1, 24));
-
     }
 
     public class AttackBellGoal extends RemoveBellGoal {

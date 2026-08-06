@@ -2,6 +2,7 @@ package net.hollowed.antique.entities.ai;
 
 import net.hollowed.antique.blocks.entities.OrnateBellBlockEntity;
 import net.hollowed.antique.index.AntiqueBlocks;
+import net.hollowed.combatamenities.index.CAParticles;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.SectionPos;
 import net.minecraft.core.particles.ItemParticleOption;
@@ -22,6 +23,8 @@ import net.minecraft.world.phys.Vec3;
 import org.joml.Vector3i;
 import org.jspecify.annotations.NonNull;
 
+import java.util.EnumSet;
+
 public class RemoveBellGoal extends MoveToBlockGoal {
     private final Block blockToRemove;
     private final Mob removerMob;
@@ -32,6 +35,7 @@ public class RemoveBellGoal extends MoveToBlockGoal {
         super(mob, speedModifier, 32, verticalSearchRange);
         this.blockToRemove = blockToRemove;
         this.removerMob = mob;
+        this.setFlags(EnumSet.of(Flag.LOOK, Flag.MOVE, Flag.JUMP));
     }
 
     @Override
@@ -74,9 +78,18 @@ public class RemoveBellGoal extends MoveToBlockGoal {
 
     @Override
     public void tick() {
+        double scale = 0.5;
+        this.mob.getLookControl().setLookAt(new Vec3(this.blockPos).add(scale, scale, scale));
+
+        Level level = this.removerMob.level();
+        BlockPos mobPos = this.removerMob.blockPosition();
+        BlockPos eatPos = null;
+
+        RandomSource random = this.removerMob.getRandom();
+
         boolean reachedTarget = false;
         BlockPos moveToTarget = this.getMoveToTarget();
-        if (!moveToTarget.closerToCenterThan(this.mob.position(), this.acceptedDistance())) {
+        if (mobPos.toMutable().distance(moveToTarget.toMutable()) >= 2.5) {
             this.tryTicks++;
             if (this.shouldRecalculatePath()) {
                 this.mob.getNavigation().moveTo(this.getMoveToTarget().getX() + 0.5, this.getMoveToTarget().getY(), this.getMoveToTarget().getZ() + 0.5, 0, this.speedModifier);
@@ -86,11 +99,7 @@ public class RemoveBellGoal extends MoveToBlockGoal {
             this.tryTicks--;
         }
 
-        Level level = this.removerMob.level();
-        BlockPos mobPos = this.removerMob.blockPosition();
-        BlockPos eatPos = null;
         if (mobPos.toMutable().distance(this.blockPos.toMutable()) < 2.5) eatPos = this.blockPos;
-        RandomSource random = this.removerMob.getRandom();
         if (reachedTarget && eatPos != null) {
             if (this.ticksSinceReachedGoal > 0) {
                 Vec3 movement = this.removerMob.getDeltaMovement();
@@ -105,7 +114,7 @@ public class RemoveBellGoal extends MoveToBlockGoal {
                             (random.nextFloat() - 0.5) * 0.08,
                             (random.nextFloat() - 0.5) * 0.08,
                             (random.nextFloat() - 0.5) * 0.08,
-                            0.15F
+                            0.1F
                     );
                 }
             }
@@ -119,15 +128,28 @@ public class RemoveBellGoal extends MoveToBlockGoal {
 
             if (this.ticksSinceReachedGoal > 60) {
                 level.removeBlock(eatPos, false);
-                if (!level.isClientSide()) {
-                    for (int i = 0; i < 20; i++) {
+                if (level instanceof ServerLevel serverLevel) {
+                    for (int i = 0; i < 10; i++) {
                         double xa = random.nextGaussian() * 0.02;
                         double ya = random.nextGaussian() * 0.02;
                         double za = random.nextGaussian() * 0.02;
-                        ((ServerLevel)level).sendParticles(ParticleTypes.LARGE_SMOKE, eatPos.getX() + 0.5, eatPos.getY(), eatPos.getZ() + 0.5, 1, xa, ya, za, 0.15F);
+                        serverLevel.sendParticles(ParticleTypes.LARGE_SMOKE, eatPos.getX() + 0.5, eatPos.getY() + 0.5, eatPos.getZ() + 0.5, 1, xa, ya, za, 0.05F);
                     }
 
+                    serverLevel.sendParticles(CAParticles.RING, eatPos.getX() + 0.5, eatPos.getY() + 0.5, eatPos.getZ() + 0.5, 1, 0, 0, 0, 0.0F);
+
                     this.playBreakSound(level, eatPos);
+                    serverLevel.sendParticles(
+                            new ItemParticleOption(ParticleTypes.ITEM, AntiqueBlocks.ORNATE_BELL.asItem()),
+                            eatPos.getX() + 0.5,
+                            eatPos.getY() + 1.1,
+                            eatPos.getZ() + 0.5,
+                            32,
+                            (random.nextFloat() - 0.5) * 0.45,
+                            (random.nextFloat() - 0.5) * 0.45,
+                            (random.nextFloat() - 0.5) * 0.45,
+                            0.15F
+                    );
                 }
             }
 
