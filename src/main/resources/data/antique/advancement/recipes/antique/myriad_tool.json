@@ -1,0 +1,25 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_raw_myriad": {
+      "conditions": {
+        "items": [
+          {
+            "items": "antique:raw_myriad"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "requirements": [
+    [
+      "has_raw_myriad"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "antique:myriad_tool"
+    ]
+  }
+}

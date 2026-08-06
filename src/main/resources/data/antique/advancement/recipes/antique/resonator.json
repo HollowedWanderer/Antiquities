@@ -1,0 +1,25 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_amethyst_fork": {
+      "conditions": {
+        "items": [
+          {
+            "items": "antique:amethyst_fork"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "requirements": [
+    [
+      "has_amethyst_fork"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "antique:resonator"
+    ]
+  }
+}

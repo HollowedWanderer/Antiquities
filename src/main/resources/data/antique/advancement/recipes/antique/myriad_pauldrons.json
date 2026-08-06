@@ -1,0 +1,25 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_hollow_core": {
+      "conditions": {
+        "items": [
+          {
+            "items": "antique:hollow_core"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "requirements": [
+    [
+      "has_hollow_core"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "antique:myriad_pauldrons"
+    ]
+  }
+}

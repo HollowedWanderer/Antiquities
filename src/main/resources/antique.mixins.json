@@ -3,7 +3,6 @@
   "package": "net.hollowed.antique.mixin",
   "compatibilityLevel": "JAVA_21",
   "mixins": [
-    "entities.living.ItemEntityMixin",
     "accessors.CanRemoveSaddleAccessor",
     "accessors.MinecartItemAccessor",
     "accessors.MobEntitySoundAccessor",
@@ -12,6 +11,7 @@
     "blocks.PowderSnowWalkableMixin",
     "cloth.PotentSulfurBlockEntityMixin",
     "entities.features.ClothAdderMixin",
+    "entities.living.AddBellBreakGoalMixin",
     "entities.living.AirAccelerationTweaker",
     "entities.living.AnimeEffectMixin",
     "entities.living.ArmorSoundSuppressorMixin",
@@ -22,6 +22,7 @@
     "entities.living.EntityShearMixin",
     "entities.living.FurBootsFreezeImmunityMixin",
     "entities.living.FurBootsMagmaMixin",
+    "entities.living.ItemEntityMixin",
     "entities.living.LivingEntityFreezer",
     "entities.living.MobShearMixin",
     "entities.living.ProjectileBypassMixin",
