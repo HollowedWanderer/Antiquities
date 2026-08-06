@@ -138,7 +138,7 @@ public class RemoveBellGoal extends MoveToBlockGoal {
 
                     serverLevel.sendParticles(CAParticles.RING, eatPos.getX() + 0.5, eatPos.getY() + 0.5, eatPos.getZ() + 0.5, 1, 0, 0, 0, 0.0F);
 
-                    this.playBreakSound(level, eatPos);
+                    if (this.ticksSinceReachedGoal == 61) this.playBreakSound(level, eatPos);
                     serverLevel.sendParticles(
                             new ItemParticleOption(ParticleTypes.ITEM, AntiqueBlocks.ORNATE_BELL.asItem()),
                             eatPos.getX() + 0.5,
