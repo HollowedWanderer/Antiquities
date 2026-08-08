@@ -78,6 +78,7 @@ public class Antiquities implements ModInitializer {
 		AntiqueFeatures.initialize();
 		AntiqueTrackedData.initialize();
 		AntiqueRegistries.initialize();
+		AntiquePoiTypes.initialize();
 
 		MidnightConfig.init(MOD_ID, AntiquitiesConfig.class);
 

@@ -25,6 +25,7 @@
     "entities.living.ItemEntityMixin",
     "entities.living.LivingEntityFreezer",
     "entities.living.MobShearMixin",
+    "entities.living.NoMobSpawningMixin",
     "entities.living.ProjectileBypassMixin",
     "entities.living.RaidModifierMixin",
     "entities.living.ServerPlayerClipMixin",

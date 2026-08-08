@@ -1,8 +1,10 @@
 package net.hollowed.antique.blocks.entities;
 
 import net.hollowed.antique.index.AntiqueBlockEntities;
+import net.hollowed.antique.index.AntiqueBlocks;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
@@ -16,20 +18,24 @@ public class OrnateBellBlockEntity extends BlockEntity {
 	public boolean shaking;
 	public Direction clickDirection;
 	public boolean blazing;
+	public boolean emblazoned;
 
 	public OrnateBellBlockEntity(final BlockPos worldPosition, final BlockState blockState) {
 		super(AntiqueBlockEntities.ORNATE_BELL, worldPosition, blockState);
+		this.emblazoned = blockState.is(AntiqueBlocks.EMBLAZONED_BELL);
 	}
 
 	@Override
 	protected void saveAdditional(@NonNull ValueOutput output) {
 		output.putBoolean("Blazing", this.blazing);
+		output.putBoolean("Emblazoned", this.emblazoned);
 		super.saveAdditional(output);
 	}
 
 	@Override
 	protected void loadAdditional(@NonNull ValueInput input) {
 		this.blazing = input.getBooleanOr("Blazing", false);
+		this.emblazoned = input.getBooleanOr("Emblazoned", false);
 		super.loadAdditional(input);
 	}
 
@@ -39,7 +45,7 @@ public class OrnateBellBlockEntity extends BlockEntity {
 			this.clickDirection = Direction.from3DDataValue(b1);
 			this.ticks = 0;
 			this.shaking = true;
-			this.blazing = !this.blazing;
+			if (this.emblazoned) this.blazing = !this.blazing;
 			return true;
 		} else {
 			return super.triggerEvent(b0, b1);
@@ -58,6 +64,9 @@ public class OrnateBellBlockEntity extends BlockEntity {
 			entity.shaking = false;
 			entity.ticks = 0;
 		}
+
+		if (entity.emblazoned) level.addParticle(ParticleTypes.SMOKE, pos.getX() + 0.5, pos.getY() + 1.25, pos.getZ() + 0.5, 0, 0, 0);
+		if (entity.blazing) level.addParticle(ParticleTypes.SOUL, pos.getX() + 0.5, pos.getY() + 1.75, pos.getZ() + 0.5, 0, 0, 0);
 	}
 
 	public static void clientTick(final Level level, final BlockPos pos, final BlockState state, final OrnateBellBlockEntity entity) {
