@@ -74,7 +74,7 @@
     "defaultRequire": 1
   },
   "client": [
-    "GameRendererMixin",
+    "swingthrough.GameRendererMixin",
     "accessors.AbstractContainerScreenAccessor",
     "accessors.GetSlotAtAccessor",
     "accessors.SpriteContentsAnimationStateAccessor",

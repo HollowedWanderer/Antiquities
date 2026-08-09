@@ -1,9 +1,10 @@
 // **********************************************
 // This file is licensed under:
 // GNU Lesser General Public License v3.0 only
+// From the mod "SwingThrough" located here: https://modrinth.com/mod/swingthrough
 // **********************************************
 
-package net.hollowed.antique.mixin;
+package net.hollowed.antique.mixin.swingthrough;
 
 import com.llamalad7.mixinextras.injector.ModifyReceiver;
 import net.minecraft.client.Minecraft;
