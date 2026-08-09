@@ -19,6 +19,7 @@ import net.hollowed.antique.entities.renderers.*;
 import net.hollowed.antique.items.components.MyriadToolComponent;
 import net.hollowed.antique.networking.*;
 import net.hollowed.antique.util.ClothUtil;
+import net.hollowed.antique.util.CoyoteAttackTimeEvent;
 import net.hollowed.antique.util.interfaces.duck.ClothAccess;
 import net.hollowed.antique.util.models.*;
 import net.hollowed.antique.util.properties.*;
@@ -124,6 +125,9 @@ public class AntiquitiesClient implements ClientModInitializer {
         EntityRenderers.register(AntiqueEntities.ILLUSIONER_CLONE, IllusionerCloneEntityRenderer::new);
         EntityRenderers.register(AntiqueEntities.SMOKE_BOMB, ThrownItemRenderer::new);
         EntityRenderers.register(AntiqueEntities.CAKE_ENTITY, CakeRenderer::new);
+
+        // Coyote Bite handling
+        CoyoteAttackTimeEvent.init();
 
         // Crawl handling
         ClientTickEvents.END_CLIENT_TICK.register(client -> {

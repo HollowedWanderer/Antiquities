@@ -27,18 +27,18 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.packs.PackType;
+import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.entity.EquipmentSlotGroup;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.item.*;
-import net.minecraft.world.item.component.DyedItemColor;
-import net.minecraft.world.item.component.ItemAttributeModifiers;
-import net.minecraft.world.item.component.SwingAnimation;
+import net.minecraft.world.item.component.*;
 import net.minecraft.world.item.enchantment.Enchantable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Predicate;
 
 public class Antiquities implements ModInitializer {
@@ -167,6 +167,34 @@ public class Antiquities implements ModInitializer {
 								)
 								.build()
 				)
+		));
+
+		DefaultItemComponentEvents.MODIFY.register(ctx -> ctx.modify(
+				List.of(Items.TRIDENT),
+				(builder, _) -> builder
+						.set(
+								DataComponents.SWING_ANIMATION, new SwingAnimation(SwingAnimationType.STAB, 18)
+						).set(
+								DataComponents.ATTRIBUTE_MODIFIERS,
+								ItemAttributeModifiers.builder()
+										.add(
+												Attributes.ATTACK_DAMAGE,
+												new AttributeModifier(Item.BASE_ATTACK_DAMAGE_ID, 6, AttributeModifier.Operation.ADD_VALUE),
+												EquipmentSlotGroup.MAINHAND
+										)
+										.add(
+												Attributes.ATTACK_SPEED,
+												new AttributeModifier(Item.BASE_ATTACK_SPEED_ID, -2.7, AttributeModifier.Operation.ADD_VALUE),
+												EquipmentSlotGroup.MAINHAND
+										)
+										.build()
+						).set(
+								DataComponents.ATTACK_RANGE, new AttackRange(1.5F, 4.0F, 1.5F, 5.0F, 0.3F, 1.0F)
+						).set(
+								DataComponents.PIERCING_WEAPON, new PiercingWeapon(true, false, Optional.of(SoundEvents.SPEAR_ATTACK), Optional.of(SoundEvents.SPEAR_HIT))
+						).set(
+								DataComponents.MINIMUM_ATTACK_CHARGE, 1.0F
+						)
 		));
 
 		DefaultItemComponentEvents.MODIFY.register(ctx -> ctx.modify(

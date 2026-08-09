@@ -42,6 +42,7 @@
     "entities.living.player.ClimbableShovelMixin",
     "entities.living.player.ClimbButFasterMixin",
     "entities.living.player.ClothSkinDataHandlerMixin",
+    "entities.living.player.CoyoteBiteMixin",
     "entities.living.player.CrawlLogicMixin",
     "entities.living.player.PlayerAttributeTweakerMixin",
     "entities.living.player.SpeedFasterInAirMixin",
@@ -73,6 +74,7 @@
     "defaultRequire": 1
   },
   "client": [
+    "GameRendererMixin",
     "accessors.AbstractContainerScreenAccessor",
     "accessors.GetSlotAtAccessor",
     "accessors.SpriteContentsAnimationStateAccessor",
