@@ -45,7 +45,7 @@ public class GameRendererMixin {
     @ModifyVariable(method = "pick", at = @At(value = "INVOKE_ASSIGN", target = "Lnet/minecraft/world/entity/projectile/ProjectileUtil;getEntityHitResult(Lnet/minecraft/world/entity/Entity;Lnet/minecraft/world/phys/Vec3;Lnet/minecraft/world/phys/Vec3;Lnet/minecraft/world/phys/AABB;Ljava/util/function/Predicate;D)Lnet/minecraft/world/phys/EntityHitResult;"), name = "entityHitResult")
     private static EntityHitResult checkEntityValid(EntityHitResult entityHitResult, Entity cameraEntity, double blockInteractionRange, double entityInteractionRange, float partialTicks) {
         Entity hitEntity = entityHitResult == null ? null : entityHitResult.getEntity();
-        validEntity = hitEntity != null && Minecraft.getInstance().player != null && Minecraft.getInstance().getCameraEntity() != null && Minecraft.getInstance().getCameraEntity().position().distanceToSqr(hitEntity.position()) < Mth.square(entityInteractionRange) && hitEntity instanceof LivingEntity && !hitEntity.isSpectator() && hitEntity.isAttackable() && !hitEntity.equals(Minecraft.getInstance().player.getVehicle() != null ? Minecraft.getInstance().player.getVehicle() : null);
+        validEntity = hitEntity != null && Minecraft.getInstance().player != null && Minecraft.getInstance().getCameraEntity() != null && Minecraft.getInstance().getCameraEntity().position().distanceToSqr(hitEntity.position()) < Mth.square(entityInteractionRange) && hitEntity instanceof LivingEntity && !hitEntity.isSpectator() && hitEntity.isAttackable() && !hitEntity.equals(Minecraft.getInstance().player.getVehicle() != null ? Minecraft.getInstance().player.getVehicle() : entityHitResult);
         return entityHitResult;
     }
 
