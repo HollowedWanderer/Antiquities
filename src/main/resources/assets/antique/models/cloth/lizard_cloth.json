@@ -1,4 +1,11 @@
 {
+  "world": [
+    "antique:cloth/lizard_cloth",
+    {
+      "texture": "antique:cloth/lizard_cloth_emissive",
+      "light": 15
+    }
+  ],
   "tied": {
     "normal": {
       "inventory": "antique:item/lizard_cloth_item"

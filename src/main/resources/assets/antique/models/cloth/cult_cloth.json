@@ -1,4 +1,11 @@
 {
+  "world": [
+    "antique:cloth/cult_cloth",
+    {
+      "texture": "antique:cloth/cult_cloth_emissive",
+      "light": 15
+    }
+  ],
   "tied": {
     "normal": {
       "inventory": "antique:item/cult_cloth_item"

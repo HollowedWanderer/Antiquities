@@ -3,12 +3,12 @@
   "category": "equipment",
   "pattern": [
     "SM",
-    "LN"
+    "LR"
   ],
   "key": {
     "L": "minecraft:leather",
     "M": "antique:myriad_ingot",
-    "N": "minecraft:netherite_scrap",
+    "R": "antique:raw_myriad",
     "S": "minecraft:string"
   },
   "result": {

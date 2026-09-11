@@ -58,6 +58,7 @@ public class ClothManager {
 
     public static final FastNoiseLite WIND_DIR_NOISE = new FastNoiseLite();
     public static final FastNoiseLite WIND_NOISE = new FastNoiseLite();
+    public static final FastNoiseLite RIPPLE_NOISE = new FastNoiseLite();
 
     static {
         WIND_DIR_NOISE.SetNoiseType(FastNoiseLite.NoiseType.Perlin);
@@ -65,6 +66,9 @@ public class ClothManager {
 
         WIND_NOISE.SetNoiseType(FastNoiseLite.NoiseType.Perlin);
         WIND_NOISE.SetFrequency(0.05f);
+
+        RIPPLE_NOISE.SetNoiseType(FastNoiseLite.NoiseType.Perlin);
+        RIPPLE_NOISE.SetFrequency(1.35f);
     }
 
     public @Nullable AmbientClothSoundInstance ambientSound;
@@ -190,7 +194,8 @@ public class ClothManager {
         bodies.getFirst().pos.set(pos);
 
         // Update pass
-        for (ClothBody body : bodies) {
+        for (int i = bodies.size() - 1; i >= 0; i--) {
+            ClothBody body = bodies.get(i);
             boolean isWater = isWater(level, body.pos);
 
             // Apply gravity
@@ -201,16 +206,18 @@ public class ClothManager {
 
             body.velocity.add(0, -gravity, 0);
 
-            float dir = WIND_DIR_NOISE.GetNoise((float) glfwGetTime() * 20, 0) * 45; // 90 degree slice going negative Z
+            float dir = WIND_DIR_NOISE.GetNoise((float) glfwGetTime() * 20, 0) * 45 + 180; // 90 degree slice going negative Z
 
             float thunder = level.getThunderLevel(0);
-            float wind = Math.max(0, WIND_NOISE.GetNoise(body.pos.x, body.pos.z - (float) glfwGetTime() * 20) / 2 + 0.25f) + thunder * 0.75f;
+            float wind = Math.max(0, WIND_NOISE.GetNoise(body.pos.x, body.pos.z - (float) glfwGetTime() * 10) / 2 + 0.25f) + thunder * 0.75f;
+            float ripple = Math.max(0, RIPPLE_NOISE.GetNoise(body.pos.x, body.pos.z - (float) glfwGetTime()) / 2 + 0.25f);
 
             int worldHeight = level.getHeight(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, (int) body.pos.x, (int) body.pos.z);
             float mountainScale = Mth.clamp((float) (worldHeight - 80) / 400, 0, 0.1f);
 
             Vector3f totalWind = getViewVector(dir)
                     .mul(wind * 0.2f + mountainScale)
+                    .mul((ripple * 3.5f) + 0.5f)
                     .mul(Mth.clamp((body.pos.y - (worldHeight - 10)) / 10, 0, 2.5f));
 
             Vector2d[] offsets = {

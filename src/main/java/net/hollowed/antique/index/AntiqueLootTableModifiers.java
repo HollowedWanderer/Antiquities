@@ -28,6 +28,7 @@ public class AntiqueLootTableModifiers {
     public static void initialize() {
         LootTableEvents.MODIFY.register((id, tableBuilder, _, registries) -> {
 
+
             // Add Hollow Core to trial vault
             if (id.identifier().equals(TRIAL_VAULT)) {
                 LootPool.Builder poolBuilder = LootPool.lootPool()

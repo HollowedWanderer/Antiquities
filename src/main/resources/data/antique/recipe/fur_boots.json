@@ -4,11 +4,11 @@
   "pattern": [
     "W W",
     "L L",
-    "N N"
+    "R R"
   ],
   "key": {
     "L": "minecraft:leather",
-    "N": "minecraft:netherite_scrap",
+    "R": "antique:raw_myriad",
     "W": "#minecraft:wool"
   },
   "result": {
