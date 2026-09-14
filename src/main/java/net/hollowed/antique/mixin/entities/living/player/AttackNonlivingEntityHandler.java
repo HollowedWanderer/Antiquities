@@ -3,6 +3,7 @@ package net.hollowed.antique.mixin.entities.living.player;
 import net.hollowed.antique.enchantments.EnchantmentListener;
 import net.hollowed.antique.index.AntiqueEffects;
 import net.hollowed.antique.index.AntiqueItems;
+import net.hollowed.antique.items.DeathItem;
 import net.hollowed.antique.items.ScepterItem;
 import net.hollowed.antique.util.delay.TickDelayScheduler;
 import net.hollowed.combatamenities.index.CAParticles;
@@ -168,6 +169,15 @@ public abstract class AttackNonlivingEntityHandler extends LivingEntity {
             if (time == 2.0F) {
                 this.level().playPlayerSound(SoundEvents.EXPERIENCE_ORB_PICKUP, SoundSource.NEUTRAL, 1, 1);
             }
+        }
+    }
+
+    @Inject(at = @At("HEAD"), method = "attack")
+    private void attackWithDeathItem(Entity entity, CallbackInfo ci) {
+        Player player = (Player) (Object) this;
+        ItemStack stack = player.getWeaponItem();
+        if (stack.getItem() instanceof DeathItem && !this.level().isClientSide()) {
+            entity.discard();
         }
     }
 

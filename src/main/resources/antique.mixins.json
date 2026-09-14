@@ -74,7 +74,6 @@
     "defaultRequire": 1
   },
   "client": [
-    "swingthrough.GameRendererMixin",
     "accessors.AbstractContainerScreenAccessor",
     "accessors.GetSlotAtAccessor",
     "accessors.SpriteContentsAnimationStateAccessor",
@@ -117,6 +116,7 @@
     "screens.ModMenuMixin",
     "screens.MouseMixin",
     "screens.PedestalTooltipMixin",
-    "screens.SatchelOverlayMixin"
+    "screens.SatchelOverlayMixin",
+    "swingthrough.GameRendererMixin"
   ]
 }

@@ -65,7 +65,7 @@ public class ClothManager {
         WIND_DIR_NOISE.SetFrequency(0.005f);
 
         WIND_NOISE.SetNoiseType(FastNoiseLite.NoiseType.Perlin);
-        WIND_NOISE.SetFrequency(0.05f);
+        WIND_NOISE.SetFrequency(0.025f);
 
         RIPPLE_NOISE.SetNoiseType(FastNoiseLite.NoiseType.Perlin);
         RIPPLE_NOISE.SetFrequency(1.35f);
@@ -216,7 +216,7 @@ public class ClothManager {
             float mountainScale = Mth.clamp((float) (worldHeight - 80) / 400, 0, 0.1f);
 
             Vector3f totalWind = getViewVector(dir)
-                    .mul(wind * 0.2f + mountainScale)
+                    .mul(wind * 0.4f + mountainScale)
                     .mul((ripple * 3.5f) + 0.5f)
                     .mul(Mth.clamp((body.pos.y - (worldHeight - 10)) / 10, 0, 2.5f));
 
