@@ -38,8 +38,8 @@ public class ClothEntityRenderer extends EntityRenderer<@NotNull ClothEntity, @N
 	@Override
 	public void submit(@NonNull ClothRenderState state, @NonNull PoseStack poseStack, @NotNull SubmitNodeCollector queue, @NotNull CameraRenderState cameraState) {
 		ClothUtil.getClothData(state.cloth, state.entity.registryAccess()).ifPresent(cloth -> {
-//			poseStack.pushPose();
-//
+			poseStack.pushPose();
+
 			Identifier modelId = cloth.value().model().orElseGet(() -> cloth.unwrapKey().orElseThrow().identifier());
 			ClothModelData model = ClothModelListener.MODELS.get(modelId);
 
