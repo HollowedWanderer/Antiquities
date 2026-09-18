@@ -5,6 +5,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.MultiPlayerGameMode;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.item.component.SwingAnimation;
 import org.jspecify.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -27,7 +28,7 @@ public class CoyoteBiteMixin {
     private void coyoteBite(CallbackInfoReturnable<Boolean> cir) {
         if (CoyoteAttackTimeEvent.target != null && gameMode != null && player != null) {
             gameMode.attack(player, CoyoteAttackTimeEvent.target);
-            player.swing(InteractionHand.MAIN_HAND, true);
+            player.swing(InteractionHand.MAIN_HAND, SwingAnimation.DEFAULT, true);
             cir.setReturnValue(true);
         }
     }

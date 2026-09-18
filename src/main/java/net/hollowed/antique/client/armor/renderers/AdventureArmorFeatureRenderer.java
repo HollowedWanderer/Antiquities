@@ -55,8 +55,7 @@ public class AdventureArmorFeatureRenderer implements ArmorRenderer {
                 RENDER_LAYER.apply(slim),
                 light,
                 OverlayTexture.NO_OVERLAY,
-                state.outlineColor,
-                null
+                state.outlineColor
         );
 
         if (stack.hasFoil()) {
@@ -68,11 +67,10 @@ public class AdventureArmorFeatureRenderer implements ArmorRenderer {
                     true,
                     queue,
                     matrices,
-                    RenderTypes.armorEntityGlint(),
+                    RenderTypes.trimmedArmorGlint(),
                     light,
                     OverlayTexture.NO_OVERLAY,
-                    state.outlineColor,
-                    null
+                    state.outlineColor
             );
         }
     }

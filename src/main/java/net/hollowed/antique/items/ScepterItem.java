@@ -23,6 +23,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.ItemUseAnimation;
 import net.minecraft.world.item.component.ItemAttributeModifiers;
+import net.minecraft.world.item.component.SwingAnimation;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
@@ -80,14 +81,14 @@ public class ScepterItem extends Item {
                 float velocity = Math.clamp(chargeTime * 0.04F + 0.25F, EnchantmentListener.hasEnchantment(stack, "antique:impetus") ? 0.6F : 1.0F, 2.0F);
 
                 player.push(player.getViewVector(0).multiply(multiplier).scale(velocity));
-                player.hurtMarked = true;
+                player.syncVelocity = true;
                 if (user.level() instanceof ServerLevel serverWorld) {
                     serverWorld.sendParticles(ParticleTypes.GUST, user.getX(), user.getY() + 0.25F, user.getZ(), 1, 0.1, 0.0, 0.1, 0);
                 }
 
                 world.playSound(null, user.getX(), user.getY(), user.getZ(), SoundEvents.MACE_SMASH_AIR, SoundSource.NEUTRAL, 1F, 0.9f + (player.getRandom().nextFloat() * .2f));
                 player.awardStat(Stats.ITEM_USED.get(this));
-                user.swing(user.getUsedItemHand());
+                user.swing(user.getUsedItemHand(), SwingAnimation.DEFAULT, true);
                 if (!user.level().isClientSide()) {
                     player.getCooldowns().addCooldown(stack, 130);
                     if (EnchantmentListener.hasEnchantment(stack, "antique:kinematic")) {
@@ -117,7 +118,7 @@ public class ScepterItem extends Item {
                         // Knockback
                         Vec3 knockback = forwardVec.scale(1.5); // Apply knockback in player's direction
                         target.push(knockback.x, knockback.y, knockback.z);
-                        target.hurtMarked = true;
+                        target.syncVelocity = true;
 
                         // Apply a custom effect
                         if (EnchantmentListener.hasEnchantment(stack, "antique:kinematic")) {
@@ -130,7 +131,7 @@ public class ScepterItem extends Item {
 
                 if (!entities.isEmpty()) world.playSound(null, user.getX(), user.getY(), user.getZ(), SoundEvents.MACE_SMASH_AIR, SoundSource.NEUTRAL, 1F, 1.0F);
                 player.getCooldowns().addCooldown(stack, 60);
-                user.swing(user.getUsedItemHand());
+                user.swing(user.getUsedItemHand(), SwingAnimation.DEFAULT, true);
             }
             return false;
         }
@@ -152,12 +153,12 @@ public class ScepterItem extends Item {
             return InteractionResult.PASS;
         }
 
-        user.swing(hand);
+        user.swing(hand, SwingAnimation.DEFAULT, true);
         HitResult hitResult = user.pick(5.0D, 0.0F, false);
         if (hitResult.getType() == HitResult.Type.BLOCK) {
             user.getCooldowns().addCooldown(user.getItemInHand(hand), 40);
             user.push(user.getViewVector(0).multiply(new Vec3(-1.5, -0.5, -1.5)));
-            user.hurtMarked = true;
+            user.syncVelocity = true;
             if (user.level() instanceof ServerLevel serverWorld) {
                 serverWorld.sendParticles(ParticleTypes.GUST, user.getX(), user.getY() + 0.25F, user.getZ(), 1, 0.1, 0.0, 0.1, 0);
                 user.addEffect(new MobEffectInstance(AntiqueEffects.VOLATILE_BOUNCE_EFFECT, 30, 0, true, true));

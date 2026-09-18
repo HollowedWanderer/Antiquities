@@ -1,5 +1,6 @@
 package net.hollowed.antique.blocks.screens;
 
+import com.mojang.blaze3d.platform.InputConstants;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
@@ -25,7 +26,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.DyedItemColor;
 import org.jetbrains.annotations.NotNull;
 import org.jspecify.annotations.NonNull;
-import org.lwjgl.glfw.GLFW;
 
 import java.util.Optional;
 
@@ -114,7 +114,7 @@ public class DyeingScreen extends AbstractContainerScreen<@NotNull DyeingScreenH
 
 	@Override
 	public boolean keyPressed(KeyEvent input) {
-		if (input.key() == GLFW.GLFW_KEY_ESCAPE) {
+		if (input.key() == InputConstants.KEY_ESCAPE) {
 			if (this.minecraft.player == null) return false;
 			this.minecraft.player.closeContainer();
 		}

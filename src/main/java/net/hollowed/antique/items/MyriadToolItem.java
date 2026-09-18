@@ -26,7 +26,6 @@ import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.ItemUseAnimation;
-import net.minecraft.world.item.Items;
 import net.minecraft.world.item.component.DyedItemColor;
 import net.minecraft.world.item.component.ItemAttributeModifiers;
 import net.minecraft.world.item.context.UseOnContext;
@@ -70,7 +69,7 @@ public class MyriadToolItem extends Item {
                     slot.setByPlayer(storedStack.copy());
                     storedStack = ItemStack.EMPTY;
                     player.playSound(SoundEvents.BUNDLE_REMOVE_ONE, 0.8F, 1.0F);
-                    setToolBit(stack, storedStack);
+                    setToolBit(stack, storedStack, player.level());
                     return true;
                 }
             }
@@ -97,7 +96,7 @@ public class MyriadToolItem extends Item {
             if (storedStack.isEmpty()) {
                 storedStack = otherStack.split(otherStack.getCount());
                 player.playSound(SoundEvents.BUNDLE_INSERT, 0.8F, 1.0F);
-                setToolBit(stack, storedStack); // Re-set without empty stacks
+                setToolBit(stack, storedStack, player.level()); // Re-set without empty stacks
 
                 // Clear the cursor stack after adding an item to the tool
                 slot.setByPlayer(ItemStack.EMPTY);
@@ -119,7 +118,7 @@ public class MyriadToolItem extends Item {
                     cursorStackReference.set(toolBit.copy());
                     toolBit = ItemStack.EMPTY;
                     player.playSound(SoundEvents.BUNDLE_REMOVE_ONE, 1.0F, 1.0F);
-                    setToolBit(stack, toolBit);
+                    setToolBit(stack, toolBit, player.level());
                     return true;
                 } else {
                     if (component.cloth().isPresent()) {
@@ -172,7 +171,7 @@ public class MyriadToolItem extends Item {
             ItemStack temp = getStoredStack(stack);
             toolBit = otherStack.split(otherStack.getCount());
             player.playSound(SoundEvents.BUNDLE_INSERT, 1.0F, 1.0F);
-            setToolBit(stack, toolBit);
+            setToolBit(stack, toolBit, player.level());
             cursorStackReference.set(temp);
             return true;
         }
@@ -189,11 +188,11 @@ public class MyriadToolItem extends Item {
         return tool.getOrDefault(AntiqueDataComponentTypes.MYRIAD_TOOL, MyriadToolComponent.DEFAULT_NO_CLOTH).toolBit();
     }
 
-    public static void setToolBit(ItemStack toolStack, ItemStack toolBit) {
+    public static void setToolBit(ItemStack toolStack, ItemStack toolBit, Level level) {
         MyriadToolComponent component = toolStack.getOrDefault(AntiqueDataComponentTypes.MYRIAD_TOOL, MyriadToolComponent.DEFAULT_NO_CLOTH);
 
         if (toolBit.getItem() instanceof MyriadToolBitItem item) {
-            item.setToolAttributes(toolStack);
+            item.setToolAttributes(toolStack, level);
         } else {
             toolStack.set(DataComponents.ATTRIBUTE_MODIFIERS, ItemAttributeModifiers.builder()
                     .add(Attributes.ATTACK_DAMAGE, new AttributeModifier(BASE_ATTACK_DAMAGE_ID, 2.0, AttributeModifier.Operation.ADD_VALUE), EquipmentSlotGroup.MAINHAND)
@@ -300,14 +299,5 @@ public class MyriadToolItem extends Item {
     @Override
     public int getUseDuration(@NotNull ItemStack stack, @NotNull LivingEntity user) {
         return 72000;
-    }
-
-    private void addInk(Player player, ItemStack clothStack, ItemStack inkStack) {
-        boolean glow = inkStack.is(Items.GLOW_INK_SAC);
-        if (glow != ClothUtil.getClothPatternGlowing(clothStack)) {
-            ClothUtil.setClothPatternGlowing(clothStack, glow);
-            player.playSound(inkStack.is(Items.GLOW_INK_SAC) ? SoundEvents.GLOW_INK_SAC_USE : SoundEvents.INK_SAC_USE, 1.0F, 1.0F);
-            inkStack.consume(1, player);
-        }
     }
 }

@@ -37,7 +37,7 @@ public class MyriadCleaverBit extends MyriadToolBitItem{
         if (user.onGround()) {
             for (Entity entity : world.getEntities(user, user.getBoundingBox().inflate(3, 0.5, 3))) {
                 entity.push(entity.position().subtract(user.position()).normalize().multiply(1.25, 0.5, 1.25).add(0, 0.75, 0));
-                entity.hurtMarked = true;
+                entity.syncVelocity = true;
             }
 
             return true;
@@ -53,7 +53,7 @@ public class MyriadCleaverBit extends MyriadToolBitItem{
     }
 
     @Override
-    public void setToolAttributes(ItemStack tool) {
+    public void setToolAttributes(ItemStack tool, Level level) {
         tool.set(DataComponents.ATTRIBUTE_MODIFIERS, ItemAttributeModifiers.builder()
                 .add(Attributes.ATTACK_DAMAGE, new AttributeModifier(BASE_ATTACK_DAMAGE_ID, 6, AttributeModifier.Operation.ADD_VALUE), EquipmentSlotGroup.MAINHAND)
                 .add(Attributes.ATTACK_SPEED, new AttributeModifier(BASE_ATTACK_SPEED_ID, -2.2, AttributeModifier.Operation.ADD_VALUE), EquipmentSlotGroup.MAINHAND)

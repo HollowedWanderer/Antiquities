@@ -40,9 +40,6 @@ repositories {
 	maven {url = "https://maven.jamieswhiteshirt.com/libs-release"}
 	maven {url = 'https://maven.ladysnake.org/releases'}
 	maven {url = "https://maven.terraformersmc.com/"}
-
-	// Mod Menu
-	maven { url "https://maven.terraformersmc.com/releases/" }
 }
 
 fabricApi {
@@ -65,9 +62,6 @@ dependencies {
 
 	// MidnightLib
 	implementation "maven.modrinth:midnightlib:${project.midnightlib_version}"
-
-	// Mod Menu
-	localRuntime(api "com.terraformersmc:modmenu:${modmenu_version}")
 
 	// Lemon Lib
 	// modImplementation include ('com.github.Dusty-Development:LemonLib:main-SNAPSHOT')

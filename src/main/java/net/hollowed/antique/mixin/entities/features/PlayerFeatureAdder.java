@@ -28,6 +28,7 @@ import net.minecraft.world.entity.Avatar;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
+import org.joml.Matrix4f;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
@@ -65,9 +66,9 @@ public abstract class PlayerFeatureAdder extends LivingEntityRenderer<@NotNull A
     @Inject(method = "getArmPose(Lnet/minecraft/world/entity/Avatar;Lnet/minecraft/world/item/ItemStack;Lnet/minecraft/world/InteractionHand;)Lnet/minecraft/client/model/HumanoidModel$ArmPose;", at = @At("HEAD"), cancellable = true)
     private static void getArmPose(Avatar avatar, ItemStack itemInHand, InteractionHand hand, CallbackInfoReturnable<HumanoidModel.ArmPose> cir) {
         if (itemInHand.tags().toList().contains(TagKey.create(Registries.ITEM, Antiquities.id("two_handed")))) {
-            if (!avatar.isUsingItem() && !avatar.swinging && !avatar.isShiftKeyDown()) {
+            if (!avatar.isUsingItem() && !avatar.isSwinging() && !avatar.isShiftKeyDown()) {
                 cir.setReturnValue(HumanoidModel.ArmPose.CROSSBOW_CHARGE);
-            } else if (avatar.isShiftKeyDown() || avatar.swinging) {
+            } else if (avatar.isShiftKeyDown() || avatar.isSwinging()) {
                 cir.setReturnValue(HumanoidModel.ArmPose.CROSSBOW_HOLD);
             }
         }
@@ -85,14 +86,14 @@ public abstract class PlayerFeatureAdder extends LivingEntityRenderer<@NotNull A
         LocalPlayer player = Minecraft.getInstance().player;
         if (player == null) return;
         if (player.getItemBySlot(EquipmentSlot.CHEST).getItem() == AntiqueItems.MYRIAD_PAULDRONS) {
-            poseStack.mulPose(Axis.ZP.rotationDegrees(-5));
+            poseStack.mulPose(Axis.ZP.rotationDegrees(-5).get(new Matrix4f()));
             poseStack.translate(0.325, 0.1, 0);
             if (slim) {
                 submitNodeCollector.order(1).submitModelPart(armorModel.leftArmArmor, poseStack, RENDER_LAYER, lightCoords, OverlayTexture.NO_OVERLAY, null);
-                if (player.getItemBySlot(EquipmentSlot.CHEST).hasFoil()) submitNodeCollector.order(2).submitModelPart(armorModel.leftArmArmor, poseStack, RenderTypes.armorEntityGlint(), lightCoords, OverlayTexture.NO_OVERLAY, null);
+                if (player.getItemBySlot(EquipmentSlot.CHEST).hasFoil()) submitNodeCollector.order(2).submitModelPart(armorModel.leftArmArmor, poseStack, RenderTypes.trimmedArmorGlint(), lightCoords, OverlayTexture.NO_OVERLAY, null);
             } else {
                 submitNodeCollector.order(1).submitModelPart(armorModel.leftArmArmorThick, poseStack, THICK_RENDER_LAYER, lightCoords, OverlayTexture.NO_OVERLAY, null);
-                if (player.getItemBySlot(EquipmentSlot.CHEST).hasFoil()) submitNodeCollector.order(2).submitModelPart(armorModel.leftArmArmorThick, poseStack, RenderTypes.armorEntityGlint(), lightCoords, OverlayTexture.NO_OVERLAY, null);
+                if (player.getItemBySlot(EquipmentSlot.CHEST).hasFoil()) submitNodeCollector.order(2).submitModelPart(armorModel.leftArmArmorThick, poseStack, RenderTypes.trimmedArmorGlint(), lightCoords, OverlayTexture.NO_OVERLAY, null);
             }
         }
     }
@@ -102,14 +103,14 @@ public abstract class PlayerFeatureAdder extends LivingEntityRenderer<@NotNull A
         LocalPlayer player = Minecraft.getInstance().player;
         if (player == null) return;
         if (player.getItemBySlot(EquipmentSlot.CHEST).getItem() == AntiqueItems.MYRIAD_PAULDRONS) {
-            poseStack.mulPose(Axis.ZP.rotationDegrees(5));
+            poseStack.mulPose(Axis.ZP.rotationDegrees(5).get(new Matrix4f()));
             poseStack.translate(-0.325, 0.1, 0);
             if (slim) {
                 submitNodeCollector.order(1).submitModelPart(armorModel.rightArmArmor, poseStack, RENDER_LAYER, lightCoords, OverlayTexture.NO_OVERLAY, null);
-                if (player.getItemBySlot(EquipmentSlot.CHEST).hasFoil()) submitNodeCollector.order(2).submitModelPart(armorModel.rightArmArmor, poseStack, RenderTypes.armorEntityGlint(), lightCoords, OverlayTexture.NO_OVERLAY, null);
+                if (player.getItemBySlot(EquipmentSlot.CHEST).hasFoil()) submitNodeCollector.order(2).submitModelPart(armorModel.rightArmArmor, poseStack, RenderTypes.trimmedArmorGlint(), lightCoords, OverlayTexture.NO_OVERLAY, null);
             } else {
                 submitNodeCollector.order(1).submitModelPart(armorModel.rightArmArmorThick, poseStack, THICK_RENDER_LAYER, lightCoords, OverlayTexture.NO_OVERLAY, null);
-                if (player.getItemBySlot(EquipmentSlot.CHEST).hasFoil()) submitNodeCollector.order(2).submitModelPart(armorModel.rightArmArmorThick, poseStack, RenderTypes.armorEntityGlint(), lightCoords, OverlayTexture.NO_OVERLAY, null);
+                if (player.getItemBySlot(EquipmentSlot.CHEST).hasFoil()) submitNodeCollector.order(2).submitModelPart(armorModel.rightArmArmorThick, poseStack, RenderTypes.trimmedArmorGlint(), lightCoords, OverlayTexture.NO_OVERLAY, null);
             }
         }
     }

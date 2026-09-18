@@ -26,6 +26,7 @@ import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
+import org.joml.Matrix4f;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -47,8 +48,8 @@ public abstract class HeldItemRendererMixin<S extends ArmedEntityRenderState, M 
         if (state instanceof ArmedRenderStateAccess access) {
             poseStack.pushPose();
             this.getParentModel().translateToHand(state, arm, poseStack);
-            poseStack.mulPose(Axis.XP.rotationDegrees(-90.0F));
-            poseStack.mulPose(Axis.YP.rotationDegrees(180.0F));
+            poseStack.mulPose(Axis.XP.rotationDegrees(-90.0F).get(new Matrix4f()));
+            poseStack.mulPose(Axis.YP.rotationDegrees(180.0F).get(new Matrix4f()));
             boolean bl = arm == HumanoidArm.LEFT;
             poseStack.translate((float)(bl ? -1 : 1) / 16.0F, 0.125F, -0.625F);
             poseStack.translate(0, 0.6, 0);

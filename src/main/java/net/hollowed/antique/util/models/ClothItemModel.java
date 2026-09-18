@@ -26,6 +26,7 @@ import net.minecraft.client.renderer.item.ModelRenderProperties;
 import net.minecraft.client.resources.model.*;
 import net.minecraft.client.resources.model.cuboid.ItemModelGenerator;
 import net.minecraft.client.resources.model.geometry.BakedQuad;
+import net.minecraft.client.resources.model.geometry.ItemQuads;
 import net.minecraft.client.resources.model.sprite.Material;
 import net.minecraft.client.resources.model.sprite.TextureSlots;
 import net.minecraft.resources.Identifier;
@@ -106,7 +107,7 @@ public class ClothItemModel implements ItemModel {
 		layer.setExtents(this.extents);
 		layer.setUsesBlockLight(false);
 		this.settings.applyToLayer(layer, displayContext);
-		layer.prepareQuadList().addAll(selected);
+		layer.setQuads(ItemQuads.split(selected));
 
 		if (level != null && ClothSkinData.getHolderFromKey(cloth, level).map(skin -> skin.value().dyeable()).orElse(false)) {
 			IntList tintLayers = layer.tintLayers();

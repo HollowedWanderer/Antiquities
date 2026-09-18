@@ -44,6 +44,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
+import org.joml.Matrix4f;
 import org.jspecify.annotations.NonNull;
 
 import java.util.List;
@@ -83,10 +84,10 @@ public class PedestalRenderer implements BlockEntityRenderer<@NotNull PedestalBl
         poseStack.pushPose();
         poseStack.translate(offset.x, offset.y, offset.z);
         poseStack.translate(translations.getFirst(), translations.get(1), translations.get(2));
-        poseStack.mulPose(Axis.YP.rotationDegrees(yRot));
-        poseStack.mulPose(Axis.XP.rotationDegrees(rotations.getFirst()));
-        poseStack.mulPose(Axis.YP.rotationDegrees(rotations.get(1)));
-        poseStack.mulPose(Axis.ZP.rotationDegrees(rotations.get(2)));
+        poseStack.mulPose(Axis.YP.rotationDegrees(yRot).get(new Matrix4f()));
+        poseStack.mulPose(Axis.XP.rotationDegrees(rotations.getFirst()).get(new Matrix4f()));
+        poseStack.mulPose(Axis.YP.rotationDegrees(rotations.get(1)).get(new Matrix4f()));
+        poseStack.mulPose(Axis.ZP.rotationDegrees(rotations.get(2)).get(new Matrix4f()));
         poseStack.scale(0.6f, 0.6f, 0.6f);
         poseStack.scale(scales.getFirst(), scales.get(1), scales.get(2));
 
@@ -126,7 +127,7 @@ public class PedestalRenderer implements BlockEntityRenderer<@NotNull PedestalBl
 
             matrices.translate(offset.x, offset.y, offset.z);
             matrices.translate(0, entity.getBbHeight() / 2.0, 0);
-            matrices.mulPose(Axis.YP.rotationDegrees(yRot));
+            matrices.mulPose(Axis.YP.rotationDegrees(yRot).get(new Matrix4f()));
             if (stack.get(DataComponents.CUSTOM_NAME) != null) {
                 entityState.nameTag = stack.get(DataComponents.CUSTOM_NAME);
             }

@@ -35,7 +35,7 @@ public class PedestalTooltipRenderer {
         int posY = screenHeight / 2 - textList.size() * 10 / 2;
 
         // Render the tooltip
-        context.tooltip(client.font, components, posX, posY, DefaultTooltipPositioner.INSTANCE, itemStack.get(DataComponents.TOOLTIP_STYLE));
+        context.tooltip(client.font, components, posX, posY, DefaultTooltipPositioner.INSTANCE, itemStack.get(DataComponents.TOOLTIP_STYLE), false);
     }
 
     public static void renderTooltip(GuiGraphicsExtractor context, int screenWidth, int screenHeight) {

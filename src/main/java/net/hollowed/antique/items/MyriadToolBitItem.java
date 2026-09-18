@@ -20,8 +20,10 @@ public abstract class MyriadToolBitItem extends ShearsItem {
      * A method that allows the tool bits to set the attributes of the Myriad Tool they are placed in
      *
      * @param stack - the ItemStack of the Myriad Tool
+     * @param level - the level of the Player calling the action
+     *
      */
-    public abstract void setToolAttributes(ItemStack stack);
+    public abstract void setToolAttributes(ItemStack stack, Level level);
 
     /**
      * Gets called when the Myriad Tool hosting the tool bit has stopped being used

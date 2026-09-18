@@ -112,7 +112,7 @@ public class Shockwave {
 
     public void pushEntity(Node node, Entity entity, double speed) {
         entity.addDeltaMovement(node.path[node.path.length - 1].getUnitVec3().multiply(speed, speed, speed));
-        entity.hurtMarked = true;
+        entity.syncVelocity = true;
     }
 
     public void spawnTravelParticles(ServerLevel level, Node node) {

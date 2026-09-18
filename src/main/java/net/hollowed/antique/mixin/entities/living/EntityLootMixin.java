@@ -6,6 +6,7 @@ import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.TagKey;
+import net.minecraft.util.Prediction;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
@@ -44,9 +45,10 @@ public abstract class EntityLootMixin extends Entity {
 
     @Shadow protected abstract void dropExperience(ServerLevel level, @Nullable Entity killer);
 
-    @Shadow @Nullable public abstract ItemEntity drop(ItemStack itemStack, boolean randomly, boolean thrownFromHand);
-
     @Shadow protected abstract boolean shouldDropLoot(ServerLevel level);
+
+    @Shadow
+    public abstract @org.jspecify.annotations.Nullable ItemEntity drop(ItemStack itemStack, boolean thrownFromHand, Prediction prediction);
 
     @Inject(method = "dropAllDeathLoot", at = @At("HEAD"))
     public void drop(ServerLevel level, DamageSource source, CallbackInfo ci) {
@@ -71,7 +73,7 @@ public abstract class EntityLootMixin extends Entity {
             if ((LivingEntity) (Object) this instanceof Player player) {
                 ItemStack stack = Items.PLAYER_HEAD.getDefaultInstance();
                 stack.set(DataComponents.PROFILE, ResolvableProfile.createUnresolved(player.getUUID()));
-                this.drop(stack, true, false);
+                this.drop(stack, true, Prediction.PREDICTED);
             }
         }
     }

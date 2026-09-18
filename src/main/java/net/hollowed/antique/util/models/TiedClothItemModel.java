@@ -38,6 +38,7 @@ import net.minecraft.client.renderer.item.ModelRenderProperties;
 import net.minecraft.client.resources.model.*;
 import net.minecraft.client.resources.model.cuboid.ItemModelGenerator;
 import net.minecraft.client.resources.model.geometry.BakedQuad;
+import net.minecraft.client.resources.model.geometry.ItemQuads;
 import net.minecraft.client.resources.model.sprite.Material;
 import net.minecraft.client.resources.model.sprite.TextureSlots;
 import net.minecraft.resources.Identifier;
@@ -143,7 +144,7 @@ public class TiedClothItemModel implements ItemModel {
 		if (glint != null) baseLayer.setFoilType(glint);
 		baseLayer.setExtents(this.extents);
 		this.settings.applyToLayer(baseLayer, context);
-		baseLayer.prepareQuadList().addAll(this.baseQuads);
+		baseLayer.setQuads(ItemQuads.split(this.baseQuads));
 
 		ItemStackRenderState.LayerRenderState tintLayer = state.newLayer();
 		if (glint != null) tintLayer.setFoilType(glint);
@@ -151,7 +152,7 @@ public class TiedClothItemModel implements ItemModel {
 		this.settings.applyToLayer(tintLayer, context);
 
 		if (selected != null) {
-			tintLayer.prepareQuadList().addAll(selected);
+			tintLayer.setQuads(ItemQuads.split(selected));
 		}
 
 		IntList tintLayers = tintLayer.tintLayers();

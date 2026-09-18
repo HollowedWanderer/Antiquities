@@ -1,7 +1,7 @@
 package net.hollowed.antique.blocks;
 
 import com.mojang.math.OctahedralGroup;
-import com.mojang.serialization.MapCodec;
+
 import java.util.Map;
 import java.util.function.BiConsumer;
 
@@ -47,7 +47,6 @@ import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 public class OrnateBellBlock extends BaseEntityBlock {
-	public static final MapCodec<OrnateBellBlock> CODEC = simpleCodec(OrnateBellBlock::new);
 	public static final EnumProperty<Direction> FACING = HorizontalDirectionalBlock.FACING;
 	public static final EnumProperty<BellAttachType> ATTACHMENT = BlockStateProperties.BELL_ATTACHMENT;
 	public static final BooleanProperty POWERED = BlockStateProperties.POWERED;
@@ -57,11 +56,6 @@ public class OrnateBellBlock extends BaseEntityBlock {
 	private static final Map<Direction.Axis, VoxelShape> SHAPE_WALL = Shapes.rotateHorizontalAxis(
 		Shapes.or(BELL_SHAPE, Block.box(6.0, 8.0, 0.0, 10.0, 12.0, 2.0), Block.box(6.0, 8.0, 14.0, 10.0, 12.0, 16.0))
 	);
-
-	@Override
-	public @NonNull MapCodec<OrnateBellBlock> codec() {
-		return CODEC;
-	}
 
 	public OrnateBellBlock(final BlockBehaviour.Properties properties) {
 		super(properties);

@@ -67,7 +67,7 @@ public abstract class MyriadAxeBlockMixin extends Entity implements Attackable {
                 if (source.getDirectEntity() instanceof LivingEntity attacker) {
                     Vec3 knockbackDirection = attacker.position().subtract(player.position()).normalize();
                     attacker.knockback(0.25, -knockbackDirection.x, -knockbackDirection.z, source, 0);
-                    attacker.hurtMarked = true;
+                    attacker.syncVelocity = true;
                     attacker.needsSync = true;
                 }
             }

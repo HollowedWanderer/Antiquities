@@ -19,6 +19,7 @@ import net.hollowed.antique.items.components.MyriadToolComponent;
 import net.hollowed.antique.networking.*;
 import net.hollowed.antique.util.resources.*;
 import net.hollowed.antique.util.delay.TickDelayScheduler;
+import net.minecraft.client.Minecraft;
 import net.minecraft.core.Registry;
 import net.minecraft.core.component.DataComponentMap;
 import net.minecraft.core.component.DataComponents;
@@ -130,7 +131,7 @@ public class Antiquities implements ModInitializer {
 		DefaultItemComponentEvents.MODIFY.register(ctx -> ctx.modify(
 				List.of(Items.WOODEN_SPEAR, Items.STONE_SPEAR, Items.IRON_SPEAR, Items.GOLDEN_SPEAR, Items.DIAMOND_SPEAR, Items.NETHERITE_SPEAR),
 				(builder, _) -> builder.set(
-						DataComponents.SWING_ANIMATION, new SwingAnimation(SwingAnimationType.STAB, (int)((1.0 / (getAttackSpeed(builder) + 4) - 0.1) * 20.0F))
+						DataComponents.ATTACK_ANIMATION, new SwingAnimation(SwingAnimationType.STAB, (int)((1.0 / (getAttackSpeed(builder) + 4) - 0.1) * 20.0F))
 				).set(
 						DataComponents.ATTRIBUTE_MODIFIERS,
 						ItemAttributeModifiers.builder()
@@ -151,7 +152,7 @@ public class Antiquities implements ModInitializer {
 		DefaultItemComponentEvents.MODIFY.register(ctx -> ctx.modify(
 				List.of(Items.COPPER_SPEAR),
 				(builder, _) -> builder.set(
-						DataComponents.SWING_ANIMATION, new SwingAnimation(SwingAnimationType.STAB, (int)((1.0 / (getAttackSpeed(builder) + 4) - 0.1) * 20.0F))
+						DataComponents.ATTACK_ANIMATION, new SwingAnimation(SwingAnimationType.STAB, (int)((1.0 / (getAttackSpeed(builder) + 4) - 0.1) * 20.0F))
 				).set(
 						DataComponents.ATTRIBUTE_MODIFIERS,
 						ItemAttributeModifiers.builder()
@@ -173,7 +174,7 @@ public class Antiquities implements ModInitializer {
 				List.of(Items.TRIDENT),
 				(builder, _) -> builder
 						.set(
-								DataComponents.SWING_ANIMATION, new SwingAnimation(SwingAnimationType.STAB, 18)
+								DataComponents.ATTACK_ANIMATION, new SwingAnimation(SwingAnimationType.STAB, 18)
 						).set(
 								DataComponents.ATTRIBUTE_MODIFIERS,
 								ItemAttributeModifiers.builder()
@@ -307,19 +308,19 @@ public class Antiquities implements ModInitializer {
 
 			ItemStack myriadMattock = AntiqueItems.MYRIAD_TOOL.getDefaultInstance();
 			myriadMattock.set(AntiqueDataComponentTypes.MYRIAD_TOOL, MyriadToolComponent.getDefaultWithCloth());
-			MyriadToolItem.setToolBit(myriadMattock, AntiqueItems.MYRIAD_PICK_HEAD.getDefaultInstance());
+			MyriadToolItem.setToolBit(myriadMattock, AntiqueItems.MYRIAD_PICK_HEAD.getDefaultInstance(), Minecraft.getInstance().level);
 			itemGroup.accept(myriadMattock);
 
 			ItemStack myriadAxe = AntiqueItems.MYRIAD_TOOL.getDefaultInstance();
 			myriadAxe.set(AntiqueDataComponentTypes.MYRIAD_TOOL, MyriadToolComponent.getDefaultWithCloth());
-			MyriadToolItem.setToolBit(myriadAxe, AntiqueItems.MYRIAD_AXE_HEAD.getDefaultInstance());
+			MyriadToolItem.setToolBit(myriadAxe, AntiqueItems.MYRIAD_AXE_HEAD.getDefaultInstance(), Minecraft.getInstance().level);
 			itemGroup.accept(myriadAxe);
 
 			itemGroup.accept(getMyriadShovelStack());
 
 			ItemStack myriadCleaver = AntiqueItems.MYRIAD_TOOL.getDefaultInstance();
 			myriadCleaver.set(AntiqueDataComponentTypes.MYRIAD_TOOL, MyriadToolComponent.getDefaultWithCloth());
-			MyriadToolItem.setToolBit(myriadCleaver, AntiqueItems.MYRIAD_CLEAVER_BLADE.getDefaultInstance());
+			MyriadToolItem.setToolBit(myriadCleaver, AntiqueItems.MYRIAD_CLEAVER_BLADE.getDefaultInstance(), Minecraft.getInstance().level);
 			itemGroup.accept(myriadCleaver);
 
 			itemGroup.accept(AntiqueItems.MYRIAD_PICK_HEAD);
@@ -382,7 +383,7 @@ public class Antiquities implements ModInitializer {
 	public static ItemStack getMyriadShovelStack() {
 		ItemStack myriadShovel = AntiqueItems.MYRIAD_TOOL.getDefaultInstance();
 		myriadShovel.set(AntiqueDataComponentTypes.MYRIAD_TOOL, MyriadToolComponent.getDefaultWithCloth());
-		MyriadToolItem.setToolBit(myriadShovel, AntiqueItems.MYRIAD_SHOVEL_HEAD.getDefaultInstance());
+		MyriadToolItem.setToolBit(myriadShovel, AntiqueItems.MYRIAD_SHOVEL_HEAD.getDefaultInstance(), Minecraft.getInstance().level);
 		return myriadShovel;
 	}
 }

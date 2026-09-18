@@ -200,13 +200,13 @@ public class MyriadShovelEntity extends AbstractArrow {
 				EnchantmentHelper.doPostAttackEffectsWithItemSourceOnBreak(serverWorld, entity, damageSource, this.getWeaponItem(), _ -> this.kill(serverWorld));
 				if (entity instanceof LivingEntity) {
 					entity.setDeltaMovement(this.getDeltaMovement().multiply(0.6, 0.45, 0.6));
-					entity.hurtMarked = true;
+					entity.syncVelocity = true;
 				}
 			}
 		}
 
 		if (this.getPierceLevel() <= 0) {
-			this.deflect(ProjectileDeflection.REVERSE, entity, null, false);
+			this.deflect(ProjectileDeflection.REVERSE, entity, null, false, new Vec3(1, 1, 1));
 			this.setDeltaMovement(this.getDeltaMovement().multiply(0.2, 0.2, 0.02));
 			this.playSound(SoundEvents.TRIDENT_HIT, 1.0F, 1.0F);
 		}

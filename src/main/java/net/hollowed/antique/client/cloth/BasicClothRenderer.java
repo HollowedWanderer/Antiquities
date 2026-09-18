@@ -45,7 +45,7 @@ public class BasicClothRenderer implements ClothRenderer {
 
     private static final double CAMERA_FOV_DECAY = .1;
 
-    public static final RenderType CLOTH_RENDER_LAYER = RenderTypes.entityTranslucentCullItemTarget(AntiquitiesClient.CLOTHS_ATLAS_TEXTURE);
+    public static final RenderType CLOTH_RENDER_LAYER = RenderTypes.entityTranslucentCull(AntiquitiesClient.CLOTHS_ATLAS_TEXTURE);
 
     public final List<ClothSprite> sprites;
 

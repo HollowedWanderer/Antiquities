@@ -38,8 +38,8 @@ public class ClothEntityRenderer extends EntityRenderer<@NotNull ClothEntity, @N
 	@Override
 	public void submit(@NonNull ClothRenderState state, @NonNull PoseStack poseStack, @NotNull SubmitNodeCollector queue, @NotNull CameraRenderState cameraState) {
 		ClothUtil.getClothData(state.cloth, state.entity.registryAccess()).ifPresent(cloth -> {
-			poseStack.pushPose();
-
+//			poseStack.pushPose();
+//
 			Identifier modelId = cloth.value().model().orElseGet(() -> cloth.unwrapKey().orElseThrow().identifier());
 			ClothModelData model = ClothModelListener.MODELS.get(modelId);
 
@@ -57,14 +57,14 @@ public class ClothEntityRenderer extends EntityRenderer<@NotNull ClothEntity, @N
 							OverlayTexture.NO_OVERLAY,
 							sprite.tint() ? ClothUtil.getDynamicClothColor(state.cloth, state.entity.registryAccess()).orElse(0xFFFFFFFF) : 0xFFFFFFFF,
 							null,
-							state.outlineColor,
-							null
+							state.outlineColor
 					);
 				}
 
 				poseStack.popPose();
 			}
 
+			// This is what freezes the game
 			ClothManager manager = ClothManager.getOrCreate(new ClothOwner.OfEntity(state.entity), Antiquities.id("spade"), cloth.value());
 
 			if (manager != null) {

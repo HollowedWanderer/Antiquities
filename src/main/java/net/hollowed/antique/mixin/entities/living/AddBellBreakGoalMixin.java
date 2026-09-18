@@ -24,7 +24,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
         Spider.class,
         Ravager.class,
         AbstractSkeleton.class,
-        EnderMan.class,
+        Enderman.class,
         Silverfish.class,
         Endermite.class
 })

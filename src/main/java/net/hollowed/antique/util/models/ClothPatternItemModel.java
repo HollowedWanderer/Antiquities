@@ -23,6 +23,7 @@ import net.minecraft.client.resources.model.ModelBaker;
 import net.minecraft.client.resources.model.ResolvedModel;
 import net.minecraft.client.resources.model.cuboid.ItemModelGenerator;
 import net.minecraft.client.resources.model.geometry.BakedQuad;
+import net.minecraft.client.resources.model.geometry.ItemQuads;
 import net.minecraft.client.resources.model.sprite.Material;
 import net.minecraft.client.resources.model.sprite.TextureSlots;
 import net.minecraft.resources.Identifier;
@@ -103,7 +104,7 @@ public class ClothPatternItemModel implements ItemModel {
 		this.settings.applyToLayer(layer, displayContext);
 
 		if (selected != null) {
-			layer.prepareQuadList().addAll(selected);
+			layer.setQuads(ItemQuads.split(selected));
 		}
 
 		if (this.animated) {

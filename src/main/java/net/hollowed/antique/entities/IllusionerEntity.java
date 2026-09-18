@@ -23,6 +23,9 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.tags.BlockTags;
+import net.minecraft.tags.FluidTags;
+import net.minecraft.util.BlockUtil;
 import net.minecraft.util.Mth;
 import net.minecraft.world.Difficulty;
 import net.minecraft.world.DifficultyInstance;
@@ -56,6 +59,8 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.item.component.ChargedProjectiles;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -147,7 +152,7 @@ public class IllusionerEntity extends SpellcasterIllager implements RangedAttack
         clone.setTarget(this.getTarget());
         clone.setYBodyRot(this.getVisualRotationYInDegrees());
         clone.setYHeadRot(this.getYHeadRot());
-        if (IllusionerCloneEntity.teleportRandomly(this)) {
+        if (teleportRandomly()) {
             this.level().addFreshEntity(clone);
         }
         super.actuallyHurt(world, source, amount);
@@ -217,6 +222,50 @@ public class IllusionerEntity extends SpellcasterIllager implements RangedAttack
         }
     }
 
+    public boolean teleportRandomly() {
+        if (this.isAlive()) {
+            for (int i = 0; i < 10; i++) {
+                double d = this.getX() + (this.getRandom().nextDouble() - 0.5) * 16.0;
+                double e = this.getY() + (double) (this.getRandom().nextInt(16) - 8);
+                double f = this.getZ() + (this.getRandom().nextDouble() - 0.5) * 16.0;
+                if (teleport(d, e, f)) {
+                    return true;
+                }
+            }
+            return false;
+        }
+        return false;
+    }
+
+    @Override
+    public boolean canRandomlyTeleportTo(final double x, final double y, final double z) {
+        BlockPos posBelow = BlockPos.containing(x, y, z).below();
+        BlockState stateBelow = this.level().getBlockState(posBelow);
+        return !stateBelow.getFluidState().is(FluidTags.WATER);
+    }
+
+    public boolean teleport(final double x, final double y, final double z) {
+        if (this.isPassenger()) {
+            return false;
+        }
+
+        Vec3 oldPos = this.position();
+        boolean result = this.randomTeleport(x, y, z, true, BlockTags.ENDERMAN_DOES_NOT_TELEPORT_TO);
+        if (result) {
+            Level level = this.level();
+            level.gameEvent(GameEvent.TELEPORT, oldPos, GameEvent.Context.of(this));
+            if (!this.isSilent()) {
+                BlockPos oldBlockPos = BlockPos.containing(oldPos);
+                int packedDiff = BlockUtil.clampedPackDifferenceInPosition(oldBlockPos, this.blockPosition(), 127, 127, 127);
+                level.levelEvent(2018, oldBlockPos, packedDiff);
+                level.playSound(null, this.xo, this.yo, this.zo, SoundEvents.ENDERMAN_TELEPORT, this.getSoundSource(), 1.0F, 1.0F);
+                this.playSound(SoundEvents.ENDERMAN_TELEPORT, 1.0F, 1.0F);
+            }
+        }
+
+        return result;
+    }
+
     protected SoundEvent getAmbientSound() {
         return SoundEvents.ILLUSIONER_AMBIENT;
     }
@@ -251,7 +300,7 @@ public class IllusionerEntity extends SpellcasterIllager implements RangedAttack
             Vec3 direction = this.position().subtract(target.position());
             projectile.setDeltaMovement(direction.normalize().scale(-1.75));
             projectile.setOwner(this);
-            projectile.hurtMarked = true;
+            projectile.syncVelocity = true;
             serverWorld.addFreshEntity(projectile);
         }
         this.playSound(SoundEvents.SKELETON_SHOOT, 1.0F, 1.0F / (this.getRandom().nextFloat() * 0.4F + 0.8F));

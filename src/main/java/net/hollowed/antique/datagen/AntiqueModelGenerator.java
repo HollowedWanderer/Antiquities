@@ -1,4 +1,4 @@
-package net.hollowed.antique.index;
+package net.hollowed.antique.datagen;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;

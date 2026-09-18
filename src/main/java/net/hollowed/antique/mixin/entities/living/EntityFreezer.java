@@ -13,7 +13,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public abstract class EntityFreezer implements net.hollowed.combatamenities.util.interfaces.EntityFreezer {
     @Shadow public abstract void setDeltaMovement(Vec3 deltaMovement);
 
-    @Shadow public boolean hurtMarked;
+    @Shadow
+    public boolean syncVelocity;
     @Unique
     boolean frozen;
     @Unique
@@ -34,7 +35,7 @@ public abstract class EntityFreezer implements net.hollowed.combatamenities.util
     public void tick(CallbackInfo ci) {
         if (this.frozen && this.time > 0) {
             this.setDeltaMovement(Vec3.ZERO);
-            this.hurtMarked = true;
+            this.syncVelocity = true;
             this.time--;
         }
     }

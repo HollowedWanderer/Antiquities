@@ -25,6 +25,7 @@ import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.ItemUtils;
+import net.minecraft.world.item.component.SwingAnimation;
 import net.minecraft.world.item.component.TooltipDisplay;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.item.context.UseOnContext;
@@ -132,7 +133,7 @@ public class SatchelItem extends Item {
             if (result.consumesAction()) {
                 placementContext.getLevel().playSound(null, pos, sound.getPlaceSound(), SoundSource.BLOCKS,
                         (sound.getVolume() + 1.0F) / 2.0F, sound.getPitch() * 0.8F);
-                Objects.requireNonNull(context.getPlayer()).swing(context.getHand(), true);
+                Objects.requireNonNull(context.getPlayer()).swing(context.getHand(), SwingAnimation.DEFAULT, true);
                 return true;
             }
         }

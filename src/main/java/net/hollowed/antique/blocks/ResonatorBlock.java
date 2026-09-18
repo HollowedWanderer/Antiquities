@@ -1,6 +1,5 @@
 package net.hollowed.antique.blocks;
 
-import com.mojang.serialization.MapCodec;
 import net.hollowed.antique.util.shockwave.Shockwave;
 import net.hollowed.antique.util.shockwave.ShockwaveManager;
 import net.minecraft.core.BlockPos;
@@ -30,7 +29,6 @@ import org.jspecify.annotations.Nullable;
 
 public class ResonatorBlock extends Block implements SimpleWaterloggedBlock {
     public static final IntegerProperty CHARGE = IntegerProperty.create("charge", 0, 15);
-    public static final MapCodec<ResonatorBlock> CODEC = simpleCodec(ResonatorBlock::new);
     private static final EnumProperty<FrontAndTop> ORIENTATION = BlockStateProperties.ORIENTATION;
     private static final BooleanProperty WATERLOGGED = BlockStateProperties.WATERLOGGED;
     private static final BooleanProperty POWERED = BlockStateProperties.POWERED;
@@ -44,11 +42,6 @@ public class ResonatorBlock extends Block implements SimpleWaterloggedBlock {
                         .setValue(POWERED, false)
                         .setValue(CHARGE, 0)
         );
-    }
-
-    @Override
-    protected @NonNull MapCodec<? extends ResonatorBlock> codec() {
-        return CODEC;
     }
 
     @Override
@@ -83,7 +76,7 @@ public class ResonatorBlock extends Block implements SimpleWaterloggedBlock {
             return signal;
         } else {
             BlockState otherState = level.getBlockState(otherPos);
-            return Math.max(signal, otherState.is(Blocks.REDSTONE_WIRE) ? otherState.getValue(RedStoneWireBlock.POWER) : 0);
+            return Math.max(signal, otherState.is(Blocks.REDSTONE_WIRE) ? otherState.getValue(RedstoneWireBlock.POWER) : 0);
         }
     }
 

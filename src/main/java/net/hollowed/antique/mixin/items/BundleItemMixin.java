@@ -15,6 +15,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.stats.Stats;
+import net.minecraft.util.Prediction;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.item.PrimedTnt;
@@ -72,15 +73,15 @@ public abstract class BundleItemMixin extends Item {
         if (other.is(AntiqueItems.MYRIAD_TOOL)) {
             BundleContents bundleContents = self.get(DataComponents.BUNDLE_CONTENTS);
             if (bundleContents != null) {
-                BundleContents.Mutable mutable = new BundleContents.Mutable(bundleContents);
+                BundleContents.Mutable mutable = bundleContents.asMutable();
                 MyriadToolComponent toolComponent = other.get(AntiqueDataComponentTypes.MYRIAD_TOOL);
                 if (toolComponent != null) {
                     ItemStack replacementStack = toolComponent.toolBit();
-                    if (bundleContents.getSelectedItemIndex() != -1 && bundleContents.itemCopyStream().toList().get(bundleContents.getSelectedItemIndex()).getItem() instanceof MyriadToolBitItem) {
+                    if (bundleContents.getSelectedItemIndex() != -1 && bundleContents.itemCopies().toList().get(bundleContents.getSelectedItemIndex()).getItem() instanceof MyriadToolBitItem) {
                         ItemStack toolBitStack = mutable.removeOne();
 
                         if (toolBitStack != null) {
-                            MyriadToolItem.setToolBit(other, toolBitStack);
+                            MyriadToolItem.setToolBit(other, toolBitStack, player.level());
                             playRemoveOneSound(player);
                             if (!replacementStack.isEmpty() && !(slot.allowModification(player) && mutable.tryInsert(replacementStack) > 0)) {
                                 playInsertFailSound(player);
@@ -92,7 +93,7 @@ public abstract class BundleItemMixin extends Item {
                         cir.setReturnValue(true);
                     } else if (!replacementStack.isEmpty()) {
                         if (slot.allowModification(player) && mutable.tryInsert(replacementStack) > 0) {
-                            MyriadToolItem.setToolBit(other, ItemStack.EMPTY);
+                            MyriadToolItem.setToolBit(other, ItemStack.EMPTY, player.level());
                             playInsertSound(player);
                         } else {
                             playInsertFailSound(player);
@@ -129,7 +130,7 @@ public abstract class BundleItemMixin extends Item {
             BundleContents bundleContentsComponent = self.get(DataComponents.BUNDLE_CONTENTS);
             if (bundleContentsComponent == null) return;
 
-            BundleContents.Mutable builder = new BundleContents.Mutable(bundleContentsComponent);
+            BundleContents.Mutable builder = bundleContentsComponent.asMutable();
             ItemStack itemStack = builder.removeOne();
 
             if (itemStack != null) {
@@ -150,7 +151,7 @@ public abstract class BundleItemMixin extends Item {
             BundleContents bundleContentsComponent = self.get(DataComponents.BUNDLE_CONTENTS);
             if (bundleContentsComponent == null) return;
 
-            BundleContents.Mutable builder = new BundleContents.Mutable(bundleContentsComponent);
+            BundleContents.Mutable builder = bundleContentsComponent.asMutable();
             ItemStack itemStack = builder.removeOne();
 
             if (itemStack != null) {
@@ -192,7 +193,7 @@ public abstract class BundleItemMixin extends Item {
 
         boolean hasProjectingEnchantment = EnchantmentListener.hasEnchantment(self, AntiqueEnchantments.PROJECTING.identifier().toString());
 
-        BundleContents.Mutable builder = new BundleContents.Mutable(initialContents);
+        BundleContents.Mutable builder = initialContents.asMutable();
         ItemStack itemStack = builder.removeOne();
 
         if (hasProjectingEnchantment && itemStack != null) {
@@ -299,10 +300,10 @@ public abstract class BundleItemMixin extends Item {
                         handlePotionThrow(player, optional.get());
                     } else {
                         player.playSound(SoundEvents.BUNDLE_REMOVE_ONE, 0.8F, 0.8F + player.level().getRandom().nextFloat() * 0.4F);
-                        ItemEntity entity = player.drop(optional.get(), true);
+                        ItemEntity entity = player.drop(optional.get(), true, Prediction.PREDICTED);
                         if (entity != null) {
                             entity.setDeltaMovement(entity.getDeltaMovement().scale(2));
-                            entity.hurtMarked = true;
+                            entity.syncVelocity = true;
                         }
                     }
                 } else {

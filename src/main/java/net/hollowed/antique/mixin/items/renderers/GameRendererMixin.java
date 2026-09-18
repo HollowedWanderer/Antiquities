@@ -15,7 +15,7 @@ public class GameRendererMixin {
             method = "renderLevel",
             at = @At("HEAD")
     )
-    private void renderLevel(DeltaTracker deltaTracker, CallbackInfo ci) {
+    private void renderLevel(CallbackInfo ci) {
         if (Minecraft.getInstance().level instanceof ClothAccess access) {
             access.antique$startFrames();
         }

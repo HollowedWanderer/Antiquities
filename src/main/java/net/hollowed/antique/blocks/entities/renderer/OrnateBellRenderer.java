@@ -24,6 +24,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BellAttachType;
 import net.minecraft.world.phys.Vec3;
+import org.joml.Matrix4f;
 import org.jspecify.annotations.NonNull;
 
 @Environment(EnvType.CLIENT)
@@ -82,15 +83,15 @@ public class OrnateBellRenderer implements BlockEntityRenderer<OrnateBellBlockEn
 		poseStack.pushPose();
 		this.model.setupAnim(modelState);
 		poseStack.translate(0.5, 1.5, 0.5);
-		poseStack.mulPose(Axis.XP.rotationDegrees(180));
+		poseStack.mulPose(Axis.XP.rotationDegrees(180).get(new Matrix4f()));
 		if (state.facingDirection != null && state.facingDirection.getAxis().equals(Direction.Axis.X)) {
-			poseStack.mulPose(Axis.YP.rotationDegrees(90));
+			poseStack.mulPose(Axis.YP.rotationDegrees(90).get(new Matrix4f()));
 		}
 		if (state.facingDirection != null && (state.facingDirection.equals(Direction.SOUTH) || state.facingDirection.equals(Direction.WEST))) {
-			poseStack.mulPose(Axis.YP.rotationDegrees(180));
+			poseStack.mulPose(Axis.YP.rotationDegrees(180).get(new Matrix4f()));
 		}
 		submitNodeCollector.submitModel(
-				this.model, modelState, poseStack, state.lightCoords, OverlayTexture.NO_OVERLAY, -1, state.emblazoned ? EMBLAZONED_BELL_TEXTURE : ORNATE_BELL_TEXTURE, this.sprites, 0, state.breakProgress
+				this.model, modelState, poseStack, state.lightCoords, OverlayTexture.NO_OVERLAY, -1, state.emblazoned ? EMBLAZONED_BELL_TEXTURE : ORNATE_BELL_TEXTURE, this.sprites, 0
 		);
 		poseStack.popPose();
 	}

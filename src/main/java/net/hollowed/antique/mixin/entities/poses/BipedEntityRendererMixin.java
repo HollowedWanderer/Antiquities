@@ -21,9 +21,9 @@ public class BipedEntityRendererMixin<T extends Mob> {
     private void getArmPose(T player, HumanoidArm arm, CallbackInfoReturnable<HumanoidModel.ArmPose> cir) {
         ItemStack itemStack = player.getItemHeldByArm(arm);
         if (itemStack.tags().toList().contains(TagKey.create(Registries.ITEM, Antiquities.id("two_handed")))) {
-            if (!player.isUsingItem() && !player.swinging && !player.isShiftKeyDown()) {
+            if (!player.isUsingItem() && !player.isSwinging() && !player.isShiftKeyDown()) {
                 cir.setReturnValue(HumanoidModel.ArmPose.CROSSBOW_CHARGE);
-            } else if (player.isShiftKeyDown() || player.swinging) {
+            } else if (player.isShiftKeyDown() || player.isSwinging()) {
                 cir.setReturnValue(HumanoidModel.ArmPose.CROSSBOW_HOLD);
             }
         }

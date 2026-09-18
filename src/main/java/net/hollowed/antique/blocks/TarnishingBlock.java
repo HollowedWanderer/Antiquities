@@ -37,7 +37,7 @@ public class TarnishingBlock extends Block {
 				world.setBlock(pos, optional.get(), Block.UPDATE_ALL_IMMEDIATE);
 				world.gameEvent(GameEvent.BLOCK_CHANGE, pos, GameEvent.Context.of(null, optional.get()));
 				world.playSound(player, pos, SoundEvents.HONEYCOMB_WAX_ON, SoundSource.BLOCKS, 1.0F, 1.0F);
-				world.levelEvent(player, LevelEvent.PARTICLES_AND_SOUND_WAX_ON, pos, 0);
+				world.levelEvent(player, LevelEvent.PARTICLES_WAX_ON, pos, 0);
 				stack.consume(1, player);
 				return InteractionResult.SUCCESS;
 			}

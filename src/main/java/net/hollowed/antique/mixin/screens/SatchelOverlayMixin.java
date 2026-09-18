@@ -110,7 +110,7 @@ public class SatchelOverlayMixin {
                 Component text = selectedStack.getStyledHoverName();
                 int i = textRenderer.width(text.getVisualOrderText());
                 ClientTooltipComponent tooltipComponent = ClientTooltipComponent.create(text.getVisualOrderText());
-                graphics.tooltip(textRenderer, List.of(tooltipComponent), x - 12 - i /2, y - 15, DefaultTooltipPositioner.INSTANCE, selectedStack.get(DataComponents.TOOLTIP_STYLE));
+                graphics.tooltip(textRenderer, List.of(tooltipComponent), x - 12 - i /2, y - 15, DefaultTooltipPositioner.INSTANCE, selectedStack.get(DataComponents.TOOLTIP_STYLE), false);
 
             }
 

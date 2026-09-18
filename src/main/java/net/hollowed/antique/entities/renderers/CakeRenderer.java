@@ -18,6 +18,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.Items;
 import org.jetbrains.annotations.NotNull;
+import org.joml.Matrix4f;
 import org.jspecify.annotations.NonNull;
 
 @Environment(EnvType.CLIENT)
@@ -42,9 +43,9 @@ public class CakeRenderer<T extends Entity> extends EntityRenderer<T, @org.jetbr
     public void submit(ArrowRenderState renderState, PoseStack matrixStack, @NotNull SubmitNodeCollector queue, @NotNull CameraRenderState cameraState) {
         matrixStack.pushPose();
 
-        matrixStack.mulPose(Axis.YP.rotationDegrees(renderState.yRot - 90.0F));
-        matrixStack.mulPose(Axis.ZP.rotationDegrees(renderState.xRot));
-        matrixStack.mulPose(Axis.ZP.rotationDegrees(-90));
+        matrixStack.mulPose(Axis.YP.rotationDegrees(renderState.yRot - 90.0F).get(new Matrix4f()));
+        matrixStack.mulPose(Axis.ZP.rotationDegrees(renderState.xRot).get(new Matrix4f()));
+        matrixStack.mulPose(Axis.ZP.rotationDegrees(-90).get(new Matrix4f()));
 
         ItemStackRenderState stackRenderState = new ItemStackRenderState();
         Minecraft.getInstance().getItemModelResolver().appendItemLayers(stackRenderState, Items.CAKE.getDefaultInstance(), ItemDisplayContext.NONE, Minecraft.getInstance().level, null, 1);

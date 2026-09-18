@@ -43,7 +43,7 @@ public interface AntiqueBlocks {
             .mapColor(MapColor.METAL)
             .strength(5.0F)
             .forceSolidOn()
-            .pushReaction(PushReaction.DESTROY)
+            .pushReaction(PushReaction.POPPED)
             ), Rarity.COMMON
     );
     Block EMBLAZONED_BELL = register("emblazoned_bell", settings -> new OrnateBellBlock(settings
@@ -51,7 +51,7 @@ public interface AntiqueBlocks {
                     .mapColor(MapColor.METAL)
                     .strength(5.0F)
                     .forceSolidOn()
-                    .pushReaction(PushReaction.DESTROY)
+                    .pushReaction(PushReaction.POPPED)
             ), Rarity.COMMON
     );
     Block DYE_TABLE = register("dye_table", settings -> new DyeTableBlock(settings
@@ -138,7 +138,7 @@ public interface AntiqueBlocks {
             ), Rarity.COMMON
     );
     Block IVY = register("ivy", settings -> new GlowLichenBlock(settings
-            .pushReaction(PushReaction.DESTROY)
+            .pushReaction(PushReaction.POPPED)
             .sound(SoundType.CAVE_VINES)
             .mapColor(MapColor.COLOR_GREEN)
             .strength(0.2F)
@@ -151,7 +151,7 @@ public interface AntiqueBlocks {
             .instrument(NoteBlockInstrument.IRON_XYLOPHONE)
             .sound(AntiqueBlockSoundGroup.HOLLOW_CORE)
             .strength(10F, 1200F)
-            .pushReaction(PushReaction.NORMAL)
+            .pushReaction(PushReaction.PUSH_PULL)
             .mapColor(MapColor.METAL)
             .noOcclusion()
             ), Rarity.UNCOMMON

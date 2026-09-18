@@ -13,6 +13,7 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.PathfinderMob;
 import net.minecraft.world.entity.ai.goal.MoveToBlockGoal;
+import net.minecraft.world.item.component.SwingAnimation;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.LevelReader;
@@ -119,7 +120,7 @@ public class RemoveBellGoal extends MoveToBlockGoal {
                 }
             }
 
-            if (this.ticksSinceReachedGoal % 8 == 0) this.removerMob.swing(InteractionHand.MAIN_HAND);
+            if (this.ticksSinceReachedGoal % 8 == 0) this.removerMob.swing(InteractionHand.MAIN_HAND, SwingAnimation.DEFAULT);
             if (this.ticksSinceReachedGoal % 2 == 0) {
                 if (this.ticksSinceReachedGoal % 6 == 0) {
                     this.playDestroyProgressSound(level, this.blockPos);

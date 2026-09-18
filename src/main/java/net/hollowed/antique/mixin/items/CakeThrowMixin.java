@@ -10,6 +10,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.component.SwingAnimation;
 import net.minecraft.world.level.Level;
 import net.hollowed.antique.entities.CakeEntity;
 import org.spongepowered.asm.mixin.Mixin;
@@ -24,7 +25,7 @@ public class CakeThrowMixin {
     public void use(Level level, Player player, InteractionHand hand, CallbackInfoReturnable<InteractionResult> cir) {
         if (player.getItemInHand(hand).is(Items.CAKE)) {
             ItemStack stack = player.getItemInHand(hand);
-            player.swing(hand, true);
+            player.swing(hand, SwingAnimation.DEFAULT, true);
             if (!level.isClientSide()) {
                 CakeEntity cake = new CakeEntity(AntiqueEntities.CAKE_ENTITY, level);
                 cake.setPosRaw(player.getX(), player.getY() + 1.5, player.getZ());

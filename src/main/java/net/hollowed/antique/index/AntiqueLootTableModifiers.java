@@ -1,6 +1,7 @@
 package net.hollowed.antique.index;
 
 import net.fabricmc.fabric.api.loot.v3.LootTableEvents;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.storage.loot.LootPool;
@@ -8,8 +9,7 @@ import net.minecraft.world.level.storage.loot.entries.LootItem;
 import net.minecraft.world.level.storage.loot.functions.EnchantRandomlyFunction;
 import net.minecraft.world.level.storage.loot.functions.SetItemCountFunction;
 import net.minecraft.world.level.storage.loot.predicates.LootItemRandomChanceCondition;
-import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
-import net.minecraft.world.level.storage.loot.providers.number.UniformGenerator;
+import net.minecraft.world.level.storage.loot.providers.number.ints.ContextIntProviders;
 
 public class AntiqueLootTableModifiers {
     private static final Identifier TRIAL_VAULT =
@@ -32,10 +32,10 @@ public class AntiqueLootTableModifiers {
             // Add Hollow Core to trial vault
             if (id.identifier().equals(TRIAL_VAULT)) {
                 LootPool.Builder poolBuilder = LootPool.lootPool()
-                        .setRolls(ConstantValue.exactly(1))
+                        .setRolls(ContextIntProviders.exactly(1))
                         .when(LootItemRandomChanceCondition.randomChance(0.2f))
                         .add(LootItem.lootTableItem(AntiqueBlocks.HOLLOW_CORE))
-                        .apply(SetItemCountFunction.setCount(UniformGenerator.between(1.0f, 1.0f)).build());
+                        .apply(SetItemCountFunction.setCount(ContextIntProviders.exactly(1)).build());
                 tableBuilder.pool(poolBuilder.build());
             }
 
@@ -44,9 +44,9 @@ public class AntiqueLootTableModifiers {
                 if (id.identifier().equals(chestId)) {
                     LootPool.Builder enchantedBundlePool = LootPool.lootPool()
                             .when(LootItemRandomChanceCondition.randomChance(0.5f)) // 50% chance to appear
-                            .setRolls(ConstantValue.exactly(1))
+                            .setRolls(ContextIntProviders.exactly(1))
                             .add(LootItem.lootTableItem(Items.BUNDLE)
-                                    .apply(EnchantRandomlyFunction.randomApplicableEnchantment(registries))); // Random enchant
+                                    .apply(EnchantRandomlyFunction.randomApplicableEnchantment(registries.lookupOrThrow(Registries.ENCHANTMENT)))); // Random enchant
 
                     tableBuilder.pool(enchantedBundlePool.build());
                 }

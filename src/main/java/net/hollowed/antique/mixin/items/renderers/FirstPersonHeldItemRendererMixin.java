@@ -11,20 +11,20 @@ import net.hollowed.antique.util.resources.ClothSkinData;
 import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GameRenderer;
-import net.minecraft.client.renderer.ItemInHandRenderer;
 import net.minecraft.client.renderer.Projection;
 import net.minecraft.client.renderer.SubmitNodeCollector;
+import net.minecraft.client.renderer.item.ItemStackRenderState;
 import net.minecraft.client.renderer.state.level.CameraRenderState;
 import net.minecraft.core.Holder;
+import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.HumanoidArm;
-import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemDisplayContext;
-import net.minecraft.world.item.ItemStack;
 
 import org.joml.Matrix4f;
 import org.joml.Quaternionf;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -33,85 +33,89 @@ import com.mojang.blaze3d.vertex.PoseStack;
 
 import java.util.Optional;
 
-@Mixin(ItemInHandRenderer.class)
+@Mixin(ItemStackRenderState.class)
 public abstract class FirstPersonHeldItemRendererMixin {
 
-    @Inject(method = "renderItem(Lnet/minecraft/world/entity/LivingEntity;Lnet/minecraft/world/item/ItemStack;Lnet/minecraft/world/item/ItemDisplayContext;Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/SubmitNodeCollector;I)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/item/ItemStack;isEmpty()Z"))
-    public void renderItem(LivingEntity mob, ItemStack itemStack, ItemDisplayContext type, PoseStack poseStack, SubmitNodeCollector submitNodeCollector, int lightCoords, CallbackInfo ci) {
-        poseStack.pushPose();
-        boolean leftHanded = mob.getMainArm() == HumanoidArm.LEFT;
-        poseStack.translate((float)(leftHanded ? -1 : 1) / 16.0F, 0.125F, -0.625F);
-        switch (type) {
-            case ItemDisplayContext.FIRST_PERSON_RIGHT_HAND -> poseStack.translate(leftHanded ? 0.1 : 0, 0, 0);
-            case ItemDisplayContext.FIRST_PERSON_LEFT_HAND -> poseStack.translate(!leftHanded ? -0.1 : 0, 0, 0);
-        }
+    @Shadow
+    ItemDisplayContext displayContext;
 
-        poseStack.translate(0, 0.4, 0.7);
-        if (type == ItemDisplayContext.NONE) {
-            poseStack.translate(0, -0.5, -0.1);
-        }
-
-        ClothManager manager;
-
-        if (mob instanceof Player player) {
-            if (itemStack.is(AntiqueItems.MYRIAD_TOOL)) {
-                boolean reproject = true;
-                MyriadToolComponent component = itemStack.getOrDefault(AntiqueDataComponentTypes.MYRIAD_TOOL, MyriadToolComponent.DEFAULT_NO_CLOTH);
-
-                if (type != ItemDisplayContext.NONE) {
-                    poseStack.translate(0, -0.1, 0.1);
-                }
-
-                if (component.toolBit().is(AntiqueItems.MYRIAD_AXE_HEAD) && mob.isUsingItem()) {
-                    poseStack.translate(type == ItemDisplayContext.FIRST_PERSON_RIGHT_HAND ? -0.5 : 0.5, -0.1, 0);
-                }
-
-                if (component.toolBit().is(AntiqueItems.MYRIAD_SHOVEL_HEAD) && mob.isUsingItem()) {
-                    poseStack.translate(type == ItemDisplayContext.FIRST_PERSON_RIGHT_HAND ? 0.1 : -0.1, 0, -0.2);
-                }
-
-                if (type == ItemDisplayContext.NONE && component.toolBit().is(AntiqueItems.MYRIAD_CLEAVER_BLADE)) {
-                    poseStack.translate(-0.15, -0.15, 0);
-                }
-
-                if (component.cloth().isPresent()) {
-                    Optional<Holder.Reference<ClothSkinData>> data = ClothUtil.getClothData(component.cloth().get(), player.registryAccess());
-
-                    if (data.isPresent()) {
-                        manager = type == ItemDisplayContext.FIRST_PERSON_RIGHT_HAND ? ClothManager.getOrCreate(new ClothOwner.OfEntity(mob), Antiquities.id("right_arm"), data.get().value()) : ClothManager.getOrCreate(new ClothOwner.OfEntity(mob), Antiquities.id("left_arm"), data.get().value());
-
-                        switch (type) {
-                            case ItemDisplayContext.NONE -> {
-                                manager = ClothManager.getOrCreate(new ClothOwner.OfEntity(mob), Antiquities.id("back"), data.get().value());
-                                reproject = false;
-                            }
-                            case ItemDisplayContext.GUI -> manager = null;
-                        }
-
-                        if (player.getInventory().getItem(42).equals(itemStack)) {
-                            manager = ClothManager.getOrCreate(new ClothOwner.OfEntity(mob), Antiquities.id("belt"), data.get().value());
-                            reproject = false;
-                        }
-
-                        if (manager != null) {
-                            manager.renderCloth(
-                                    data.get(),
-                                    poseStack,
-                                    submitNodeCollector,
-                                    lightCoords,
-                                    ClothUtil.getDynamicClothColor(component.cloth().get(), player.registryAccess()).orElse(0xFFFFFFFF),
-                                    ClothUtil.getClothPatterns(component.cloth().get()),
-                                    player.registryAccess(),
-                                    reproject ? getReprojectMatrix() : new Matrix4f(),
-                                    Minecraft.getInstance().getDeltaTracker().getGameTimeDeltaPartialTick(false)
-                            );
-                        }
-                    }
-                }
-            }
-        }
-
-        poseStack.popPose();
+    @Inject(method = "submit", at = @At("HEAD"))
+    public void renderItem(PoseStack poseStack, SubmitNodeCollector submitNodeCollector, int lightCoords, int overlayCoords, int outlineColor, CallbackInfo ci) {
+//        Player mob = Minecraft.getInstance().player;
+//        ItemDisplayContext type = displayContext;
+//        if (mob == null) return;
+//
+//        poseStack.pushPose();
+//        boolean leftHanded = mob.getMainArm() == HumanoidArm.LEFT;
+//        poseStack.translate((float)(leftHanded ? -1 : 1) / 16.0F, 0.125F, -0.625F);
+//        switch (type) {
+//            case ItemDisplayContext.FIRST_PERSON_RIGHT_HAND -> poseStack.translate(leftHanded ? 0.1 : 0, 0, 0);
+//            case ItemDisplayContext.FIRST_PERSON_LEFT_HAND -> poseStack.translate(!leftHanded ? -0.1 : 0, 0, 0);
+//        }
+//
+//        poseStack.translate(0, 0.4, 0.7);
+//        if (type == ItemDisplayContext.NONE) {
+//            poseStack.translate(0, -0.5, -0.1);
+//        }
+//
+//        ClothManager manager;
+//        if (itemStack.is(AntiqueItems.MYRIAD_TOOL)) {
+//            boolean reproject = true;
+//            MyriadToolComponent component = itemStack.getOrDefault(AntiqueDataComponentTypes.MYRIAD_TOOL, MyriadToolComponent.DEFAULT_NO_CLOTH);
+//
+//            if (type != ItemDisplayContext.NONE) {
+//                poseStack.translate(0, -0.1, 0.1);
+//            }
+//
+//            if (component.toolBit().is(AntiqueItems.MYRIAD_AXE_HEAD) && mob.isUsingItem()) {
+//                poseStack.translate(type == ItemDisplayContext.FIRST_PERSON_RIGHT_HAND ? -0.5 : 0.5, -0.1, 0);
+//            }
+//
+//            if (component.toolBit().is(AntiqueItems.MYRIAD_SHOVEL_HEAD) && mob.isUsingItem()) {
+//                poseStack.translate(type == ItemDisplayContext.FIRST_PERSON_RIGHT_HAND ? 0.1 : -0.1, 0, -0.2);
+//            }
+//
+//            if (type == ItemDisplayContext.NONE && component.toolBit().is(AntiqueItems.MYRIAD_CLEAVER_BLADE)) {
+//                poseStack.translate(-0.15, -0.15, 0);
+//            }
+//
+//            if (component.cloth().isPresent()) {
+//                Optional<Holder.Reference<ClothSkinData>> data = ClothUtil.getClothData(component.cloth().get(), mob.registryAccess());
+//
+//                if (data.isPresent()) {
+//                    manager = type == ItemDisplayContext.FIRST_PERSON_RIGHT_HAND ? ClothManager.getOrCreate(new ClothOwner.OfEntity(mob), Antiquities.id("right_arm"), data.get().value()) : ClothManager.getOrCreate(new ClothOwner.OfEntity(mob), Antiquities.id("left_arm"), data.get().value());
+//
+//                    switch (type) {
+//                        case ItemDisplayContext.NONE -> {
+//                            manager = ClothManager.getOrCreate(new ClothOwner.OfEntity(mob), Antiquities.id("back"), data.get().value());
+//                            reproject = false;
+//                        }
+//                        case ItemDisplayContext.GUI -> manager = null;
+//                    }
+//
+//                    if (mob.getItemBySlot(EquipmentSlot.valueOf("combatamenities:beltslot")).equals(itemStack)) {
+//                        manager = ClothManager.getOrCreate(new ClothOwner.OfEntity(mob), Antiquities.id("belt"), data.get().value());
+//                        reproject = false;
+//                    }
+//
+//                    if (manager != null) {
+//                        manager.renderCloth(
+//                                data.get(),
+//                                poseStack,
+//                                submitNodeCollector,
+//                                lightCoords,
+//                                ClothUtil.getDynamicClothColor(component.cloth().get(), mob.registryAccess()).orElse(0xFFFFFFFF),
+//                                ClothUtil.getClothPatterns(component.cloth().get()),
+//                                mob.registryAccess(),
+//                                reproject ? getReprojectMatrix() : new Matrix4f(),
+//                                Minecraft.getInstance().getDeltaTracker().getGameTimeDeltaPartialTick(false)
+//                        );
+//                    }
+//                }
+//            }
+//        }
+//
+//        poseStack.popPose();
     }
 
     @Unique

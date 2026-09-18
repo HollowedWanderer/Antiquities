@@ -5,7 +5,6 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Function;
@@ -22,12 +21,12 @@ import net.minecraft.client.renderer.block.dispatch.BlockModelRotation;
 import net.minecraft.client.renderer.chunk.ChunkSectionLayer;
 import net.minecraft.client.renderer.item.*;
 import net.minecraft.client.renderer.rendertype.RenderType;
-import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.resources.model.ModelBaker;
 import net.minecraft.client.resources.model.ResolvableModel;
 import net.minecraft.client.resources.model.ResolvedModel;
 import net.minecraft.client.resources.model.geometry.BakedQuad;
+import net.minecraft.client.resources.model.geometry.ItemQuads;
 import net.minecraft.client.resources.model.sprite.TextureSlots;
 import net.minecraft.resources.Identifier;
 import net.minecraft.tags.ItemTags;
@@ -120,7 +119,7 @@ public class GlowBasicItemModel implements ItemModel {
 
 		layerRenderState.setExtents(this.vector);
 		this.settings.applyToLayer(layerRenderState, displayContext);
-		layerRenderState.prepareQuadList().addAll(newQuads);
+		layerRenderState.setQuads(ItemQuads.split(newQuads));
 		if (this.animated) {
 			state.setAnimated();
 		}
@@ -150,8 +149,10 @@ public class GlowBasicItemModel implements ItemModel {
 									quad.materialInfo().sprite(),
 									quad.materialInfo().layer(),
 									quad.materialInfo().itemRenderType(),
+									quad.materialInfo().itemGlintRenderType(),
+									quad.materialInfo().itemGlintSpecialRenderType(),
 									quad.materialInfo().tintIndex(),
-									quad.materialInfo().shade(),
+									quad.materialInfo().shadeDirectionOverride(),
 									glowIndex >= this.emissions.size() ? quad.materialInfo().lightEmission() : this.emissions.get(glowIndex)
 							)
 					));

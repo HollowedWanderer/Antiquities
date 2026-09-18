@@ -76,7 +76,7 @@ public abstract class CrawlLogicMixin extends LivingEntity implements Crawl {
                 this.push(this.getViewVector(0).horizontal().normalize().scale(this.onGround() ? 0.05 : 0));
             }
 
-            this.hurtMarked = true;
+            this.syncVelocity = true;
             this.needsSync = true;
         }
 
@@ -98,7 +98,7 @@ public abstract class CrawlLogicMixin extends LivingEntity implements Crawl {
             this.entityData.set(CRAWLING, false);
             this.push(this.getViewVector(0).horizontal().normalize().scale(0.25).add(0, 0.2, 0));
             this.level().playSound(null, this.getX(), this.getY(), this.getZ(), SoundEvents.GOAT_LONG_JUMP, SoundSource.PLAYERS, 1.0F, 1.0F);
-            this.hurtMarked = true;
+            this.syncVelocity = true;
             this.needsSync = true;
             this.entityData.set(SLIDE_TIMER, 0);
         }

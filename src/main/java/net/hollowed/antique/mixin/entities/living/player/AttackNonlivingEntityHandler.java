@@ -108,7 +108,7 @@ public abstract class AttackNonlivingEntityHandler extends LivingEntity {
                             }
 
                             entity.setDeltaMovement(targetVelocity.scale(0.6 / targetVelocity.length() * targetVelocity.length()));
-                            entity.hurtMarked = true;
+                            entity.syncVelocity = true;
 
                             double radius = 5.0;
                             List<Entity> nearbyEntities = player.level().getEntities(
@@ -121,7 +121,7 @@ public abstract class AttackNonlivingEntityHandler extends LivingEntity {
                                         double scalingFactor = 2.5 - (distance / radius);
                                         Vec3 reducedVelocity = effectiveVelocity.scale(scalingFactor);
                                         nearby.setDeltaMovement(reducedVelocity);
-                                        nearby.hurtMarked = true;
+                                        nearby.syncVelocity = true;
                                     }
                                 }
                             }
@@ -130,13 +130,13 @@ public abstract class AttackNonlivingEntityHandler extends LivingEntity {
                             if (EnchantmentListener.hasEnchantment(stack, "antique:kinematic")) {
                                 Vec3 playerVelocity = effectiveVelocity.multiply(-1, -1, -1); // Reverse the velocity
                                 player.setDeltaMovement(playerVelocity);
-                                player.hurtMarked = true;
+                                player.syncVelocity = true;
 
                                 player.addEffect(new MobEffectInstance(AntiqueEffects.BOUNCE_EFFECT, 30, 0, true, true));
                             } else if (EnchantmentListener.hasEnchantment(stack, "antique:impetus")) {
                                 Vec3 playerVelocity = effectiveVelocity.multiply(1.5, 1.25, 1.5); // Enhance the velocity
                                 player.setDeltaMovement(playerVelocity.scale(0.6 / targetVelocity.length() * targetVelocity.length()));
-                                player.hurtMarked = true;
+                                player.syncVelocity = true;
 
                                 player.addEffect(new MobEffectInstance(AntiqueEffects.VOLATILE_BOUNCE_EFFECT, 30, 0, true, true));
                             }
@@ -201,7 +201,7 @@ public abstract class AttackNonlivingEntityHandler extends LivingEntity {
             } else {
                 target.setDeltaMovement(velocity.x * 2.0F, velocity.y * 2.0F, velocity.z * 2.0F);
             }
-            target.hurtMarked = true;
+            target.syncVelocity = true;
             target.needsSync = true;
         }
     }

@@ -52,8 +52,6 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.Vec3;
 import org.jspecify.annotations.NonNull;
 
-import static org.lwjgl.glfw.GLFW.glfwGetTime;
-
 public class ClothManager {
 
     public static final FastNoiseLite WIND_DIR_NOISE = new FastNoiseLite();
@@ -206,11 +204,13 @@ public class ClothManager {
 
             body.velocity.add(0, -gravity, 0);
 
-            float dir = WIND_DIR_NOISE.GetNoise((float) glfwGetTime() * 20, 0) * 45 + 180; // 90 degree slice going negative Z
+            double time = 1000 * System.currentTimeMillis();
+
+            float dir = WIND_DIR_NOISE.GetNoise((float) time * 20, 0) * 45 + 180; // 90 degree slice going negative Z
 
             float thunder = level.getThunderLevel(0);
-            float wind = Math.max(0, WIND_NOISE.GetNoise(body.pos.x, body.pos.z - (float) glfwGetTime() * 10) / 2 + 0.25f) + thunder * 0.75f;
-            float ripple = Math.max(0, RIPPLE_NOISE.GetNoise(body.pos.x, body.pos.z - (float) glfwGetTime()) / 2 + 0.25f);
+            float wind = Math.max(0, WIND_NOISE.GetNoise(body.pos.x, body.pos.z - (float) time * 10) / 2 + 0.25f) + thunder * 0.75f;
+            float ripple = Math.max(0, RIPPLE_NOISE.GetNoise(body.pos.x, body.pos.z - (float) time) / 2 + 0.25f);
 
             int worldHeight = level.getHeight(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, (int) body.pos.x, (int) body.pos.z);
             float mountainScale = Mth.clamp((float) (worldHeight - 80) / 400, 0, 0.1f);

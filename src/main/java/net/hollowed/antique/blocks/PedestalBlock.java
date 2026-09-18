@@ -1,6 +1,5 @@
 package net.hollowed.antique.blocks;
 
-import com.mojang.serialization.MapCodec;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.hollowed.antique.index.AntiqueBlockEntities;
 import net.hollowed.antique.blocks.entities.PedestalBlockEntity;
@@ -60,7 +59,6 @@ import java.util.stream.Stream;
 
 public class PedestalBlock extends BaseEntityBlock implements EntityBlock, SimpleWaterloggedBlock {
 
-    public static final MapCodec<PedestalBlock> CODEC = simpleCodec(PedestalBlock::new);
     public static final List<BlockPos> POWER_PROVIDER_OFFSETS = BlockPos.betweenClosedStream(-2, 0, -2, 2, 1, 2).filter((pos) -> Math.abs(pos.getX()) == 2 || Math.abs(pos.getZ()) == 2).map(BlockPos::immutable).toList();
 
     public static final BooleanProperty HELD_ITEM = BooleanProperty.create("held_item");
@@ -100,11 +98,6 @@ public class PedestalBlock extends BaseEntityBlock implements EntityBlock, Simpl
     public PedestalBlock(Properties settings) {
         super(settings);
         this.registerDefaultState(this.stateDefinition.any().setValue(HELD_ITEM, false).setValue(WATERLOGGED, false));
-    }
-
-    @Override
-    protected @NotNull MapCodec<? extends BaseEntityBlock> codec() {
-        return CODEC;
     }
 
     private PillarPart getPillarPart(Level world, BlockPos pos) {

@@ -62,7 +62,8 @@ public class IllusionerCloneEntityRenderer extends IllagerRenderer<@NotNull Illu
         return true;
     }
 
-    protected AABB getBoundingBox(IllusionerCloneEntity illusionerEntity) {
-        return super.getBoundingBoxForCulling(illusionerEntity).inflate(3.0, 0.0, 3.0);
+    @Override
+    protected @NonNull AABB getBoundingBoxForCulling(@NotNull IllusionerCloneEntity entity, float partialTicks) {
+        return super.getBoundingBoxForCulling(entity, partialTicks).inflate(3.0, 3.0, 3.0);
     }
 }

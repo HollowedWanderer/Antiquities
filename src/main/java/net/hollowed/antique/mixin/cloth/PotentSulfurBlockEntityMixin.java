@@ -33,7 +33,7 @@ public class PotentSulfurBlockEntityMixin {
         if (level instanceof ClothAccess access) {
             access.antique$getManagers().forEach((owner, cloths) -> {
                 if (owner.getLevel() == level) {
-                    cloths.forEach((id, cloth) -> {
+                    cloths.forEach((_, cloth) -> {
                         for (ClothBody body : cloth.bodies) {
                             if (aabb.contains(body.pos.x, body.pos.y, body.pos.z)) {
                                 body.velocity.add(0, 0.5f, 0);

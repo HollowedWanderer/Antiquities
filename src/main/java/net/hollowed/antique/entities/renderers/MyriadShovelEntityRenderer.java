@@ -22,6 +22,7 @@ import net.minecraft.world.item.ItemStack;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 import org.jetbrains.annotations.NotNull;
+import org.joml.Matrix4f;
 import org.jspecify.annotations.NonNull;
 
 import java.awt.*;
@@ -42,15 +43,15 @@ public class MyriadShovelEntityRenderer extends EntityRenderer<@NotNull MyriadSh
 
 		matrixStack.translate(state.entity.getViewVector(0).multiply(multiplier, multiplier, -multiplier));
 
-		matrixStack.mulPose(Axis.YP.rotationDegrees(state.entity.getYRot() - 180.0F));
-		matrixStack.mulPose(Axis.XP.rotationDegrees(state.entity.getXRot() - 105.0F));
+		matrixStack.mulPose(Axis.YP.rotationDegrees(state.entity.getYRot() - 180.0F).get(new Matrix4f()));
+		matrixStack.mulPose(Axis.XP.rotationDegrees(state.entity.getXRot() - 105.0F).get(new Matrix4f()));
 
 		matrixStack.scale(1.5F, 1.5F, 1.5F);
 		matrixStack.translate(0, 0, 0.125);
 
-		matrixStack.mulPose(Axis.YP.rotationDegrees(90.0F));
-		matrixStack.mulPose(Axis.ZP.rotationDegrees(15.0F));
-		matrixStack.mulPose(Axis.XP.rotationDegrees(-20.0F));
+		matrixStack.mulPose(Axis.YP.rotationDegrees(90.0F).get(new Matrix4f()));
+		matrixStack.mulPose(Axis.ZP.rotationDegrees(15.0F).get(new Matrix4f()));
+		matrixStack.mulPose(Axis.XP.rotationDegrees(-20.0F).get(new Matrix4f()));
 
 		if (state.entity instanceof MyriadShovelEntity entity) {
             ItemStackRenderState stackRenderState = new ItemStackRenderState();

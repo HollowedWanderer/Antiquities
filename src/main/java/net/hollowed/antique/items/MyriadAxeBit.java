@@ -22,6 +22,7 @@ import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.HoneycombItem;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.component.BlockTransformers;
 import net.minecraft.world.item.component.ItemAttributeModifiers;
 import net.minecraft.world.item.component.Tool;
 import net.minecraft.world.item.component.Weapon;
@@ -118,31 +119,31 @@ public class MyriadAxeBit extends MyriadToolBitItem{
         Optional<BlockState> optional = this.getStrippedState(state);
         if (player != null) {
             if (optional.isPresent()) {
-                world.playSound(player, pos, SoundEvents.AXE_STRIP, SoundSource.BLOCKS, 1.0F, 1.0F);
+                world.playSound(null, pos, SoundEvents.AXE_STRIP.value(), SoundSource.BLOCKS, 1.0F, 1.0F);
                 return optional;
             } else {
                 Optional<BlockState> optional2 = WeatheringCopper.getPrevious(state);
                 if (optional2.isPresent()) {
-                    world.playSound(player, pos, SoundEvents.AXE_SCRAPE, SoundSource.BLOCKS, 1.0F, 1.0F);
+                    world.playSound(player, pos, SoundEvents.AXE_SCRAPE.value(), SoundSource.BLOCKS, 1.0F, 1.0F);
                     world.levelEvent(player, LevelEvent.PARTICLES_SCRAPE, pos, 0);
                     return optional2;
                 } else {
                     Optional<BlockState> optional3 = Optional.ofNullable((Block) ((BiMap<?, ?>) HoneycombItem.WAX_OFF_BY_BLOCK.get()).get(state.getBlock()))
                             .map(block -> block.withPropertiesOf(state));
                     if (optional3.isPresent()) {
-                        world.playSound(player, pos, SoundEvents.AXE_WAX_OFF, SoundSource.BLOCKS, 1.0F, 1.0F);
+                        world.playSound(player, pos, SoundEvents.AXE_WAX_OFF.value(), SoundSource.BLOCKS, 1.0F, 1.0F);
                         world.levelEvent(player, LevelEvent.PARTICLES_WAX_OFF, pos, 0);
                         return optional3;
                     } else {
                         Optional<BlockState> optional4 = getPreviousTarnishLevel(state);
                         if (optional4.isPresent()) {
-                            world.playSound(player, pos, SoundEvents.AXE_SCRAPE, SoundSource.BLOCKS, 1.0F, 1.0F);
+                            world.playSound(player, pos, SoundEvents.AXE_SCRAPE.value(), SoundSource.BLOCKS, 1.0F, 1.0F);
                             ParticleUtils.spawnParticlesOnBlockFaces(world, pos, AntiqueParticles.SCRAPE, UniformInt.of(3, 5));
                             return optional4;
                         } else {
                             Optional<BlockState> optional5 = getUncoat(state);
                             if (optional5.isPresent()) {
-                                world.playSound(player, pos, SoundEvents.AXE_WAX_OFF, SoundSource.BLOCKS, 1.0F, 1.0F);
+                                world.playSound(player, pos, SoundEvents.AXE_WAX_OFF.value(), SoundSource.BLOCKS, 1.0F, 1.0F);
                                 world.levelEvent(player, LevelEvent.PARTICLES_WAX_OFF, pos, 0);
                                 return optional5;
                             } else {
@@ -172,7 +173,7 @@ public class MyriadAxeBit extends MyriadToolBitItem{
     }
 
     @Override
-    public void setToolAttributes(ItemStack toolStack) {
+    public void setToolAttributes(ItemStack toolStack, Level level) {
         toolStack.set(DataComponents.ATTRIBUTE_MODIFIERS, ItemAttributeModifiers.builder()
                 .add(Attributes.ATTACK_DAMAGE, new AttributeModifier(BASE_ATTACK_DAMAGE_ID, 9, AttributeModifier.Operation.ADD_VALUE), EquipmentSlotGroup.MAINHAND)
                 .add(Attributes.ATTACK_SPEED, new AttributeModifier(BASE_ATTACK_SPEED_ID, -3, AttributeModifier.Operation.ADD_VALUE), EquipmentSlotGroup.MAINHAND)
@@ -187,5 +188,6 @@ public class MyriadAxeBit extends MyriadToolBitItem{
                 true
         ));
         toolStack.set(DataComponents.WEAPON, new Weapon(0, 2));
+        toolStack.set(DataComponents.BLOCK_TRANSFORMER, level.registryAccess().getOrThrow(BlockTransformers.AXE));
     }
 }

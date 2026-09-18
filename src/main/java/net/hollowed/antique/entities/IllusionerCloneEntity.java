@@ -8,13 +8,14 @@ package net.hollowed.antique.entities;
 import net.hollowed.antique.util.interfaces.duck.SpellTicksExtension;
 import net.hollowed.antique.util.delay.TickDelayScheduler;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
 import net.minecraft.core.UUIDUtil;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
+import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.FluidTags;
+import net.minecraft.util.BlockUtil;
 import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.damagesource.DamageTypes;
@@ -226,47 +227,46 @@ public class IllusionerCloneEntity extends SpellcasterIllager implements RangedA
         }
     }
 
-    public static boolean teleportRandomly(LivingEntity entity) {
-        if (entity.isAlive()) {
+    public void teleportRandomly() {
+        if (this.isAlive()) {
             for (int i = 0; i < 10; i++) {
-                double d = entity.getX() + (entity.getRandom().nextDouble() - 0.5) * 16.0;
-                double e = entity.getY() + (double) (entity.getRandom().nextInt(16) - 8);
-                double f = entity.getZ() + (entity.getRandom().nextDouble() - 0.5) * 16.0;
-                if (teleportTo(d, e, f, entity)) {
-                    return true;
+                double d = this.getX() + (this.getRandom().nextDouble() - 0.5) * 16.0;
+                double e = this.getY() + (double) (this.getRandom().nextInt(16) - 8);
+                double f = this.getZ() + (this.getRandom().nextDouble() - 0.5) * 16.0;
+                if (teleport(d, e, f)) {
+                    return;
                 }
             }
-            return false;
         }
-        return false;
     }
 
-    @SuppressWarnings("deprecation")
-    private static boolean teleportTo(double x, double y, double z, LivingEntity entity) {
-        BlockPos.MutableBlockPos mutable = new BlockPos.MutableBlockPos(x, y, z);
+    @Override
+    public boolean canRandomlyTeleportTo(final double x, final double y, final double z) {
+        BlockPos posBelow = BlockPos.containing(x, y, z).below();
+        BlockState stateBelow = this.level().getBlockState(posBelow);
+        return !stateBelow.getFluidState().is(FluidTags.WATER);
+    }
 
-        while(mutable.getY() > entity.level().getMinY() && !entity.level().getBlockState(mutable).blocksMotion()) {
-            mutable.move(Direction.DOWN);
-        }
-
-        BlockState blockState = entity.level().getBlockState(mutable);
-        boolean bl = blockState.blocksMotion();
-        boolean bl2 = blockState.getFluidState().is(FluidTags.WATER);
-        if (bl && !bl2) {
-            Vec3 vec3d = entity.position();
-            boolean bl3 = entity.randomTeleport(x, y, z, true);
-            if (bl3) {
-                entity.level().gameEvent(GameEvent.TELEPORT, vec3d, GameEvent.Context.of(entity));
-                if (!entity.isSilent()) {
-                    entity.level().playSound(null, entity.xo, entity.yo, entity.zo, SoundEvents.ENDERMAN_TELEPORT, entity.getSoundSource(), 1.0F, 1.0F);
-                    entity.playSound(SoundEvents.ENDERMAN_TELEPORT, 1.0F, 1.0F);
-                }
-            }
-
-            return bl3;
-        } else {
+    public boolean teleport(final double x, final double y, final double z) {
+        if (this.isPassenger()) {
             return false;
         }
+
+        Vec3 oldPos = this.position();
+        boolean result = this.randomTeleport(x, y, z, true, BlockTags.ENDERMAN_DOES_NOT_TELEPORT_TO);
+        if (result) {
+            Level level = this.level();
+            level.gameEvent(GameEvent.TELEPORT, oldPos, GameEvent.Context.of(this));
+            if (!this.isSilent()) {
+                BlockPos oldBlockPos = BlockPos.containing(oldPos);
+                int packedDiff = BlockUtil.clampedPackDifferenceInPosition(oldBlockPos, this.blockPosition(), 127, 127, 127);
+                level.levelEvent(2018, oldBlockPos, packedDiff);
+                level.playSound(null, this.xo, this.yo, this.zo, SoundEvents.ENDERMAN_TELEPORT, this.getSoundSource(), 1.0F, 1.0F);
+                this.playSound(SoundEvents.ENDERMAN_TELEPORT, 1.0F, 1.0F);
+            }
+        }
+
+        return result;
     }
 
     public static class TeleportGoal extends Goal {
@@ -323,7 +323,7 @@ public class IllusionerCloneEntity extends SpellcasterIllager implements RangedA
         }
 
         protected void castSpell() {
-            teleportRandomly(entity);
+            if (entity instanceof IllusionerCloneEntity illusionerEntity) illusionerEntity.teleportRandomly();
         }
 
         protected int getInitialCooldown() {

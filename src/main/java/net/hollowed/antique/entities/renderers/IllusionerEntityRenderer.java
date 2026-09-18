@@ -31,6 +31,7 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
+import org.joml.Matrix4f;
 import org.jspecify.annotations.NonNull;
 
 @Environment(EnvType.CLIENT)
@@ -73,8 +74,8 @@ public class IllusionerEntityRenderer extends IllagerRenderer<@org.jetbrains.ann
         if (illusionerEntityRenderState.isInvisible) {
             matrixStack.pushPose();
             matrixStack.translate(0, 1.4, 0);
-            matrixStack.mulPose(Axis.YP.rotationDegrees(-(illusionerEntityRenderState.yRot + illusionerEntityRenderState.bodyRot)));
-            matrixStack.mulPose(Axis.XP.rotationDegrees(illusionerEntityRenderState.xRot));
+            matrixStack.mulPose(Axis.YP.rotationDegrees(-(illusionerEntityRenderState.yRot + illusionerEntityRenderState.bodyRot)).get(new Matrix4f()));
+            matrixStack.mulPose(Axis.XP.rotationDegrees(illusionerEntityRenderState.xRot).get(new Matrix4f()));
             ItemStack stack = Items.APPLE.getDefaultInstance();
             stack.set(DataComponents.ITEM_MODEL, Antiquities.id("illusioner_idol"));
             ItemStackRenderState stackRenderState = new ItemStackRenderState();
@@ -99,7 +100,8 @@ public class IllusionerEntityRenderer extends IllagerRenderer<@org.jetbrains.ann
         return true;
     }
 
-    protected AABB getBoundingBox(IllusionerEntity illusionerEntity) {
-        return super.getBoundingBoxForCulling(illusionerEntity).inflate(3.0, 0.0, 3.0);
+    @Override
+    protected @NonNull AABB getBoundingBoxForCulling(@NotNull IllusionerEntity entity, float partialTicks) {
+        return super.getBoundingBoxForCulling(entity, partialTicks).inflate(3.0, 3.0, 3.0);
     }
 }
