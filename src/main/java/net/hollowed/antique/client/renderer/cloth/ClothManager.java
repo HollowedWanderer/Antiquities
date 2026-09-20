@@ -57,6 +57,7 @@ public class ClothManager {
     public static final FastNoiseLite WIND_DIR_NOISE = new FastNoiseLite();
     public static final FastNoiseLite WIND_NOISE = new FastNoiseLite();
     public static final FastNoiseLite RIPPLE_NOISE = new FastNoiseLite();
+    public static final long START_TIME = System.currentTimeMillis();
 
     static {
         WIND_DIR_NOISE.SetNoiseType(FastNoiseLite.NoiseType.Perlin);
@@ -204,7 +205,7 @@ public class ClothManager {
 
             body.velocity.add(0, -gravity, 0);
 
-            double time = 1000 * System.currentTimeMillis();
+            double time = (System.currentTimeMillis() - START_TIME) / 1000.0;
 
             float dir = WIND_DIR_NOISE.GetNoise((float) time * 20, 0) * 45 + 180; // 90 degree slice going negative Z
 
