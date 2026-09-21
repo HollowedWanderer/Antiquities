@@ -9,6 +9,7 @@ import net.fabricmc.fabric.api.client.rendering.v1.ModelLayerRegistry;
 import net.hollowed.antique.blocks.entities.model.OrnateBellModel;
 import net.hollowed.antique.blocks.entities.renderer.OrnateBellRenderer;
 import net.hollowed.antique.client.armor.renderers.AdventureArmorFeatureRenderer;
+import net.hollowed.antique.config.AntiquitiesConfig;
 import net.hollowed.antique.entities.models.BilletModel;
 import net.hollowed.antique.entities.models.ClothKnotModel;
 import net.hollowed.antique.index.*;
@@ -21,6 +22,7 @@ import net.hollowed.antique.networking.*;
 import net.hollowed.antique.util.ClothUtil;
 import net.hollowed.antique.util.CoyoteAttackTimeEvent;
 import net.hollowed.antique.util.interfaces.duck.ClothAccess;
+import net.hollowed.antique.util.interfaces.duck.Crawl;
 import net.hollowed.antique.util.models.*;
 import net.hollowed.antique.util.properties.*;
 import net.hollowed.antique.util.resources.SewnClothPattern;
@@ -137,11 +139,14 @@ public class AntiquitiesClient implements ClientModInitializer {
 
             if (AntiqueKeyBindings.crawl.consumeClick() && !client.player.isUnderWater()) {
                 wasCrawling = !wasCrawling;
-                ClientPlayNetworking.send(new CrawlPacketPayload(wasCrawling));
+                ClientPlayNetworking.send(new CrawlPacketPayload(wasCrawling, true));
+                if (client.player.onGround() && client.player.isSprinting() && client.player instanceof Crawl crawlAccess) {
+                    crawlAccess.antique$setCrawlStartClient(AntiquitiesConfig.SLIDE_DURATION);
+                }
             }
             if (!client.player.onGround()) {
                 wasCrawling = false;
-                ClientPlayNetworking.send(new CrawlPacketPayload(false));
+                ClientPlayNetworking.send(new CrawlPacketPayload(false, false));
             }
         });
 
