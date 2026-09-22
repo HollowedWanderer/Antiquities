@@ -17,13 +17,13 @@ public class AntiquitiesConfig extends MidnightConfig {
     public static int SLIDE_DURATION = 12;
 
     @Entry(name = "Slide Start Delay", min = 0, max = 100)
-    public static int SLIDE_START_DELAY = 3;
+    public static int SLIDE_START_DELAY = 4;
 
     @Entry(name = "Slide Pounce Window", min = 0, max = 100)
-    public static int SLIDE_POUNCE_WINDOW = 4;
+    public static int SLIDE_POUNCE_WINDOW = 5;
 
     @Entry(name = "Slide Pounce Vertical Power", min = 0.0, max = 100.0)
-    public static float SLIDE_POUNCE_VERTICAL_POWER = 0.35F;
+    public static float SLIDE_POUNCE_VERTICAL_POWER = 0.25F;
 
     @Entry(name = "Slide Pounce Horizontal Power", min = 0.0, max = 100.0)
     public static float SLIDE_POUNCE_HORIZONTAL_POWER = 0.2F;

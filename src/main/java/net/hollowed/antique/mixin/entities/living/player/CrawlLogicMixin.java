@@ -107,19 +107,14 @@ public abstract class CrawlLogicMixin extends LivingEntity implements Crawl {
     @Inject(method = "aiStep", at = @At("HEAD"))
     public void tick(CallbackInfo ci) {
         if (this.slideTicks <= 0) {
-            ClientTickDelayScheduler.schedule(0, () -> this.entityData.set(SLIDING, false));
-            TickDelayScheduler.schedule(0, () -> this.entityData.set(SLIDING, false));
+            this.entityData.set(SLIDING, false);
         }
-        if (this.slideTicks <= 2) {
-            ClientTickDelayScheduler.schedule(0, () -> this.entityData.set(CAN_POUNCE, false));
-            TickDelayScheduler.schedule(0, () -> this.entityData.set(CAN_POUNCE, false));
+        if (this.slideTicks <= 1) {
+            this.entityData.set(CAN_POUNCE, false);
         }
 
         if (this.entityData.get(SLIDING) && this.isSwimming()) {
             this.push(this.getViewVector(0).horizontal().normalize().scale(this.onGround() ? EnchantmentListener.hasEnchantment(this.getItemBySlot(EquipmentSlot.LEGS), "minecraft:swift_sneak") ? 0.55 : AntiquitiesConfig.SLIDE_POWER : 0));
-            if (this.getDeltaMovement().length() < 0.2) {
-                this.slideTicks = 0;
-            }
 
             this.syncVelocity = true;
             this.needsSync = true;
