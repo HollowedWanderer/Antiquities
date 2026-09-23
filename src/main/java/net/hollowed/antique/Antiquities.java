@@ -35,6 +35,7 @@ import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.item.*;
 import net.minecraft.world.item.component.*;
 import net.minecraft.world.item.enchantment.Enchantable;
+import net.minecraft.world.level.Level;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -384,6 +385,13 @@ public class Antiquities implements ModInitializer {
 		ItemStack myriadShovel = AntiqueItems.MYRIAD_TOOL.getDefaultInstance();
 		myriadShovel.set(AntiqueDataComponentTypes.MYRIAD_TOOL, MyriadToolComponent.getDefaultWithCloth());
 		MyriadToolItem.setToolBit(myriadShovel, AntiqueItems.MYRIAD_SHOVEL_HEAD.getDefaultInstance(), Minecraft.getInstance().level);
+		return myriadShovel;
+	}
+
+	public static ItemStack getMyriadShovelStack(Level level) {
+		ItemStack myriadShovel = AntiqueItems.MYRIAD_TOOL.getDefaultInstance();
+		myriadShovel.set(AntiqueDataComponentTypes.MYRIAD_TOOL, MyriadToolComponent.getDefaultWithCloth());
+		MyriadToolItem.setToolBit(myriadShovel, AntiqueItems.MYRIAD_SHOVEL_HEAD.getDefaultInstance(), level);
 		return myriadShovel;
 	}
 }

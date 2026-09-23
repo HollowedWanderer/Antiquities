@@ -207,7 +207,7 @@ public class ClothManager {
 
             double time = (System.currentTimeMillis() - START_TIME) / 1000.0;
 
-            float dir = WIND_DIR_NOISE.GetNoise((float) time * 20, 0) * 45 + 180; // 90 degree slice going negative Z
+            float dir = WIND_DIR_NOISE.GetNoise((float) time * 20, 0) * 45 + 225; // 90 degree slice going negative Z
 
             float thunder = level.getThunderLevel(0);
             float wind = Math.max(0, WIND_NOISE.GetNoise(body.pos.x, body.pos.z - (float) time * 10) / 2 + 0.25f) + thunder * 0.75f;

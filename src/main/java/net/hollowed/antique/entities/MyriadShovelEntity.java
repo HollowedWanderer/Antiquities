@@ -59,16 +59,16 @@ public class MyriadShovelEntity extends AbstractArrow {
 
 	public boolean canPickup;
 
-	public MyriadShovelEntity(EntityType<@NotNull MyriadShovelEntity> entityType, Level world) {
-		super(entityType, world);
+	public MyriadShovelEntity(EntityType<@NotNull MyriadShovelEntity> entityType, Level level) {
+		super(entityType, level);
 		this.setBaseDamage(8);
-		this.setPickupItemStack(Antiquities.getMyriadShovelStack());
+		this.setPickupItemStack(Antiquities.getMyriadShovelStack(level));
 		this.entityData.set(ATTRIBUTES, this.getPickupItemStackOrigin().getOrDefault(AntiqueDataComponentTypes.MYRIAD_TOOL, MyriadToolComponent.DEFAULT_NO_CLOTH));
 		this.setPierceLevel((byte) 5);
 	}
 
-	public MyriadShovelEntity(Level world, LivingEntity owner, ItemStack stack) {
-		super(AntiqueEntities.MYRIAD_SHOVEL, owner, world, stack, null);
+	public MyriadShovelEntity(Level level, LivingEntity owner, ItemStack stack) {
+		super(AntiqueEntities.MYRIAD_SHOVEL, owner, level, stack, null);
 		this.setBaseDamage(8);
 		this.entityData.set(LOYALTY, this.getLoyalty(stack));
 		this.entityData.set(ENCHANTED, stack.hasFoil());
@@ -294,7 +294,7 @@ public class MyriadShovelEntity extends AbstractArrow {
 
 	}
 
-	@Override
+    @Override
 	protected boolean canHitEntity(@NotNull Entity entity) {
 		if (entity instanceof Player) {
 			Entity var3 = this.getOwner();

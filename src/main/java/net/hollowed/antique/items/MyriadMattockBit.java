@@ -25,6 +25,7 @@ import net.minecraft.world.item.component.BlockTransformers;
 import net.minecraft.world.item.component.ItemAttributeModifiers;
 import net.minecraft.world.item.component.SwingAnimation;
 import net.minecraft.world.item.component.Tool;
+import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.BeetrootBlock;
 import net.minecraft.world.level.block.CocoaBlock;
@@ -119,6 +120,11 @@ public class MyriadMattockBit extends MyriadToolBitItem{
             entity.syncVelocity = true;
         }
         return InteractionResult.PASS;
+    }
+
+    @Override
+    public InteractionResult toolUseOnBlock(UseOnContext context) {
+        return context.getPlayer() != null && context.getPlayer().isCrouching() ? null : super.toolUseOnBlock(context);
     }
 
     @Override

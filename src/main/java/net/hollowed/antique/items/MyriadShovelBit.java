@@ -26,6 +26,7 @@ import net.minecraft.world.item.ItemUseAnimation;
 import net.minecraft.world.item.component.BlockTransformers;
 import net.minecraft.world.item.component.ItemAttributeModifiers;
 import net.minecraft.world.item.component.Tool;
+import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.item.enchantment.EnchantmentEffectComponents;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.level.Level;
@@ -110,6 +111,11 @@ public class MyriadShovelBit extends MyriadToolBitItem{
     }
 
     @Override
+    public InteractionResult toolUseOnBlock(UseOnContext context) {
+        return context.getPlayer() != null && context.getPlayer().isCrouching() ? null : super.toolUseOnBlock(context);
+    }
+
+    @Override
     public boolean toolOnStoppedUsing(ItemStack stack, Level world, LivingEntity user, int remainingUseTicks) {
         if (user instanceof Player playerEntity) {
             int i = stack.getUseDuration(user) - remainingUseTicks;
@@ -184,6 +190,6 @@ public class MyriadShovelBit extends MyriadToolBitItem{
                 1,
                 true
         ));
-        tool.set(DataComponents.BLOCK_TRANSFORMER, level.registryAccess().getOrThrow(BlockTransformers.HOE));
+        tool.set(DataComponents.BLOCK_TRANSFORMER, level.registryAccess().getOrThrow(BlockTransformers.SHOVEL));
     }
 }

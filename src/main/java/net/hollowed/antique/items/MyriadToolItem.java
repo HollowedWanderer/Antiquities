@@ -201,6 +201,7 @@ public class MyriadToolItem extends Item {
             toolStack.remove(DataComponents.TOOL);
             toolStack.remove(DataComponents.WEAPON);
             toolStack.remove(CAComponents.INTEGER_PROPERTY);
+            toolStack.remove(DataComponents.BLOCK_TRANSFORMER);
         }
 
         toolStack.set(AntiqueDataComponentTypes.MYRIAD_TOOL, component.withToolBit(toolBit));
@@ -266,10 +267,10 @@ public class MyriadToolItem extends Item {
             }
         }
 
-        if (context.getItemInHand().getOrDefault(AntiqueDataComponentTypes.MYRIAD_TOOL, MyriadToolComponent.DEFAULT_NO_CLOTH).toolBit().getItem() instanceof MyriadToolBitItem item) {
+        if (context.getItemInHand().getOrDefault(AntiqueDataComponentTypes.MYRIAD_TOOL, MyriadToolComponent.DEFAULT_NO_CLOTH).toolBit().getItem() instanceof MyriadToolBitItem item && item.toolUseOnBlock(context) != null) {
             return item.toolUseOnBlock(context);
         }
-        return InteractionResult.PASS;
+        return super.useOn(context);
     }
 
     @Override
