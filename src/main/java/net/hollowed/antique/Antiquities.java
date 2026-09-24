@@ -45,6 +45,8 @@ import java.util.function.Predicate;
 
 public class Antiquities implements ModInitializer {
 
+	// Test Comment
+
 	public static final String MOD_ID = "antique";
 
 	public static Identifier id(String string) {
