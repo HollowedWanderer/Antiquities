@@ -278,7 +278,10 @@ public class Antiquities implements ModInitializer {
 			.build();
 
 	private void addItems() {
-		CreativeModeTabEvents.modifyOutputEvent(CreativeModeTabs.OP_BLOCKS).register(itemGroup -> itemGroup.accept(AntiqueItems.CRYOSCYTHE));
+		CreativeModeTabEvents.modifyOutputEvent(CreativeModeTabs.OP_BLOCKS).register(itemGroup -> {
+			itemGroup.accept(AntiqueItems.CRYOSCYTHE);
+			itemGroup.accept(AntiqueItems.TEST_STICK);
+		});
 
 		CreativeModeTabEvents.modifyOutputEvent(ANTIQUITIES_BLOCKS_GROUP_KEY).register(itemGroup -> {
 			itemGroup.accept(AntiqueBlocks.MYRIAD_ORE);

@@ -66,6 +66,7 @@
     "items.MyriadAxeBlockMixin",
     "items.NoteBlockMixin",
     "items.SlotMixin",
+    "physics.PhysicsWorldMixin",
     "world.NoiseChunkGeneratorMixin"
   ],
   "injectors": {
@@ -107,6 +108,7 @@
     "items.renderers.FirstPersonHeldItemRendererMixin",
     "items.renderers.GameRendererMixin",
     "items.renderers.HeldItemRendererMixin",
+    "physics.EntityHitboxDebugRendererMixin",
     "screens.HandledScreenMixin",
     "screens.MouseMixin",
     "screens.PedestalTooltipMixin",

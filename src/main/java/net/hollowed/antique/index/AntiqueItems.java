@@ -24,6 +24,8 @@ public interface AntiqueItems {
 
     HolderGetter<Block> registryEntryLookup = BuiltInRegistries.acquireBootstrapRegistrationLookup(BuiltInRegistries.BLOCK);
 
+    Item TEST_STICK = register("test_stick", TestStick::new);
+
     Item RAW_MYRIAD = register("raw_myriad", Item::new);
     Item MYRIAD_INGOT = register("myriad_ingot", Item::new);
     Item CLOTH = register("cloth", settings -> new ClothItem(settings.stacksTo(1)
