@@ -5,6 +5,7 @@ import net.hollowed.antique.citrus_physics.PhysicsWorld;
 import net.hollowed.antique.citrus_physics.component.ActorComponent;
 import net.hollowed.antique.citrus_physics.component.collision.colliders.SphereCollider;
 import net.hollowed.antique.citrus_physics.component.constraint.multi.FixedDistanceConstraint;
+import net.hollowed.antique.citrus_physics.component.constraint.single.AirResistanceConstraint;
 import net.hollowed.antique.citrus_physics.component.constraint.single.GravityConstraint;
 import net.hollowed.antique.citrus_physics.component.constraint.single.StaticConstraint;
 import net.minecraft.world.InteractionHand;
@@ -43,7 +44,8 @@ public class TestStick extends Item {
 
                 entities[x][y] = physics.createEntity().add(new ActorComponent(position, scale));
 
-                physics.addConstraint(entities[x][y], new GravityConstraint(new Vector3d(0.0,-1,0.0)));
+                physics.addConstraint(entities[x][y], new AirResistanceConstraint(0.7));
+                physics.addConstraint(entities[x][y], new GravityConstraint(new Vector3d(0.0,-0.25,0.0)));
 //                physics.addParticleCollider(entities[x][y], new SphereCollider(scale * 0.5));
                 var collider = new SphereCollider(scale * 0.5);
                 physics.addWorldCollider(entities[x][y], collider);
