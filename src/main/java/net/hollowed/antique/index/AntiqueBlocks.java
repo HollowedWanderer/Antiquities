@@ -65,6 +65,54 @@ public interface AntiqueBlocks {
             .requiresCorrectToolForDrops()
             ), Rarity.COMMON
     );
+    Block MARBLED_CALCITE = register("marbled_calcite", settings -> new Block(settings
+            .mapColor(MapColor.TERRACOTTA_WHITE)
+            .instrument(NoteBlockInstrument.BASEDRUM)
+            .sound(SoundType.CALCITE)
+            .requiresCorrectToolForDrops()
+            .strength(0.75F)
+            ), Rarity.COMMON
+    );
+    Block MARBLED_SHAMANITE = register("marbled_shamanite", settings -> new Block(settings
+                    .mapColor(MapColor.TERRACOTTA_WHITE)
+                    .instrument(NoteBlockInstrument.BASEDRUM)
+                    .sound(SoundType.CALCITE)
+                    .requiresCorrectToolForDrops()
+                    .strength(0.75F)
+            ), Rarity.COMMON
+    );
+    Block SHAMANITE = register("shamanite", settings -> new Block(settings
+                    .mapColor(MapColor.TERRACOTTA_WHITE)
+                    .instrument(NoteBlockInstrument.BASEDRUM)
+                    .sound(SoundType.CALCITE)
+                    .requiresCorrectToolForDrops()
+                    .strength(0.75F)
+            ), Rarity.COMMON
+    );
+    Block SALTY_SHAMANITE = register("salty_shamanite", settings -> new Block(settings
+                    .mapColor(MapColor.TERRACOTTA_WHITE)
+                    .instrument(NoteBlockInstrument.BASEDRUM)
+                    .sound(SoundType.CALCITE)
+                    .requiresCorrectToolForDrops()
+                    .strength(0.75F)
+            ), Rarity.COMMON
+    );
+    Block SALTY_CALCITE = register("salty_calcite", settings -> new Block(settings
+                    .mapColor(MapColor.TERRACOTTA_WHITE)
+                    .instrument(NoteBlockInstrument.BASEDRUM)
+                    .sound(SoundType.CALCITE)
+                    .requiresCorrectToolForDrops()
+                    .strength(0.75F)
+            ), Rarity.COMMON
+    );
+    Block SALT_BLOCK = register("salt_block", settings -> new Block(settings
+                    .mapColor(MapColor.TERRACOTTA_WHITE)
+                    .instrument(NoteBlockInstrument.BASEDRUM)
+                    .sound(SoundType.BASALT)
+                    .requiresCorrectToolForDrops()
+                    .strength(0.75F)
+            ), Rarity.COMMON
+    );
     Block MYRIAD_ORE = register("myriad_ore", settings -> new Block(settings
             .strength(25F, 600F)
             .sound(SoundType.IRON)

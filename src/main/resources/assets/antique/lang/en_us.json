@@ -6,6 +6,12 @@
   "enchantment.antique.kinematic": "Kinematic",
   "enchantment.antique.impetus": "Impetus",
 
+  "block.antique.marbled_calcite": "Marbled Calcite",
+  "block.antique.marbled_shamanite": "Marbled Shamanite",
+  "block.antique.shamanite": "Shamanite",
+  "block.antique.salty_shamanite": "Salty Shamanite",
+  "block.antique.salty_calcite": "Salty Calcite",
+  "block.antique.salt_block": "Block of Salt",
   "block.antique.pedestal": "Pedestal",
   "block.antique.hollow_core": "Hollow Core",
   "block.antique.jar": "Jar",

@@ -300,6 +300,12 @@ public class Antiquities implements ModInitializer {
 			itemGroup.accept(AntiqueBlocks.RESONATOR);
 			itemGroup.accept(AntiqueBlocks.ORNATE_BELL);
 			itemGroup.accept(AntiqueBlocks.EMBLAZONED_BELL);
+			itemGroup.accept(AntiqueBlocks.MARBLED_CALCITE);
+			itemGroup.accept(AntiqueBlocks.MARBLED_SHAMANITE);
+			itemGroup.accept(AntiqueBlocks.SHAMANITE);
+			itemGroup.accept(AntiqueBlocks.SALTY_SHAMANITE);
+			itemGroup.accept(AntiqueBlocks.SALTY_CALCITE);
+			itemGroup.accept(AntiqueBlocks.SALT_BLOCK);
 		});
 
 		CreativeModeTabEvents.modifyOutputEvent(ANTIQUITIES_ITEMS_GROUP_KEY).register(itemGroup -> {

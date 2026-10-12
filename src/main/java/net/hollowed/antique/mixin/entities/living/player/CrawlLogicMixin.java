@@ -116,7 +116,6 @@ public abstract class CrawlLogicMixin extends LivingEntity implements Crawl {
         if (this.entityData.get(SLIDING) && this.isSwimming() && this.onGround()) {
             this.push(this.getViewVector(0).horizontal().normalize().scale(this.onGround() ? EnchantmentListener.hasEnchantment(this.getItemBySlot(EquipmentSlot.LEGS), "minecraft:swift_sneak") ? 0.55 : AntiquitiesConfig.SLIDE_POWER : 0));
 
-            this.syncVelocity = true;
             this.needsSync = true;
         }
 
@@ -139,7 +138,6 @@ public abstract class CrawlLogicMixin extends LivingEntity implements Crawl {
                 this.addDeltaMovement(new Vec3(-Mth.sin(angle) * AntiquitiesConfig.SLIDE_POUNCE_HORIZONTAL_POWER, jumpPower, Mth.cos(angle) * AntiquitiesConfig.SLIDE_POUNCE_HORIZONTAL_POWER));
                 this.level().playSound(null, this.getX(), this.getY(), this.getZ(), SoundEvents.GOAT_LONG_JUMP, SoundSource.PLAYERS, 1.0F, 1.0F);
                 this.needsSync = true;
-                this.syncVelocity = true;
                 this.slideTicks = 0;
                 this.entityData.set(SLIDING, false);
                 this.entityData.set(CAN_POUNCE, false);
