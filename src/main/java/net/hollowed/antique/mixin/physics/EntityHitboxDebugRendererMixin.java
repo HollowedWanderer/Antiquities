@@ -45,7 +45,7 @@ public class EntityHitboxDebugRendererMixin {
                     var halfSize = new Vec3(actor.mass, actor.mass, actor.mass).multiply(0.5, 0.5, 0.5).multiply(0.25, 0.25, 0.25);
 
                     var box = new AABB(position.add(halfSize.multiply(-1, -1, -1)), position.add(halfSize));
-                    var vel = actor.position.sub(actor.positionCache, new Vector3d()).mul(20);
+                    var vel = actor.velocity.mul(20, new Vector3d());
 
                     int r = ARGB.red((int) (255 * clamp(abs(vel.x), 0.0, 1.0)));
                     int g = ARGB.green((int) (255 * clamp(abs(vel.y), 0.0, 1.0)));

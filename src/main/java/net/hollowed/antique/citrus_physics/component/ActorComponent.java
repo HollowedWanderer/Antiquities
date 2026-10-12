@@ -5,14 +5,14 @@ import org.joml.Vector3d;
 public class ActorComponent {
 
     public Vector3d position;
-    public Vector3d positionCache;
+    public Vector3d velocity;
     public Vector3d acceleration;
     public double mass;
 
     public ActorComponent(Vector3d initialPosition, double mass) {
         this.mass = mass;
         this.position = new Vector3d(initialPosition);
-        this.positionCache = new Vector3d(initialPosition);
+        this.velocity = new Vector3d();
         this.acceleration = new Vector3d();
     }
 
