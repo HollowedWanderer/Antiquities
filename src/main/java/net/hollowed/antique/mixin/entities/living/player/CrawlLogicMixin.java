@@ -1,15 +1,15 @@
 package net.hollowed.antique.mixin.entities.living.player;
 
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.hollowed.antique.config.AntiquitiesConfig;
 import net.hollowed.antique.enchantments.EnchantmentListener;
+import net.hollowed.antique.networking.PouncePacketPayload;
 import net.hollowed.antique.util.delay.TickDelayScheduler;
 import net.hollowed.antique.util.interfaces.duck.Crawl;
 import net.hollowed.combatamenities.util.delay.ClientTickDelayScheduler;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
-import net.minecraft.sounds.SoundEvents;
-import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.EquipmentSlot;
@@ -62,6 +62,12 @@ public abstract class CrawlLogicMixin extends LivingEntity implements Crawl {
     @Override
     public void antique$setCrawl(boolean crawling) {
         this.entityData.set(CRAWLING, crawling);
+        if (!crawling) {
+            this.slideTicks = 0;
+            this.slideCooldown = 5;
+            this.entityData.set(SLIDING, false);
+            this.entityData.set(CAN_POUNCE, false);
+        }
     }
 
     @Override
@@ -71,22 +77,40 @@ public abstract class CrawlLogicMixin extends LivingEntity implements Crawl {
 
     @Override
     public void antique$setCrawlStartClient(int time) {
-        if (this.slideCooldown <= 0) {
-            ClientTickDelayScheduler.schedule(AntiquitiesConfig.SLIDE_START_DELAY, () -> this.entityData.set(SLIDING, true));
-            ClientTickDelayScheduler.schedule(time - AntiquitiesConfig.SLIDE_POUNCE_WINDOW, () -> this.entityData.set(CAN_POUNCE, true));
-            this.slideTicks = time;
-            this.slideCooldown = time + 20;
-        }
+        ClientTickDelayScheduler.schedule(AntiquitiesConfig.SLIDE_START_DELAY, () -> {
+            if (this.slideCooldown <= 0) {
+                this.entityData.set(SLIDING, true);
+                this.slideTicks = time;
+            }
+        });
+        ClientTickDelayScheduler.schedule(time - AntiquitiesConfig.SLIDE_POUNCE_WINDOW, () -> {
+            if (this.slideCooldown <= 0) {
+                this.entityData.set(CAN_POUNCE, true);
+            }
+        });
+    }
+
+    @Override
+    public void antique$setCrawlStopClient() {
+        this.slideTicks = 0;
+        this.slideCooldown = 5;
+        this.entityData.set(SLIDING, false);
+        this.entityData.set(CAN_POUNCE, false);
     }
 
     @Override
     public void antique$setCrawlStart(int time) {
-        if (this.slideCooldown <= 0) {
-            TickDelayScheduler.schedule(AntiquitiesConfig.SLIDE_START_DELAY, () -> this.entityData.set(SLIDING, true));
-            TickDelayScheduler.schedule(time - AntiquitiesConfig.SLIDE_POUNCE_WINDOW, () -> this.entityData.set(CAN_POUNCE, true));
-            this.slideTicks = time;
-            this.slideCooldown = time + 20;
-        }
+        TickDelayScheduler.schedule(AntiquitiesConfig.SLIDE_START_DELAY, () -> {
+            if (this.slideCooldown <= 0) {
+                this.entityData.set(SLIDING, true);
+                this.slideTicks = time;
+            }
+        });
+        TickDelayScheduler.schedule(time - AntiquitiesConfig.SLIDE_POUNCE_WINDOW, () -> {
+            if (this.slideCooldown <= 0) {
+                this.entityData.set(CAN_POUNCE, true);
+            }
+        });
     }
 
     @Inject(method = "isSwimming", at = @At("RETURN"), cancellable = true)
@@ -98,6 +122,7 @@ public abstract class CrawlLogicMixin extends LivingEntity implements Crawl {
     private void stopCrawling(CallbackInfo ci) {
         if (!this.onGround()) {
             this.slideTicks = 0;
+            this.slideCooldown = 5;
             if (this.entityData.get(CAN_POUNCE)) this.entityData.set(CAN_POUNCE, false);
             if (this.entityData.get(CRAWLING)) this.entityData.set(CRAWLING, false);
             if (this.entityData.get(SLIDING)) this.entityData.set(SLIDING, false);
@@ -130,26 +155,29 @@ public abstract class CrawlLogicMixin extends LivingEntity implements Crawl {
 
     @Override
     public void jumpFromGround() {
-        if (this.entityData.get(SLIDING) || this.slideTicks > 0) {
-            this.setSprinting(true);
-            float jumpPower = this.getJumpPower() + AntiquitiesConfig.SLIDE_POUNCE_VERTICAL_POWER;
-            if (this.antique$canSlidePounce()) {
-                float angle = this.getYRot() * (float) (Math.PI / 180.0);
-                this.addDeltaMovement(new Vec3(-Mth.sin(angle) * AntiquitiesConfig.SLIDE_POUNCE_HORIZONTAL_POWER, jumpPower, Mth.cos(angle) * AntiquitiesConfig.SLIDE_POUNCE_HORIZONTAL_POWER));
-                this.level().playSound(null, this.getX(), this.getY(), this.getZ(), SoundEvents.GOAT_LONG_JUMP, SoundSource.PLAYERS, 1.0F, 1.0F);
-                this.needsSync = true;
-                this.slideTicks = 0;
-                this.entityData.set(SLIDING, false);
-                this.entityData.set(CAN_POUNCE, false);
-                this.entityData.set(CRAWLING, false);
-                return;
+        if (this.level().isClientSide()) {
+            if (this.entityData.get(SLIDING) || this.slideTicks > 0) {
+                this.setSprinting(true);
+                float jumpPower = this.getJumpPower() + AntiquitiesConfig.SLIDE_POUNCE_VERTICAL_POWER;
+                if (this.antique$canSlidePounce()) {
+                    float angle = this.getYRot() * (float) (Math.PI / 180.0);
+                    this.addDeltaMovement(new Vec3(-Mth.sin(angle) * AntiquitiesConfig.SLIDE_POUNCE_HORIZONTAL_POWER, jumpPower, Mth.cos(angle) * AntiquitiesConfig.SLIDE_POUNCE_HORIZONTAL_POWER));
+                    ClientPlayNetworking.send(new PouncePacketPayload());
+                    this.needsSync = true;
+                    this.slideTicks = 0;
+                    this.entityData.set(SLIDING, false);
+                    this.entityData.set(CAN_POUNCE, false);
+                    this.entityData.set(CRAWLING, false);
+                    return;
+                }
             }
-        }
 
-        this.slideTicks = 0;
-        this.entityData.set(SLIDING, false);
-        this.entityData.set(CAN_POUNCE, false);
-        this.entityData.set(CRAWLING, false);
+            this.slideTicks = 0;
+            this.slideCooldown = 5;
+            this.entityData.set(SLIDING, false);
+            this.entityData.set(CAN_POUNCE, false);
+            this.entityData.set(CRAWLING, false);
+        }
 
         super.jumpFromGround();
     }

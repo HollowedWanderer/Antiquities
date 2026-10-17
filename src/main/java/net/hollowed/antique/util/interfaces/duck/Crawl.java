@@ -4,5 +4,6 @@ public interface Crawl {
     void antique$setCrawl(boolean crawling);
     void antique$setCrawlStart(int crawling);
     void antique$setCrawlStartClient(int crawling);
+    void antique$setCrawlStopClient();
     boolean antique$canSlidePounce();
 }

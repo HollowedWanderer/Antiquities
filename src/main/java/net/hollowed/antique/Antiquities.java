@@ -103,12 +103,14 @@ public class Antiquities implements ModInitializer {
 		PayloadTypeRegistry.clientboundPlay().register(AddClothItemsPayload.ID, AddClothItemsPayload.CODEC);
 		PayloadTypeRegistry.clientboundPlay().register(ShockwaveParticlesPayload.ID, ShockwaveParticlesPayload.CODEC);
 		PayloadTypeRegistry.serverboundPlay().register(TuneAmethystForkPayload.ID, TuneAmethystForkPayload.CODEC);
+		PayloadTypeRegistry.serverboundPlay().register(PouncePacketPayload.ID, PouncePacketPayload.CODEC);
 
 		SatchelPacketReceiver.registerServerPacket();
 		WallJumpPacketReceiver.registerServerPacket();
 		CrawlPacketReceiver.registerServerPacket();
 		DyePacketReceiver.registerServerPacket();
 		TuneAmethystForkReceiver.registerServerPacket();
+		PouncePacketReceiver.registerServerPacket();
 
 		/*
 			Tick Events

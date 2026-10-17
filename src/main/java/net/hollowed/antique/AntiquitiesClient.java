@@ -140,12 +140,15 @@ public class AntiquitiesClient implements ClientModInitializer {
             if (AntiqueKeyBindings.crawl.consumeClick() && !client.player.isUnderWater()) {
                 wasCrawling = !wasCrawling;
                 ClientPlayNetworking.send(new CrawlPacketPayload(wasCrawling, true));
-                if (client.player.onGround() && client.player.isSprinting() && client.player instanceof Crawl crawlAccess) {
+                if (client.player.onGround() && client.player.isSprinting() && client.player instanceof Crawl crawlAccess && wasCrawling) {
                     crawlAccess.antique$setCrawlStartClient(AntiquitiesConfig.SLIDE_DURATION);
+                } else if (client.player instanceof Crawl crawlAccess && !wasCrawling) {
+                    crawlAccess.antique$setCrawlStopClient();
                 }
             }
-            if (!client.player.onGround()) {
+            if (!client.player.onGround() && client.player instanceof Crawl crawlAccess) {
                 wasCrawling = false;
+                crawlAccess.antique$setCrawlStopClient();
                 ClientPlayNetworking.send(new CrawlPacketPayload(false, false));
             }
         });
