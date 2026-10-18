@@ -305,7 +305,6 @@ public class Antiquities implements ModInitializer {
 			itemGroup.accept(AntiqueBlocks.MARBLED_CALCITE);
 			itemGroup.accept(AntiqueBlocks.MARBLED_SHAMANITE);
 			itemGroup.accept(AntiqueBlocks.SHAMANITE);
-			itemGroup.accept(AntiqueBlocks.SALTY_SHAMANITE);
 			itemGroup.accept(AntiqueBlocks.SALTY_CALCITE);
 			itemGroup.accept(AntiqueBlocks.SALT_BLOCK);
 		});

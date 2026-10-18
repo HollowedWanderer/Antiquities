@@ -89,14 +89,6 @@ public interface AntiqueBlocks {
                     .strength(0.75F)
             ), Rarity.COMMON
     );
-    Block SALTY_SHAMANITE = register("salty_shamanite", settings -> new Block(settings
-                    .mapColor(MapColor.TERRACOTTA_WHITE)
-                    .instrument(NoteBlockInstrument.BASEDRUM)
-                    .sound(SoundType.CALCITE)
-                    .requiresCorrectToolForDrops()
-                    .strength(0.75F)
-            ), Rarity.COMMON
-    );
     Block SALTY_CALCITE = register("salty_calcite", settings -> new Block(settings
                     .mapColor(MapColor.TERRACOTTA_WHITE)
                     .instrument(NoteBlockInstrument.BASEDRUM)
