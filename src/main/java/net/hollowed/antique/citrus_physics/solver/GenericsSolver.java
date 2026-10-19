@@ -14,18 +14,11 @@ public class GenericsSolver extends Solver {
         ecsWorld.findEntitiesWith(ActorComponent.class).stream().forEach(result -> {
             ActorComponent actor = result.comp();
 
-//            MAX_SPEED = 5;
+            Vector3d acceleration = actor.accumForce.mul(actor.invMass, new Vector3d());
 
-//            // Moves the particle based on velocity
-//            Vector3d velocity = actor.position.sub(actor.positionCache, new Vector3d());
-//            if(velocity.length() > MAX_SPEED) { velocity.normalize(MAX_SPEED); }
-//
-//            actor.positionCache = new Vector3d(actor.position);
-//            var accel = actor.acceleration.mul(deltaTime, new Vector3d()).mul(deltaTime);
-//            actor.position.add(velocity.add(accel, new Vector3d()));
-//            actor.acceleration = new Vector3d();
+            actor.accumForce = new Vector3d();
 
-            actor.velocity.add(actor.acceleration.mul(deltaTime, new Vector3d()));
+            actor.velocity.add(acceleration.mul(deltaTime, new Vector3d()));
             actor.position.add(actor.velocity.mul(deltaTime, new Vector3d()));
         });
     }

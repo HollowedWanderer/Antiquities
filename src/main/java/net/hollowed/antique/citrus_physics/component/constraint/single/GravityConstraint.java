@@ -6,13 +6,13 @@ import org.joml.Vector3d;
 
 public class GravityConstraint extends SingleBodyConstraint {
 
-    public Vector3d gravity;
+    public Vector3d gravity = new Vector3d(0, -1, 0);
 
-    public GravityConstraint(Vector3d accel) {
-        gravity = accel;
+    public GravityConstraint(float accel) {
+        gravity.mul(accel);
     }
 
     public void solve(ActorComponent actor, double deltaTime) {
-        actor.acceleration.add(gravity);
+        actor.addForce(gravity.div(actor.invMass));
     }
 }

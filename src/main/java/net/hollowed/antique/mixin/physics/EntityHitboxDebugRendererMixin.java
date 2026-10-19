@@ -42,7 +42,7 @@ public class EntityHitboxDebugRendererMixin {
                     ActorComponent actor = result.comp();
 
                     var position = new Vec3(actor.position.x, actor.position.y, actor.position.z);
-                    var halfSize = new Vec3(actor.mass, actor.mass, actor.mass).multiply(0.5, 0.5, 0.5).multiply(0.25, 0.25, 0.25);
+                    var halfSize = new Vec3(actor.mass(), actor.mass(), actor.mass()).multiply(0.5, 0.5, 0.5).multiply(0.25, 0.25, 0.25);
 
                     var box = new AABB(position.add(halfSize.multiply(-1, -1, -1)), position.add(halfSize));
                     var vel = actor.velocity.mul(20, new Vector3d());

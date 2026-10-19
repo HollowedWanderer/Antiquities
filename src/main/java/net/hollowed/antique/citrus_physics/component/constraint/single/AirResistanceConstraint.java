@@ -12,6 +12,6 @@ public class AirResistanceConstraint extends SingleBodyConstraint {
     }
 
     public void solve(ActorComponent actor, double deltaTime) {
-        actor.acceleration.mul(multiplier);
+        //actor.acceleration.mul(multiplier);
     }
 }
