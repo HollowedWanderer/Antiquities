@@ -13,6 +13,7 @@ import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.util.Unit;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.DyedItemColor;
 
@@ -88,11 +89,18 @@ public interface AntiqueDataComponentTypes {
                     .persistent(Codec.INT.fieldOf("counter").codec())
                     .build()
     );
-    DataComponentType<Boolean> STICKY_TOOLTIP = Registry.register(
+    DataComponentType<Unit> STICKY_TOOLTIP = Registry.register(
             BuiltInRegistries.DATA_COMPONENT_TYPE,
             Antiquities.id("sticky_tooltip"),
-            DataComponentType.<Boolean>builder()
-                    .persistent(Codec.BOOL.fieldOf("sticky_tooltip").codec())
+            DataComponentType.<Unit>builder()
+                    .persistent(Unit.CODEC)
+                    .build()
+    );
+    DataComponentType<Unit> RESET_ATTACK_COOLDOWN = Registry.register(
+            BuiltInRegistries.DATA_COMPONENT_TYPE,
+            Antiquities.id("reset_attack_cooldown"),
+            DataComponentType.<Unit>builder()
+                    .persistent(Unit.CODEC)
                     .build()
     );
 

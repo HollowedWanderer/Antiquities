@@ -29,11 +29,11 @@ public interface AntiqueItems {
     Item CLOTH = register("cloth", settings -> new ClothItem(settings.stacksTo(1)
             .component(AntiqueDataComponentTypes.CLOTH_TYPE, ResourceKey.create(AntiqueRegistries.CLOTHS, Antiquities.id("cloth")))
             .component(DataComponents.DYED_COLOR, new DyedItemColor(0xD43B69))
-            .component(AntiqueDataComponentTypes.STICKY_TOOLTIP, true)
+            .component(AntiqueDataComponentTypes.STICKY_TOOLTIP, Unit.INSTANCE)
     ));
     Item CLOTH_PATTERN = register("cloth_pattern", settings -> new ClothPatternItem(settings.stacksTo(1)
             .component(AntiqueDataComponentTypes.CLOTH_PATTERN_TYPE, ResourceKey.create(AntiqueRegistries.CLOTH_PATTERNS, Antiquities.id("creeper_cloth_pattern")))
-            .component(AntiqueDataComponentTypes.STICKY_TOOLTIP, true)
+            .component(AntiqueDataComponentTypes.STICKY_TOOLTIP, Unit.INSTANCE)
     ));
     Item MIRAGE_SILK = register("mirage_silk", settings -> new Item(settings.rarity(Rarity.RARE)));
     Item BAG_OF_TRICKS = register("bag_of_tricks", settings -> new BagOfTricksItem(settings.stacksTo(1)
@@ -102,7 +102,7 @@ public interface AntiqueItems {
     Item MYRIAD_TOOL = register("myriad_tool", settings -> new MyriadToolItem(settings.stacksTo(1)
             .attributes(MyriadToolItem.createAttributeModifiers(3, 1.8, 0))
             .component(AntiqueDataComponentTypes.MYRIAD_TOOL, MyriadToolComponent.DEFAULT_NO_CLOTH)
-            .component(AntiqueDataComponentTypes.STICKY_TOOLTIP, true)
+            .component(AntiqueDataComponentTypes.STICKY_TOOLTIP, Unit.INSTANCE)
             .component(DataComponents.UNBREAKABLE, Unit.INSTANCE)
             .enchantable(10)
             .rarity(Rarity.UNCOMMON)

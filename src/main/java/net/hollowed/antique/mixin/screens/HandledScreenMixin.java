@@ -71,7 +71,7 @@ public abstract class HandledScreenMixin {
 
     @Inject(method = "showTooltipWithItemInHand", at = @At("HEAD"), cancellable = true)
     private void stickyTooltips(ItemStack item, CallbackInfoReturnable<Boolean> cir) {
-        if (item.getOrDefault(AntiqueDataComponentTypes.STICKY_TOOLTIP, false)) {
+        if (item.has(AntiqueDataComponentTypes.STICKY_TOOLTIP)) {
             cir.setReturnValue(true);
         }
     }

@@ -188,7 +188,7 @@ public class Antiquities implements ModInitializer {
 										)
 										.add(
 												Attributes.ATTACK_SPEED,
-												new AttributeModifier(Item.BASE_ATTACK_SPEED_ID, -2.7, AttributeModifier.Operation.ADD_VALUE),
+												new AttributeModifier(Item.BASE_ATTACK_SPEED_ID, -2.8, AttributeModifier.Operation.ADD_VALUE),
 												EquipmentSlotGroup.MAINHAND
 										)
 										.build()

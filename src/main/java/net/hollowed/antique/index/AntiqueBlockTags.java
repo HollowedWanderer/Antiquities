@@ -15,7 +15,6 @@ public class AntiqueBlockTags {
 
     }
 
-    @SuppressWarnings("all")
     private static TagKey<Block> of(String id) {
         return TagKey.create(Registries.BLOCK, Antiquities.id(id));
     }

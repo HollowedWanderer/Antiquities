@@ -45,6 +45,7 @@
     "entities.living.player.CoyoteBiteMixin",
     "entities.living.player.CrawlLogicMixin",
     "entities.living.player.PlayerAttributeTweakerMixin",
+    "entities.living.player.ResetAttackCooldownComponentHandler",
     "entities.living.player.SpeedFasterInAirMixin",
     "entities.living.player.WallJumpMixin",
     "entities.projectile.AttackableProjectiles",
